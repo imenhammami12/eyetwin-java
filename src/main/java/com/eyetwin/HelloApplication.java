@@ -1,4 +1,4 @@
-package org.example.eyetwinjava;
+package com.eyetwin;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

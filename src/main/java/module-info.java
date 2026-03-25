@@ -3,6 +3,6 @@ module org.example.eyetwinjava {
     requires javafx.fxml;
 
 
-    opens org.example.eyetwinjava to javafx.fxml;
-    exports org.example.eyetwinjava;
+    opens com.eyetwin to javafx.fxml;
+    exports com.eyetwin;
 }

@@ -1,4 +1,4 @@
-package org.example.eyetwinjava;
+package com.eyetwin;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
