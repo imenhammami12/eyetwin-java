@@ -1,0 +1,17 @@
+/* Make the radio group horizontal with spacing */
+.type-radio-row .form-check {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 24px;   /* spacing between Public / Private */
+    margin-bottom: 0;
+}
+
+.type-radio-row .form-check-input {
+    margin-right: 8px;
+}
+
+/* optional: make the label pop a bit on dark bg */
+.type-radio-row .form-check-label {
+    font-weight: 600;
+    opacity: 0.95;
+}

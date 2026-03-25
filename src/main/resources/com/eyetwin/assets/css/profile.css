@@ -1,0 +1,1716 @@
+/* Profile Section Styles */
+.profile_section {
+    background-color: #0b111f;
+    min-height: 100vh;
+}
+
+/* Profile Card */
+.profile_card {
+    background-color: #1a1f2e;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.profile_header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile_image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ff0000;
+    margin-bottom: 15px;
+}
+
+.profile_image_placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.upload_photo_btn {
+    background-color: transparent;
+    border: 2px solid #ff0000;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.upload_photo_btn:hover {
+    background-color: #ff0000;
+}
+
+.profile_info {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile_username {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.profile_email {
+    color: #8a8a8a;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.profile_status {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status_active {
+    background-color: rgba(76, 211, 227, 0.2);
+    color: #4cd3e3;
+}
+
+.status_suspended {
+    background-color: rgba(244, 231, 0, 0.2);
+    color: #f4e700;
+}
+
+.status_banned {
+    background-color: rgba(244, 74, 64, 0.2);
+    color: #f44a40;
+}
+
+.status_coach {
+    background-color: rgba(244, 231, 0, 0.2);
+    color: #f4e700;
+}
+
+.status_admin {
+    background-color: rgba(244, 74, 64, 0.2);
+    color: #f44a40;
+}
+
+.profile_actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn_profile {
+    display: block;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn_apply {
+    background: linear-gradient(to right, #ff0000 0%, #c6019a 100%);
+    color: #fff;
+    border: none;
+}
+
+.btn_apply:hover {
+    opacity: 0.9;
+    color: #fff;
+}
+
+.btn_edit {
+    background-color: transparent;
+    border: 2px solid #ff0000;
+    color: #fff;
+}
+
+.btn_edit:hover {
+    background-color: #ff0000;
+    color: #fff;
+}
+
+/* Game Statistics */
+.game_statistics {
+    background-color: #1a1f2e;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.statistics_title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+}
+
+.statistics_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stat_item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #0b111f;
+    padding: 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.stat_item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+}
+
+.stat_icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 8px;
+}
+
+.stat_icon i {
+    font-size: 24px;
+    color: #fff;
+}
+
+.stat_info {
+    flex: 1;
+}
+
+.stat_label {
+    color: #8a8a8a;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.stat_value {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Card Styles */
+.card_title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.card_title i {
+    margin-right: 8px;
+    color: #ff0000;
+}
+
+.card_text {
+    color: #bebebe;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* Account Info */
+.account_info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info_row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info_row:last-child {
+    border-bottom: none;
+}
+
+.info_label {
+    color: #8a8a8a;
+    font-size: 14px;
+}
+
+.info_value {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Teams List */
+.teams_list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.team_item {
+    background-color: #0b111f;
+    padding: 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.team_item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+}
+
+.team_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.team_name {
+    color: #fff;
+    font-size: 18px;
+    margin: 0;
+}
+
+.team_badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge_owner {
+    background-color: rgba(244, 74, 64, 0.2);
+    color: #f44a40;
+}
+
+.badge_captain {
+    background-color: rgba(244, 231, 0, 0.2);
+    color: #f4e700;
+}
+
+.badge_member {
+    background-color: rgba(56, 164, 255, 0.2);
+    color: #38a4ff;
+}
+
+.team_description {
+    color: #bebebe;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.team_date {
+    color: #8a8a8a;
+    font-size: 12px;
+}
+
+/* Coach Application */
+.coach_application {
+    color: #bebebe;
+}
+
+.application_status {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.status_pending {
+    background-color: rgba(56, 164, 255, 0.1);
+    border-left: 4px solid #38a4ff;
+}
+
+.status_approved {
+    background-color: rgba(76, 211, 227, 0.1);
+    border-left: 4px solid #4cd3e3;
+}
+
+.status_rejected {
+    background-color: rgba(244, 74, 64, 0.1);
+    border-left: 4px solid #f44a40;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .statistics_grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile_card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile_image,
+    .profile_image_placeholder {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile_image_placeholder {
+        font-size: 48px;
+    }
+    
+    .profile_username {
+        font-size: 20px;
+    }
+    
+    .stat_value {
+        font-size: 20px;
+    }
+}
+/* Edit Profile Section */
+.edit_profile_section {
+    background-color: #0b111f;
+    min-height: 100vh;
+}
+
+.edit_profile_wrapper {
+    margin-top: -50px;
+}
+
+/* Profile Preview Card */
+.profile_preview_card {
+    background: linear-gradient(135deg, #1a1f2e 0%, #0b111f 100%);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.preview_header h4 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview_header i {
+    color: #ff0000;
+}
+
+.preview_content {
+    text-align: center;
+}
+
+.preview_image_wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.preview_image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff0000;
+}
+
+.preview_image_placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.preview_overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #1a1f2e;
+}
+
+.preview_overlay i {
+    color: #fff;
+    font-size: 14px;
+}
+
+.preview_username {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.preview_email {
+    color: #8a8a8a;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.preview_stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview_stat_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #bebebe;
+    font-size: 13px;
+}
+
+.preview_stat_item i {
+    color: #ff0000;
+    width: 20px;
+}
+
+/* Tips Card */
+.profile_tips_card {
+    background-color: rgba(255, 0, 0, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #ff0000;
+}
+
+.profile_tips_card h5 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile_tips_card h5 i {
+    color: #f4e700;
+}
+
+.tips_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tips_list li {
+    color: #bebebe;
+    font-size: 12px;
+    padding: 8px 0;
+    display: flex;
+    align-items: start;
+    gap: 10px;
+}
+
+.tips_list li i {
+    color: #4cd3e3;
+    margin-top: 3px;
+    font-size: 10px;
+}
+
+/* Edit Form Card */
+.edit_form_card {
+    background-color: #1a1f2e;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.form_header {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    padding: 25px 30px;
+}
+
+.form_header h3 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form_body {
+    padding: 35px 30px;
+}
+
+/* Form Sections */
+.form_section {
+    margin-bottom: 35px;
+}
+
+.section_title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 0, 0, 0.2);
+}
+
+.section_title i {
+    color: #ff0000;
+}
+
+/* Profile Picture Upload */
+.profile_picture_upload {
+    margin-bottom: 20px;
+}
+
+.upload_area {
+    position: relative;
+    border: 2px dashed rgba(255, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: rgba(255, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.upload_area:hover {
+    border-color: #ff0000;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.upload_label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    margin: 0;
+}
+
+.upload_label i {
+    font-size: 40px;
+    color: #ff0000;
+}
+
+.upload_label span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.upload_label small {
+    font-size: 12px;
+    color: #8a8a8a;
+}
+
+.upload_info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a8a8a;
+    font-size: 12px;
+}
+
+.upload_info i {
+    color: #38a4ff;
+}
+
+/* Form Groups */
+.form_group {
+    margin-bottom: 25px;
+}
+
+.form_label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.input_wrapper,
+.textarea_wrapper {
+    position: relative;
+}
+
+.input_icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff0000;
+    font-size: 16px;
+}
+
+.form_input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    background-color: #0b111f;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form_input:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+.form_input:read-only {
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form_input::placeholder {
+    color: #5a5a5a;
+}
+
+.form_textarea {
+    width: 100%;
+    padding: 15px;
+    background-color: #0b111f;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 120px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form_textarea:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+.form_textarea::placeholder {
+    color: #5a5a5a;
+}
+
+.input_hint {
+    display: block;
+    margin-top: 8px;
+    color: #8a8a8a;
+    font-size: 12px;
+}
+
+.input_hint i {
+    margin-right: 5px;
+}
+
+.char_counter {
+    display: block;
+    text-align: right;
+    margin-top: 8px;
+    color: #8a8a8a;
+    font-size: 12px;
+}
+
+/* Form Errors */
+.invalid-feedback,
+.form-error-message {
+    display: block;
+    margin-top: 8px;
+    color: #f44a40;
+    font-size: 12px;
+}
+
+.form_input.is-invalid,
+.form_textarea.is-invalid {
+    border-color: #f44a40;
+}
+
+/* Action Buttons */
+.form_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn_cancel,
+.btn_save {
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+
+.btn_cancel {
+    background-color: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.btn_cancel:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.btn_save {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+.btn_save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
+}
+
+.btn_save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .edit_profile_wrapper {
+        margin-top: 0;
+    }
+    
+    .profile_preview_card {
+        margin-bottom: 30px;
+    }
+    
+    .form_body {
+        padding: 25px 20px;
+    }
+    
+    .form_actions {
+        flex-direction: column;
+    }
+    
+    .btn_cancel,
+    .btn_save {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .form_header {
+        padding: 20px;
+    }
+    
+    .form_header h3 {
+        font-size: 16px;
+    }
+    
+    .section_title {
+        font-size: 14px;
+    }
+    
+    .preview_image,
+    .preview_image_placeholder {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .preview_image_placeholder {
+        font-size: 40px;
+    }
+}
+/* Fix pour les icônes du dropdown */
+.dropdown-menu .dropdown-item i {
+    display: inline-block;
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+/* Force l'affichage des icônes Font Awesome */
+.fas, .fa-solid {
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Amélioration générale du dropdown */
+.dropdown-menu {
+    background-color: #1a1f2e !important;
+    border: 1px solid rgba(255, 0, 0, 0.2) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+    padding: 10px 0 !important;
+    min-width: 220px !important;
+    margin-top: 10px !important;
+}
+
+.dropdown-item {
+    color: #fff !important;
+    padding: 12px 20px !important;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.dropdown-item:hover i {
+    color: #ff0000 !important;
+}
+
+/* Style spécifique pour le lien admin */
+.dropdown-menu .admin-link {
+    background-color: rgba(255, 0, 0, 0.08);
+    border-left: 3px solid #ff0000;
+    font-weight: 600;
+}
+
+/* Fix pour les icônes du dropdown */
+.dropdown-menu .dropdown-item i {
+    display: inline-block;
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    color: #fff !important; /* Icônes en blanc par défaut */
+}
+
+/* Force l'affichage des icônes Font Awesome */
+.fas, .fa-solid {
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+/* Amélioration générale du dropdown */
+.dropdown-menu {
+    background-color: #1a1f2e !important;
+    border: 1px solid rgba(255, 0, 0, 0.2) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+    padding: 10px 0 !important;
+    min-width: 220px !important;
+    margin-top: 10px !important;
+}
+
+.dropdown-item {
+    color: #fff !important;
+    padding: 12px 20px !important;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+    color: #fff !important;
+}
+
+.dropdown-item:hover i {
+    color: #fff !important; /* Icônes restent blanches au hover */
+}
+
+/* Style spécifique pour le lien admin */
+.dropdown-menu .admin-link {
+    background-color: rgba(255, 0, 0, 0.08);
+    border-left: 3px solid #ff0000;
+    font-weight: 600;
+}
+
+.dropdown-menu .admin-link i {
+    color: #fff !important; /* Icône admin en blanc */
+}
+
+.dropdown-menu .admin-link:hover {
+    background-color: rgba(255, 0, 0, 0.15) !important;
+    color: #fff !important;
+}
+
+.dropdown-menu .admin-link:hover i {
+    color: #fff !important; /* Icône admin reste blanche au hover */
+}
+
+/* Icônes spécifiques - forcer l'affichage */
+.fa-shield-alt:before,
+.fa-user-shield:before {
+    content: "\f505" !important;
+}
+
+.fa-user:before {
+    content: "\f007" !important;
+}
+
+.fa-sign-out-alt:before {
+    content: "\f2f5" !important;
+}
+
+.dropdown-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin: 8px 0 !important;
+}
+
+/* Icône dans le bouton dropdown principal */
+.nav-link .fa-user-circle {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+/* Correction du focus */
+.dropdown-item:focus {
+    color: #fff !important;
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.dropdown-item:focus i {
+    color: #fff !important;
+}
+
+/* Correction du texte qui devient rouge au hover */
+.dropdown-item:hover {
+    color: #fff !important; /* Force le texte à rester blanc */
+}
+
+.dropdown-item:focus {
+    color: #fff !important;
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.dropdown-item {
+    color: #fff;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ff0000;
+}
+
+.dropdown-item i {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.dropdown-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 5px 0;
+}
+
+/* Admin Section Styles */
+.admin_section {
+    background-color: #0b111f;
+    min-height: 100vh;
+}
+
+/* Welcome Card */
+.admin_welcome_card {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+}
+
+.welcome_content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.welcome_icon {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome_icon i {
+    font-size: 40px;
+    color: #fff;
+}
+
+.welcome_content h2 {
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.welcome_content p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+/* Stat Cards */
+.admin_stat_card {
+    background-color: #1a1f2e;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.admin_stat_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.stat_icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.stat_icon i {
+    font-size: 28px;
+    color: #fff;
+}
+
+.bg_primary {
+    background: linear-gradient(135deg, #38a4ff, #1e88e5);
+}
+
+.bg_success {
+    background: linear-gradient(135deg, #4cd3e3, #00bcd4);
+}
+
+.bg_warning {
+    background: linear-gradient(135deg, #f4e700, #fbc02d);
+}
+
+.bg_danger {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+}
+
+.stat_content h3 {
+    color: #8a8a8a;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.stat_number {
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat_content small {
+    color: #bebebe;
+    font-size: 12px;
+}
+
+/* Info Card */
+.admin_info_card {
+    background-color: #1a1f2e;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    gap: 30px;
+}
+
+.info_icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #38a4ff, #1e88e5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info_icon i {
+    font-size: 28px;
+    color: #fff;
+}
+
+.info_content h4 {
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.info_content p {
+    color: #bebebe;
+    line-height: 1.8;
+    margin-bottom: 25px;
+}
+
+.planned_features h5 {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.planned_features ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.planned_features li {
+    color: #bebebe;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.planned_features li i {
+    color: #4cd3e3;
+    font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .welcome_content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .admin_info_card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .planned_features ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin_welcome_card {
+        padding: 25px;
+    }
+    
+    .welcome_content h2 {
+        font-size: 22px;
+    }
+    
+    .admin_info_card {
+        padding: 25px;
+    }
+}
+
+
+/* Coach Application Section */
+.coach_application_section {
+    background-color: #0b111f;
+    min-height: 100vh;
+}
+
+/* Coach Hero Card */
+.coach_hero_card {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 15px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+}
+
+.coach_hero_content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.hero_icon {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hero_icon i {
+    font-size: 40px;
+    color: #fff;
+}
+
+.coach_hero_content h2 {
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.coach_hero_content p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+/* Application Info Card */
+.application_info_card {
+    background-color: #1a1f2e;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.application_info_card h4 {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.application_info_card h4 i {
+    color: #38a4ff;
+}
+
+.info_list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info_item {
+    display: flex;
+    align-items: start;
+    gap: 15px;
+}
+
+.info_item i {
+    width: 24px;
+    color: #4cd3e3;
+    margin-top: 2px;
+}
+
+.info_item strong {
+    color: #fff;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.info_item p {
+    color: #bebebe;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Benefits Card */
+.benefits_card {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(198, 1, 154, 0.1));
+    border-radius: 10px;
+    padding: 25px;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.benefits_card h4 {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.benefits_card h4 i {
+    color: #f4e700;
+}
+
+.benefits_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.benefits_list li {
+    color: #bebebe;
+    font-size: 13px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.benefits_list li:last-child {
+    border-bottom: none;
+}
+
+.benefits_list li i {
+    color: #ff0000;
+    width: 20px;
+}
+
+/* Application Form Card */
+.application_form_card {
+    background-color: #1a1f2e;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* CV Upload Area */
+.cv_upload_area {
+    position: relative;
+}
+
+.cv_upload_label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 40px 20px;
+    border: 2px dashed rgba(255, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: rgba(255, 0, 0, 0.02);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cv_upload_label:hover {
+    border-color: #ff0000;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.upload_icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload_icon i {
+    font-size: 28px;
+    color: #fff;
+}
+
+.upload_text {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.upload_hint {
+    color: #8a8a8a;
+    font-size: 13px;
+}
+
+.upload_formats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #bebebe;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.upload_formats i {
+    font-size: 20px;
+}
+
+.upload_formats .fa-file-pdf {
+    color: #f44a40;
+}
+
+.upload_formats .fa-file-word {
+    color: #38a4ff;
+}
+
+.file_size {
+    color: #8a8a8a;
+}
+
+.file_selected {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background-color: rgba(76, 211, 227, 0.1);
+    border: 2px solid #4cd3e3;
+    border-radius: 10px;
+}
+
+.file_selected i {
+    color: #4cd3e3;
+    font-size: 24px;
+}
+
+.file_selected span {
+    flex: 1;
+    color: #fff;
+    font-size: 14px;
+}
+
+.remove_file {
+    background-color: transparent;
+    border: none;
+    color: #f44a40;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.3s ease;
+}
+
+.remove_file:hover {
+    color: #ff0000;
+    transform: scale(1.1);
+}
+
+/* Warning Card */
+.warning_card {
+    display: flex;
+    align-items: start;
+    gap: 15px;
+    background-color: rgba(244, 231, 0, 0.05);
+    border-left: 4px solid #f4e700;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.warning_icon {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(244, 231, 0, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.warning_icon i {
+    color: #f4e700;
+    font-size: 20px;
+}
+
+.warning_content strong {
+    color: #fff;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.warning_content p {
+    color: #bebebe;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Submit Button */
+.btn_submit {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    color: #fff;
+    padding: 14px 35px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+.btn_submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
+}
+
+.btn_submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .coach_hero_content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .application_info_card,
+    .benefits_card {
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .coach_hero_card {
+        padding: 25px;
+    }
+    
+    .coach_hero_content h2 {
+        font-size: 22px;
+    }
+    
+    .hero_icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .hero_icon i {
+        font-size: 30px;
+    }
+}
+/* Styles pour les messages d'erreur Symfony */
+.form_group .invalid-feedback,
+.form_group .form-error-message {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    animation: slideInDown 0.3s ease;
+}
+
+.form_group .invalid-feedback::before,
+.form_group .form-error-message::before {
+    content: "⚠️ ";
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+/* Animation pour les erreurs */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Style pour l'input avec erreur */
+.form_input.is-invalid,
+.form_input:invalid {
+    border: 2px solid #ff6b6b !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25) !important;
+}
+
+/* Message de succès (pour contraste) */
+.form_group .valid-feedback {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.3);
+}
+
+.form_group .valid-feedback::before {
+    content: "✓ ";
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}

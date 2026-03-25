@@ -1,0 +1,372 @@
+/* ========================================
+   RESPONSIVE FIXES - EYETWIN ESPORT
+======================================== */
+
+/* === GENERAL === */
+@media (max-width: 991px) {
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+/* === NAVBAR === */
+@media (max-width: 991px) {
+    .main_menu .navbar-brand img {
+        max-width: 120px;
+    }
+    
+    .main_menu .navbar-nav {
+        background: #0b111f;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+    
+    .main_menu .nav-item {
+        margin-bottom: 10px;
+    }
+    
+    .main_menu .dropdown-menu {
+        position: static !important;
+        float: none;
+        width: 100%;
+    }
+    
+    /* Hide signup button on mobile */
+    .btn_1.d-none.d-sm-block {
+        display: none !important;
+    }
+    
+    /* Notification dropdown full width on mobile */
+    #notifDropdown + .dropdown-menu {
+        width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+    }
+}
+
+/* === BUTTONS === */
+@media (max-width: 576px) {
+    .btn_1, .btn_2 {
+        padding: 12px 20px;
+        font-size: 13px;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* === CARDS === */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .card-title {
+        font-size: 18px;
+    }
+}
+
+/* === TABLES === */
+@media (max-width: 768px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    table th, table td {
+        padding: 8px 4px;
+        white-space: nowrap;
+    }
+}
+
+/* === FORMS === */
+@media (max-width: 576px) {
+    .form-control {
+        font-size: 14px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        font-size: 13px;
+    }
+}
+
+/* === GRID SYSTEM === */
+@media (max-width: 768px) {
+    .row > [class*='col-'] {
+        margin-bottom: 20px;
+    }
+    
+    .row > [class*='col-']:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* === IMAGES === */
+@media (max-width: 576px) {
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* === FOOTER === */
+@media (max-width: 768px) {
+    .footer_part .footer_icon {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .footer_part .copyright_text {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .footer_part .col-lg-4,
+    .footer_part .col-lg-8 {
+        text-align: center;
+    }
+}
+
+/* === SPACING === */
+@media (max-width: 768px) {
+    .section_padding {
+        padding: 50px 0;
+    }
+    
+    .padding_top {
+        padding-top: 50px;
+    }
+    
+    .padding_bottom {
+        padding-bottom: 50px;
+    }
+}
+
+/* === BREADCRUMB === */
+@media (max-width: 768px) {
+    .breadcrumb_iner {
+        height: 300px !important;
+    }
+    
+    .breadcrumb_iner_item h2 {
+        font-size: 28px !important;
+    }
+}
+
+/* === ALERTS === */
+@media (max-width: 576px) {
+    .alert {
+        font-size: 13px;
+        padding: 10px;
+    }
+}
+
+/* === MODALS === */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .modal-footer {
+        padding: 15px;
+        flex-direction: column;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* === COINS BADGE === */
+@media (max-width: 991px) {
+    .nav-link span[style*="linear-gradient"] {
+        font-size: 11px !important;
+        padding: 2px 8px !important;
+    }
+}
+
+/* === NOTIFICATIONS DROPDOWN === */
+@media (max-width: 576px) {
+    .dropdown-menu[aria-labelledby="notifDropdown"] {
+        width: calc(100vw - 30px) !important;
+        left: 15px !important;
+        right: 15px !important;
+        max-height: 400px;
+    }
+}
+
+/* === TYPOGRAPHY === */
+@media (max-width: 768px) {
+    h1 { font-size: 28px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 20px; }
+    h4 { font-size: 18px; }
+    h5 { font-size: 16px; }
+    h6 { font-size: 14px; }
+    
+    p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+
+/* === UTILITIES === */
+@media (max-width: 576px) {
+    .text-sm-center {
+        text-align: center !important;
+    }
+    
+    .mb-sm-3 {
+        margin-bottom: 1rem !important;
+    }
+    
+    .mt-sm-3 {
+        margin-top: 1rem !important;
+    }
+}
+
+/* === HIDE/SHOW ON MOBILE === */
+@media (max-width: 768px) {
+    .d-md-none {
+        display: none !important;
+    }
+    
+    .d-md-block {
+        display: block !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .d-md-none {
+        display: block !important;
+    }
+    
+    .d-md-block {
+        display: none !important;
+    }
+}
+
+/* === PROFILE PAGE === */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        margin: 0 auto 20px;
+    }
+}
+
+/* === TEAM CARDS === */
+@media (max-width: 768px) {
+    .team-card {
+        margin-bottom: 20px;
+    }
+}
+
+/* === TOURNAMENT TABLES === */
+@media (max-width: 768px) {
+    .tournament-bracket {
+        overflow-x: auto;
+    }
+}
+
+/* === LIVE STREAMS === */
+@media (max-width: 768px) {
+    .live-stream-card {
+        margin-bottom: 15px;
+    }
+    
+    .live-stream-video {
+        height: auto !important;
+    }
+}
+
+/* === COMMUNITY CHANNELS === */
+@media (max-width: 768px) {
+    .channel-sidebar {
+        display: none;
+    }
+    
+    .channel-sidebar.mobile-open {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: #0b111f;
+    }
+}
+
+/* === PLANNING PAGE === */
+@media (max-width: 768px) {
+    .calendar-view {
+        overflow-x: auto;
+    }
+    
+    .calendar-day {
+        min-width: 100px;
+    }
+}
+
+/* === VIDEO UPLOAD === */
+@media (max-width: 768px) {
+    .video-upload-area {
+        padding: 20px;
+    }
+    
+    .video-preview {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* === FIX OVERFLOW ISSUES === */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}

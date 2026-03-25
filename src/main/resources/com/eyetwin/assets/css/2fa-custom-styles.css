@@ -1,0 +1,962 @@
+/* ===================================
+   2FA Custom Styles - Gaming Theme
+   =================================== */
+
+/* Setup Steps */
+.setup-step {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px 25px;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+}
+
+.setup-step:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+}
+
+.step-number {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0 auto 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.setup-step h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.setup-step p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* QR Code Section */
+.qr-code-wrapper {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    padding: 35px;
+    border-radius: 25px;
+    display: inline-block;
+    box-shadow: 0 15px 40px rgba(255, 0, 0, 0.4);
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.qr-code-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #c6019a, #ff0000);
+    border-radius: 25px;
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(10px);
+}
+
+.qr-code-inner {
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.qr-code-inner img {
+    display: block;
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Secret Code Box */
+.secret-code-box {
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.secret-code-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.secret-code-box:hover::before {
+    left: 100%;
+}
+
+.secret-code {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    font-weight: bold;
+    color: #fff;
+    word-break: break-all;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Verification Input */
+.verification-input {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 2.8rem;
+    letter-spacing: 1.2rem;
+    text-align: center;
+    height: 90px;
+    border: 3px solid rgba(255, 0, 0, 0.3);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    color: #fff;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.verification-input:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 0 0.3rem rgba(255, 0, 0, 0.25),
+                inset 0 2px 10px rgba(0, 0, 0, 0.3);
+    outline: none;
+    transform: scale(1.02);
+}
+
+.verification-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Enhanced Cards */
+.card-enhanced {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    margin-bottom: 30px;
+}
+
+.card-header-enhanced {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    color: white;
+    padding: 25px 30px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-header-enhanced i {
+    margin-right: 12px;
+    font-size: 1.5rem;
+}
+
+.card-body {
+    background: #1a1f2e;
+    padding: 35px 30px;
+}
+
+/* Copy Button */
+.btn-copy {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border: none;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-copy::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-copy:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-copy:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+}
+
+/* Alert Boxes */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 20px 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(56, 164, 255, 0.15), rgba(56, 164, 255, 0.05));
+    border-left: 5px solid #38a4ff;
+    color: #fff;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(244, 231, 0, 0.15), rgba(244, 231, 0, 0.05));
+    border-left: 5px solid #f4e700;
+    color: #fff;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(244, 74, 64, 0.15), rgba(244, 74, 64, 0.05));
+    border-left: 5px solid #f44a40;
+    color: #fff;
+}
+
+.alert h5, .alert h6 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.alert p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+/* Action Buttons */
+.btn-success {
+    background: linear-gradient(135deg, #4cd3e3, #00bcd4);
+    border: none;
+    color: #fff;
+    padding: 16px 35px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(76, 211, 227, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(76, 211, 227, 0.5);
+    background: linear-gradient(135deg, #00bcd4, #4cd3e3);
+}
+
+.btn-outline-secondary {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    background: transparent;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Form Labels */
+.form-label {
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+/* Small Text */
+.form-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+}
+
+.form-text i {
+    margin-right: 5px;
+    color: #ff0000;
+}
+
+/* Breadcrumb Override */
+.breadcrumb_bg {
+    background-image: url('../img/breadcrumb.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.breadcrumb_bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(198, 1, 154, 0.3));
+}
+
+/* Loading Animation */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    }
+}
+
+.btn-copy:active,
+.btn-success:active {
+    animation: pulse 0.5s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .verification-input {
+        font-size: 2rem;
+        letter-spacing: 0.8rem;
+        height: 70px;
+    }
+    
+    .secret-code {
+        font-size: 1.1rem;
+        letter-spacing: 3px;
+    }
+    
+    .setup-step {
+        margin-bottom: 20px;
+        padding: 25px 20px;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+    
+    .qr-code-wrapper {
+        padding: 25px;
+    }
+    
+    .qr-code-inner {
+        padding: 20px;
+    }
+    
+    .card-header-enhanced {
+        padding: 20px;
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .verification-input {
+        font-size: 1.6rem;
+        letter-spacing: 0.6rem;
+        height: 60px;
+    }
+    
+    .secret-code {
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    .btn-copy,
+    .btn-success {
+        width: 100%;
+    }
+    
+    .d-grid {
+        gap: 15px;
+    }
+}
+
+/* Dark Mode Enhancements */
+body {
+    background-color: #0b111f;
+}
+
+.section_padding {
+    background-color: #0b111f;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1f2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #c6019a, #ff0000);
+}
+
+/* Animation pour le QR Code */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.qr-code-wrapper {
+    animation: fadeInScale 0.5s ease-out;
+}
+
+/* Effet de brillance pour les cartes */
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.card-enhanced::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.card-enhanced:hover::after {
+    left: 100%;
+}
+/* ===================================
+   2FA Custom Styles - Gaming Theme
+   =================================== */
+
+/* Setup Steps */
+.setup-step {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px 25px;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+}
+
+.setup-step:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+}
+
+.step-number {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0 auto 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.setup-step h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.setup-step p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* QR Code Section */
+.qr-code-wrapper {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    padding: 35px;
+    border-radius: 25px;
+    display: inline-block;
+    box-shadow: 0 15px 40px rgba(255, 0, 0, 0.4);
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.qr-code-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #c6019a, #ff0000);
+    border-radius: 25px;
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(10px);
+}
+
+.qr-code-inner {
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.qr-code-inner img {
+    display: block;
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Secret Code Box */
+.secret-code-box {
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.secret-code-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.secret-code-box:hover::before {
+    left: 100%;
+}
+
+.secret-code {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    font-weight: bold;
+    color: #fff;
+    word-break: break-all;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+/* Verification Input */
+.verification-input {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 2.8rem;
+    letter-spacing: 1.2rem;
+    text-align: center;
+    height: 90px;
+    border: 3px solid rgba(255, 0, 0, 0.3);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    color: #fff;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.verification-input:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 0 0.3rem rgba(255, 0, 0, 0.25),
+                inset 0 2px 10px rgba(0, 0, 0, 0.3);
+    outline: none;
+    transform: scale(1.02);
+}
+
+.verification-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Enhanced Cards */
+.card-enhanced {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1f2e, #0b111f);
+    margin-bottom: 30px;
+}
+
+.card-header-enhanced {
+    background: linear-gradient(135deg, #ff0000 0%, #c6019a 100%);
+    color: white;
+    padding: 25px 30px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-header-enhanced i {
+    margin-right: 12px;
+    font-size: 1.5rem;
+}
+
+.card-body {
+    background: #1a1f2e;
+    padding: 35px 30px;
+}
+
+/* Copy Button */
+.btn-copy {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border: none;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-copy::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-copy:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-copy:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+}
+
+/* Alert Boxes */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 20px 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(56, 164, 255, 0.15), rgba(56, 164, 255, 0.05));
+    border-left: 5px solid #38a4ff;
+    color: #fff;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(244, 231, 0, 0.15), rgba(244, 231, 0, 0.05));
+    border-left: 5px solid #f4e700;
+    color: #fff;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(244, 74, 64, 0.15), rgba(244, 74, 64, 0.05));
+    border-left: 5px solid #f44a40;
+    color: #fff;
+}
+
+.alert h5, .alert h6 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.alert p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+/* Action Buttons */
+.btn-success {
+    background: linear-gradient(135deg, #4cd3e3, #00bcd4);
+    border: none;
+    color: #fff;
+    padding: 16px 35px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(76, 211, 227, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(76, 211, 227, 0.5);
+    background: linear-gradient(135deg, #00bcd4, #4cd3e3);
+}
+
+.btn-outline-secondary {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    background: transparent;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Form Labels */
+.form-label {
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+/* Small Text */
+.form-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+}
+
+.form-text i {
+    margin-right: 5px;
+    color: #ff0000;
+}
+
+/* Breadcrumb Override */
+.breadcrumb_bg {
+    background-image: url('../img/breadcrumb.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.breadcrumb_bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(198, 1, 154, 0.3));
+}
+
+/* Loading Animation */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    }
+}
+
+.btn-copy:active,
+.btn-success:active {
+    animation: pulse 0.5s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .verification-input {
+        font-size: 2rem;
+        letter-spacing: 0.8rem;
+        height: 70px;
+    }
+    
+    .secret-code {
+        font-size: 1.1rem;
+        letter-spacing: 3px;
+    }
+    
+    .setup-step {
+        margin-bottom: 20px;
+        padding: 25px 20px;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+    
+    .qr-code-wrapper {
+        padding: 25px;
+    }
+    
+    .qr-code-inner {
+        padding: 20px;
+    }
+    
+    .card-header-enhanced {
+        padding: 20px;
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .verification-input {
+        font-size: 1.6rem;
+        letter-spacing: 0.6rem;
+        height: 60px;
+    }
+    
+    .secret-code {
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    .btn-copy,
+    .btn-success {
+        width: 100%;
+    }
+    
+    .d-grid {
+        gap: 15px;
+    }
+}
+
+/* Dark Mode Enhancements */
+body {
+    background-color: #0b111f;
+}
+
+.section_padding {
+    background-color: #0b111f;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1f2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ff0000, #c6019a);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #c6019a, #ff0000);
+}
+
+/* Animation pour le QR Code */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.qr-code-wrapper {
+    animation: fadeInScale 0.5s ease-out;
+}
+
+/* Effet de brillance pour les cartes */
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.card-enhanced::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.card-enhanced:hover::after {
+    left: 100%;
+}
