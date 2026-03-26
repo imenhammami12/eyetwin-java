@@ -65,6 +65,14 @@ public class User {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+    // Alias pour compatibilité avec HomeController et SessionManager
+    public int getCoinBalance() {
+        return coins;
+    }
+
+    public void setCoinBalance(int coins) {
+        this.coins = coins;
+    }
 
     @Override
     public String toString() {
