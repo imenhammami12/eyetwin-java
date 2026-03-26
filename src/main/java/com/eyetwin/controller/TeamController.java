@@ -10,6 +10,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,10 +25,12 @@ import java.util.List;
 
 /**
  * TeamController — gestion complète des teams (LIST / CREATE / SHOW / EDIT).
- * Nouvelles fonctionnalités :
- *  - Suppression d'une team (owner seulement)
- *  - Toggle is_active (checkbox → bouton dédié)
- *  - Upload de logo (FileChooser) à la création et à l'édition
+ * Corrections :
+ *  - Logo en background dans le header de viewShow
+ *  - ProgressBar dynamique (capacité colorée selon le taux de remplissage)
+ *  - TextArea description lisible (fix CSS via contrôleur)
+ *  - Statistiques dynamiques dans viewShow
+ *  - showStatOwner, showStatCreated, showStatStatus, showStatMembersRight remplis
  */
 public class TeamController {
 
@@ -77,18 +81,21 @@ public class TeamController {
     @FXML private Label      createMaxError;
     @FXML private Label      createGeneralError;
     @FXML private Button     createSubmitBtn;
-    // Logo upload (CREATE)
-    @FXML private Label      createLogoLabel;   // fx:id="createLogoLabel"
-    @FXML private Button     createLogoBtn;     // fx:id="createLogoBtn"
+    @FXML private Label      createLogoLabel;
+    @FXML private Button     createLogoBtn;
 
     // ════════════════ SHOW VIEW ════════════════
+    // ✅ NOUVEAU : ImageView logo background + fallback
+    @FXML private ImageView showLogoBackground;
+    @FXML private Region    showHeaderFallback;
+
     @FXML private Label showTeamName;
     @FXML private Label showOwner;
     @FXML private Label showCreatedAt;
     @FXML private Label showStatusBadge;
     @FXML private Button showEditBtn;
-    @FXML private Button showDeleteBtn;          // fx:id="showDeleteBtn" — NOUVEAU
-    @FXML private Button showToggleActiveBtn;    // fx:id="showToggleActiveBtn" — NOUVEAU
+    @FXML private Button showDeleteBtn;
+    @FXML private Button showToggleActiveBtn;
     @FXML private Button showLeaveBtn;
     @FXML private Button showJoinBtn;
     @FXML private Button showPendingBtn;
@@ -99,7 +106,8 @@ public class TeamController {
     @FXML private Label  showStatCapacity;
     @FXML private Label  showDescription;
     @FXML private Label  showCapacityLabel;
-    @FXML private Region showCapacityBar;
+    // ✅ CORRIGÉ : ProgressBar (pas Region)
+    @FXML private ProgressBar showCapacityBar;
     @FXML private VBox   showPendingCard;
     @FXML private Label  showPendingCount;
     @FXML private VBox   showPendingList;
@@ -114,6 +122,11 @@ public class TeamController {
     @FXML private HBox   showSelectedUser;
     @FXML private Label  showSelectedName;
     @FXML private Button showInviteBtn;
+    // ✅ NOUVEAU : labels stats à remplir dynamiquement
+    @FXML private Label  showStatMembersRight;
+    @FXML private Label  showStatCreated;
+    @FXML private Label  showStatStatus;
+    @FXML private Label  showStatOwner;
 
     // ════════════════ EDIT VIEW ════════════════
     @FXML private Label    editHeroName;
@@ -125,9 +138,8 @@ public class TeamController {
     @FXML private Label     editMaxError;
     @FXML private Label     editGeneralError;
     @FXML private Button    editSubmitBtn;
-    // Logo upload (EDIT)
-    @FXML private Label     editLogoLabel;      // fx:id="editLogoLabel"
-    @FXML private Button    editLogoBtn;        // fx:id="editLogoBtn"
+    @FXML private Label     editLogoLabel;
+    @FXML private Button    editLogoBtn;
 
     // ════════════════════════════════════════════════════════════
     //  STATE
@@ -139,9 +151,7 @@ public class TeamController {
     private int  selectedInviteUserId = -1;
     private Thread searchThread;
 
-    // Fichier logo sélectionné (CREATE)
     private File selectedLogoFileCreate = null;
-    // Fichier logo sélectionné (EDIT)
     private File selectedLogoFileEdit   = null;
 
     // ════════════════════════════════════════════════════════════
@@ -152,8 +162,44 @@ public class TeamController {
         User user = SessionManager.getCurrentUser();
         if (user != null && coinsLabel != null)
             coinsLabel.setText(String.valueOf(user.getCoinBalance()));
+
+        // ✅ Fix TextArea background blanc illisible — appliqué programmatiquement
+        applyTextAreaFix(createDescField);
+        applyTextAreaFix(editDescField);
+
         showView("list");
         loadListData();
+    }
+
+    /**
+     * ✅ CORRECTION TextArea blanc illisible.
+     * JavaFX TextArea utilise -fx-control-inner-background pour la couleur interne.
+     * Le CSS seul ne suffit pas toujours — on force via setStyle sur le nœud.
+     */
+    private void applyTextAreaFix(TextArea ta) {
+        if (ta == null) return;
+        ta.setStyle(
+                "-fx-control-inner-background: #0d0c1a;" +
+                        "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.1);" +
+                        "-fx-border-width: 1.5;" +
+                        "-fx-border-radius: 9;" +
+                        "-fx-background-radius: 9;" +
+                        "-fx-text-fill: rgba(255,255,255,0.93);" +
+                        "-fx-prompt-text-fill: rgba(255,255,255,0.35);" +
+                        "-fx-font-size: 13;" +
+                        "-fx-padding: 12 14 12 14;" +
+                        "-fx-highlight-fill: rgba(232,55,42,0.35);"
+        );
+        // Forcer la couleur interne après le rendu
+        ta.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                javafx.scene.Node content = ta.lookup(".content");
+                if (content != null) {
+                    content.setStyle("-fx-background-color: #0d0c1a;");
+                }
+            }
+        });
     }
 
     // ════════════════════════════════════════════════════════════
@@ -379,21 +425,50 @@ public class TeamController {
         User me = SessionManager.getCurrentUser();
         boolean isOwner = me != null && team.getOwnerId() == me.getId();
 
+        // ── Infos de base ──
         showTeamName.setText(team.getName());
         showOwner.setText("👤 " + (team.getOwner() != null ? team.getOwner().getUsername() : "?"));
         showCreatedAt.setText("📅 " + (team.getCreatedAt() != null ? team.getCreatedAt().format(DATE_FMT) : "—"));
+        showDescription.setText(team.getDescription() != null && !team.getDescription().isBlank()
+                ? team.getDescription() : "(No description)");
 
-        long cnt = members.size(); int maxM = team.getMaxMembers();
-        int pct = maxM > 0 ? (int) Math.round(cnt * 100.0 / maxM) : 0;
+        // ── Calculs capacité ──
+        long cnt  = members.size();
+        int  maxM = team.getMaxMembers();
+        double ratio = maxM > 0 ? (double) cnt / maxM : 0.0;
+        int pct = (int) Math.round(ratio * 100);
 
+        // ── Stats bar (haut) ──
         showStatMembers.setText(String.valueOf(cnt));
         showStatMax.setText(String.valueOf(maxM));
         showStatPending.setText(String.valueOf(pending.size()));
         showStatCapacity.setText(pct + "%");
-        showDescription.setText(team.getDescription() != null ? team.getDescription() : "(No description)");
+
+        // ✅ Couleur dynamique du Fill Rate selon le taux
+        String fillColor;
+        if (pct >= 100)      fillColor = "#ff4d3d";  // plein → rouge
+        else if (pct >= 75)  fillColor = "#ff6b2b";  // quasi-plein → orange
+        else if (pct >= 50)  fillColor = "#f6d860";  // à moitié → jaune/or
+        else                 fillColor = "#00e676";  // bas → vert
+        if (showStatCapacity != null)
+            showStatCapacity.setStyle("-fx-text-fill:" + fillColor + ";-fx-font-size:20;-fx-font-weight:bold;");
+
+        // ── Capacité dans la card Info ──
         showCapacityLabel.setText(cnt + "/" + maxM);
 
-        // Status badge
+        // ✅ ProgressBar dynamique
+        if (showCapacityBar != null) {
+            showCapacityBar.setProgress(Math.min(ratio, 1.0));
+            // Couleur de la barre selon le taux
+            String barAccent;
+            if (pct >= 100)     barAccent = "#ff4d3d";
+            else if (pct >= 75) barAccent = "#ff6b2b";
+            else if (pct >= 50) barAccent = "#f6d860";
+            else                barAccent = "#e8372a";
+            showCapacityBar.setStyle("-fx-accent: " + barAccent + ";");
+        }
+
+        // ── Status badge ──
         if (showStatusBadge != null) {
             showStatusBadge.setText(team.isActive() ? "ACTIVE" : "INACTIVE");
             showStatusBadge.setStyle(team.isActive()
@@ -401,20 +476,35 @@ public class TeamController {
                     : "-fx-text-fill:#ff6b2b;-fx-font-size:10;-fx-font-weight:bold;");
         }
 
-        // Cacher tous les boutons d'action
+        // ✅ Stats card droite — remplir tous les champs
+        if (showStatMembersRight != null)
+            showStatMembersRight.setText(cnt + "/" + maxM);
+        if (showStatCreated != null)
+            showStatCreated.setText(team.getCreatedAt() != null ? team.getCreatedAt().format(DATE_FMT) : "—");
+        if (showStatStatus != null) {
+            showStatStatus.setText(team.isActive() ? "Active" : "Inactive");
+            showStatStatus.setStyle(team.isActive()
+                    ? "-fx-text-fill:#00e676;-fx-font-size:12;-fx-font-weight:bold;"
+                    : "-fx-text-fill:#ff6b2b;-fx-font-size:12;-fx-font-weight:bold;");
+        }
+        if (showStatOwner != null)
+            showStatOwner.setText(team.getOwner() != null ? team.getOwner().getUsername() : "—");
+
+        // ✅ Logo en background du header
+        loadLogoBackground(team);
+
+        // ── Boutons d'action ──
         hide(showEditBtn); hide(showDeleteBtn); hide(showToggleActiveBtn);
         hide(showLeaveBtn); hide(showJoinBtn); hide(showPendingBtn); hide(showPendingAlert);
 
         if (isOwner) {
             show(showEditBtn);
 
-            // ── Bouton DELETE ──
             if (showDeleteBtn != null) {
                 show(showDeleteBtn);
                 showDeleteBtn.setOnAction(e -> handleDeleteTeam());
             }
 
-            // ── Bouton TOGGLE ACTIVE ──
             if (showToggleActiveBtn != null) {
                 show(showToggleActiveBtn);
                 if (team.isActive()) {
@@ -449,13 +539,13 @@ public class TeamController {
             else if (team.isActive() && cnt < maxM) show(showJoinBtn);
         }
 
-        // Members list
+        // ── Members list ──
         if (showMembersCount != null) showMembersCount.setText(cnt + " active player(s)");
         if (showMembersCountBadge != null) showMembersCountBadge.setText(String.valueOf(cnt));
         showMembersList.getChildren().clear();
         members.forEach(m -> showMembersList.getChildren().add(buildMemberRow(m, isOwner)));
 
-        // Pending requests (owner)
+        // ── Pending requests (owner) ──
         if (isOwner && !pending.isEmpty()) {
             show(showPendingCard);
             showPendingCount.setText(pending.size() + " player(s) waiting");
@@ -463,11 +553,123 @@ public class TeamController {
             pending.forEach(r -> showPendingList.getChildren().add(buildRequestRow(r)));
         }
 
-        // Invite panel (owner)
+        // ── Invite panel (owner) ──
         if (isOwner) {
             show(showInviteCard);
             if (cnt >= maxM) { show(showFullCapacity); hide(showInviteArea); }
         }
+    }
+
+    /**
+     * ✅ Charge le logo de l'équipe comme background du header.
+     * Si l'équipe a un logo (chemin fichier ou URL), on l'affiche en background flouté/sombre.
+     * Sinon on affiche le fallback (fond sombre uni).
+     */
+    private void loadLogoBackground(Team team) {
+        if (showLogoBackground == null) {
+            System.err.println("❌ showLogoBackground is NULL — vérifiez fx:id dans le FXML");
+            return;
+        }
+
+        String logoPath = team.getLogo();
+        System.out.println("🖼 Logo path from DB: [" + logoPath + "]");
+
+        if (logoPath != null && !logoPath.isBlank()) {
+            try {
+                String url = resolveLogoUrl(logoPath);
+                System.out.println("🔗 Resolved URL: " + url);
+
+                Image img = new Image(url, 1280, 220, false, true, true);
+
+                img.errorProperty().addListener((obs, wasError, isError) -> {
+                    if (isError) {
+                        System.err.println("❌ Image load error: " + img.getException());
+                        Platform.runLater(() -> {
+                            showLogoBackground.setImage(null);
+                            if (showHeaderFallback != null) showHeaderFallback.setVisible(true);
+                        });
+                    }
+                });
+
+                img.progressProperty().addListener((obs, oldP, newP) -> {
+                    if (newP.doubleValue() >= 1.0 && !img.isError()) {
+                        System.out.println("✅ Image loaded successfully");
+                        Platform.runLater(() -> {
+                            showLogoBackground.setImage(img);
+                            showLogoBackground.setOpacity(0.22);
+                            if (showHeaderFallback != null) showHeaderFallback.setVisible(false);
+                        });
+                    }
+                });
+
+                // Si l'image est déjà en cache (chargement synchrone)
+                if (img.getProgress() >= 1.0 && !img.isError()) {
+                    showLogoBackground.setImage(img);
+                    showLogoBackground.setOpacity(0.22);
+                    if (showHeaderFallback != null) showHeaderFallback.setVisible(false);
+                }
+
+            } catch (Exception e) {
+                System.err.println("❌ Exception loading logo: " + e.getMessage());
+                showLogoBackground.setImage(null);
+                if (showHeaderFallback != null) showHeaderFallback.setVisible(true);
+            }
+        } else {
+            System.out.println("⚠ No logo set for this team");
+            showLogoBackground.setImage(null);
+            showLogoBackground.setOpacity(0);
+            if (showHeaderFallback != null) showHeaderFallback.setVisible(true);
+        }
+    }
+
+    /**
+     * Résout le chemin du logo en URL JavaFX valide.
+     * Essaie dans l'ordre :
+     *  1. Déjà une URL complète (http/https/file:/jar:)
+     *  2. Chemin absolu système
+     *  3. Ressource classpath
+     *  4. Relatif depuis user.dir
+     *  5. Dossier uploads/ ou uploads/teams/
+     */
+    private String resolveLogoUrl(String logoPath) {
+        // 1. Déjà une URL complète
+        if (logoPath.startsWith("http://") || logoPath.startsWith("https://")
+                || logoPath.startsWith("file:") || logoPath.startsWith("jar:")) {
+            return logoPath;
+        }
+
+        // 2. Chemin absolu
+        File absolute = new File(logoPath);
+        if (absolute.isAbsolute() && absolute.exists()) {
+            return absolute.toURI().toString();
+        }
+
+        // 3. Ressource classpath
+        var resource = getClass().getResource("/" + logoPath);
+        if (resource != null) {
+            return resource.toExternalForm();
+        }
+
+        // 4. Relatif depuis répertoire courant
+        File relative = new File(System.getProperty("user.dir"), logoPath);
+        if (relative.exists()) {
+            return relative.toURI().toString();
+        }
+
+        // 5. Dossiers uploads courants
+        String[] uploadDirs = { "uploads/", "uploads/teams/", "src/main/resources/uploads/",
+                "src/main/resources/uploads/teams/" };
+        for (String dir : uploadDirs) {
+            File f = new File(System.getProperty("user.dir"), dir + logoPath);
+            if (f.exists()) {
+                System.out.println("✅ Found in: " + f.getAbsolutePath());
+                return f.toURI().toString();
+            }
+        }
+
+        System.err.println("⚠ Could not resolve: " + logoPath
+                + " | user.dir=" + System.getProperty("user.dir"));
+        return "file:" + logoPath;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -477,7 +679,6 @@ public class TeamController {
         if (currentTeam != null) loadEditView(currentTeam.getId());
     }
 
-    /** Suppression de la team (owner) */
     private void handleDeleteTeam() {
         if (currentTeam == null) return;
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
@@ -502,7 +703,6 @@ public class TeamController {
         });
     }
 
-    /** Toggle is_active (owner) */
     private void handleToggleActive(boolean newActive) {
         if (currentTeam == null) return;
         String msg = newActive ? "Activate this team?" : "Deactivate this team?";
@@ -660,10 +860,15 @@ public class TeamController {
         editActiveCheck.setSelected(team.isActive());
         editSubmitBtn.setDisable(false);
         editSubmitBtn.setText("💾  Save Changes");
-        // Reset logo selection
+
+        // ✅ Re-appliquer le fix TextArea à chaque ouverture du formulaire d'édition
+        applyTextAreaFix(editDescField);
+
         selectedLogoFileEdit = null;
         if (editLogoLabel != null)
-            editLogoLabel.setText(team.getLogo() != null ? "Current: " + team.getLogo() : "No file chosen");
+            editLogoLabel.setText(team.getLogo() != null && !team.getLogo().isBlank()
+                    ? "📎 Current: " + extractFileName(team.getLogo())
+                    : "No file chosen");
         clearEditErrors();
     }
 
@@ -688,13 +893,11 @@ public class TeamController {
         }
         if (!valid) return;
 
-        // ⚠️ FIX is_active : lire la checkbox AVANT de modifier currentTeam
         boolean isActive = editActiveCheck.isSelected();
-
         currentTeam.setName(name);
         currentTeam.setDescription(desc.isEmpty() ? null : desc);
         currentTeam.setMaxMembers(max);
-        currentTeam.setActive(isActive);   // ← correctement appliqué
+        currentTeam.setActive(isActive);
 
         editSubmitBtn.setDisable(true);
         editSubmitBtn.setText("Saving…");
@@ -779,17 +982,43 @@ public class TeamController {
                 isOwner ? "rgba(232,55,42,0.06)" : "rgba(232,55,42,0.03)",
                 isOwner ? "rgba(232,55,42,0.22)" : "rgba(232,55,42,0.1)"));
 
-        String initials = team.getName().length() >= 2
-                ? team.getName().substring(0, 2).toUpperCase() : team.getName().toUpperCase();
-        Label init = styledLabel(initials, "-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#ff4d3d;");
-        StackPane banner = new StackPane(init);
+        // ── Banner avec logo ou initiales ──
+        StackPane banner = new StackPane();
         banner.setMinHeight(70);
         banner.setStyle("-fx-background-color:linear-gradient(135deg,#1a0308,#12050e);-fx-background-radius:8;");
+
+        // Si l'équipe a un logo → l'afficher dans la banner
+        String logoPath = team.getLogo();
+        if (logoPath != null && !logoPath.isBlank()) {
+            try {
+                ImageView logoView = new ImageView();
+                Image img;
+                if (logoPath.startsWith("/") || logoPath.contains(":")) {
+                    img = new Image("file:" + logoPath, 240, 70, false, true, true);
+                } else {
+                    var resource = getClass().getResource("/" + logoPath);
+                    img = resource != null
+                            ? new Image(resource.toExternalForm(), 240, 70, false, true, true)
+                            : new Image("file:" + logoPath, 240, 70, false, true, true);
+                }
+                logoView.setImage(img);
+                logoView.setFitWidth(240);
+                logoView.setFitHeight(70);
+                logoView.setPreserveRatio(false);
+                logoView.setSmooth(true);
+                logoView.setOpacity(0.6);
+                banner.getChildren().add(logoView);
+            } catch (Exception ignored) {
+                // Fallback initiales si le logo ne charge pas
+                addInitialsToBanner(banner, team.getName());
+            }
+        } else {
+            addInitialsToBanner(banner, team.getName());
+        }
 
         Label nameLbl = styledLabel(team.getName(),
                 "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.93);");
 
-        // Badge ACTIVE / INACTIVE
         String statusColor = team.isActive() ? "#00e676" : "#ff6b2b";
         String statusText  = team.isActive() ? "● ACTIVE" : "○ INACTIVE";
         Label statusLbl = styledLabel(statusText,
@@ -798,9 +1027,23 @@ public class TeamController {
         String owner = team.getOwner() != null ? team.getOwner().getUsername() : "Owner";
         Label meta = styledLabel("👤 " + owner,
                 "-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.38);");
-        long cnt = team.getActiveMembersCount(); int maxM = team.getMaxMembers();
-        Label count = styledLabel(cnt + "/" + maxM,
+
+        // ✅ Barre de capacité dynamique dans la carte
+        long cnt = team.getActiveMembersCount();
+        int  maxM = team.getMaxMembers();
+        double ratio = maxM > 0 ? (double) cnt / maxM : 0.0;
+        int pct = (int) Math.round(ratio * 100);
+
+        Label count = styledLabel(cnt + "/" + maxM + " (" + pct + "%)",
                 "-fx-font-size:11;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.7);");
+
+        // Mini barre de capacité dans la card
+        ProgressBar miniBar = new ProgressBar(Math.min(ratio, 1.0));
+        miniBar.setMaxWidth(Double.MAX_VALUE);
+        miniBar.setPrefHeight(4);
+        String barColor = pct >= 100 ? "#ff4d3d" : pct >= 75 ? "#ff6b2b" : "#e8372a";
+        miniBar.setStyle("-fx-accent:" + barColor + ";-fx-pref-height:4;");
+        miniBar.getStyleClass().add("progress-bar");
 
         HBox btnRow = new HBox(6);
         Button viewBtn = actionBtn("👁 View", "#ff4d3d", "rgba(232,55,42,0.1)", "rgba(232,55,42,0.3)");
@@ -817,7 +1060,6 @@ public class TeamController {
             editBtn.setOnAction(e -> loadEditView(tid));
             btnRow.getChildren().add(editBtn);
 
-            // Bouton DELETE dans la card
             Button delBtn = actionBtn("🗑", "#ff4d3d", "rgba(232,55,42,0.1)", "rgba(232,55,42,0.3)");
             delBtn.setPrefWidth(36);
             delBtn.setOnAction(e -> {
@@ -856,8 +1098,16 @@ public class TeamController {
             btnRow.getChildren().add(joinBtn);
         }
 
-        card.getChildren().addAll(banner, nameLbl, statusLbl, meta, count, btnRow);
+        card.getChildren().addAll(banner, nameLbl, statusLbl, meta, count, miniBar, btnRow);
         return card;
+    }
+
+    /** Ajoute les initiales dans la banner d'une team card */
+    private void addInitialsToBanner(StackPane banner, String teamName) {
+        String initials = teamName.length() >= 2
+                ? teamName.substring(0, 2).toUpperCase() : teamName.toUpperCase();
+        Label init = styledLabel(initials, "-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#ff4d3d;");
+        banner.getChildren().add(init);
     }
 
     private HBox buildMemberRow(TeamMembership m, boolean isOwner) {
@@ -1034,7 +1284,6 @@ public class TeamController {
                 "-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:14 16 14 16;";
     }
 
-    /** Ouvre un FileChooser pour sélectionner une image */
     private File openLogoChooser() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Team Logo");
@@ -1044,10 +1293,16 @@ public class TeamController {
         return chooser.showOpenDialog(owner);
     }
 
-    /** Extrait l'extension d'un nom de fichier (ex: "photo.jpg" → "jpg") */
     private String getExtension(String filename) {
         int dot = filename.lastIndexOf('.');
         return dot >= 0 ? filename.substring(dot + 1).toLowerCase() : "png";
+    }
+
+    /** Extrait uniquement le nom de fichier depuis un chemin complet */
+    private String extractFileName(String path) {
+        if (path == null) return "";
+        int sep = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+        return sep >= 0 ? path.substring(sep + 1) : path;
     }
 
     private void showAlert(String msg) {
