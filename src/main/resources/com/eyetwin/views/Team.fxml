@@ -11,7 +11,7 @@
             prefWidth="1280" prefHeight="800">
 
     <!-- ══════════════════════════════════════════════════
-         NAVBAR
+         NAVBAR  (top — reste fixe au-dessus du scroll)
     ══════════════════════════════════════════════════ -->
     <top>
         <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="0"
@@ -99,83 +99,87 @@
     </top>
 
     <!-- ══════════════════════════════════════════════════
-         MAIN — StackPane avec 4 vues
+         CENTRE — ScrollPane GLOBAL (toute la page scrolle)
     ══════════════════════════════════════════════════ -->
     <center>
-        <StackPane fx:id="mainStack" style="-fx-background-color: #080810;">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    styleClass="scroll-pane"
+                    style="-fx-background-color: #080810; -fx-background: #080810;
+                           -fx-border-color: transparent;">
+            <content>
 
-            <!-- ═══════════════════════════════════════
-                 VIEW 1 : LIST
-            ═══════════════════════════════════════ -->
-            <VBox fx:id="viewList" visible="true" managed="true"
-                  style="-fx-background-color: #080810;">
+                <!-- StackPane qui contient les 4 vues -->
+                <StackPane fx:id="mainStack" style="-fx-background-color: #080810;">
 
-                <StackPane prefHeight="220" style="-fx-background-color: #080810;">
-                    <ImageView fitWidth="1280" fitHeight="220"
-                               preserveRatio="false" smooth="true" opacity="0.12">
-                        <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
-                    </ImageView>
-                    <Region style="-fx-background-color: rgba(8,8,16,0.92);"/>
-                    <VBox alignment="CENTER_LEFT" spacing="12"
-                          style="-fx-padding: 32 48 0 48;">
-                        <HBox alignment="CENTER_LEFT" spacing="8"
-                              style="-fx-background-color: rgba(232,55,42,0.09);
-                                     -fx-border-color: rgba(232,55,42,0.28);
-                                     -fx-border-width:1; -fx-border-radius:3; -fx-background-radius:3;
-                                     -fx-padding: 4 12 4 12; -fx-max-width:230;">
-                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
-                            <Label text="👥 Team Command Center"
-                                   style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                    <!-- ═══════════════════════════════════════
+                         VIEW 1 : LIST
+                    ═══════════════════════════════════════ -->
+                    <VBox fx:id="viewList" visible="true" managed="true"
+                          style="-fx-background-color: #080810;">
+
+                        <!-- Hero banner -->
+                        <StackPane prefHeight="220" style="-fx-background-color: #080810;">
+                            <ImageView fitWidth="1280" fitHeight="220"
+                                       preserveRatio="false" smooth="true" opacity="0.12">
+                                <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
+                            </ImageView>
+                            <Region style="-fx-background-color: rgba(8,8,16,0.92);"/>
+                            <VBox alignment="CENTER_LEFT" spacing="12"
+                                  style="-fx-padding: 32 48 0 48;">
+                                <HBox alignment="CENTER_LEFT" spacing="8"
+                                      style="-fx-background-color: rgba(232,55,42,0.09);
+                                             -fx-border-color: rgba(232,55,42,0.28);
+                                             -fx-border-width:1; -fx-border-radius:3; -fx-background-radius:3;
+                                             -fx-padding: 4 12 4 12; -fx-max-width:230;">
+                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                                    <Label text="👥 Team Command Center"
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                                </HBox>
+                                <Label text="Team Management"
+                                       style="-fx-font-family: 'Arial Black'; -fx-font-size:36;
+                                              -fx-font-weight:bold; -fx-text-fill: #e8372a;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),28,0,0,0);"/>
+                                <Label text="Forge alliances, lead your squad, dominate the leaderboard."
+                                       style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
+                                <HBox spacing="14" alignment="CENTER_LEFT">
+                                    <Button text="⚡  Create Team" onAction="#goToCreateView"
+                                            styleClass="btn-fire"/>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
+
+                        <!-- Stats bar -->
+                        <HBox style="-fx-background-color: rgba(0,0,0,0.45);
+                                     -fx-border-color: rgba(232,55,42,0.12) transparent;
+                                     -fx-border-width: 1 0; -fx-padding: 14 48 14 48;">
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="statOwned" text="0" styleClass="stat-val"/>
+                                <Label text="Owned" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="statMember" text="0"
+                                       style="-fx-text-fill: white; -fx-font-size:22; -fx-font-weight:bold;"/>
+                                <Label text="Member" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="statInvitations" text="0"
+                                       style="-fx-text-fill: #ff6b2b; -fx-font-size:22; -fx-font-weight:bold;"/>
+                                <Label text="Invitations" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="statRequests" text="0"
+                                       style="-fx-text-fill: #ff4d3d; -fx-font-size:22; -fx-font-weight:bold;"/>
+                                <Label text="Requests" styleClass="stat-lbl"/>
+                            </VBox>
                         </HBox>
-                        <Label text="Team Management"
-                               style="-fx-font-family: 'Arial Black'; -fx-font-size:36;
-                                      -fx-font-weight:bold; -fx-text-fill: #e8372a;
-                                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),28,0,0,0);"/>
-                        <Label text="Forge alliances, lead your squad, dominate the leaderboard."
-                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
-                        <HBox spacing="14" alignment="CENTER_LEFT">
-                            <Button text="⚡  Create Team" onAction="#goToCreateView"
-                                    styleClass="btn-fire"/>
-                        </HBox>
-                    </VBox>
-                </StackPane>
 
-                <!-- Stats bar -->
-                <HBox style="-fx-background-color: rgba(0,0,0,0.45);
-                             -fx-border-color: rgba(232,55,42,0.12) transparent;
-                             -fx-border-width: 1 0; -fx-padding: 14 48 14 48;">
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="statOwned" text="0" styleClass="stat-val"/>
-                        <Label text="Owned" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="statMember" text="0"
-                               style="-fx-text-fill: white; -fx-font-size:22; -fx-font-weight:bold;"/>
-                        <Label text="Member" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="statInvitations" text="0"
-                               style="-fx-text-fill: #ff6b2b; -fx-font-size:22; -fx-font-weight:bold;"/>
-                        <Label text="Invitations" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="statRequests" text="0"
-                               style="-fx-text-fill: #ff4d3d; -fx-font-size:22; -fx-font-weight:bold;"/>
-                        <Label text="Requests" styleClass="stat-lbl"/>
-                    </VBox>
-                </HBox>
-
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                            VBox.vgrow="ALWAYS" styleClass="scroll-pane"
-                            style="-fx-background-color: #080810; -fx-background: #080810;
-                                   -fx-border-color: transparent;">
-                    <content>
+                        <!-- Contenu scrollable (plus de ScrollPane interne) -->
                         <VBox spacing="0"
                               style="-fx-background-color: #080810; -fx-padding: 28 48 60 48;">
 
@@ -334,45 +338,40 @@
                                 </VBox>
                                 <FlowPane fx:id="allTeamsPane" hgap="14" vgap="14"/>
                             </VBox>
+
                         </VBox>
-                    </content>
-                </ScrollPane>
-            </VBox>
-
-            <!-- ═══════════════════════════════════════
-                 VIEW 2 : CREATE
-            ═══════════════════════════════════════ -->
-            <VBox fx:id="viewCreate" visible="false" managed="false"
-                  style="-fx-background-color: #080810;">
-
-                <StackPane prefHeight="200" style="-fx-background-color: #080810;">
-                    <Region style="-fx-background-color: rgba(8,8,16,0.98);"/>
-                    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 30 48 0 48;">
-                        <HBox alignment="CENTER_LEFT" spacing="8"
-                              style="-fx-background-color: rgba(232,55,42,0.09);
-                                     -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
-                                     -fx-border-radius:3; -fx-background-radius:3;
-                                     -fx-padding: 4 12 4 12; -fx-max-width:200;">
-                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
-                            <Label text="⚙ Team Builder"
-                                   style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
-                        </HBox>
-                        <Label text="Create Your Dream Team"
-                               style="-fx-font-family: 'Arial Black'; -fx-font-size:32;
-                                      -fx-font-weight:bold; -fx-text-fill: #e8372a;
-                                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),24,0,0,0);"/>
-                        <Label text="Forge a legendary squad and dominate the battlefield."
-                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
                     </VBox>
-                </StackPane>
 
-                <Region style="-fx-background-color: #e8372a; -fx-pref-height:1; -fx-max-height:1;"/>
+                    <!-- ═══════════════════════════════════════
+                         VIEW 2 : CREATE
+                    ═══════════════════════════════════════ -->
+                    <VBox fx:id="viewCreate" visible="false" managed="false"
+                          style="-fx-background-color: #080810;">
 
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                            VBox.vgrow="ALWAYS" styleClass="scroll-pane"
-                            style="-fx-background-color: #080810; -fx-background: #080810;
-                                   -fx-border-color: transparent;">
-                    <content>
+                        <StackPane prefHeight="200" style="-fx-background-color: #080810;">
+                            <Region style="-fx-background-color: rgba(8,8,16,0.98);"/>
+                            <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 30 48 0 48;">
+                                <HBox alignment="CENTER_LEFT" spacing="8"
+                                      style="-fx-background-color: rgba(232,55,42,0.09);
+                                             -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
+                                             -fx-border-radius:3; -fx-background-radius:3;
+                                             -fx-padding: 4 12 4 12; -fx-max-width:200;">
+                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                                    <Label text="⚙ Team Builder"
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                                </HBox>
+                                <Label text="Create Your Dream Team"
+                                       style="-fx-font-family: 'Arial Black'; -fx-font-size:32;
+                                              -fx-font-weight:bold; -fx-text-fill: #e8372a;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),24,0,0,0);"/>
+                                <Label text="Forge a legendary squad and dominate the battlefield."
+                                       style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
+                            </VBox>
+                        </StackPane>
+
+                        <Region style="-fx-background-color: #e8372a; -fx-pref-height:1; -fx-max-height:1;"/>
+
+                        <!-- Contenu (plus de ScrollPane interne) -->
                         <VBox alignment="CENTER" spacing="0"
                               style="-fx-padding: 36 0 60 0; -fx-background-color: #080810;">
 
@@ -461,13 +460,12 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.28); -fx-font-size:11;"/>
                                 </VBox>
 
-                                <!-- ══ LOGO UPLOAD (CREATE) ══ -->
+                                <!-- Logo Upload -->
                                 <VBox spacing="7">
                                     <Label text="🖼 Team Logo"
                                            style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size:12; -fx-font-weight:bold;"/>
                                     <HBox spacing="10" alignment="CENTER_LEFT">
-                                        <Button fx:id="createLogoBtn"
-                                                text="📁 Choose Image"
+                                        <Button fx:id="createLogoBtn" text="📁 Choose Image"
                                                 onAction="#handleChooseLogoCreate"
                                                 style="-fx-background-color: rgba(232,55,42,0.08);
                                                        -fx-border-color: rgba(232,55,42,0.25);
@@ -475,8 +473,7 @@
                                                        -fx-text-fill: #ff4d3d; -fx-font-size:11;
                                                        -fx-font-weight:bold;
                                                        -fx-padding: 9 16 9 16; -fx-cursor:hand;"/>
-                                        <Label fx:id="createLogoLabel"
-                                               text="No file chosen"
+                                        <Label fx:id="createLogoLabel" text="No file chosen"
                                                style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size:11;"/>
                                     </HBox>
                                     <Label text="▸ Optional — JPG, PNG, GIF, WEBP"
@@ -506,167 +503,139 @@
                                 </HBox>
                             </VBox>
                         </VBox>
-                    </content>
-                </ScrollPane>
-            </VBox>
+                    </VBox>
 
-            <!-- ═══════════════════════════════════════
-                 VIEW 3 : SHOW
-            ═══════════════════════════════════════ -->
-            <VBox fx:id="viewShow" visible="false" managed="false"
-                  style="-fx-background-color: #080810;">
+                    <!-- ═══════════════════════════════════════
+                         VIEW 3 : SHOW
+                    ═══════════════════════════════════════ -->
+                    <VBox fx:id="viewShow" visible="false" managed="false"
+                          style="-fx-background-color: #080810;">
 
-                <!-- ══ HEADER avec logo en background ══ -->
-                <StackPane prefHeight="340" style="-fx-background-color: #080810;">
+                        <!-- Header avec logo background -->
+                        <StackPane prefHeight="340" style="-fx-background-color: #080810;">
+                            <ImageView fx:id="showLogoBackground"
+                                       fitWidth="1280" fitHeight="340"
+                                       preserveRatio="false" smooth="true" opacity="0.22"/>
+                            <Region style="-fx-background-color: linear-gradient(to bottom,
+                                           rgba(8,8,16,0.45) 0%,
+                                           rgba(8,8,16,0.75) 60%,
+                                           rgba(8,8,16,0.97) 100%);"/>
+                            <Region fx:id="showHeaderFallback"
+                                    style="-fx-background-color: rgba(8,8,16,0.95);"/>
 
-                    <!-- Logo de l'équipe en background (rempli dynamiquement) -->
-                    <ImageView fx:id="showLogoBackground"
-                               fitWidth="1280" fitHeight="340"
-                               preserveRatio="false" smooth="true" opacity="0.22"/>
+                            <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 40 48 20 48;">
+                                <HBox alignment="CENTER_LEFT" spacing="8"
+                                      style="-fx-background-color: rgba(232,55,42,0.09);
+                                             -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
+                                             -fx-border-radius:3; -fx-background-radius:3;
+                                             -fx-padding: 4 12 4 12; -fx-max-width:200;">
+                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                                    <Label text="👥 Squad Profile"
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                                </HBox>
+                                <Label fx:id="showTeamName" text=""
+                                       style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
+                                              -fx-font-weight:bold; -fx-text-fill:white;
+                                              -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.8),12,0,0,2);"/>
+                                <HBox spacing="18" alignment="CENTER_LEFT">
+                                    <Label fx:id="showOwner" text=""
+                                           style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size:12;"/>
+                                    <Label fx:id="showCreatedAt" text=""
+                                           style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:12;"/>
+                                    <Label fx:id="showStatusBadge" text="ACTIVE"
+                                           style="-fx-text-fill:#00e676; -fx-font-size:10; -fx-font-weight:bold;"/>
+                                </HBox>
 
-                    <!-- Dégradé sombre par-dessus le logo -->
-                    <Region style="-fx-background-color: linear-gradient(to bottom,
-                                   rgba(8,8,16,0.45) 0%,
-                                   rgba(8,8,16,0.75) 60%,
-                                   rgba(8,8,16,0.97) 100%);"/>
+                                <!-- Boutons d'action -->
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Button text="← Teams" onAction="#backToList"
+                                            style="-fx-background-color: rgba(255,255,255,0.06);
+                                                   -fx-border-color: rgba(255,255,255,0.15);
+                                                   -fx-border-radius:7; -fx-background-radius:7;
+                                                   -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size:11;
+                                                   -fx-padding: 7 14 7 14; -fx-cursor:hand;"/>
+                                    <Button fx:id="showEditBtn" text="✏ Edit Team"
+                                            visible="false" managed="false" onAction="#handleShowEdit"
+                                            style="-fx-background-color: rgba(255,107,43,0.1);
+                                                   -fx-border-color: rgba(255,107,43,0.3);
+                                                   -fx-border-radius:7; -fx-background-radius:7;
+                                                   -fx-text-fill: #ff6b2b; -fx-font-size:11; -fx-font-weight:bold;
+                                                   -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
+                                    <Button fx:id="showToggleActiveBtn" text="⏸ Deactivate"
+                                            visible="false" managed="false"
+                                            style="-fx-background-color: rgba(255,107,43,0.1);
+                                                   -fx-border-color: rgba(255,107,43,0.3);
+                                                   -fx-border-radius:7; -fx-background-radius:7;
+                                                   -fx-text-fill: #ff6b2b; -fx-font-size:11; -fx-font-weight:bold;
+                                                   -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
+                                    <Button fx:id="showDeleteBtn" text="🗑 Delete Team"
+                                            visible="false" managed="false"
+                                            style="-fx-background-color: rgba(232,55,42,0.1);
+                                                   -fx-border-color: rgba(232,55,42,0.35);
+                                                   -fx-border-radius:7; -fx-background-radius:7;
+                                                   -fx-text-fill: #ff4d3d; -fx-font-size:11; -fx-font-weight:bold;
+                                                   -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
+                                    <Button fx:id="showLeaveBtn" text="🚪 Leave Team"
+                                            visible="false" managed="false" onAction="#handleShowLeave"
+                                            styleClass="btn-danger"
+                                            style="-fx-font-size:11; -fx-padding: 7 16 7 16;"/>
+                                    <Button fx:id="showJoinBtn" text="👤+ Request to Join"
+                                            visible="false" managed="false" onAction="#handleShowJoin"
+                                            styleClass="btn-green"
+                                            style="-fx-font-size:11; -fx-padding: 7 16 7 16;"/>
+                                    <Button fx:id="showPendingBtn" text="⏳ Request Pending"
+                                            visible="false" managed="false" disable="true"
+                                            styleClass="badge-orange"
+                                            style="-fx-font-size:11; -fx-padding: 7 16 7 16;
+                                                   -fx-border-radius:7; -fx-background-radius:7;"/>
+                                    <Label fx:id="showPendingAlert" text="" visible="false" managed="false"
+                                           style="-fx-text-fill: #ff6b2b; -fx-font-size:11;
+                                                  -fx-background-color: rgba(255,107,43,0.1);
+                                                  -fx-border-color: rgba(255,107,43,0.25);
+                                                  -fx-border-radius:6; -fx-background-radius:6;
+                                                  -fx-padding: 7 12 7 12;"/>
+                                </HBox>
+                            </VBox>
+                        </StackPane>
 
-                    <!-- Fallback fond sombre si pas de logo -->
-                    <Region fx:id="showHeaderFallback"
-                            style="-fx-background-color: rgba(8,8,16,0.95);"/>
+                        <Region style="-fx-background-color: #e8372a; -fx-pref-height:1; -fx-max-height:1;"/>
 
-                    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 40 48 20 48;">
-                        <HBox alignment="CENTER_LEFT" spacing="8"
-                              style="-fx-background-color: rgba(232,55,42,0.09);
-                                     -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
-                                     -fx-border-radius:3; -fx-background-radius:3;
-                                     -fx-padding: 4 12 4 12; -fx-max-width:200;">
-                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
-                            <Label text="👥 Squad Profile"
-                                   style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                        <!-- Stats bar -->
+                        <HBox style="-fx-background-color: rgba(0,0,0,0.42);
+                                     -fx-border-color: rgba(232,55,42,0.1) transparent;
+                                     -fx-border-width: 1 0; -fx-padding: 13 48 13 48;">
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="showStatMembers" text="0" styleClass="stat-val"/>
+                                <Label text="Members" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="showStatMax" text="0"
+                                       style="-fx-text-fill: white; -fx-font-size:20; -fx-font-weight:bold;"/>
+                                <Label text="Capacity" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="showStatPending" text="0"
+                                       style="-fx-text-fill: #ff6b2b; -fx-font-size:20; -fx-font-weight:bold;"/>
+                                <Label text="Pending" styleClass="stat-lbl"/>
+                            </VBox>
+                            <Region style="-fx-background-color: rgba(232,55,42,0.2);
+                                           -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
+                            <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label fx:id="showStatCapacity" text="0%"
+                                       style="-fx-text-fill: #00e676; -fx-font-size:20; -fx-font-weight:bold;"/>
+                                <Label text="Fill Rate" styleClass="stat-lbl"/>
+                            </VBox>
                         </HBox>
-                        <Label fx:id="showTeamName" text=""
-                               style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
-                                      -fx-font-weight:bold; -fx-text-fill:white;
-                                      -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.8),12,0,0,2);"/>
-                        <HBox spacing="18" alignment="CENTER_LEFT">
-                            <Label fx:id="showOwner" text=""
-                                   style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size:12;"/>
-                            <Label fx:id="showCreatedAt" text=""
-                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:12;"/>
-                            <Label fx:id="showStatusBadge" text="ACTIVE"
-                                   style="-fx-text-fill:#00e676; -fx-font-size:10; -fx-font-weight:bold;"/>
-                        </HBox>
 
-                        <!-- ══ BOUTONS D'ACTION ══ -->
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <!-- Retour -->
-                            <Button text="← Teams" onAction="#backToList"
-                                    style="-fx-background-color: rgba(255,255,255,0.06);
-                                           -fx-border-color: rgba(255,255,255,0.15);
-                                           -fx-border-radius:7; -fx-background-radius:7;
-                                           -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size:11;
-                                           -fx-padding: 7 14 7 14; -fx-cursor:hand;"/>
-
-                            <!-- Edit (owner) -->
-                            <Button fx:id="showEditBtn" text="✏ Edit Team"
-                                    visible="false" managed="false" onAction="#handleShowEdit"
-                                    style="-fx-background-color: rgba(255,107,43,0.1);
-                                           -fx-border-color: rgba(255,107,43,0.3);
-                                           -fx-border-radius:7; -fx-background-radius:7;
-                                           -fx-text-fill: #ff6b2b; -fx-font-size:11; -fx-font-weight:bold;
-                                           -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
-
-                            <!-- Toggle Active (owner) -->
-                            <Button fx:id="showToggleActiveBtn"
-                                    text="⏸ Deactivate"
-                                    visible="false" managed="false"
-                                    style="-fx-background-color: rgba(255,107,43,0.1);
-                                           -fx-border-color: rgba(255,107,43,0.3);
-                                           -fx-border-radius:7; -fx-background-radius:7;
-                                           -fx-text-fill: #ff6b2b; -fx-font-size:11; -fx-font-weight:bold;
-                                           -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
-
-                            <!-- Delete (owner) -->
-                            <Button fx:id="showDeleteBtn"
-                                    text="🗑 Delete Team"
-                                    visible="false" managed="false"
-                                    style="-fx-background-color: rgba(232,55,42,0.1);
-                                           -fx-border-color: rgba(232,55,42,0.35);
-                                           -fx-border-radius:7; -fx-background-radius:7;
-                                           -fx-text-fill: #ff4d3d; -fx-font-size:11; -fx-font-weight:bold;
-                                           -fx-padding: 7 16 7 16; -fx-cursor:hand;"/>
-
-                            <!-- Leave (member) -->
-                            <Button fx:id="showLeaveBtn" text="🚪 Leave Team"
-                                    visible="false" managed="false" onAction="#handleShowLeave"
-                                    styleClass="btn-danger"
-                                    style="-fx-font-size:11; -fx-padding: 7 16 7 16;"/>
-
-                            <!-- Join (visitor) -->
-                            <Button fx:id="showJoinBtn" text="👤+ Request to Join"
-                                    visible="false" managed="false" onAction="#handleShowJoin"
-                                    styleClass="btn-green"
-                                    style="-fx-font-size:11; -fx-padding: 7 16 7 16;"/>
-
-                            <!-- Pending -->
-                            <Button fx:id="showPendingBtn" text="⏳ Request Pending"
-                                    visible="false" managed="false" disable="true"
-                                    styleClass="badge-orange"
-                                    style="-fx-font-size:11; -fx-padding: 7 16 7 16;
-                                           -fx-border-radius:7; -fx-background-radius:7;"/>
-
-                            <Label fx:id="showPendingAlert" text="" visible="false" managed="false"
-                                   style="-fx-text-fill: #ff6b2b; -fx-font-size:11;
-                                          -fx-background-color: rgba(255,107,43,0.1);
-                                          -fx-border-color: rgba(255,107,43,0.25);
-                                          -fx-border-radius:6; -fx-background-radius:6;
-                                          -fx-padding: 7 12 7 12;"/>
-                        </HBox>
-                    </VBox>
-                </StackPane>
-
-                <Region style="-fx-background-color: #e8372a; -fx-pref-height:1; -fx-max-height:1;"/>
-
-                <!-- ══ STATS BAR ══ -->
-                <HBox style="-fx-background-color: rgba(0,0,0,0.42);
-                             -fx-border-color: rgba(232,55,42,0.1) transparent;
-                             -fx-border-width: 1 0; -fx-padding: 13 48 13 48;">
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="showStatMembers" text="0" styleClass="stat-val"/>
-                        <Label text="Members" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="showStatMax" text="0"
-                               style="-fx-text-fill: white; -fx-font-size:20; -fx-font-weight:bold;"/>
-                        <Label text="Capacity" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="showStatPending" text="0"
-                               style="-fx-text-fill: #ff6b2b; -fx-font-size:20; -fx-font-weight:bold;"/>
-                        <Label text="Pending" styleClass="stat-lbl"/>
-                    </VBox>
-                    <Region style="-fx-background-color: rgba(232,55,42,0.2);
-                                   -fx-pref-width:1; -fx-pref-height:32; -fx-max-height:32;"/>
-                    <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="showStatCapacity" text="0%"
-                               style="-fx-text-fill: #00e676; -fx-font-size:20; -fx-font-weight:bold;"/>
-                        <Label text="Fill Rate" styleClass="stat-lbl"/>
-                    </VBox>
-                </HBox>
-
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                            VBox.vgrow="ALWAYS" styleClass="scroll-pane"
-                            style="-fx-background-color: #080810; -fx-background: #080810;
-                                   -fx-border-color: transparent;">
-                    <content>
+                        <!-- Contenu (plus de ScrollPane interne) -->
                         <HBox spacing="20" alignment="TOP_LEFT"
                               style="-fx-background-color: #080810; -fx-padding: 24 48 60 48;">
 
-                            <!-- ══ COLONNE GAUCHE ══ -->
+                            <!-- Colonne gauche -->
                             <VBox spacing="16" HBox.hgrow="ALWAYS">
 
                                 <!-- Info card -->
@@ -701,7 +670,6 @@
                                                    style="-fx-text-fill: rgba(255,255,255,0.65);
                                                           -fx-font-size:12; -fx-font-weight:bold;"/>
                                         </HBox>
-                                        <!-- ✅ CORRIGÉ : ProgressBar au lieu de Region -->
                                         <ProgressBar fx:id="showCapacityBar" progress="0"
                                                      maxWidth="Infinity" prefHeight="6"
                                                      styleClass="progress-bar"
@@ -736,7 +704,7 @@
                                 </VBox>
                             </VBox>
 
-                            <!-- ══ COLONNE DROITE ══ -->
+                            <!-- Colonne droite -->
                             <VBox spacing="16" prefWidth="330" minWidth="300">
 
                                 <!-- Pending requests (owner) -->
@@ -887,48 +855,42 @@
                                 </VBox>
                             </VBox>
                         </HBox>
-                    </content>
-                </ScrollPane>
-            </VBox>
-
-            <!-- ═══════════════════════════════════════
-                 VIEW 4 : EDIT
-            ═══════════════════════════════════════ -->
-            <VBox fx:id="viewEdit" visible="false" managed="false"
-                  style="-fx-background-color: #080810;">
-
-                <StackPane prefHeight="200" style="-fx-background-color: #080810;">
-                    <Region style="-fx-background-color: rgba(8,8,16,0.98);"/>
-                    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 30 48 0 48;">
-                        <HBox alignment="CENTER_LEFT" spacing="8"
-                              style="-fx-background-color: rgba(232,55,42,0.09);
-                                     -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
-                                     -fx-border-radius:3; -fx-background-radius:3;
-                                     -fx-padding: 4 12 4 12; -fx-max-width:190;">
-                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
-                            <Label text="✏ Team Editor"
-                                   style="-fx-text-fill: #ff6b2b; -fx-font-size:10; -fx-font-weight:bold;"/>
-                        </HBox>
-                        <HBox spacing="8" alignment="CENTER_LEFT">
-                            <Label text="Edit"
-                                   style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
-                                          -fx-font-weight:bold; -fx-text-fill:white;"/>
-                            <Label fx:id="editHeroName" text=""
-                                   style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
-                                          -fx-font-weight:bold; -fx-text-fill: #ff6b2b;"/>
-                        </HBox>
-                        <Label text="Update your squad configuration."
-                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
                     </VBox>
-                </StackPane>
 
-                <Region style="-fx-background-color: #ff6b2b; -fx-pref-height:1; -fx-max-height:1;"/>
+                    <!-- ═══════════════════════════════════════
+                         VIEW 4 : EDIT
+                    ═══════════════════════════════════════ -->
+                    <VBox fx:id="viewEdit" visible="false" managed="false"
+                          style="-fx-background-color: #080810;">
 
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                            VBox.vgrow="ALWAYS" styleClass="scroll-pane"
-                            style="-fx-background-color: #080810; -fx-background: #080810;
-                                   -fx-border-color: transparent;">
-                    <content>
+                        <StackPane prefHeight="200" style="-fx-background-color: #080810;">
+                            <Region style="-fx-background-color: rgba(8,8,16,0.98);"/>
+                            <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 30 48 0 48;">
+                                <HBox alignment="CENTER_LEFT" spacing="8"
+                                      style="-fx-background-color: rgba(232,55,42,0.09);
+                                             -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;
+                                             -fx-border-radius:3; -fx-background-radius:3;
+                                             -fx-padding: 4 12 4 12; -fx-max-width:190;">
+                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                                    <Label text="✏ Team Editor"
+                                           style="-fx-text-fill: #ff6b2b; -fx-font-size:10; -fx-font-weight:bold;"/>
+                                </HBox>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Edit"
+                                           style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
+                                                  -fx-font-weight:bold; -fx-text-fill:white;"/>
+                                    <Label fx:id="editHeroName" text=""
+                                           style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
+                                                  -fx-font-weight:bold; -fx-text-fill: #ff6b2b;"/>
+                                </HBox>
+                                <Label text="Update your squad configuration."
+                                       style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
+                            </VBox>
+                        </StackPane>
+
+                        <Region style="-fx-background-color: #ff6b2b; -fx-pref-height:1; -fx-max-height:1;"/>
+
+                        <!-- Contenu (plus de ScrollPane interne) -->
                         <VBox alignment="CENTER" spacing="0"
                               style="-fx-padding: 36 0 60 0; -fx-background-color: #080810;">
 
@@ -1008,13 +970,12 @@
                                            style="-fx-text-fill: #ff4d3d; -fx-font-size:11;"/>
                                 </VBox>
 
-                                <!-- ══ LOGO UPLOAD (EDIT) ══ -->
+                                <!-- Logo Upload -->
                                 <VBox spacing="7">
                                     <Label text="🖼 Team Logo"
                                            style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size:12; -fx-font-weight:bold;"/>
                                     <HBox spacing="10" alignment="CENTER_LEFT">
-                                        <Button fx:id="editLogoBtn"
-                                                text="📁 Choose Image"
+                                        <Button fx:id="editLogoBtn" text="📁 Choose Image"
                                                 onAction="#handleChooseLogoEdit"
                                                 style="-fx-background-color: rgba(255,107,43,0.08);
                                                        -fx-border-color: rgba(255,107,43,0.25);
@@ -1022,8 +983,7 @@
                                                        -fx-text-fill: #ff6b2b; -fx-font-size:11;
                                                        -fx-font-weight:bold;
                                                        -fx-padding: 9 16 9 16; -fx-cursor:hand;"/>
-                                        <Label fx:id="editLogoLabel"
-                                               text="No file chosen"
+                                        <Label fx:id="editLogoLabel" text="No file chosen"
                                                style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size:11;"/>
                                     </HBox>
                                     <Label text="▸ Leave empty to keep current logo"
@@ -1056,11 +1016,11 @@
                                 </HBox>
                             </VBox>
                         </VBox>
-                    </content>
-                </ScrollPane>
-            </VBox>
+                    </VBox>
 
-        </StackPane>
+                </StackPane>
+            </content>
+        </ScrollPane>
     </center>
 
 </BorderPane>
