@@ -13,12 +13,27 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
         stage.setTitle("EyeTwin E-Sport Platform");
-        // Pour l'instant on garde hello-view.fxml pour tester
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                "/org/example/eyetwinjava/hello-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        stage.setWidth(1280);
+        stage.setHeight(800);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+        stage.setResizable(true);
+        navigateTo("/com/eyetwin/views/login.fxml", "Login");
+    }
+
+    public static void navigateTo(String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    MainApp.class.getResource(fxmlPath)
+            );
+            Scene scene = new Scene(loader.load(), 1280, 800);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("EyeTwin — " + title);
+            primaryStage.show();
+        } catch (Exception e) {
+            System.err.println("❌ Erreur : " + fxmlPath);
+            e.printStackTrace();
+        }
     }
 
     public static Stage getPrimaryStage() { return primaryStage; }

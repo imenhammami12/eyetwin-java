@@ -11,18 +11,13 @@ public class DatabaseConfig {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    private static Connection connection;
-
+    // ✅ Nouvelle connexion à chaque appel — évite "ResultSet closed"
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("✅ Connexion MySQL OK");
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("Driver MySQL non trouvé", e);
-            }
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver MySQL non trouvé", e);
         }
-        return connection;
     }
 }

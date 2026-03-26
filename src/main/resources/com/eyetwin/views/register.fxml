@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.eyetwin.controller.RegisterController"
+           style="-fx-background-color: #080810;">
+
+    <!-- FOND bg6 -->
+    <ImageView fitWidth="1280" fitHeight="900"
+               preserveRatio="false" smooth="true">
+        <image><Image url="@../assets/img/bg6.png"/></image>
+    </ImageView>
+    <Region style="-fx-background-color: rgba(0,0,0,0.6);"/>
+
+    <VBox alignment="TOP_CENTER" style="-fx-background-color: transparent;">
+
+        <!-- NAVBAR -->
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: rgba(8,8,16,0.92);
+                     -fx-border-color: rgba(232,55,42,0.15);
+                     -fx-border-width: 0 0 1 0;
+                     -fx-padding: 10 30 10 30;
+                     -fx-pref-height: 62;">
+            <ImageView fitHeight="38" preserveRatio="true">
+                <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+            </ImageView>
+            <Region HBox.hgrow="ALWAYS"/>
+
+
+        </HBox>
+
+        <!-- CARTE CENTRÉE -->
+        <StackPane VBox.vgrow="ALWAYS"
+                   style="-fx-background-color: transparent;">
+
+            <HBox maxWidth="940" maxHeight="620"
+                  style="-fx-background-color: #1a1a1a;
+                         -fx-background-radius: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 60, 0, 0, 20);
+                         -fx-min-width: 860; -fx-min-height: 560;">
+
+                <!-- GAUCHE : image gaming -->
+                <StackPane prefWidth="400"
+                           style="-fx-background-color: #0d0d0d;
+                                  -fx-background-radius: 20 0 0 20;">
+                    <ImageView fitWidth="400" fitHeight="620"
+                               preserveRatio="false" smooth="true">
+                        <image>
+                            <Image url="@../assets/img/gaming-characters.png"/>
+                        </image>
+                    </ImageView>
+                    <Region style="-fx-background-color:
+                        linear-gradient(to right,
+                            rgba(139,0,0,0.2),
+                            rgba(0,0,0,0.55));
+                        -fx-background-radius: 20 0 0 20;"/>
+                    <VBox alignment="BOTTOM_LEFT"
+                          style="-fx-padding: 32;">
+
+                    </VBox>
+                </StackPane>
+
+                <!-- DROITE : formulaire register -->
+                <ScrollPane fitToWidth="true" fitToHeight="true"
+                            hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                            HBox.hgrow="ALWAYS"
+                            style="-fx-background: #0a0a0a;
+                                   -fx-background-color: #0a0a0a;
+                                   -fx-border-color: transparent;
+                                   -fx-background-radius: 0 20 20 0;">
+
+                    <VBox alignment="CENTER"
+                          style="-fx-background-color: #0a0a0a;
+                                 -fx-padding: 32 40 32 40;
+                                 -fx-min-height: 560;">
+
+                        <!-- Titre -->
+                        <VBox alignment="CENTER" spacing="6"
+                              style="-fx-padding: 0 0 22 0;">
+                            <Label text="CREATE YOUR ACCOUNT"
+                                   style="-fx-font-family: 'Arial Black';
+                                          -fx-font-size: 18; -fx-font-weight: bold;
+                                          -fx-text-fill: white;
+                                          -fx-text-alignment: CENTER;
+                                          -fx-wrap-text: true; -fx-max-width: 340;
+                                          -fx-effect: dropshadow(gaussian,
+                                              rgba(220,20,60,0.3), 10, 0, 0, 2);"/>
+                            <Label text="JOIN THE EYETWIN COMMUNITY"
+                                   style="-fx-text-fill: #666;
+                                          -fx-font-size: 10; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <!-- First Name + Last Name côte à côte -->
+                        <!-- Remplacez le HBox firstName+lastName par ceci : -->
+                        <VBox spacing="6" style="-fx-padding: 0 0 14 0;">
+                            <Label text="FULL NAME"
+                                   style="-fx-text-fill: #777;
+                  -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            <TextField fx:id="fullNameField"
+                                       promptText="John Doe"
+                                       prefHeight="44" prefWidth="340"
+                                       style="-fx-background-color: transparent;
+                      -fx-border-color: #dc143c;
+                      -fx-border-width: 2;
+                      -fx-border-radius: 6;
+                      -fx-background-radius: 6;
+                      -fx-text-fill: white;
+                      -fx-prompt-text-fill: #444;
+                      -fx-font-size: 13;
+                      -fx-padding: 10 14 10 14;"/>
+                        </VBox>
+                        <!-- Email -->
+                        <VBox spacing="6" style="-fx-padding: 0 0 14 0;">
+                            <Label text="EMAIL ADDRESS"
+                                   style="-fx-text-fill: #777;
+                                          -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            <TextField fx:id="emailField"
+                                       promptText="your@email.com"
+                                       prefHeight="44" prefWidth="340"
+                                       style="-fx-background-color: transparent;
+                                              -fx-border-color: #dc143c;
+                                              -fx-border-width: 2;
+                                              -fx-border-radius: 6;
+                                              -fx-background-radius: 6;
+                                              -fx-text-fill: white;
+                                              -fx-prompt-text-fill: #444;
+                                              -fx-font-size: 13;
+                                              -fx-padding: 10 14 10 14;"/>
+                        </VBox>
+
+                        <!-- Password -->
+                        <VBox spacing="6" style="-fx-padding: 0 0 14 0;">
+                            <Label text="PASSWORD"
+                                   style="-fx-text-fill: #777;
+                                          -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            <PasswordField fx:id="passwordField"
+                                           promptText="••••••••"
+                                           prefHeight="44" prefWidth="340"
+                                           style="-fx-background-color: transparent;
+                                                  -fx-border-color: #dc143c;
+                                                  -fx-border-width: 2;
+                                                  -fx-border-radius: 6;
+                                                  -fx-background-radius: 6;
+                                                  -fx-text-fill: white;
+                                                  -fx-prompt-text-fill: #444;
+                                                  -fx-font-size: 13;
+                                                  -fx-padding: 10 14 10 14;"/>
+                        </VBox>
+
+                        <!-- Confirm Password -->
+                        <VBox spacing="6" style="-fx-padding: 0 0 14 0;">
+                            <Label text="CONFIRM PASSWORD"
+                                   style="-fx-text-fill: #777;
+                                          -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            <PasswordField fx:id="confirmPasswordField"
+                                           promptText="••••••••"
+                                           prefHeight="44" prefWidth="340"
+                                           style="-fx-background-color: transparent;
+                                                  -fx-border-color: #dc143c;
+                                                  -fx-border-width: 2;
+                                                  -fx-border-radius: 6;
+                                                  -fx-background-radius: 6;
+                                                  -fx-text-fill: white;
+                                                  -fx-prompt-text-fill: #444;
+                                                  -fx-font-size: 13;
+                                                  -fx-padding: 10 14 10 14;"/>
+                        </VBox>
+
+                        <!-- Error label -->
+                        <Label fx:id="errorLabel" text=""
+                               style="-fx-text-fill: #ff1744; -fx-font-size: 11;
+                                      -fx-padding: 0 0 6 0; -fx-max-width: 340;
+                                      -fx-wrap-text: true;"/>
+
+                        <!-- Bouton SIGN UP -->
+                        <Button text="⚡  CREATE ACCOUNT"
+                                onAction="#handleRegister"
+                                prefWidth="340" prefHeight="46"
+                                style="-fx-background-color:
+                                           linear-gradient(to right, #dc143c, #ff1744);
+                                       -fx-text-fill: white; -fx-font-weight: bold;
+                                       -fx-font-size: 13; -fx-background-radius: 6;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian,
+                                           rgba(220,20,60,0.4), 15, 0, 0, 4);"/>
+
+                        <!-- Séparateur -->
+                        <HBox alignment="CENTER" spacing="12" prefWidth="340"
+                              style="-fx-padding: 14 0 10 0;">
+                            <Region HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #222; -fx-pref-height: 1;"/>
+                            <Label text="OR"
+                                   style="-fx-text-fill: #444; -fx-font-size: 10;"/>
+                            <Region HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #222; -fx-pref-height: 1;"/>
+                        </HBox>
+
+                        <!-- Lien Login -->
+                        <VBox alignment="CENTER" spacing="8">
+                            <Label text="ALREADY HAVE AN ACCOUNT?"
+                                   style="-fx-text-fill: #666; -fx-font-size: 10;
+                                          -fx-font-weight: bold;"/>
+                            <Button text="→  SIGN IN"
+                                    onAction="#goToLogin"
+                                    prefWidth="340" prefHeight="44"
+                                    style="-fx-background-color: transparent;
+                                           -fx-text-fill: #dc143c;
+                                           -fx-border-color: #dc143c;
+                                           -fx-border-width: 2;
+                                           -fx-border-radius: 6;
+                                           -fx-background-radius: 6;
+                                           -fx-font-weight: bold; -fx-font-size: 12;
+                                           -fx-cursor: hand;"/>
+                        </VBox>
+
+                    </VBox>
+                </ScrollPane>
+
+            </HBox>
+        </StackPane>
+    </VBox>
+</StackPane>
