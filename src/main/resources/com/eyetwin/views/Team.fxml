@@ -517,11 +517,11 @@
                   style="-fx-background-color: #080810;">
 
                 <!-- ══ HEADER avec logo en background ══ -->
-                <StackPane prefHeight="220" style="-fx-background-color: #080810;">
+                <StackPane prefHeight="340" style="-fx-background-color: #080810;">
 
                     <!-- Logo de l'équipe en background (rempli dynamiquement) -->
                     <ImageView fx:id="showLogoBackground"
-                               fitWidth="1280" fitHeight="220"
+                               fitWidth="1280" fitHeight="340"
                                preserveRatio="false" smooth="true" opacity="0.22"/>
 
                     <!-- Dégradé sombre par-dessus le logo -->
@@ -534,7 +534,7 @@
                     <Region fx:id="showHeaderFallback"
                             style="-fx-background-color: rgba(8,8,16,0.95);"/>
 
-                    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 24 48 0 48;">
+                    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 40 48 20 48;">
                         <HBox alignment="CENTER_LEFT" spacing="8"
                               style="-fx-background-color: rgba(232,55,42,0.09);
                                      -fx-border-color: rgba(232,55,42,0.28); -fx-border-width:1;

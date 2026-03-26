@@ -577,9 +577,13 @@ public class TeamController {
         if (logoPath != null && !logoPath.isBlank()) {
             try {
                 String url = resolveLogoUrl(logoPath);
-                System.out.println("🔗 Resolved URL: " + url);
-
-                Image img = new Image(url, 1280, 220, false, true, true);
+                System.out.println("[HEADER] Resolved URL: " + url);
+                if (url == null) {
+                    showLogoBackground.setImage(null);
+                    if (showHeaderFallback != null) showHeaderFallback.setVisible(true);
+                    return;
+                }
+                Image img = new Image(url, 1280, 340, false, true, true);
 
                 img.errorProperty().addListener((obs, wasError, isError) -> {
                     if (isError) {
@@ -632,44 +636,92 @@ public class TeamController {
      *  5. Dossier uploads/ ou uploads/teams/
      */
     private String resolveLogoUrl(String logoPath) {
-        // 1. Déjà une URL complète
+        if (logoPath == null || logoPath.isBlank()) return null;
+
+        // 1. URL complète
         if (logoPath.startsWith("http://") || logoPath.startsWith("https://")
                 || logoPath.startsWith("file:") || logoPath.startsWith("jar:")) {
             return logoPath;
         }
 
-        // 2. Chemin absolu
+        // 2. Chemin absolu qui existe
         File absolute = new File(logoPath);
         if (absolute.isAbsolute() && absolute.exists()) {
+            System.out.println("[LOGO] Found absolute: " + absolute.getAbsolutePath());
             return absolute.toURI().toString();
         }
 
-        // 3. Ressource classpath
-        var resource = getClass().getResource("/" + logoPath);
-        if (resource != null) {
-            return resource.toExternalForm();
-        }
+        // 3. Nom de fichier seul — chercher récursivement depuis user.dir
+        String filename = new File(logoPath).getName();
+        String userDir = System.getProperty("user.dir");
+        System.out.println("[LOGO] Searching for: " + filename + " | user.dir=" + userDir);
 
-        // 4. Relatif depuis répertoire courant
-        File relative = new File(System.getProperty("user.dir"), logoPath);
-        if (relative.exists()) {
-            return relative.toURI().toString();
-        }
+        // Tous les dossiers candidats, du plus probable au moins probable
+        String[] candidates = {
+                logoPath,                                        // tel quel
+                filename,                                        // nom seul
+                "uploads/" + filename,
+                "uploads/teams/" + filename,
+                "uploads/logos/" + filename,
+                "src/main/resources/" + logoPath,
+                "src/main/resources/uploads/" + filename,
+                "src/main/resources/uploads/teams/" + filename,
+                "src/main/resources/com/eyetwin/assets/img/" + filename,
+                "target/classes/" + logoPath,
+                "target/classes/uploads/" + filename,
+        };
 
-        // 5. Dossiers uploads courants
-        String[] uploadDirs = { "uploads/", "uploads/teams/", "src/main/resources/uploads/",
-                "src/main/resources/uploads/teams/" };
-        for (String dir : uploadDirs) {
-            File f = new File(System.getProperty("user.dir"), dir + logoPath);
+        for (String candidate : candidates) {
+            File f = new File(userDir, candidate);
             if (f.exists()) {
-                System.out.println("✅ Found in: " + f.getAbsolutePath());
+                System.out.println("[LOGO] Found at: " + f.getAbsolutePath());
                 return f.toURI().toString();
             }
         }
 
-        System.err.println("⚠ Could not resolve: " + logoPath
-                + " | user.dir=" + System.getProperty("user.dir"));
-        return "file:" + logoPath;
+        // 4. Ressource classpath
+        String[] classpathCandidates = {
+                "/" + logoPath,
+                "/uploads/" + filename,
+                "/uploads/teams/" + filename,
+                "/com/eyetwin/assets/img/" + filename,
+                "/assets/img/" + filename,
+        };
+        for (String cp : classpathCandidates) {
+            var resource = getClass().getResource(cp);
+            if (resource != null) {
+                System.out.println("[LOGO] Found classpath: " + cp);
+                return resource.toExternalForm();
+            }
+        }
+
+        // 5. Recherche récursive dans user.dir (max depth 5)
+        File found = searchFile(new File(userDir), filename, 0);
+        if (found != null) {
+            System.out.println("[LOGO] Found recursive: " + found.getAbsolutePath());
+            return found.toURI().toString();
+        }
+
+        System.err.println("[LOGO] NOT FOUND: " + logoPath + " | tried in: " + userDir);
+        return null;
+    }
+
+    /** Recherche récursive d'un fichier par nom (max profondeur 5) */
+    private File searchFile(File dir, String filename, int depth) {
+        if (depth > 5 || dir == null || !dir.isDirectory()) return null;
+        // Ignorer node_modules, .git, etc.
+        String dirName = dir.getName();
+        if (dirName.startsWith(".") || dirName.equals("node_modules")) return null;
+        File[] files = dir.listFiles();
+        if (files == null) return null;
+        for (File f : files) {
+            if (f.isFile() && f.getName().equals(filename)) return f;
+            if (f.isDirectory()) {
+                File result = searchFile(f, filename, depth + 1);
+                if (result != null) return result;
+            }
+        }
+        return null;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -982,34 +1034,57 @@ public class TeamController {
                 isOwner ? "rgba(232,55,42,0.06)" : "rgba(232,55,42,0.03)",
                 isOwner ? "rgba(232,55,42,0.22)" : "rgba(232,55,42,0.1)"));
 
-        // ── Banner avec logo ou initiales ──
+        // Banner : logo en background + initiales en overlay
         StackPane banner = new StackPane();
-        banner.setMinHeight(70);
+        banner.setMinHeight(110);
+        banner.setMaxHeight(110);
+        banner.setPrefHeight(110);
         banner.setStyle("-fx-background-color:linear-gradient(135deg,#1a0308,#12050e);-fx-background-radius:8;");
 
-        // Si l'équipe a un logo → l'afficher dans la banner
         String logoPath = team.getLogo();
+        System.out.println("[CARD] team=" + team.getName() + " logo=[" + logoPath + "]");
         if (logoPath != null && !logoPath.isBlank()) {
             try {
-                ImageView logoView = new ImageView();
-                Image img;
-                if (logoPath.startsWith("/") || logoPath.contains(":")) {
-                    img = new Image("file:" + logoPath, 240, 70, false, true, true);
-                } else {
-                    var resource = getClass().getResource("/" + logoPath);
-                    img = resource != null
-                            ? new Image(resource.toExternalForm(), 240, 70, false, true, true)
-                            : new Image("file:" + logoPath, 240, 70, false, true, true);
+                String url = resolveLogoUrl(logoPath);
+                System.out.println("[CARD] resolved=" + url);
+                if (url == null) {
+                    addInitialsToBanner(banner, team.getName());
+                    // skip to else
+                    throw new IllegalStateException("logo not found");
                 }
-                logoView.setImage(img);
+                Image img = new Image(url, 240, 110, false, true, true);
+                ImageView logoView = new ImageView(img);
                 logoView.setFitWidth(240);
-                logoView.setFitHeight(70);
+                logoView.setFitHeight(110);
                 logoView.setPreserveRatio(false);
                 logoView.setSmooth(true);
                 logoView.setOpacity(0.6);
-                banner.getChildren().add(logoView);
-            } catch (Exception ignored) {
-                // Fallback initiales si le logo ne charge pas
+
+                img.errorProperty().addListener((obs, wasErr, isErr) -> {
+                    if (isErr) {
+                        System.err.println("[CARD] logo load error: " + img.getException());
+                        Platform.runLater(() -> {
+                            banner.getChildren().clear();
+                            addInitialsToBanner(banner, team.getName());
+                        });
+                    }
+                });
+
+                Region overlay = new Region();
+                overlay.setStyle("-fx-background-color:linear-gradient(to bottom," +
+                        "rgba(8,8,16,0.15) 0%,rgba(8,8,16,0.5) 100%);" +
+                        "-fx-background-radius:8;");
+
+                String initials = team.getName().length() >= 2
+                        ? team.getName().substring(0, 2).toUpperCase()
+                        : team.getName().toUpperCase();
+                Label initLbl = styledLabel(initials,
+                        "-fx-font-size:26;-fx-font-weight:bold;-fx-text-fill:white;" +
+                                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.9),10,0,0,2);");
+
+                banner.getChildren().addAll(logoView, overlay, initLbl);
+            } catch (Exception ex) {
+                System.err.println("[CARD] exception: " + ex.getMessage());
                 addInitialsToBanner(banner, team.getName());
             }
         } else {
@@ -1028,7 +1103,6 @@ public class TeamController {
         Label meta = styledLabel("👤 " + owner,
                 "-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.38);");
 
-        // ✅ Barre de capacité dynamique dans la carte
         long cnt = team.getActiveMembersCount();
         int  maxM = team.getMaxMembers();
         double ratio = maxM > 0 ? (double) cnt / maxM : 0.0;
@@ -1037,7 +1111,6 @@ public class TeamController {
         Label count = styledLabel(cnt + "/" + maxM + " (" + pct + "%)",
                 "-fx-font-size:11;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.7);");
 
-        // Mini barre de capacité dans la card
         ProgressBar miniBar = new ProgressBar(Math.min(ratio, 1.0));
         miniBar.setMaxWidth(Double.MAX_VALUE);
         miniBar.setPrefHeight(4);
@@ -1065,7 +1138,7 @@ public class TeamController {
             delBtn.setOnAction(e -> {
                 Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                         "Delete \"" + team.getName() + "\"?", ButtonType.OK, ButtonType.CANCEL);
-                confirm.setHeaderText("⚠ Delete Team");
+                confirm.setHeaderText("Delete Team");
                 confirm.showAndWait().ifPresent(b -> {
                     if (b == ButtonType.OK) {
                         new Thread(() -> {
