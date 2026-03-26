@@ -42,7 +42,7 @@ public class TeamDAO {
         return -1;
     }
 
-    /** Mettre à jour une équipe */
+    /** Mettre à jour une équipe (name, description, logo, max_members, is_active) */
     public void updateTeam(Team team) throws SQLException {
         String sql = """
             UPDATE team SET name=?, description=?, logo=?, max_members=?, is_active=?
@@ -60,14 +60,61 @@ public class TeamDAO {
         }
     }
 
-    /** Trouver une équipe par id */
+    /**
+     * Supprimer une équipe et tous ses memberships (CASCADE).
+     * On supprime d'abord les memberships pour éviter les FK violations
+     * si la DB n'a pas ON DELETE CASCADE configuré.
+     */
+    public void deleteTeam(int teamId) throws SQLException {
+        try (Connection c = DatabaseConfig.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                // 1. Supprimer tous les memberships de la team
+                try (PreparedStatement ps = c.prepareStatement(
+                        "DELETE FROM team_membership WHERE team_id = ?")) {
+                    ps.setInt(1, teamId);
+                    ps.executeUpdate();
+                }
+                // 2. Supprimer la team
+                try (PreparedStatement ps = c.prepareStatement(
+                        "DELETE FROM team WHERE id = ?")) {
+                    ps.setInt(1, teamId);
+                    ps.executeUpdate();
+                }
+                c.commit();
+            } catch (SQLException e) {
+                c.rollback();
+                throw e;
+            } finally {
+                c.setAutoCommit(true);
+            }
+        }
+    }
+
+    /**
+     * Trouver une équipe par id — avec hydratation du owner (JOIN)
+     */
     public Team findById(int id) throws SQLException {
-        String sql = "SELECT * FROM team WHERE id = ?";
+        String sql = """
+            SELECT t.*, u.username AS owner_username, u.email AS owner_email
+            FROM team t
+            INNER JOIN user u ON u.id = t.owner_id
+            WHERE t.id = ?
+            """;
         try (Connection c = DatabaseConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return mapTeam(rs);
+                if (rs.next()) {
+                    Team team = mapTeam(rs);
+                    // Hydrate owner
+                    User owner = new User();
+                    owner.setId(team.getOwnerId());
+                    owner.setUsername(rs.getString("owner_username"));
+                    owner.setEmail(rs.getString("owner_email"));
+                    team.setOwner(owner);
+                    return team;
+                }
             }
         }
         return null;
@@ -75,13 +122,23 @@ public class TeamDAO {
 
     /** Toutes les équipes actives avec leurs memberships (findAllActiveWithMembers) */
     public List<Team> findAllActiveWithMembers() throws SQLException {
-        String sql = "SELECT * FROM team WHERE is_active = 1 ORDER BY created_at DESC";
+        String sql = """
+            SELECT t.*, u.username AS owner_username
+            FROM team t
+            INNER JOIN user u ON u.id = t.owner_id
+            WHERE t.is_active = 1
+            ORDER BY t.created_at DESC
+            """;
         List<Team> teams = new ArrayList<>();
         try (Connection c = DatabaseConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Team t = mapTeam(rs);
+                User owner = new User();
+                owner.setId(t.getOwnerId());
+                owner.setUsername(rs.getString("owner_username"));
+                t.setOwner(owner);
                 t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
                 teams.add(t);
             }
@@ -91,7 +148,13 @@ public class TeamDAO {
 
     /** Équipes dont l'utilisateur est owner (findByOwner) */
     public List<Team> findByOwner(int ownerId) throws SQLException {
-        String sql = "SELECT * FROM team WHERE owner_id = ? ORDER BY created_at DESC";
+        String sql = """
+            SELECT t.*, u.username AS owner_username
+            FROM team t
+            INNER JOIN user u ON u.id = t.owner_id
+            WHERE t.owner_id = ?
+            ORDER BY t.created_at DESC
+            """;
         List<Team> teams = new ArrayList<>();
         try (Connection c = DatabaseConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -99,6 +162,10 @@ public class TeamDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Team t = mapTeam(rs);
+                    User owner = new User();
+                    owner.setId(t.getOwnerId());
+                    owner.setUsername(rs.getString("owner_username"));
+                    t.setOwner(owner);
                     t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
                     teams.add(t);
                 }
@@ -110,8 +177,10 @@ public class TeamDAO {
     /** Équipes où l'utilisateur est membre ACTIVE (pas owner) — findTeamsByMember */
     public List<Team> findTeamsByMember(int userId) throws SQLException {
         String sql = """
-            SELECT t.* FROM team t
+            SELECT t.*, u.username AS owner_username
+            FROM team t
             INNER JOIN team_membership tm ON tm.team_id = t.id
+            INNER JOIN user u ON u.id = t.owner_id
             WHERE tm.user_id = ? AND tm.status = 'ACTIVE'
               AND t.owner_id != ?
             ORDER BY t.created_at DESC
@@ -124,6 +193,10 @@ public class TeamDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Team t = mapTeam(rs);
+                    User owner = new User();
+                    owner.setId(t.getOwnerId());
+                    owner.setUsername(rs.getString("owner_username"));
+                    t.setOwner(owner);
                     t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
                     teams.add(t);
                 }
@@ -223,7 +296,6 @@ public class TeamDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     TeamMembership m = mapMembership(rs);
-                    // Hydrate user inline
                     User u = new User();
                     u.setId(m.getUserId());
                     u.setUsername(rs.getString("username"));
@@ -281,7 +353,6 @@ public class TeamDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     TeamMembership m = mapMembership(rs);
-                    // Hydrate team
                     Team t = new Team();
                     t.setId(m.getTeamId());
                     t.setName(rs.getString("team_name"));

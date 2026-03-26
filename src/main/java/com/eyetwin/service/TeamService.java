@@ -3,16 +3,25 @@ package com.eyetwin.service;
 import com.eyetwin.dao.TeamDAO;
 import com.eyetwin.model.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * TeamService — contient toute la logique métier des teams.
- * Traduit exactement les actions du TeamController Symfony.
+ * TeamService — logique métier des teams.
+ * Gère aussi l'upload de logo (stocké dans uploads/teams/).
  */
 public class TeamService {
 
     private final TeamDAO dao = new TeamDAO();
+
+    // Dossier où sont stockés les logos (même chemin que Symfony)
+    // Adapter ce chemin selon ton environnement
+    private static final String UPLOAD_DIR = "uploads/teams/";
 
     // ─── INDEX ───────────────────────────────────────────────────
 
@@ -40,9 +49,20 @@ public class TeamService {
 
     /**
      * Crée une équipe + ajoute le créateur comme OWNER ACTIVE.
-     * Identique au TeamController::create() Symfony.
+     * @param team      objet Team avec name/desc/max/active déjà set
+     * @param ownerId   id du user créateur
+     * @param logoBytes bytes du fichier logo (null = pas de logo)
+     * @param logoExt   extension du fichier (ex: "png", "jpg") — ignoré si logoBytes null
      */
-    public Team createTeam(Team team, int ownerId) throws SQLException {
+    public Team createTeam(Team team, int ownerId, byte[] logoBytes, String logoExt)
+            throws SQLException, IOException {
+
+        // Sauvegarder le logo si fourni
+        if (logoBytes != null && logoBytes.length > 0 && logoExt != null) {
+            String filename = saveLogo(logoBytes, logoExt);
+            team.setLogo(filename);
+        }
+
         team.setOwnerId(ownerId);
         team.setActive(true);
         dao.createTeam(team);
@@ -57,6 +77,11 @@ public class TeamService {
         dao.createMembership(ownerMembership);
 
         return team;
+    }
+
+    /** Surcharge sans logo pour compatibilité */
+    public Team createTeam(Team team, int ownerId) throws SQLException, IOException {
+        return createTeam(team, ownerId, null, null);
     }
 
     // ─── SHOW ────────────────────────────────────────────────────
@@ -90,20 +115,72 @@ public class TeamService {
 
     // ─── EDIT ────────────────────────────────────────────────────
 
-    public void updateTeam(Team team, int currentUserId) throws SQLException {
+    /**
+     * Met à jour une team. Si logoBytes != null, remplace l'ancien logo.
+     */
+    public void updateTeam(Team team, int currentUserId, byte[] logoBytes, String logoExt)
+            throws SQLException, IOException {
         Team existing = dao.findById(team.getId());
         if (existing == null) throw new IllegalArgumentException("Team not found");
         if (existing.getOwnerId() != currentUserId)
             throw new SecurityException("You are not authorized to edit this team");
+
+        // Remplacer le logo si un nouveau est fourni
+        if (logoBytes != null && logoBytes.length > 0 && logoExt != null) {
+            // Supprimer l'ancien logo si existant
+            if (existing.getLogo() != null) deleteLogo(existing.getLogo());
+            String filename = saveLogo(logoBytes, logoExt);
+            team.setLogo(filename);
+        } else {
+            // Garder l'ancien logo
+            team.setLogo(existing.getLogo());
+        }
+
+        dao.updateTeam(team);
+    }
+
+    /** Surcharge sans logo pour compatibilité */
+    public void updateTeam(Team team, int currentUserId) throws SQLException, IOException {
+        updateTeam(team, currentUserId, null, null);
+    }
+
+    // ─── DELETE ──────────────────────────────────────────────────
+
+    /**
+     * Supprime une team et tous ses memberships.
+     * Seul l'owner peut supprimer sa team.
+     * Supprime aussi le logo du disque si présent.
+     */
+    public void deleteTeam(int teamId, int currentUserId) throws SQLException, IOException {
+        Team team = dao.findById(teamId);
+        if (team == null) throw new IllegalArgumentException("Team not found");
+        if (team.getOwnerId() != currentUserId)
+            throw new SecurityException("Only the owner can delete this team");
+
+        // Supprimer le logo du disque
+        if (team.getLogo() != null) deleteLogo(team.getLogo());
+
+        dao.deleteTeam(teamId);
+    }
+
+    // ─── TOGGLE ACTIVE ───────────────────────────────────────────
+
+    /**
+     * Active ou désactive une team.
+     * Seul l'owner peut le faire.
+     */
+    public void toggleActive(int teamId, boolean isActive, int currentUserId)
+            throws SQLException, IOException {
+        Team team = dao.findById(teamId);
+        if (team == null) throw new IllegalArgumentException("Team not found");
+        if (team.getOwnerId() != currentUserId)
+            throw new SecurityException("Only the owner can change team status");
+        team.setActive(isActive);
         dao.updateTeam(team);
     }
 
     // ─── INVITE ──────────────────────────────────────────────────
 
-    /**
-     * Envoyer une invitation à un user.
-     * Vérifie : owner, pas déjà membre, place disponible.
-     */
     public void inviteUser(int teamId, int targetUserId, int currentUserId) throws SQLException {
         Team team = dao.findById(teamId);
         if (team == null) throw new IllegalArgumentException("Team not found");
@@ -242,5 +319,35 @@ public class TeamService {
         if (query == null || query.length() < 2)
             throw new IllegalArgumentException("Query too short");
         return dao.searchUsersForInvitation(query);
+    }
+
+    // ─── LOGO UTILS ──────────────────────────────────────────────
+
+    /**
+     * Sauvegarde un logo sur le disque.
+     * @return le nom du fichier sauvegardé (ex: "logo_UUID.png")
+     */
+    private String saveLogo(byte[] bytes, String ext) throws IOException {
+        // Créer le dossier si besoin
+        Path dir = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(dir)) Files.createDirectories(dir);
+
+        // Nom unique
+        String filename = "logo_" + UUID.randomUUID().toString().replace("-", "") + "." + ext;
+        Path dest = dir.resolve(filename);
+        Files.write(dest, bytes);
+        System.out.println("✅ Logo sauvegardé : " + dest.toAbsolutePath());
+        return filename;
+    }
+
+    /** Supprime un logo du disque (silencieux si absent) */
+    private void deleteLogo(String filename) {
+        try {
+            Path path = Paths.get(UPLOAD_DIR, filename);
+            Files.deleteIfExists(path);
+            System.out.println("🗑 Logo supprimé : " + filename);
+        } catch (IOException e) {
+            System.err.println("⚠ Impossible de supprimer le logo : " + filename);
+        }
     }
 }
