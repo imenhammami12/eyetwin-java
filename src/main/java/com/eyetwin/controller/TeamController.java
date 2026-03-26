@@ -1,34 +1,37 @@
 package com.eyetwin.controller;
 
-import com.eyetwin.dao.TeamDAO;
 import com.eyetwin.model.*;
 import com.eyetwin.service.TeamService;
 import com.eyetwin.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * TeamController — controller unique pour toute la gestion des teams.
- * Remplace TeamListController + TeamCreateController + TeamShowController + TeamEditController
- * Utilise un StackPane central avec 4 vues : LIST, CREATE, SHOW, EDIT
+ * TeamController — gestion complète des teams (LIST / CREATE / SHOW / EDIT).
+ * Nouvelles fonctionnalités :
+ *  - Suppression d'une team (owner seulement)
+ *  - Toggle is_active (checkbox → bouton dédié)
+ *  - Upload de logo (FileChooser) à la création et à l'édition
  */
 public class TeamController {
 
     // ════════════════════════════════════════════════════════════
-    //  VUES (StackPane avec 4 panels)
+    //  VUES
     // ════════════════════════════════════════════════════════════
     @FXML private StackPane mainStack;
     @FXML private VBox viewList;
@@ -74,6 +77,9 @@ public class TeamController {
     @FXML private Label      createMaxError;
     @FXML private Label      createGeneralError;
     @FXML private Button     createSubmitBtn;
+    // Logo upload (CREATE)
+    @FXML private Label      createLogoLabel;   // fx:id="createLogoLabel"
+    @FXML private Button     createLogoBtn;     // fx:id="createLogoBtn"
 
     // ════════════════ SHOW VIEW ════════════════
     @FXML private Label showTeamName;
@@ -81,6 +87,8 @@ public class TeamController {
     @FXML private Label showCreatedAt;
     @FXML private Label showStatusBadge;
     @FXML private Button showEditBtn;
+    @FXML private Button showDeleteBtn;          // fx:id="showDeleteBtn" — NOUVEAU
+    @FXML private Button showToggleActiveBtn;    // fx:id="showToggleActiveBtn" — NOUVEAU
     @FXML private Button showLeaveBtn;
     @FXML private Button showJoinBtn;
     @FXML private Button showPendingBtn;
@@ -97,6 +105,7 @@ public class TeamController {
     @FXML private VBox   showPendingList;
     @FXML private VBox   showMembersList;
     @FXML private Label  showMembersCount;
+    @FXML private Label  showMembersCountBadge;
     @FXML private VBox   showInviteCard;
     @FXML private Label  showFullCapacity;
     @FXML private VBox   showInviteArea;
@@ -116,15 +125,24 @@ public class TeamController {
     @FXML private Label     editMaxError;
     @FXML private Label     editGeneralError;
     @FXML private Button    editSubmitBtn;
+    // Logo upload (EDIT)
+    @FXML private Label     editLogoLabel;      // fx:id="editLogoLabel"
+    @FXML private Button    editLogoBtn;        // fx:id="editLogoBtn"
 
     // ════════════════════════════════════════════════════════════
     //  STATE
     // ════════════════════════════════════════════════════════════
     private final TeamService teamService = new TeamService();
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+
     private Team currentTeam;
-    private int selectedInviteUserId = -1;
+    private int  selectedInviteUserId = -1;
     private Thread searchThread;
+
+    // Fichier logo sélectionné (CREATE)
+    private File selectedLogoFileCreate = null;
+    // Fichier logo sélectionné (EDIT)
+    private File selectedLogoFileEdit   = null;
 
     // ════════════════════════════════════════════════════════════
     //  INITIALIZE
@@ -146,7 +164,6 @@ public class TeamController {
         viewCreate.setVisible(false); viewCreate.setManaged(false);
         viewShow.setVisible(false);   viewShow.setManaged(false);
         viewEdit.setVisible(false);   viewEdit.setManaged(false);
-
         switch (view) {
             case "list"   -> { viewList.setVisible(true);   viewList.setManaged(true);   }
             case "create" -> { viewCreate.setVisible(true); viewCreate.setManaged(true); }
@@ -170,7 +187,6 @@ public class TeamController {
                 List<Team> ownedTeams  = teamService.getOwnedTeams(userId);
                 List<Team> memberTeams = teamService.getMemberTeams(userId);
                 List<Team> allTeams    = teamService.getAllActiveTeams();
-
                 Platform.runLater(() ->
                         renderList(invitations, myRequests, ownedTeams, memberTeams, allTeams, userId));
             } catch (SQLException e) {
@@ -243,7 +259,7 @@ public class TeamController {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  LIST — ACTIONS NAVBAR
+    //  NAVIGATION ENTRE VUES
     // ════════════════════════════════════════════════════════════
     @FXML private void goToCreateView() {
         clearCreateForm();
@@ -256,20 +272,32 @@ public class TeamController {
     }
 
     // ════════════════════════════════════════════════════════════
+    //  CREATE — Logo FileChooser
+    // ════════════════════════════════════════════════════════════
+    @FXML
+    private void handleChooseLogoCreate() {
+        File file = openLogoChooser();
+        if (file != null) {
+            selectedLogoFileCreate = file;
+            if (createLogoLabel != null)
+                createLogoLabel.setText("📎 " + file.getName());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  CREATE — logique
     // ════════════════════════════════════════════════════════════
     @FXML
     private void handleCreate() {
         clearCreateErrors();
-        String name   = createNameField.getText() != null ? createNameField.getText().trim() : "";
-        String desc   = createDescField.getText()  != null ? createDescField.getText().trim()  : "";
-        String maxStr = createMaxField.getText()   != null ? createMaxField.getText().trim()   : "";
+        String name   = text(createNameField);
+        String desc   = text(createDescField);
+        String maxStr = text(createMaxField);
         boolean valid = true;
 
         if (name.length() < 3) {
             createNameError.setText("Name must be at least 3 characters.");
-            createNameError.setVisible(true); createNameError.setManaged(true);
-            valid = false;
+            show(createNameError); valid = false;
         }
         int max = 10;
         try {
@@ -277,8 +305,7 @@ public class TeamController {
             if (max < 1 || max > 50) throw new NumberFormatException();
         } catch (NumberFormatException e) {
             createMaxError.setText("Max members must be 1–50.");
-            createMaxError.setVisible(true); createMaxError.setManaged(true);
-            valid = false;
+            show(createMaxError); valid = false;
         }
         if (!valid) return;
 
@@ -292,27 +319,37 @@ public class TeamController {
         createSubmitBtn.setText("Creating…");
 
         int ownerId = SessionManager.getCurrentUser().getId();
+        File logoFile = selectedLogoFileCreate;
+
         new Thread(() -> {
             try {
-                teamService.createTeam(team, ownerId);
+                byte[] logoBytes = null;
+                String logoExt   = null;
+                if (logoFile != null) {
+                    logoBytes = Files.readAllBytes(logoFile.toPath());
+                    logoExt   = getExtension(logoFile.getName());
+                }
+                teamService.createTeam(team, ownerId, logoBytes, logoExt);
                 Platform.runLater(() -> loadShowView(team.getId()));
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     createSubmitBtn.setDisable(false);
                     createSubmitBtn.setText("🚀  Launch Team");
                     createGeneralError.setText("Error: " + e.getMessage());
-                    createGeneralError.setVisible(true); createGeneralError.setManaged(true);
+                    show(createGeneralError);
                 });
             }
         }).start();
     }
 
     private void clearCreateForm() {
-        if (createNameField != null) createNameField.clear();
+        if (createNameField  != null) createNameField.clear();
         if (createDescField  != null) createDescField.clear();
         if (createMaxField   != null) createMaxField.setText("10");
-        if (createActiveCheck != null) createActiveCheck.setSelected(true);
+        if (createActiveCheck!= null) createActiveCheck.setSelected(true);
         if (createSubmitBtn  != null) { createSubmitBtn.setDisable(false); createSubmitBtn.setText("🚀  Launch Team"); }
+        if (createLogoLabel  != null) createLogoLabel.setText("No file chosen");
+        selectedLogoFileCreate = null;
         clearCreateErrors();
     }
 
@@ -328,8 +365,8 @@ public class TeamController {
         new Thread(() -> {
             try {
                 Team team = teamService.getTeamWithDetails(teamId);
-                List<TeamMembership> members  = teamService.getActiveMembers(teamId);
-                List<TeamMembership> pending  = teamService.getPendingRequests(teamId);
+                List<TeamMembership> members = teamService.getActiveMembers(teamId);
+                List<TeamMembership> pending = teamService.getPendingRequests(teamId);
                 Platform.runLater(() -> renderShow(team, members, pending));
             } catch (SQLException e) {
                 Platform.runLater(() -> showAlert("DB Error: " + e.getMessage()));
@@ -356,12 +393,50 @@ public class TeamController {
         showDescription.setText(team.getDescription() != null ? team.getDescription() : "(No description)");
         showCapacityLabel.setText(cnt + "/" + maxM);
 
-        // Action buttons
-        hide(showEditBtn); hide(showLeaveBtn); hide(showJoinBtn);
-        hide(showPendingBtn); hide(showPendingAlert);
+        // Status badge
+        if (showStatusBadge != null) {
+            showStatusBadge.setText(team.isActive() ? "ACTIVE" : "INACTIVE");
+            showStatusBadge.setStyle(team.isActive()
+                    ? "-fx-text-fill:#00e676;-fx-font-size:10;-fx-font-weight:bold;"
+                    : "-fx-text-fill:#ff6b2b;-fx-font-size:10;-fx-font-weight:bold;");
+        }
+
+        // Cacher tous les boutons d'action
+        hide(showEditBtn); hide(showDeleteBtn); hide(showToggleActiveBtn);
+        hide(showLeaveBtn); hide(showJoinBtn); hide(showPendingBtn); hide(showPendingAlert);
 
         if (isOwner) {
             show(showEditBtn);
+
+            // ── Bouton DELETE ──
+            if (showDeleteBtn != null) {
+                show(showDeleteBtn);
+                showDeleteBtn.setOnAction(e -> handleDeleteTeam());
+            }
+
+            // ── Bouton TOGGLE ACTIVE ──
+            if (showToggleActiveBtn != null) {
+                show(showToggleActiveBtn);
+                if (team.isActive()) {
+                    showToggleActiveBtn.setText("⏸ Deactivate");
+                    showToggleActiveBtn.setStyle(
+                            "-fx-background-color:rgba(255,107,43,0.1);" +
+                                    "-fx-border-color:rgba(255,107,43,0.3);" +
+                                    "-fx-border-radius:7;-fx-background-radius:7;" +
+                                    "-fx-text-fill:#ff6b2b;-fx-font-size:11;" +
+                                    "-fx-font-weight:bold;-fx-padding:7 16 7 16;-fx-cursor:hand;");
+                } else {
+                    showToggleActiveBtn.setText("▶ Activate");
+                    showToggleActiveBtn.setStyle(
+                            "-fx-background-color:rgba(0,230,118,0.1);" +
+                                    "-fx-border-color:rgba(0,230,118,0.3);" +
+                                    "-fx-border-radius:7;-fx-background-radius:7;" +
+                                    "-fx-text-fill:#00e676;-fx-font-size:11;" +
+                                    "-fx-font-weight:bold;-fx-padding:7 16 7 16;-fx-cursor:hand;");
+                }
+                showToggleActiveBtn.setOnAction(e -> handleToggleActive(!team.isActive()));
+            }
+
             if (!pending.isEmpty()) {
                 showPendingAlert.setText("🔔 " + pending.size() + " pending request(s)");
                 show(showPendingAlert);
@@ -375,7 +450,8 @@ public class TeamController {
         }
 
         // Members list
-        showMembersCount.setText(cnt + " active player(s)");
+        if (showMembersCount != null) showMembersCount.setText(cnt + " active player(s)");
+        if (showMembersCountBadge != null) showMembersCountBadge.setText(String.valueOf(cnt));
         showMembersList.getChildren().clear();
         members.forEach(m -> showMembersList.getChildren().add(buildMemberRow(m, isOwner)));
 
@@ -399,6 +475,52 @@ public class TeamController {
     // ════════════════════════════════════════════════════════════
     @FXML private void handleShowEdit() {
         if (currentTeam != null) loadEditView(currentTeam.getId());
+    }
+
+    /** Suppression de la team (owner) */
+    private void handleDeleteTeam() {
+        if (currentTeam == null) return;
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Delete team \"" + currentTeam.getName() + "\"?\nThis action is irreversible.",
+                ButtonType.OK, ButtonType.CANCEL);
+        confirm.setHeaderText("⚠ Delete Team");
+        confirm.showAndWait().ifPresent(b -> {
+            if (b == ButtonType.OK) {
+                int teamId = currentTeam.getId();
+                new Thread(() -> {
+                    try {
+                        teamService.deleteTeam(teamId, SessionManager.getCurrentUser().getId());
+                        Platform.runLater(() -> {
+                            showInfo("Team deleted successfully.");
+                            backToList();
+                        });
+                    } catch (Exception e) {
+                        Platform.runLater(() -> showAlert("Error: " + e.getMessage()));
+                    }
+                }).start();
+            }
+        });
+    }
+
+    /** Toggle is_active (owner) */
+    private void handleToggleActive(boolean newActive) {
+        if (currentTeam == null) return;
+        String msg = newActive ? "Activate this team?" : "Deactivate this team?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.OK, ButtonType.CANCEL);
+        confirm.setHeaderText(null);
+        confirm.showAndWait().ifPresent(b -> {
+            if (b == ButtonType.OK) {
+                int teamId = currentTeam.getId();
+                new Thread(() -> {
+                    try {
+                        teamService.toggleActive(teamId, newActive, SessionManager.getCurrentUser().getId());
+                        Platform.runLater(() -> loadShowView(teamId));
+                    } catch (Exception e) {
+                        Platform.runLater(() -> showAlert("Error: " + e.getMessage()));
+                    }
+                }).start();
+            }
+        });
     }
 
     @FXML private void handleShowLeave() {
@@ -442,7 +564,7 @@ public class TeamController {
                     showSearchResults.getChildren().clear();
                     if (users.isEmpty()) {
                         Label lbl = new Label("No players found");
-                        lbl.setStyle("-fx-text-fill: rgba(255,255,255,0.4); -fx-padding: 10;");
+                        lbl.setStyle("-fx-text-fill:rgba(255,255,255,0.4);-fx-padding:10;");
                         showSearchResults.getChildren().add(lbl);
                     } else {
                         users.forEach(u -> showSearchResults.getChildren().add(buildSearchItem(u)));
@@ -498,6 +620,19 @@ public class TeamController {
     }
 
     // ════════════════════════════════════════════════════════════
+    //  EDIT — Logo FileChooser
+    // ════════════════════════════════════════════════════════════
+    @FXML
+    private void handleChooseLogoEdit() {
+        File file = openLogoChooser();
+        if (file != null) {
+            selectedLogoFileEdit = file;
+            if (editLogoLabel != null)
+                editLogoLabel.setText("📎 " + file.getName());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  EDIT — chargement
     // ════════════════════════════════════════════════════════════
     private void loadEditView(int teamId) {
@@ -525,14 +660,18 @@ public class TeamController {
         editActiveCheck.setSelected(team.isActive());
         editSubmitBtn.setDisable(false);
         editSubmitBtn.setText("💾  Save Changes");
+        // Reset logo selection
+        selectedLogoFileEdit = null;
+        if (editLogoLabel != null)
+            editLogoLabel.setText(team.getLogo() != null ? "Current: " + team.getLogo() : "No file chosen");
         clearEditErrors();
     }
 
     @FXML private void handleEditSubmit() {
         clearEditErrors();
-        String name   = editNameField.getText() != null ? editNameField.getText().trim() : "";
-        String desc   = editDescField.getText()  != null ? editDescField.getText().trim()  : "";
-        String maxStr = editMaxField.getText()   != null ? editMaxField.getText().trim()   : "";
+        String name   = text(editNameField);
+        String desc   = text(editDescField);
+        String maxStr = text(editMaxField);
         boolean valid = true;
 
         if (name.length() < 3) {
@@ -549,18 +688,28 @@ public class TeamController {
         }
         if (!valid) return;
 
+        // ⚠️ FIX is_active : lire la checkbox AVANT de modifier currentTeam
+        boolean isActive = editActiveCheck.isSelected();
+
         currentTeam.setName(name);
         currentTeam.setDescription(desc.isEmpty() ? null : desc);
         currentTeam.setMaxMembers(max);
-        currentTeam.setActive(editActiveCheck.isSelected());
+        currentTeam.setActive(isActive);   // ← correctement appliqué
 
         editSubmitBtn.setDisable(true);
         editSubmitBtn.setText("Saving…");
 
         Team t = currentTeam;
+        File logoFile = selectedLogoFileEdit;
         new Thread(() -> {
             try {
-                teamService.updateTeam(t, SessionManager.getCurrentUser().getId());
+                byte[] logoBytes = null;
+                String logoExt   = null;
+                if (logoFile != null) {
+                    logoBytes = Files.readAllBytes(logoFile.toPath());
+                    logoExt   = getExtension(logoFile.getName());
+                }
+                teamService.updateTeam(t, SessionManager.getCurrentUser().getId(), logoBytes, logoExt);
                 Platform.runLater(() -> loadShowView(t.getId()));
             } catch (Exception e) {
                 Platform.runLater(() -> {
@@ -589,16 +738,13 @@ public class TeamController {
         VBox card = new VBox(10);
         card.setPrefWidth(240);
         card.setStyle(cardStyle("rgba(232,55,42,0.04)", "rgba(232,55,42,0.15)"));
-
         String teamName  = inv.getTeam() != null ? inv.getTeam().getName() : "Team #" + inv.getTeamId();
         String ownerName = inv.getTeam() != null && inv.getTeam().getOwner() != null
                 ? inv.getTeam().getOwner().getUsername() : "Unknown";
-
         Label name  = styledLabel(teamName, "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;");
         Label owner = styledLabel("👤 " + ownerName, "-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.38);");
         Label date  = styledLabel("🕐 " + (inv.getInvitedAt() != null ? inv.getInvitedAt().format(DATE_FMT) : "—"),
                 "-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.35);");
-
         HBox actions = new HBox(8);
         Button accept  = actionBtn("✓ Accept",  "#00e676", "rgba(0,230,118,0.12)", "rgba(0,230,118,0.3)");
         Button decline = actionBtn("✗ Decline", "#ff4d3d", "rgba(232,55,42,0.1)",  "rgba(232,55,42,0.3)");
@@ -607,7 +753,6 @@ public class TeamController {
         HBox.setHgrow(accept, Priority.ALWAYS);
         HBox.setHgrow(decline, Priority.ALWAYS);
         actions.getChildren().addAll(accept, decline);
-
         card.getChildren().addAll(new VBox(3, name, owner, date), actions);
         return card;
     }
@@ -616,16 +761,13 @@ public class TeamController {
         VBox card = new VBox(10);
         card.setPrefWidth(240);
         card.setStyle(cardStyle("rgba(255,107,43,0.04)", "rgba(255,107,43,0.15)"));
-
-        String teamName  = req.getTeam() != null ? req.getTeam().getName() : "Team #" + req.getTeamId();
+        String teamName = req.getTeam() != null ? req.getTeam().getName() : "Team #" + req.getTeamId();
         Label name  = styledLabel(teamName, "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;");
         Label badge = styledLabel("PENDING", "-fx-text-fill:#ff6b2b;-fx-font-size:9;-fx-font-weight:bold;");
-
         Button cancel = actionBtn("✗ Cancel Request", "rgba(255,255,255,0.4)",
                 "rgba(255,255,255,0.05)", "rgba(255,255,255,0.1)");
         cancel.setMaxWidth(Double.MAX_VALUE);
         cancel.setOnAction(e -> handleCancelRequest(req.getId()));
-
         card.getChildren().addAll(new HBox(8, name, badge), cancel);
         return card;
     }
@@ -646,10 +788,16 @@ public class TeamController {
 
         Label nameLbl = styledLabel(team.getName(),
                 "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.93);");
+
+        // Badge ACTIVE / INACTIVE
+        String statusColor = team.isActive() ? "#00e676" : "#ff6b2b";
+        String statusText  = team.isActive() ? "● ACTIVE" : "○ INACTIVE";
+        Label statusLbl = styledLabel(statusText,
+                "-fx-font-size:9;-fx-font-weight:bold;-fx-text-fill:" + statusColor + ";");
+
         String owner = team.getOwner() != null ? team.getOwner().getUsername() : "Owner";
         Label meta = styledLabel("👤 " + owner,
                 "-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.38);");
-
         long cnt = team.getActiveMembersCount(); int maxM = team.getMaxMembers();
         Label count = styledLabel(cnt + "/" + maxM,
                 "-fx-font-size:11;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.7);");
@@ -668,6 +816,29 @@ public class TeamController {
             HBox.setHgrow(editBtn, Priority.ALWAYS);
             editBtn.setOnAction(e -> loadEditView(tid));
             btnRow.getChildren().add(editBtn);
+
+            // Bouton DELETE dans la card
+            Button delBtn = actionBtn("🗑", "#ff4d3d", "rgba(232,55,42,0.1)", "rgba(232,55,42,0.3)");
+            delBtn.setPrefWidth(36);
+            delBtn.setOnAction(e -> {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                        "Delete \"" + team.getName() + "\"?", ButtonType.OK, ButtonType.CANCEL);
+                confirm.setHeaderText("⚠ Delete Team");
+                confirm.showAndWait().ifPresent(b -> {
+                    if (b == ButtonType.OK) {
+                        new Thread(() -> {
+                            try {
+                                teamService.deleteTeam(tid, SessionManager.getCurrentUser().getId());
+                                Platform.runLater(() -> { showInfo("Team deleted."); loadListData(); });
+                            } catch (Exception ex) {
+                                Platform.runLater(() -> showAlert("Error: " + ex.getMessage()));
+                            }
+                        }).start();
+                    }
+                });
+            });
+            btnRow.getChildren().add(delBtn);
+
         } else if (team.isActive() && cnt < maxM) {
             Button joinBtn = actionBtn("👤+ Join", "#00e676", "rgba(0,230,118,0.1)", "rgba(0,230,118,0.3)");
             joinBtn.setMaxWidth(Double.MAX_VALUE);
@@ -685,7 +856,7 @@ public class TeamController {
             btnRow.getChildren().add(joinBtn);
         }
 
-        card.getChildren().addAll(banner, nameLbl, meta, count, btnRow);
+        card.getChildren().addAll(banner, nameLbl, statusLbl, meta, count, btnRow);
         return card;
     }
 
@@ -694,17 +865,14 @@ public class TeamController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-background-color:rgba(255,255,255,0.025);-fx-border-color:rgba(255,255,255,0.065);" +
                 "-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:12 14 12 14;");
-
         String uname = m.getUser() != null ? m.getUser().getUsername() : "User #" + m.getUserId();
         String role  = m.getRole() != null ? m.getRole().getLabel() : "Member";
         String color = m.getRole() == MemberRole.OWNER ? "#ff4d3d" : "rgba(255,255,255,0.4)";
-
         Label nameLbl = styledLabel(uname, "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.93);");
         Label roleLbl = styledLabel(role, "-fx-font-size:10;-fx-text-fill:" + color + ";");
         VBox info = new VBox(3, nameLbl, roleLbl);
         HBox.setHgrow(info, Priority.ALWAYS);
         row.getChildren().addAll(buildAvatar(m.getUser(), m.getRole()), info);
-
         if (isOwner && m.getRole() != MemberRole.OWNER) {
             Button rem = actionBtn("🚫", "#ff4d3d", "rgba(232,55,42,0.1)", "rgba(232,55,42,0.25)");
             rem.setPrefSize(32, 32);
@@ -719,20 +887,16 @@ public class TeamController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-background-color:rgba(255,107,43,0.03);-fx-border-color:rgba(255,107,43,0.15);" +
                 "-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:12 14 12 14;");
-
         String uname = req.getUser() != null ? req.getUser().getUsername() : "User #" + req.getUserId();
         Label nameLbl = styledLabel(uname, "-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.93);");
         VBox info = new VBox(3, nameLbl);
         HBox.setHgrow(info, Priority.ALWAYS);
-
         Button acc = actionBtn("✓", "#00e676", "rgba(0,230,118,0.1)", "rgba(0,230,118,0.3)");
         acc.setPrefSize(32, 32);
         acc.setOnAction(e -> handleAcceptRequest(req.getId()));
-
         Button rej = actionBtn("✗", "#ff4d3d", "rgba(232,55,42,0.1)", "rgba(232,55,42,0.25)");
         rej.setPrefSize(32, 32);
         rej.setOnAction(e -> handleRejectRequest(req.getId()));
-
         row.getChildren().addAll(buildAvatar(req.getUser(), null), info, acc, rej);
         return row;
     }
@@ -849,6 +1013,9 @@ public class TeamController {
     private void show(javafx.scene.Node n) { if (n != null) { n.setVisible(true); n.setManaged(true); } }
     private void hide(javafx.scene.Node n) { if (n != null) { n.setVisible(false); n.setManaged(false); } }
 
+    private String text(TextField f) { return f != null && f.getText() != null ? f.getText().trim() : ""; }
+    private String text(TextArea f)  { return f != null && f.getText() != null ? f.getText().trim() : ""; }
+
     private Label styledLabel(String text, String style) {
         Label l = new Label(text); l.setStyle(style); return l;
     }
@@ -865,6 +1032,22 @@ public class TeamController {
     private String cardStyle(String bg, String border) {
         return "-fx-background-color:" + bg + ";-fx-border-color:" + border + ";" +
                 "-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:14 16 14 16;";
+    }
+
+    /** Ouvre un FileChooser pour sélectionner une image */
+    private File openLogoChooser() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Team Logo");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
+        Stage owner = (Stage) viewList.getScene().getWindow();
+        return chooser.showOpenDialog(owner);
+    }
+
+    /** Extrait l'extension d'un nom de fichier (ex: "photo.jpg" → "jpg") */
+    private String getExtension(String filename) {
+        int dot = filename.lastIndexOf('.');
+        return dot >= 0 ? filename.substring(dot + 1).toLowerCase() : "png";
     }
 
     private void showAlert(String msg) {

@@ -30,7 +30,13 @@ public class AuthService {
             return null;
         }
 
-        if (!BCrypt.checkpw(password, user.getPassword())) {
+        // Fix compatibilité Symfony : $2y$ → $2a$ (identiques algorithmiquement)
+        String hash = user.getPassword();
+        if (hash != null && hash.startsWith("$2y$")) {
+            hash = "$2a$" + hash.substring(4);
+        }
+
+        if (!BCrypt.checkpw(password, hash)) {
             System.out.println("❌ Wrong password");
             return null;
         }
