@@ -1,15 +1,19 @@
 /* ═══════════════════════════════════════════════════════
    EYETWIN — GAMING THEME CSS  (JavaFX)
    Mirrors the Symfony base.html.twig design
+   Updated: full navbar dropdowns, MenuButton, ContextMenu
 ═══════════════════════════════════════════════════════ */
 
-/* ── ROOT COLORS ── */
-/* --red: #e8372a  --red-hot: #ff4d3d  --red-deep: #b02b20
+/* ── ROOT COLORS ──
+   --red: #e8372a  --red-hot: #ff4d3d  --red-deep: #b02b20
    --orange: #ff6b2b  --pink: #ff2060  --gold: #f6d860
-   --green: #00e676  --dark: #080810  --dark2: #0d0c1a
+   --green: #00e676  --cyan: #00e5ff
+   --dark: #080810  --dark2: #0d0c1a  --dark3: #12101f
    --muted: rgba(255,255,255,0.38) */
 
-/* ══ SCROLLPANE ══ */
+/* ══════════════════════════════════════════════════════
+   SCROLLPANE
+══════════════════════════════════════════════════════ */
 .scroll-pane {
     -fx-background-color: #080810;
     -fx-background: #080810;
@@ -20,22 +24,32 @@
 }
 .scroll-pane .scroll-bar:vertical .track {
     -fx-background-color: #0d0c1a;
+    -fx-border-color: transparent;
 }
 .scroll-pane .scroll-bar:vertical .thumb {
     -fx-background-color: rgba(232,55,42,0.4);
     -fx-background-radius: 3;
 }
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #e8372a;
+}
 .scroll-pane .scroll-bar:horizontal {
     -fx-pref-height: 0;
     -fx-max-height: 0;
+    -fx-opacity: 0;
+}
+.scroll-pane .corner {
+    -fx-background-color: #080810;
 }
 
-/* ══ NAVBAR ══ */
+/* ══════════════════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════════════════ */
 .navbar {
     -fx-background-color: rgba(8,8,16,0.97);
     -fx-border-color: rgba(232,55,42,0.15);
     -fx-border-width: 0 0 1 0;
-    -fx-padding: 0 30 0 30;
+    -fx-padding: 0 24 0 24;
     -fx-pref-height: 64;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20, 0, 0, 4);
 }
@@ -45,27 +59,230 @@
     -fx-font-family: "Arial Black";
     -fx-font-size: 16;
     -fx-font-weight: bold;
-    -fx-letter-spacing: 0.2em;
     -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.5), 12, 0, 0, 0);
 }
 
 .nav-link {
     -fx-text-fill: rgba(255,255,255,0.5);
-    -fx-font-size: 11;
+    -fx-font-size: 10;
     -fx-font-weight: bold;
-    -fx-padding: 22 16 22 16;
+    -fx-padding: 22 14 22 14;
     -fx-cursor: hand;
 }
 .nav-link:hover {
     -fx-text-fill: white;
 }
 .nav-link-active {
-    -fx-text-fill: #e8372a;
+    -fx-text-fill: white;
     -fx-border-color: transparent transparent #e8372a transparent;
     -fx-border-width: 0 0 2 0;
 }
 
-/* ══ BUTTONS ══ */
+/* ══════════════════════════════════════════════════════
+   MENUBUTTON — Uploader / Notifications / Profile dropdown
+   Mirrors Bootstrap .dropdown-toggle + .dropdown-menu
+══════════════════════════════════════════════════════ */
+
+/* Base MenuButton — looks like a nav-link */
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.5);
+    -fx-font-size: 10;
+    -fx-font-weight: bold;
+    -fx-padding: 8 12 8 12;
+    -fx-cursor: hand;
+    -fx-background-radius: 0;
+}
+.menu-button:hover,
+.menu-button:showing {
+    -fx-background-color: rgba(232,55,42,0.06);
+    -fx-text-fill: white;
+}
+/* Hide default arrow on MenuButton */
+.menu-button .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0 4 0 0;
+}
+.menu-button .arrow-button .arrow {
+    -fx-background-color: rgba(255,255,255,0.3);
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+    -fx-scale-shape: true;
+    -fx-pref-width: 6;
+    -fx-pref-height: 4;
+}
+.menu-button:hover .arrow-button .arrow,
+.menu-button:showing .arrow-button .arrow {
+    -fx-background-color: rgba(232,55,42,0.8);
+}
+.menu-button .label {
+    -fx-text-fill: inherit;
+    -fx-font-size: 10;
+    -fx-font-weight: bold;
+}
+
+/* ── Profile MenuButton pill — like .et-profile-trigger ── */
+.menu-button.profile-pill {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(232,55,42,0.18);
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-padding: 4 12 4 6;
+}
+.menu-button.profile-pill:hover,
+.menu-button.profile-pill:showing {
+    -fx-background-color: rgba(232,55,42,0.09);
+    -fx-border-color: rgba(232,55,42,0.5);
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.12), 20, 0, 0, 0);
+}
+.menu-button.profile-pill .arrow-button .arrow {
+    -fx-background-color: rgba(255,255,255,0.25);
+}
+
+/* ── Notification bell MenuButton ── */
+.menu-button.notif-bell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 6 8 6 8;
+}
+.menu-button.notif-bell:hover,
+.menu-button.notif-bell:showing {
+    -fx-background-color: rgba(232,55,42,0.08);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+.menu-button.notif-bell .arrow-button {
+    -fx-pref-width: 0;
+    -fx-max-width: 0;
+    -fx-opacity: 0;
+}
+
+/* ── Uploader dot MenuButton ── */
+.menu-button.uploader-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 8 14 8 14;
+}
+.menu-button.uploader-btn:hover,
+.menu-button.uploader-btn:showing {
+    -fx-background-color: rgba(232,55,42,0.06);
+    -fx-text-fill: white;
+}
+
+/* ══════════════════════════════════════════════════════
+   CONTEXT MENU / DROPDOWN POPUP
+   Mirrors .dropdown-menu from Symfony
+══════════════════════════════════════════════════════ */
+.context-menu {
+    -fx-background-color: rgba(7,5,16,0.98);
+    -fx-border-color: rgba(232,55,42,0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.85), 40, 0, 0, 8);
+    -fx-padding: 6 0 6 0;
+}
+
+/* ── MenuItem — mirrors .dropdown-item ── */
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 9 18 9 14;
+}
+.menu-item:hover,
+.menu-item:focused {
+    -fx-background-color: rgba(232,55,42,0.1);
+    -fx-border-color: rgba(232,55,42,0.2);
+}
+.menu-item .label {
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}
+.menu-item:hover .label,
+.menu-item:focused .label {
+    -fx-text-fill: white;
+}
+
+/* ── Disabled MenuItem — header rows / empty states ── */
+.menu-item:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: transparent;
+}
+.menu-item:disabled .label {
+    -fx-text-fill: rgba(255,255,255,0.35);
+    -fx-font-size: 10;
+}
+
+/* ── SeparatorMenuItem — mirrors .dropdown-divider ── */
+.separator-menu-item {
+    -fx-padding: 3 0 3 0;
+}
+.separator-menu-item .line {
+    -fx-border-color: rgba(232,55,42,0.12);
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ── Profile dropdown header item ── */
+.menu-item.profile-header:disabled .label {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}
+
+/* ── Logout item — red like .et-pd-logout ── */
+.menu-item.logout-item .label {
+    -fx-text-fill: rgba(255,100,80,0.7);
+}
+.menu-item.logout-item:hover .label {
+    -fx-text-fill: #ff4d3d;
+}
+.menu-item.logout-item:hover {
+    -fx-background-color: rgba(255,80,60,0.1);
+}
+
+/* ── Admin item — gold like .et-pd-admin ── */
+.menu-item.admin-item .label {
+    -fx-text-fill: rgba(246,216,96,0.8);
+}
+.menu-item.admin-item:hover .label {
+    -fx-text-fill: #f6d860;
+}
+.menu-item.admin-item:hover {
+    -fx-background-color: rgba(246,216,96,0.07);
+}
+
+/* ── Cyan items (2FA) — like .et-pd-2fa ── */
+.menu-item.twofa-item .label {
+    -fx-text-fill: rgba(0,229,255,0.7);
+}
+.menu-item.twofa-item:hover .label {
+    -fx-text-fill: #00e5ff;
+}
+.menu-item.twofa-item:hover {
+    -fx-background-color: rgba(0,229,255,0.07);
+}
+
+/* ── Orange items (support) — like .et-pd-support ── */
+.menu-item.support-item .label {
+    -fx-text-fill: rgba(255,107,43,0.7);
+}
+.menu-item.support-item:hover .label {
+    -fx-text-fill: #ff6b2b;
+}
+.menu-item.support-item:hover {
+    -fx-background-color: rgba(255,107,43,0.07);
+}
+
+/* ── Empty notif item ── */
+.menu-item.notif-empty:disabled .label {
+    -fx-text-fill: rgba(255,255,255,0.28);
+    -fx-font-size: 11;
+}
+
+/* ══════════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════════ */
 .btn-fire {
     -fx-background-color: linear-gradient(to bottom, #b02b20, #e8372a, #ff4d3d);
     -fx-text-fill: white;
@@ -81,6 +298,10 @@
     -fx-background-color: linear-gradient(to bottom, #c03020, #ff4d3d, #ff6655);
     -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.7), 22, 0, 0, 5);
     -fx-translate-y: -2;
+}
+.btn-fire:pressed {
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.3), 8, 0, 0, 1);
 }
 
 .btn-ghost {
@@ -134,7 +355,9 @@
     -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.2), 12, 0, 0, 0);
 }
 
-/* ══ INPUTS ══ */
+/* ══════════════════════════════════════════════════════
+   INPUTS
+══════════════════════════════════════════════════════ */
 .input-gaming {
     -fx-background-color: rgba(255,255,255,0.03);
     -fx-border-color: rgba(255,255,255,0.1);
@@ -153,7 +376,35 @@
     -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.15), 8, 0, 0, 0);
 }
 
-/* ══ GLASS CARD ══ */
+/* ── TextArea fix (white background bug) ── */
+TextArea.input-gaming {
+    -fx-control-inner-background: #0d0c1a;
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-text-fill: rgba(255,255,255,0.93);
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+}
+TextArea.input-gaming .content {
+    -fx-background-color: #0d0c1a;
+}
+TextArea.input-gaming:focused {
+    -fx-control-inner-background: #100f1e;
+    -fx-background-color: rgba(232,55,42,0.04);
+    -fx-border-color: rgba(232,55,42,0.55);
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.15), 8, 0, 0, 0);
+}
+TextArea.input-gaming:focused .content {
+    -fx-background-color: #100f1e;
+}
+TextArea.input-gaming .scroll-pane {
+    -fx-background-color: transparent;
+}
+TextArea.input-gaming .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ══════════════════════════════════════════════════════
+   GLASS CARD
+══════════════════════════════════════════════════════ */
 .gcard {
     -fx-background-color: rgba(6,5,16,0.88);
     -fx-border-color: rgba(255,255,255,0.065);
@@ -167,7 +418,9 @@
     -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.12), 30, 0, 0, 8);
 }
 
-/* ══ SECTION TITLES ══ */
+/* ══════════════════════════════════════════════════════
+   SECTION TITLES
+══════════════════════════════════════════════════════ */
 .section-tag {
     -fx-text-fill: #ff4d3d;
     -fx-font-size: 10;
@@ -179,20 +432,20 @@
     -fx-background-radius: 3;
     -fx-padding: 4 12 4 12;
 }
-
 .section-title {
     -fx-text-fill: white;
     -fx-font-family: "Arial Black";
     -fx-font-size: 24;
     -fx-font-weight: bold;
 }
-
 .section-sub {
     -fx-text-fill: rgba(255,255,255,0.38);
     -fx-font-size: 13;
 }
 
-/* ══ STAT LABELS ══ */
+/* ══════════════════════════════════════════════════════
+   STAT LABELS
+══════════════════════════════════════════════════════ */
 .stat-val {
     -fx-text-fill: #ff4d3d;
     -fx-font-size: 26;
@@ -205,7 +458,9 @@
     -fx-font-weight: bold;
 }
 
-/* ══ FEATURE CARDS ══ */
+/* ══════════════════════════════════════════════════════
+   FEATURE CARDS
+══════════════════════════════════════════════════════ */
 .feat-card {
     -fx-background-color: rgba(8,8,20,0.9);
     -fx-border-color: rgba(255,255,255,0.07);
@@ -227,12 +482,6 @@
     -fx-padding: 24 22 24 22;
     -fx-cursor: hand;
 }
-.feat-icon {
-    -fx-background-color: rgba(232,55,42,0.1);
-    -fx-border-color: rgba(232,55,42,0.25);
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-}
 .feat-title {
     -fx-text-fill: white;
     -fx-font-weight: bold;
@@ -250,7 +499,9 @@
     -fx-cursor: hand;
 }
 
-/* ══ TEAM CARDS ══ */
+/* ══════════════════════════════════════════════════════
+   TEAM CARDS
+══════════════════════════════════════════════════════ */
 .team-card {
     -fx-background-color: rgba(6,5,16,0.88);
     -fx-border-color: rgba(232,55,42,0.18);
@@ -266,7 +517,9 @@
     -fx-translate-y: -4;
 }
 
-/* ══ MEMBER ROW ══ */
+/* ══════════════════════════════════════════════════════
+   MEMBER ROW
+══════════════════════════════════════════════════════ */
 .member-row {
     -fx-background-color: rgba(255,255,255,0.025);
     -fx-border-color: rgba(255,255,255,0.065);
@@ -280,7 +533,9 @@
     -fx-border-color: rgba(232,55,42,0.25);
 }
 
-/* ══ SEARCH DROPDOWN ══ */
+/* ══════════════════════════════════════════════════════
+   SEARCH DROPDOWN
+══════════════════════════════════════════════════════ */
 .search-dropdown {
     -fx-background-color: #13121f;
     -fx-border-color: rgba(232,55,42,0.22);
@@ -294,15 +549,37 @@
     -fx-cursor: hand;
 }
 
-/* ══ COINS BADGE ══ */
+/* ══════════════════════════════════════════════════════
+   COINS BADGE  — mirrors .nav-coins-pill
+══════════════════════════════════════════════════════ */
 .coins-badge {
-    -fx-background-color: rgba(246,216,96,0.9);
+    -fx-background-color: linear-gradient(to right, #f6d860, #f6ad55);
     -fx-background-radius: 20;
-    -fx-padding: 6 14 6 14;
-    -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.25), 12, 0, 0, 0);
+    -fx-padding: 5 13 5 13;
+    -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.3), 10, 0, 0, 0);
+    -fx-cursor: hand;
+}
+.coins-badge:hover {
+    -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.55), 18, 0, 0, 0);
+    -fx-translate-y: -1;
 }
 
-/* ══ STATUS BADGES ══ */
+/* ══════════════════════════════════════════════════════
+   NOTIFICATIONS BADGE DOT
+══════════════════════════════════════════════════════ */
+.notif-badge {
+    -fx-background-color: #e8372a;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-size: 8;
+    -fx-font-weight: bold;
+    -fx-padding: 1 4 1 4;
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.5), 6, 0, 0, 0);
+}
+
+/* ══════════════════════════════════════════════════════
+   STATUS BADGES
+══════════════════════════════════════════════════════ */
 .badge-active {
     -fx-background-color: rgba(0,230,118,0.12);
     -fx-border-color: rgba(0,230,118,0.35);
@@ -343,8 +620,30 @@
     -fx-font-weight: bold;
     -fx-padding: 3 10 3 10;
 }
+.badge-gold {
+    -fx-background-color: rgba(246,216,96,0.1);
+    -fx-border-color: rgba(246,216,96,0.3);
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-text-fill: #f6d860;
+    -fx-font-size: 10;
+    -fx-font-weight: bold;
+    -fx-padding: 3 10 3 10;
+}
+.badge-cyan {
+    -fx-background-color: rgba(0,229,255,0.1);
+    -fx-border-color: rgba(0,229,255,0.3);
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-text-fill: #00e5ff;
+    -fx-font-size: 10;
+    -fx-font-weight: bold;
+    -fx-padding: 3 10 3 10;
+}
 
-/* ══ ROLE BADGES ══ */
+/* ══════════════════════════════════════════════════════
+   ROLE BADGES
+══════════════════════════════════════════════════════ */
 .role-owner {
     -fx-background-color: rgba(232,55,42,0.15);
     -fx-border-color: rgba(232,55,42,0.3);
@@ -366,7 +665,9 @@
     -fx-padding: 2 7 2 7;
 }
 
-/* ══ PROGRESS BAR ══ */
+/* ══════════════════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════════════════ */
 .progress-bar {
     -fx-background-color: rgba(255,255,255,0.07);
     -fx-background-radius: 3;
@@ -381,13 +682,9 @@
     -fx-background-color: linear-gradient(to right, transparent, #e8372a, transparent);
 }
 
-/* ══ DIVIDER ══ */
-.separator {
-    -fx-background-color: rgba(255,255,255,0.05);
-    -fx-border-color: transparent;
-}
-
-/* ══ ALERT / FLASH ══ */
+/* ══════════════════════════════════════════════════════
+   ALERTS / FLASH MESSAGES
+══════════════════════════════════════════════════════ */
 .alert-success {
     -fx-background-color: rgba(0,230,118,0.1);
     -fx-border-color: #00e676;
@@ -418,20 +715,20 @@
     -fx-font-size: 12;
     -fx-padding: 12 16 12 16;
 }
-
-/* ══ FOOTER ══ */
-.footer {
-    -fx-background-color: #0d0c1a;
-    -fx-border-color: rgba(232,55,42,0.15);
-    -fx-border-width: 1 0 0 0;
-    -fx-padding: 16 40 16 40;
-}
-.footer-text {
-    -fx-text-fill: rgba(255,255,255,0.35);
-    -fx-font-size: 11;
+.alert-info {
+    -fx-background-color: rgba(0,229,255,0.08);
+    -fx-border-color: #00e5ff;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #00e5ff;
+    -fx-font-size: 12;
+    -fx-padding: 12 16 12 16;
 }
 
-/* ══ CHECKBOX ══ */
+/* ══════════════════════════════════════════════════════
+   CHECKBOX
+══════════════════════════════════════════════════════ */
 .check-box .mark {
     -fx-background-color: white;
 }
@@ -448,31 +745,43 @@
 .check-box {
     -fx-text-fill: rgba(255,255,255,0.7);
 }
-/* ══ FIX TEXTAREA — fond blanc illisible ══
-   JavaFX TextArea nécessite -fx-control-inner-background
-   pour forcer la couleur du fond interne (pas -fx-background-color seul)
-═══════════════════════════════════════════════════════════ */
-TextArea.input-gaming {
-    -fx-control-inner-background: #0d0c1a;
-    -fx-background-color: rgba(255,255,255,0.03);
-    -fx-text-fill: rgba(255,255,255,0.93);
-    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+
+/* ══════════════════════════════════════════════════════
+   SEPARATOR
+══════════════════════════════════════════════════════ */
+.separator {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-border-color: transparent;
 }
-TextArea.input-gaming .content {
+.separator .line {
+    -fx-border-color: rgba(255,255,255,0.05);
+}
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════════ */
+.footer {
     -fx-background-color: #0d0c1a;
+    -fx-border-color: rgba(232,55,42,0.15);
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 16 40 16 40;
 }
-TextArea.input-gaming:focused {
-    -fx-control-inner-background: #100f1e;
-    -fx-background-color: rgba(232,55,42,0.04);
-    -fx-border-color: rgba(232,55,42,0.55);
-    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.15), 8, 0, 0, 0);
+.footer-text {
+    -fx-text-fill: rgba(255,255,255,0.35);
+    -fx-font-size: 11;
 }
-TextArea.input-gaming:focused .content {
-    -fx-background-color: #100f1e;
-}
-TextArea.input-gaming .scroll-pane {
-    -fx-background-color: transparent;
-}
-TextArea.input-gaming .scroll-pane .viewport {
-    -fx-background-color: transparent;
+
+/* ══════════════════════════════════════════════════════
+   TOOLTIP (global)
+══════════════════════════════════════════════════════ */
+.tooltip {
+    -fx-background-color: rgba(7,5,16,0.97);
+    -fx-border-color: rgba(232,55,42,0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 11;
+    -fx-padding: 7 12 7 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 3);
 }

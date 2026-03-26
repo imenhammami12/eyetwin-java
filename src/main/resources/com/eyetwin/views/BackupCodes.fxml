@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    BackupCodes.fxml
+    Mirrors: two_factor/backup_codes.html.twig (Symfony)
+    Controller: com.eyetwin.controller.BackupCodesController
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.BackupCodesController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #0b111f;"
+            prefWidth="1280" prefHeight="800">
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane">
+            <VBox style="-fx-background-color: #0b111f; -fx-padding: 50 80;">
+
+                <!-- Hero card (yellow gradient) -->
+                <HBox spacing="24" alignment="CENTER_LEFT"
+                      style="-fx-background-color: linear-gradient(135deg, #f4e700, #fbc02d);
+                             -fx-border-radius: 20; -fx-background-radius: 20;
+                             -fx-padding: 36 40; -fx-margin: 0 0 28 0;
+                             -fx-effect: dropshadow(gaussian, rgba(244,231,0,0.4), 40, 0, 0, 0);">
+                    <StackPane style="-fx-background-color: rgba(0,0,0,0.2);
+                                      -fx-background-radius: 50; -fx-min-width: 80; -fx-min-height: 80;
+                                      -fx-max-width: 80; -fx-max-height: 80;
+                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 0);">
+                        <Label text="🛡" style="-fx-font-size: 40; -fx-text-fill: white;"/>
+                    </StackPane>
+                    <VBox spacing="6">
+                        <Label text="Backup Codes Secured!"
+                               style="-fx-text-fill: #1a1f2e; -fx-font-family: 'Arial Black';
+                                      -fx-font-size: 28; -fx-font-weight: bold;"/>
+                        <Label text="Your emergency access codes are ready. Keep them safe!"
+                               style="-fx-text-fill: rgba(0,0,0,0.75); -fx-font-size: 14; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Success banner (is_new = true) -->
+                <HBox fx:id="successBanner" visible="false" managed="false"
+                      spacing="14" alignment="CENTER_LEFT"
+                      style="-fx-background-color: linear-gradient(135deg, rgba(76,211,227,0.2), rgba(76,211,227,0.05));
+                             -fx-border-color: #4cd3e3; -fx-border-width: 0 0 0 5;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-padding: 18 22; -fx-margin: 0 0 22 0;">
+                    <Label text="✓" style="-fx-font-size: 24; -fx-text-fill: #4cd3e3;"/>
+                    <VBox spacing="2">
+                        <Label text="Success!"
+                               style="-fx-text-fill: #4cd3e3; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                        <Label text="Two-factor authentication is now active on your account."
+                               style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Critical warning card -->
+                <HBox spacing="18" alignment="TOP_LEFT"
+                      style="-fx-background-color: linear-gradient(135deg, rgba(244,74,64,0.15), rgba(244,74,64,0.05));
+                             -fx-border-color: #f44a40; -fx-border-width: 0 0 0 5;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-padding: 22 26; -fx-margin: 0 0 22 0;">
+                    <StackPane style="-fx-background-color: rgba(244,74,64,0.2);
+                                      -fx-background-radius: 50; -fx-min-width: 46; -fx-min-height: 46;
+                                      -fx-max-width: 46; -fx-max-height: 46;">
+                        <Label text="⚠" style="-fx-text-fill: #f44a40; -fx-font-size: 22;"/>
+                    </StackPane>
+                    <VBox spacing="5">
+                        <Label text="Critical Security Notice"
+                               style="-fx-text-fill: #f44a40; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                        <Label text="Save these backup codes in a secure location immediately. Each code can only be used once and they are your only way to recover account access if you lose your authenticator device."
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12; -fx-wrap-text: true;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Codes container card -->
+                <VBox style="-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);
+                             -fx-border-color: rgba(255,0,0,0.3); -fx-border-radius: 20;
+                             -fx-background-radius: 20; -fx-border-width: 2;
+                             -fx-margin: 0 0 22 0;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 40, 0, 0, 0);">
+
+                    <!-- Codes header -->
+                    <HBox alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
+                                 -fx-padding: 22 28; -fx-border-radius: 18 18 0 0;
+                                 -fx-background-radius: 18 18 0 0;">
+                        <Label text="🔑" style="-fx-font-size: 18;"/>
+                        <Label fx:id="codesCountLabel" text="Your Backup Codes"
+                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;
+                                      -fx-padding: 0 0 0 10; -fx-font-family: 'Arial Black';"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="copyAllBtn" text="⎘  Copy All Codes"
+                                onAction="#handleCopyAll"
+                                style="-fx-background-color: rgba(255,255,255,0.2);
+                                       -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 8;
+                                       -fx-background-radius: 8; -fx-text-fill: white;
+                                       -fx-font-weight: bold; -fx-font-size: 12; -fx-padding: 10 18;
+                                       -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Individual codes (built dynamically in controller) -->
+                    <VBox fx:id="codesContainer"
+                          spacing="12"
+                          style="-fx-padding: 30 28;"/>
+                </VBox>
+
+                <!-- Action buttons -->
+                <HBox spacing="18" style="-fx-margin: 0 0 22 0;">
+                    <Button text="🖨  Print Codes"
+                            maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+                                   -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 12;
+                                   -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold;
+                                   -fx-font-size: 13; -fx-padding: 16 0; -fx-cursor: hand;"/>
+                    <Button fx:id="downloadBtn" text="⬇  Download as Text"
+                            maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS"
+                            onAction="#handleDownload"
+                            style="-fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+                                   -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 12;
+                                   -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold;
+                                   -fx-font-size: 13; -fx-padding: 16 0; -fx-cursor: hand;"/>
+                </HBox>
+
+                <!-- Tips card -->
+                <VBox style="-fx-background-color: linear-gradient(135deg, rgba(56,164,255,0.15), rgba(56,164,255,0.05));
+                             -fx-border-color: #38a4ff; -fx-border-width: 0 0 0 5;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-padding: 22 26; -fx-margin: 0 0 28 0;">
+                    <Label text="💡  Tips for storing backup codes"
+                           style="-fx-text-fill: #38a4ff; -fx-font-weight: bold; -fx-font-size: 14;
+                                  -fx-padding: 0 0 12 0;"/>
+                    <!-- Tip rows -->
+                    <HBox spacing="10" style="-fx-padding: 8 0;">
+                        <Label text="✓" style="-fx-text-fill: #4cd3e3; -fx-font-size: 13;"/>
+                        <Label text="Save them in a password manager (recommended)"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12;"/>
+                    </HBox>
+                    <HBox spacing="10" style="-fx-padding: 8 0;">
+                        <Label text="✓" style="-fx-text-fill: #4cd3e3; -fx-font-size: 13;"/>
+                        <Label text="Print them and store in a safe or secure location"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12;"/>
+                    </HBox>
+                    <HBox spacing="10" style="-fx-padding: 8 0;">
+                        <Label text="✓" style="-fx-text-fill: #4cd3e3; -fx-font-size: 13;"/>
+                        <Label text="Take a screenshot and store it in an encrypted folder"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12;"/>
+                    </HBox>
+                    <HBox spacing="10" style="-fx-padding: 8 0;">
+                        <Label text="✕" style="-fx-text-fill: #f44a40; -fx-font-size: 13;"/>
+                        <Label text="Never share them with anyone, even support staff"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12;"/>
+                    </HBox>
+                    <HBox spacing="10" style="-fx-padding: 8 0;">
+                        <Label text="✕" style="-fx-text-fill: #f44a40; -fx-font-size: 13;"/>
+                        <Label text="Don't store them in plain text on your computer"
+                               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Final action buttons -->
+                <VBox spacing="14">
+                    <Button fx:id="savedBtn" text="✓✓  I've Saved My Backup Codes"
+                            maxWidth="1.7976931348623157E308"
+                            onAction="#handleSaved"
+                            style="-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);
+                                   -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;
+                                   -fx-background-radius: 12; -fx-padding: 17 0; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(76,211,227,0.4), 25, 0, 0, 5);"/>
+                    <Button fx:id="dashboardBtn" text="← Go to Dashboard"
+                            maxWidth="1.7976931348623157E308"
+                            onAction="#handleDashboard"
+                            style="-fx-background-color: transparent;
+                                   -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 12;
+                                   -fx-background-radius: 12; -fx-text-fill: rgba(255,255,255,0.6);
+                                   -fx-font-weight: bold; -fx-font-size: 14; -fx-padding: 14 0;
+                                   -fx-cursor: hand;"/>
+                </VBox>
+
+                <!-- Toast notification (fixed position — shown on copy/download) -->
+                <VBox fx:id="toastBox" visible="false" managed="false"
+                      style="-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);
+                             -fx-padding: 18 28; -fx-background-radius: 12; -fx-margin: 20 0 0 0;
+                             -fx-effect: dropshadow(gaussian, rgba(76,211,227,0.5), 30, 0, 0, 0);">
+                    <Label fx:id="toastLabel" text=""
+                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
