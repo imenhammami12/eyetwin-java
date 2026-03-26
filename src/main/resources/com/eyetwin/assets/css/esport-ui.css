@@ -1,0 +1,145 @@
+/* ========= eSport UI (dark + readable) ========= */
+
+:root{
+    --bg-0:#07080c;
+    --bg-1:#0b0f1a;
+    --card: rgba(255,255,255,0.06);
+    --card2: rgba(255,255,255,0.10);
+    --stroke: rgba(255,255,255,0.10);
+    --text: rgba(255,255,255,0.92);
+    --muted: rgba(255,255,255,0.65);
+    --accent: #ff2d55;  /* rose/red eSport */
+    --accent2:#00d4ff;  /* cyan */
+}
+
+/* Background global plus “eSport” */
+.body_bg{
+    background:
+            radial-gradient(1200px 600px at 15% 20%, rgba(255,45,85,0.18), transparent 55%),
+            radial-gradient(900px 500px at 85% 25%, rgba(0,212,255,0.14), transparent 55%),
+            linear-gradient(180deg, var(--bg-0), var(--bg-1) 60%, #060710);
+}
+
+/* Section header (Dashboard/Channels) style hero */
+.esport-hero{
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    padding: 42px 28px;
+    margin-bottom: 22px;
+    border: 1px solid var(--stroke);
+    background:
+            radial-gradient(900px 400px at 20% 10%, rgba(255,45,85,0.25), transparent 55%),
+            radial-gradient(800px 380px at 90% 20%, rgba(0,212,255,0.18), transparent 55%),
+            rgba(255,255,255,0.04);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+}
+
+.esport-hero h2, .esport-hero h1{
+    color: var(--text);
+    margin: 0;
+}
+.esport-hero p{
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+/* Cards grid (channels) */
+.channel-grid .channel-card{
+    height: 100%;
+    border-radius: 16px;
+    border: 1px solid var(--stroke);
+    background: var(--card);
+    box-shadow: 0 14px 35px rgba(0,0,0,0.45);
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.channel-grid .channel-card:hover{
+    transform: translateY(-4px);
+    background: var(--card2);
+    border-color: rgba(255,255,255,0.18);
+}
+
+.channel-title{
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+.channel-meta{
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.badge-esport{
+    background: rgba(0,212,255,0.12);
+    border: 1px solid rgba(0,212,255,0.28);
+    color: rgba(255,255,255,0.9);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.btn-accent{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+.btn-accent:hover{
+    filter: brightness(1.05);
+    color: white;
+}
+
+.btn-soft{
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--stroke);
+    color: rgba(255,255,255,0.85);
+}
+.btn-soft:hover{
+    background: rgba(255,255,255,0.10);
+    color: white;
+}
+/* ========= Form Panel ========= */
+.form-panel{
+    border-radius: 18px;
+    border: 1px solid var(--stroke);
+    background: rgba(255,255,255,0.05);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    padding: 24px;
+}
+
+.form-panel .form-label{
+    color: rgba(255,255,255,0.80);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-panel .form-control,
+.form-panel .form-select,
+.form-panel textarea{
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.92);
+    border-radius: 12px;
+}
+
+.form-panel .form-control:focus,
+.form-panel .form-select:focus,
+.form-panel textarea:focus{
+    border-color: rgba(0,212,255,0.35);
+    box-shadow: 0 0 0 .2rem rgba(0,212,255,0.12);
+}
+
+.form-help{
+    color: rgba(255,255,255,0.60);
+    font-size: 13px;
+}
+
+.form-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top: 14px;
+}
+
+.page-title{
+    color: rgba(255,255,255,0.92);
+}

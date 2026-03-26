@@ -1,0 +1,124 @@
+/* Admin Notification Toast Styles */
+
+.admin-notification-toast {
+    position: fixed;
+    top: 80px;
+    right: -400px;
+    width: 360px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.admin-notification-toast.show {
+    right: 20px;
+}
+
+.admin-notification-toast .toast-content {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 15px;
+    position: relative;
+}
+
+.admin-notification-toast .toast-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.admin-notification-toast .toast-text {
+    flex: 1;
+    color: white;
+}
+
+.admin-notification-toast .toast-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.admin-notification-toast .toast-message {
+    font-size: 14px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4;
+}
+
+.admin-notification-toast .toast-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-notification-toast .toast-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Animation for toast appearance */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.admin-notification-toast.show {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Progress bar at bottom of toast */
+.admin-notification-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.5);
+    animation: toastProgress 5s linear;
+}
+
+@keyframes toastProgress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .admin-notification-toast {
+        width: calc(100% - 40px);
+        right: -100%;
+    }
+    
+    .admin-notification-toast.show {
+        right: 20px;
+    }
+}

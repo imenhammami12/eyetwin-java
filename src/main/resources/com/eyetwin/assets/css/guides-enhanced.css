@@ -1,0 +1,91 @@
+/* Shared Guide UI Enhancements */
+.guide-toolbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.guide-input,
+.guide-select {
+    width: 100%;
+    border: 2px solid rgba(76, 211, 227, 0.25);
+    background: rgba(11, 17, 31, 0.75);
+    color: #dff9ff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.guide-input:focus,
+.guide-select:focus {
+    outline: none;
+    border-color: #4cd3e3;
+    box-shadow: 0 0 0 3px rgba(76, 211, 227, 0.15);
+}
+
+.guide-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.guide-stat-card {
+    background: linear-gradient(135deg, rgba(26, 31, 46, 0.85), rgba(11, 17, 31, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.guide-stat-label {
+    color: #9fb3c8;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.guide-stat-value {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.guide-results-note {
+    color: #9fb3c8;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.guide-hidden {
+    display: none !important;
+}
+
+.admin-guide-toolbar {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.admin-guide-statline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.admin-guide-chip {
+    font-size: 12px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #dce8f7;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 768px) {
+    .admin-guide-toolbar {
+        grid-template-columns: 1fr;
+    }
+}

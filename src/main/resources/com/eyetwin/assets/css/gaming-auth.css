@@ -1,0 +1,556 @@
+/* ============================================
+   GAMING LOGIN/REGISTER STYLE - EyeTwin
+   Carte Centrée avec Fond Rouge
+   ============================================ */
+
+/* Reset et configuration de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', 'Roboto', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Masquer complètement les éléments du thème */
+.body_bg {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
+.breadcrumb_bg,
+.main_menu,
+.footer_part {
+    display: none !important;
+}
+
+/* Container principal - Utilise le même fond que breadcrumb_bg */
+.contact-section {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 100vh;
+    /* Utilise le même style que .breadcrumb_bg avec chemin absolu */
+    background: url('/assets/img/bg6.png') no-repeat scroll center center;
+    background-size: cover;
+    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden;
+}
+
+.contact-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Overlay sombre pour améliorer la lisibilité */
+    pointer-events: none;
+}
+
+/* Forcer le container Bootstrap à se comporter */
+.contact-section .container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh;
+}
+
+.contact-section .row {
+    margin: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.contact-section .col-12 {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Carte centrale - Design gaming */
+.auth-container {
+    display: flex;
+    width: 90%;
+    max-width: 900px;
+    height: auto;
+    min-height: 500px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 10;
+    margin: 20px auto;
+}
+
+/* Colonne gauche - Image */
+.auth-image-section {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%),
+                url('/assets/img/gaming-characters.png') center/cover;
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.auth-image-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(220, 20, 60, 0.15) 0%, transparent 70%);
+}
+
+/* Colonne droite - Formulaire */
+.auth-form-section {
+    flex: 0 0 420px;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 35px;
+    position: relative;
+}
+
+/* Card personnalisée */
+.gaming-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100%;
+    max-width: 100%;
+}
+
+.gaming-card .card-body {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+/* En-tête */
+.auth-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.auth-header h2 {
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(220, 20, 60, 0.3);
+}
+
+.auth-header p {
+    color: #666;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.auth-header i {
+    display: none;
+}
+
+/* Labels */
+.gaming-card label {
+    color: #777;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.gaming-card label i {
+    display: none;
+}
+
+.gaming-card label .text-danger {
+    color: #dc143c;
+    margin-left: 3px;
+}
+
+/* Form groups */
+.gaming-card .form-group {
+    margin-bottom: 18px;
+}
+
+/* Champs de saisie */
+.gaming-card .form-control {
+    background: transparent;
+    border: 2px solid #dc143c;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    height: auto;
+    width: 100%;
+}
+
+.gaming-card .form-control:focus {
+    background: rgba(220, 20, 60, 0.05);
+    border-color: #ff1744;
+    box-shadow: 0 0 15px rgba(220, 20, 60, 0.3);
+    outline: none;
+    color: #fff;
+}
+
+.gaming-card .form-control::placeholder {
+    color: #444;
+    font-size: 12px;
+}
+
+.gaming-card .form-control:-webkit-autofill {
+    -webkit-text-fill-color: #fff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Checkbox et liens */
+.gaming-card .d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.gaming-card .form-check {
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.gaming-card .form-check-input {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border: 2px solid #dc143c;
+    background: transparent;
+    cursor: pointer;
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+.gaming-card .form-check-input:checked {
+    background-color: #dc143c;
+    border-color: #dc143c;
+}
+
+.gaming-card .form-check-label {
+    color: #888;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.gaming-card .form-check-label a {
+    color: #dc143c;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.gaming-card .form-check-label a:hover {
+    color: #ff1744;
+}
+
+/* Liens simples */
+.gaming-card a:not(.btn):not(.form-check-label a) {
+    color: #888;
+    font-size: 11px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gaming-card a:not(.btn):not(.form-check-label a):hover {
+    color: #dc143c;
+}
+
+/* Bouton principal (LOG IN / SIGN UP) */
+.gaming-card .btn-primary,
+.gaming-card .btn_1 {
+    background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.gaming-card .btn-primary:hover,
+.gaming-card .btn_1:hover {
+    background: linear-gradient(135deg, #ff1744 0%, #ff4569 100%);
+    box-shadow: 0 6px 25px rgba(220, 20, 60, 0.6);
+    transform: translateY(-2px);
+}
+
+.gaming-card .btn-primary i,
+.gaming-card .btn_1 i {
+    margin-right: 8px;
+}
+
+/* Bouton secondaire (SIGN UP / LOG IN) */
+.gaming-card .btn-secondary,
+.gaming-card .btn_2 {
+    background: transparent;
+    border: 2px solid #dc143c;
+    border-radius: 6px;
+    color: #dc143c;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.gaming-card .btn-secondary:hover,
+.gaming-card .btn_2:hover {
+    background: rgba(220, 20, 60, 0.1);
+    border-color: #ff1744;
+    color: #ff1744;
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.3);
+}
+
+/* Séparateur */
+.gaming-card hr {
+    border: none;
+    border-top: 1px solid #222;
+    margin: 20px 0;
+}
+
+/* Text center sections */
+.gaming-card .text-center p {
+    color: #666;
+    font-size: 11px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Messages d'alerte */
+.gaming-card .alert {
+    background: rgba(220, 20, 60, 0.15);
+    border: 1px solid #dc143c;
+    border-radius: 6px;
+    color: #fff;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    font-size: 12px;
+}
+
+.gaming-card .alert i {
+    margin-right: 8px;
+}
+
+.gaming-card .alert .close {
+    color: #fff;
+    opacity: 0.8;
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Invalid feedback */
+.gaming-card .invalid-feedback {
+    color: #ff1744;
+    font-size: 11px;
+    margin-top: 5px;
+    display: block;
+}
+
+.gaming-card .is-invalid {
+    border-color: #ff1744 !important;
+}
+
+/* Small text - masquer */
+.gaming-card small {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .auth-container {
+        flex-direction: column;
+        max-width: 500px;
+        width: 95%;
+    }
+    
+    .auth-image-section {
+        min-height: 250px;
+        flex: 0 0 250px;
+    }
+    
+    .auth-form-section {
+        flex: 1;
+        padding: 40px 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-container {
+        border-radius: 12px;
+        width: 95%;
+    }
+    
+    .auth-image-section {
+        min-height: 200px;
+        flex: 0 0 200px;
+    }
+    
+    .auth-header h2 {
+        font-size: 22px;
+    }
+    
+    .auth-form-section {
+        padding: 30px 20px;
+    }
+}
+
+/* Animation d'entrée */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.auth-container {
+    animation: fadeInScale 0.4s ease;
+}
+.channel-option { all: unset; }
+
+.channel-selector {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-top: 12px !important;
+}
+
+.channel-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 11px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    box-sizing: border-box;
+}
+
+.channel-row:hover {
+    border-color: rgba(255, 60, 100, 0.4);
+    background: rgba(255, 60, 100, 0.06);
+}
+
+/* Fully custom radio button */
+.channel-row input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    margin: 0;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.channel-row input[type="radio"]:checked {
+    border-color: #ff3c64;
+    background: #ff3c64;
+    box-shadow: 0 0 0 3px rgba(255, 60, 100, 0.2);
+}
+
+/* White inner dot */
+.channel-row input[type="radio"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s ease;
+}
+
+.channel-row input[type="radio"]:checked::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.channel-row-icon {
+    font-size: 17px;
+    color: #7a8090;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+}
+
+.channel-row-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c0c5d0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+}
+
+.channel-row:has(input:checked) {
+    border-color: #ff3c64;
+    background: rgba(255, 60, 100, 0.08);
+}
+
+.channel-row:has(input:checked) .channel-row-icon,
+.channel-row:has(input:checked) .channel-row-text {
+    color: #ff3c64 !important;
+}

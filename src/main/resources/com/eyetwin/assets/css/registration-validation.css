@@ -1,0 +1,164 @@
+/* Form Validation Styles */
+.form-feedback {
+    font-size: 13px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-feedback.show {
+    display: flex;
+}
+
+.form-feedback.valid {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.form-feedback.invalid {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.form-feedback.checking {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.form-control.is-valid-custom {
+    border-color: #28a745 !important;
+}
+
+.form-control.is-invalid-custom {
+    border-color: #dc3545 !important;
+}
+
+.form-control.is-checking-custom {
+    border-color: #ffc107 !important;
+}
+
+/* Password Requirements */
+.password-requirements {
+    margin-top: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #6c757d;
+}
+
+.password-requirements h6 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.requirement-item {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #adb5bd;
+    transition: all 0.3s ease;
+}
+
+.requirement-item i {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.requirement-item.valid {
+    color: #28a745;
+}
+
+.requirement-item.valid i {
+    color: #28a745;
+}
+
+.requirement-item.invalid i {
+    color: #6c757d;
+}
+
+/* Password Strength Bar */
+.password-strength-bar {
+    height: 4px;
+    background: #343a40;
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-weak {
+    background: #dc3545;
+    width: 33%;
+}
+
+.strength-medium {
+    background: #ffc107;
+    width: 66%;
+}
+
+.strength-strong {
+    background: #28a745;
+    width: 100%;
+}
+
+/* Validation Icons */
+.input-wrapper {
+    position: relative;
+}
+
+.live-validation-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    display: none;
+    pointer-events: none;
+}
+
+.live-validation-icon.show {
+    display: block;
+}
+
+.live-validation-icon.valid {
+    color: #28a745;
+}
+
+.live-validation-icon.invalid {
+    color: #dc3545;
+}
+
+/* Validation Spinner */
+.validation-spinner {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    color: #ffc107;
+}
+
+.validation-spinner.show {
+    display: block;
+}
+
+/* Submit Button States */
+#submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
