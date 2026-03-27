@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -18,23 +19,21 @@
                 <HBox alignment="CENTER_LEFT"
                       style="-fx-background-color: rgba(255,255,255,0.025);
                              -fx-border-color: rgba(232,55,42,0.2);
-                             -fx-border-width: 0 0 1 0;
-                             -fx-padding: 16 48;">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="🛡" style="-fx-font-size: 16;"/>
-                        <Label text="EYETWIN"
-                               style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                      -fx-font-size: 14; -fx-font-weight: bold;"/>
-                        <Label text="›"
-                               style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 14; -fx-padding: 0 2;"/>
+                             -fx-border-width: 0 0 1 0; -fx-padding: 12 48;">
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <ImageView fitHeight="36" preserveRatio="true" pickOnBounds="true"
+                                   onMouseClicked="#handleBack" style="-fx-cursor: hand;">
+                            <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+                        </ImageView>
+                        <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 14; -fx-padding: 0 2;"/>
                         <Label text="Security"
                                style="-fx-text-fill: #e8372a; -fx-font-size: 13; -fx-font-weight: bold;"/>
                     </HBox>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="backBtn" text="← Back" onAction="#handleBack"
                             style="-fx-background-color: transparent;
-                                   -fx-border-color: rgba(232,55,42,0.45);
-                                   -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;
+                                   -fx-border-color: rgba(232,55,42,0.45); -fx-border-width: 1;
+                                   -fx-border-radius: 6; -fx-background-radius: 6;
                                    -fx-text-fill: #e8372a; -fx-font-size: 12; -fx-font-weight: bold;
                                    -fx-padding: 7 16; -fx-cursor: hand;"/>
                 </HBox>
@@ -70,8 +69,8 @@
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <HBox spacing="7" alignment="CENTER_LEFT"
                               style="-fx-background-color: rgba(0,230,118,0.09);
-                                     -fx-border-color: rgba(0,230,118,0.28);
-                                     -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20;
+                                     -fx-border-color: rgba(0,230,118,0.28); -fx-border-width: 1;
+                                     -fx-border-radius: 20; -fx-background-radius: 20;
                                      -fx-padding: 5 14;">
                             <Region style="-fx-background-color: #00e676; -fx-background-radius: 50;
                                            -fx-min-width: 7; -fx-min-height: 7;
@@ -93,7 +92,6 @@
                                      -fx-border-width: 1 1 1 4;
                                      -fx-border-radius: 10; -fx-background-radius: 10;
                                      -fx-padding: 26;">
-                            <!-- Header -->
                             <HBox spacing="10" alignment="CENTER_LEFT"
                                   style="-fx-padding: 0 0 18 0;
                                          -fx-border-color: rgba(255,255,255,0.05);
@@ -107,13 +105,12 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
                                 </VBox>
                             </HBox>
-                            <!-- Body -->
                             <VBox spacing="14" style="-fx-padding: 18 0 0 0;">
                                 <HBox>
                                     <Label fx:id="backupCodesCountLabel" text="— codes remaining"
                                            style="-fx-background-color: rgba(232,55,42,0.1);
-                                                  -fx-border-color: rgba(232,55,42,0.35);
-                                                  -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;
+                                                  -fx-border-color: rgba(232,55,42,0.35); -fx-border-width: 1;
+                                                  -fx-border-radius: 4; -fx-background-radius: 4;
                                                   -fx-text-fill: #ff6b5b; -fx-font-size: 11;
                                                   -fx-font-weight: bold; -fx-padding: 4 11;"/>
                                 </HBox>
@@ -141,10 +138,9 @@
                         <!-- Disable 2FA Card -->
                         <VBox HBox.hgrow="ALWAYS" spacing="0"
                               style="-fx-background-color: #0c0a19;
-                                     -fx-border-color: rgba(255,255,255,0.07);
-                                     -fx-border-width: 1; -fx-border-radius: 10; -fx-background-radius: 10;
+                                     -fx-border-color: rgba(255,255,255,0.07); -fx-border-width: 1;
+                                     -fx-border-radius: 10; -fx-background-radius: 10;
                                      -fx-padding: 26;">
-                            <!-- Header -->
                             <HBox spacing="10" alignment="CENTER_LEFT"
                                   style="-fx-padding: 0 0 18 0;
                                          -fx-border-color: rgba(255,255,255,0.05);
@@ -158,10 +154,9 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
                                 </VBox>
                             </HBox>
-                            <!-- Body -->
                             <VBox spacing="14" style="-fx-padding: 18 0 0 0;">
                                 <VBox style="-fx-background-color: rgba(244,74,64,0.07);
-                                             -fx-border-color: rgba(244,74,64,0.25);
+                                             -fx-border-color: rgba(244,74,64,0.3);
                                              -fx-border-width: 0 0 0 3; -fx-padding: 12 14;">
                                     <Label text="Disabling 2FA means anyone with your password can access your account. This is not recommended."
                                            wrapText="true"
@@ -192,8 +187,8 @@
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <HBox spacing="7" alignment="CENTER_LEFT"
                               style="-fx-background-color: rgba(246,216,96,0.09);
-                                     -fx-border-color: rgba(246,216,96,0.28);
-                                     -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20;
+                                     -fx-border-color: rgba(246,216,96,0.28); -fx-border-width: 1;
+                                     -fx-border-radius: 20; -fx-background-radius: 20;
                                      -fx-padding: 5 14;">
                             <Region style="-fx-background-color: #f6d860; -fx-background-radius: 50;
                                            -fx-min-width: 7; -fx-min-height: 7;
@@ -208,8 +203,8 @@
                     <!-- Split layout card -->
                     <HBox spacing="0"
                           style="-fx-background-color: #0c0a19;
-                                 -fx-border-color: rgba(232,55,42,0.18);
-                                 -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12;">
+                                 -fx-border-color: rgba(232,55,42,0.18); -fx-border-width: 1;
+                                 -fx-border-radius: 12; -fx-background-radius: 12;">
 
                         <!-- Left panel: benefits -->
                         <VBox HBox.hgrow="ALWAYS" style="-fx-padding: 30;
@@ -218,7 +213,6 @@
                             <Label text="WHY ENABLE 2FA"
                                    style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10;
                                           -fx-font-weight: bold; -fx-padding: 0 0 18 0;"/>
-
                             <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 16 0;">
                                 <StackPane style="-fx-background-color: rgba(0,229,255,0.08);
                                                   -fx-border-color: rgba(0,229,255,0.18); -fx-border-width: 1;
@@ -234,7 +228,6 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 11;"/>
                                 </VBox>
                             </HBox>
-
                             <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 16 0;">
                                 <StackPane style="-fx-background-color: rgba(0,229,255,0.08);
                                                   -fx-border-color: rgba(0,229,255,0.18); -fx-border-width: 1;
@@ -250,7 +243,6 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 11;"/>
                                 </VBox>
                             </HBox>
-
                             <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 16 0;">
                                 <StackPane style="-fx-background-color: rgba(0,229,255,0.08);
                                                   -fx-border-color: rgba(0,229,255,0.18); -fx-border-width: 1;
@@ -266,7 +258,6 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 11;"/>
                                 </VBox>
                             </HBox>
-
                             <HBox spacing="12" alignment="CENTER_LEFT">
                                 <StackPane style="-fx-background-color: rgba(0,229,255,0.08);
                                                   -fx-border-color: rgba(0,229,255,0.18); -fx-border-width: 1;
@@ -285,8 +276,7 @@
                         </VBox>
 
                         <!-- Right panel: CTA -->
-                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="20"
-                              style="-fx-padding: 30;">
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="20" style="-fx-padding: 30;">
                             <VBox spacing="6" alignment="CENTER">
                                 <Label text="You'll need"
                                        style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
@@ -294,7 +284,6 @@
                                        style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
                                               -fx-font-size: 16; -fx-font-weight: bold;"/>
                             </VBox>
-
                             <VBox spacing="7" maxWidth="240">
                                 <HBox style="-fx-background-color: rgba(255,255,255,0.03);
                                              -fx-border-color: rgba(255,255,255,0.07); -fx-border-width: 1;
@@ -318,14 +307,12 @@
                                            style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 12;"/>
                                 </HBox>
                             </VBox>
-
                             <Button fx:id="enableBtn" text="Enable 2FA Now →"
                                     maxWidth="240" onAction="#handleEnable"
                                     style="-fx-background-color: #e8372a; -fx-border-width: 0;
                                            -fx-text-fill: white; -fx-font-family: 'Arial Black';
                                            -fx-font-weight: bold; -fx-font-size: 14;
-                                           -fx-background-radius: 9; -fx-padding: 16 0;
-                                           -fx-cursor: hand;"/>
+                                           -fx-background-radius: 9; -fx-padding: 16 0; -fx-cursor: hand;"/>
                         </VBox>
 
                     </HBox>
