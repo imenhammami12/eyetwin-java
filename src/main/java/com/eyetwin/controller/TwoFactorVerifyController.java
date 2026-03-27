@@ -1,5 +1,6 @@
 package com.eyetwin.controller;
 
+import com.eyetwin.MainApp;
 import com.eyetwin.model.User;
 import com.eyetwin.service.TwoFactorAuthService;
 import com.eyetwin.util.SessionManager;
@@ -21,13 +22,11 @@ import java.io.IOException;
  * Mirrors: Symfony 2fa_login_check route (SchebTwoFactorBundle)
  *          Template: two_factor/2fa.html.twig
  *
- * Shown AFTER username/password login when 2FA is enabled.
- * User enters either:
- *  - 6-digit TOTP code  → auto-submits on 6th digit
- *  - XXXXX-XXXXX backup code
- *
- * On success → SessionManager.setAuthenticated(true) → home
- * On failure → show error message
+ * Flux :
+ *  1. Affiché après username/password OK si 2FA activée ET appareil non trusted
+ *  2. User entre code TOTP (6 chiffres, auto-submit) ou backup code
+ *  3. Success → completeTwoFactorLogin(user, trustDevice) → home
+ *  4. Failure → message d'erreur + champ vidé
  */
 public class TwoFactorVerifyController {
 
@@ -53,8 +52,7 @@ public class TwoFactorVerifyController {
 
     private TwoFactorAuthService twoFactorService;
 
-    // The user who passed username/password but hasn't completed 2FA yet
-    // Set this BEFORE loading the FXML via SessionManager.getPending2FAUser()
+    // L'utilisateur qui a passé username/password mais pas encore 2FA
     private User pendingUser;
 
     // ─────────────────────────────────────────────────────────
@@ -63,13 +61,19 @@ public class TwoFactorVerifyController {
         twoFactorService = new TwoFactorAuthService(new UserDAO());
         pendingUser      = SessionManager.getPending2FAUser();
 
+        // Sécurité : si pas d'utilisateur en attente → retour login
         if (pendingUser == null) {
+            System.err.println("[2FA Verify] Aucun utilisateur en attente → retour login");
             navigateTo("login.fxml");
             return;
         }
 
+        System.out.println("[2FA Verify] En attente pour : " + pendingUser.getEmail());
+
+        hide(errorBox);
         hide(backupCodeSection);
         setupTotpField();
+
         if (totpCodeField != null) totpCodeField.requestFocus();
     }
 
@@ -78,8 +82,8 @@ public class TwoFactorVerifyController {
     // ─────────────────────────────────────────────────────────
 
     /**
-     * Verify TOTP code.
-     * Mirrors: POST 2fa_login_check with _auth_code (6 digits)
+     * Vérifier le code TOTP à 6 chiffres.
+     * Appelé manuellement via le bouton OU automatiquement après 6 chiffres.
      */
     @FXML
     public void handleVerifyTotp() {
@@ -92,12 +96,13 @@ public class TwoFactorVerifyController {
     }
 
     /**
-     * Verify backup code.
-     * Mirrors: POST 2fa_login_check with _auth_code (XXXXX-XXXXX backup)
+     * Vérifier un backup code (format XXXXX-XXXXX).
      */
     @FXML
     public void handleVerifyBackup() {
-        String code = backupCodeField != null ? backupCodeField.getText().trim().toUpperCase() : "";
+        String code = backupCodeField != null
+                ? backupCodeField.getText().trim().toUpperCase()
+                : "";
         if (code.isEmpty()) {
             showError("Please enter a backup code.");
             return;
@@ -105,7 +110,9 @@ public class TwoFactorVerifyController {
         performVerification(code, true);
     }
 
-    /** Toggle backup code section — mirrors Bootstrap collapse */
+    /**
+     * Afficher/masquer la section backup code.
+     */
     @FXML
     public void handleShowBackupSection() {
         if (backupCodeSection == null) return;
@@ -120,7 +127,9 @@ public class TwoFactorVerifyController {
         }
     }
 
-    /** Cancel → logout (mirrors app_logout link) */
+    /**
+     * Annuler → déconnexion et retour au login.
+     */
     @FXML
     public void handleCancel() {
         SessionManager.logout();
@@ -128,60 +137,93 @@ public class TwoFactorVerifyController {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  CORE VERIFICATION LOGIC
+    //  LOGIQUE DE VÉRIFICATION CENTRALE
     // ─────────────────────────────────────────────────────────
 
     private void performVerification(String code, boolean isBackupCode) {
-        if (verifyBtn != null)       { verifyBtn.setDisable(true);       verifyBtn.setText("Verifying..."); }
-        if (verifyBackupBtn != null) { verifyBackupBtn.setDisable(true); verifyBackupBtn.setText("Verifying..."); }
+        // Désactiver les boutons pendant la vérification
+        setButtonsDisabled(true);
 
         new Thread(() -> {
             boolean success;
-            if (isBackupCode) {
-                success = twoFactorService.verifyBackupCode(pendingUser, code);
-            } else {
-                success = twoFactorService.verifyTotpCode(pendingUser.getTotpSecret(), code);
+            try {
+                if (isBackupCode) {
+                    success = twoFactorService.verifyBackupCode(pendingUser, code);
+                } else {
+                    success = twoFactorService.verifyTotpCode(pendingUser.getTotpSecret(), code);
+                }
+            } catch (Exception e) {
+                System.err.println("[2FA Verify] Erreur vérification : " + e.getMessage());
+                success = false;
             }
 
             final boolean ok = success;
             Platform.runLater(() -> {
-                if (verifyBtn != null)       { verifyBtn.setDisable(false);       verifyBtn.setText("✓  Verify"); }
-                if (verifyBackupBtn != null) { verifyBackupBtn.setDisable(false); verifyBackupBtn.setText("Verify Backup Code"); }
+                setButtonsDisabled(false);
 
                 if (ok) {
-                    // Complete the login — set user as fully authenticated
-                    SessionManager.completeTwoFactorLogin(pendingUser,
-                        trustedDeviceCheck != null && trustedDeviceCheck.isSelected());
-                    navigateTo("home.fxml");
+                    // ✅ Récupérer l'état du checkbox trusted device
+                    boolean trustDevice = trustedDeviceCheck != null
+                            && trustedDeviceCheck.isSelected();
+
+                    System.out.println("[2FA Verify] ✅ Code valide — trustDevice=" + trustDevice);
+
+                    // Compléter la connexion (enregistre l'appareil si trusted)
+                    SessionManager.completeTwoFactorLogin(pendingUser, trustDevice);
+
+                    // Navigation vers home ou dashboard
+                    navigateAfterLogin(pendingUser);
+
                 } else {
-                    showError(isBackupCode
-                        ? "Invalid backup code. Each code can only be used once."
-                        : "Invalid authentication code. Please try again."
-                    );
-                    if (totpCodeField  != null) totpCodeField.clear();
-                    if (backupCodeField != null) backupCodeField.clear();
-                    if (totpCodeField  != null && !isBackupCode) totpCodeField.requestFocus();
+                    // ❌ Code invalide
+                    String msg = isBackupCode
+                            ? "Invalid backup code. Each code can only be used once."
+                            : "Invalid authentication code. Please try again.";
+                    showError(msg);
+
+                    // Vider les champs
+                    if (totpCodeField   != null && !isBackupCode) totpCodeField.clear();
+                    if (backupCodeField != null &&  isBackupCode) backupCodeField.clear();
+                    if (totpCodeField   != null && !isBackupCode) totpCodeField.requestFocus();
                 }
             });
         }).start();
     }
 
     // ─────────────────────────────────────────────────────────
+    //  NAVIGATION APRÈS LOGIN
+    // ─────────────────────────────────────────────────────────
+
+    private void navigateAfterLogin(User user) {
+        try {
+            String fxml = user.isAdmin() ? "dashboard.fxml" : "home.fxml";
+            MainApp.navigateTo("/com/eyetwin/views/" + fxml,
+                    user.isAdmin() ? "Dashboard" : "Home");
+        } catch (Exception e) {
+            // Fallback si MainApp.navigateTo non disponible
+            navigateTo("home.fxml");
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
     //  HELPERS
     // ─────────────────────────────────────────────────────────
 
-    /** Auto-submit when 6 digits entered — mirrors JS addEventListener('input') */
+    /**
+     * Auto-submit quand 6 chiffres sont entrés (comme le JS Symfony).
+     * Avec délai de 300ms pour laisser l'utilisateur voir ce qu'il a tapé.
+     */
     private void setupTotpField() {
         if (totpCodeField == null) return;
         totpCodeField.textProperty().addListener((obs, old, nw) -> {
-            // Strip non-digits
+            // Filtrer les non-chiffres
             String digits = nw.replaceAll("\\D", "");
             if (digits.length() > 6) digits = digits.substring(0, 6);
             if (!nw.equals(digits)) {
                 totpCodeField.setText(digits);
                 return;
             }
-            // Auto-submit on 6 digits (with 300ms delay like Symfony template)
+            // Auto-submit sur 6 chiffres
             if (digits.length() == 6) {
                 String finalDigits = digits;
                 new Thread(() -> {
@@ -192,8 +234,19 @@ public class TwoFactorVerifyController {
         });
     }
 
+    private void setButtonsDisabled(boolean disabled) {
+        if (verifyBtn != null) {
+            verifyBtn.setDisable(disabled);
+            verifyBtn.setText(disabled ? "Verifying…" : "✓  Verify");
+        }
+        if (verifyBackupBtn != null) {
+            verifyBackupBtn.setDisable(disabled);
+            verifyBackupBtn.setText(disabled ? "Verifying…" : "Verify Backup Code");
+        }
+    }
+
     private void showError(String msg) {
-        if (errorLabel != null) errorLabel.setText("⚠ " + msg);
+        if (errorLabel != null) errorLabel.setText("⚠  " + msg);
         if (errorBox   != null) show(errorBox);
     }
 
@@ -201,22 +254,32 @@ public class TwoFactorVerifyController {
         try {
             var url = getClass().getResource("/com/eyetwin/views/" + fxml);
             if (url == null) url = getClass().getResource("/com/eyetwin/view/" + fxml);
-            if (url == null) return;
+            if (url == null) {
+                System.err.println("[2FA Verify] FXML introuvable : " + fxml);
+                return;
+            }
             Parent root  = FXMLLoader.load(url);
             Stage  stage = resolveStage();
             if (stage != null) stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
         } catch (IOException e) {
-            System.err.println("[2FA Verify] Nav error: " + e.getMessage());
+            System.err.println("[2FA Verify] Erreur navigation : " + e.getMessage());
         }
     }
 
     private Stage resolveStage() {
-        for (javafx.scene.Node n : new javafx.scene.Node[]{ totpCodeField, verifyBtn, cancelBtn }) {
-            if (n != null && n.getScene() != null) return (Stage) n.getScene().getWindow();
+        javafx.scene.Node[] nodes = { totpCodeField, verifyBtn, cancelBtn };
+        for (javafx.scene.Node n : nodes) {
+            if (n != null && n.getScene() != null)
+                return (Stage) n.getScene().getWindow();
         }
         return null;
     }
 
-    private void show(javafx.scene.Node n) { if (n != null) { n.setVisible(true);  n.setManaged(true);  } }
-    private void hide(javafx.scene.Node n) { if (n != null) { n.setVisible(false); n.setManaged(false); } }
+    private void show(javafx.scene.Node n) {
+        if (n != null) { n.setVisible(true);  n.setManaged(true);  }
+    }
+
+    private void hide(javafx.scene.Node n) {
+        if (n != null) { n.setVisible(false); n.setManaged(false); }
+    }
 }

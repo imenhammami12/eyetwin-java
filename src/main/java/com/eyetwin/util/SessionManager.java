@@ -3,29 +3,33 @@ package com.eyetwin.util;
 import com.eyetwin.model.User;
 import com.eyetwin.dao.UserDAO;
 
+import java.time.LocalDateTime;
+import java.util.prefs.Preferences;
+
 /**
- * SessionManager — Gestion de session avec support 2FA complet.
+ * SessionManager — Gestion de session avec support 2FA + Trusted Device.
  *
- * Flux 2FA (miroir SchebTwoFactorBundle Symfony) :
- *   1. LoginController → mot de passe OK + 2FA activée
- *      → setPending2FAUser(user) → naviguer vers TwoFactorVerify.fxml
+ * Flux 2FA :
+ *   1. LoginController → password OK + 2FA activée
+ *      → isTrustedDevice(userId) ? login direct : setPending2FAUser(user)
  *   2. TwoFactorVerifyController → code OK
- *      → completeTwoFactorLogin(user) → naviguer vers home.fxml
+ *      → completeTwoFactorLogin(user, trustDevice) → home.fxml
  */
 public class SessionManager {
 
     // ─────────────────────────────────────────────────────────
     //  État de session
     // ─────────────────────────────────────────────────────────
-
     private static User    currentUser        = null;
     private static User    pending2FAUser     = null;
     private static boolean twoFactorCompleted = false;
 
+    // Nœud Preferences pour les appareils de confiance
+    private static final String PREFS_NODE = "eyetwin/trusted";
+
     // ─────────────────────────────────────────────────────────
     //  Session de base
     // ─────────────────────────────────────────────────────────
-
     public static void    setCurrentUser(User user) { currentUser = user; }
     public static User    getCurrentUser()          { return currentUser; }
     public static boolean isLoggedIn()              { return currentUser != null; }
@@ -63,22 +67,12 @@ public class SessionManager {
     // ─────────────────────────────────────────────────────────
     //  2FA — Étape 1 : Mettre l'utilisateur en attente
     // ─────────────────────────────────────────────────────────
-
-    /**
-     * Appeler dans LoginController après vérification du mot de passe,
-     * si 2FA est activée. L'utilisateur n'est PAS encore connecté.
-     * Miroir de SchebTwoFactorBundle interceptor.
-     */
     public static void setPending2FAUser(User user) {
         pending2FAUser     = user;
         twoFactorCompleted = false;
         System.out.println("[SessionManager] 2FA requise pour : " + user.getEmail());
     }
 
-    /**
-     * Récupérer l'utilisateur en attente de code 2FA.
-     * Utilisé par TwoFactorVerifyController.initialize()
-     */
     public static User getPending2FAUser() {
         return pending2FAUser;
     }
@@ -86,42 +80,92 @@ public class SessionManager {
     // ─────────────────────────────────────────────────────────
     //  2FA — Étape 2 : Compléter la connexion
     // ─────────────────────────────────────────────────────────
-
-    /**
-     * Appeler dans TwoFactorVerifyController après validation du code.
-     * Connecte définitivement l'utilisateur.
-     * Miroir de SchebTwoFactorBundle::markTwoFactorComplete()
-     *
-     * @param user        L'utilisateur à connecter
-     * @param trustDevice true = coché "Faire confiance à cet appareil"
-     */
     public static void completeTwoFactorLogin(User user, boolean trustDevice) {
         pending2FAUser     = null;
         twoFactorCompleted = true;
         setCurrentUser(user);
 
         if (trustDevice) {
-            // TODO : implémenter les appareils de confiance si nécessaire
-            System.out.println("[SessionManager] Appareil de confiance enregistré : " + user.getEmail());
+            saveTrustedDevice(user.getId());
+            System.out.println("[SessionManager] ✅ Appareil de confiance enregistré (30 jours) : "
+                    + user.getEmail());
         }
 
         System.out.println("[SessionManager] ✅ 2FA complétée — connecté : " + user.getEmail());
     }
 
-    /** Vérifier si la 2FA a été validée cette session */
     public static boolean isTwoFactorCompleted() {
         return twoFactorCompleted;
     }
 
     // ─────────────────────────────────────────────────────────
-    //  Refresh — recharger depuis la DB
+    //  TRUSTED DEVICE — Persistance via java.util.prefs
     // ─────────────────────────────────────────────────────────
 
     /**
-     * Recharger l'utilisateur courant depuis la DB.
-     * À appeler après enable/disable 2FA, regénération des codes.
-     * Miroir de EntityManager::refresh() Symfony.
+     * Vérifie si l'appareil est de confiance pour cet utilisateur.
+     * Appelé dans LoginController AVANT d'afficher la page 2FA.
+     *
+     * @param userId ID de l'utilisateur
+     * @return true si l'appareil est enregistré et la date non expirée
      */
+    public static boolean isTrustedDevice(int userId) {
+        try {
+            Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
+            String storedDate = prefs.get("trusted_until", null);
+            if (storedDate == null || storedDate.isEmpty()) {
+                System.out.println("[SessionManager] Aucun appareil de confiance pour userId=" + userId);
+                return false;
+            }
+            LocalDateTime until = LocalDateTime.parse(storedDate);
+            boolean trusted = LocalDateTime.now().isBefore(until);
+            System.out.println("[SessionManager] Trusted device check — userId=" + userId
+                    + " | until=" + storedDate + " | valid=" + trusted);
+            return trusted;
+        } catch (Exception e) {
+            System.err.println("[SessionManager] Erreur isTrustedDevice : " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Enregistre l'appareil comme de confiance pour 30 jours.
+     *
+     * @param userId ID de l'utilisateur
+     */
+    private static void saveTrustedDevice(int userId) {
+        try {
+            Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
+            String expiry = LocalDateTime.now().plusDays(30).toString();
+            prefs.put("trusted_until", expiry);
+            prefs.flush();
+            System.out.println("[SessionManager] Trusted device saved — userId=" + userId
+                    + " | expires=" + expiry);
+        } catch (Exception e) {
+            System.err.println("[SessionManager] Erreur saveTrustedDevice : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Révoque la confiance de l'appareil pour un utilisateur.
+     * Appelé lors du disable 2FA ou logout sécurisé.
+     *
+     * @param userId ID de l'utilisateur
+     */
+    public static void revokeTrustedDevice(int userId) {
+        try {
+            Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
+            prefs.remove("trusted_until");
+            prefs.flush();
+            System.out.println("[SessionManager] Trusted device révoqué — userId=" + userId);
+        } catch (Exception e) {
+            System.err.println("[SessionManager] Erreur revokeTrustedDevice : " + e.getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Refresh — recharger depuis la DB
+    // ─────────────────────────────────────────────────────────
     public static void refresh() {
         User current = getCurrentUser();
         if (current != null) {
@@ -140,15 +184,13 @@ public class SessionManager {
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
     // ─────────────────────────────────────────────────────────
-
     public static void logout() {
         System.out.println("👋 Déconnexion : "
                 + (currentUser != null ? currentUser.getEmail() : "?"));
         currentUser        = null;
         pending2FAUser     = null;
         twoFactorCompleted = false;
-        // NE PAS appeler RememberMeService.clear() ici —
-        // le remember me doit persister entre les sessions,
-        // exactement comme un cookie "remember_me" Symfony.
+        // NE PAS supprimer le trusted device ici —
+        // il doit persister entre les sessions (comme un cookie "remember_me")
     }
 }

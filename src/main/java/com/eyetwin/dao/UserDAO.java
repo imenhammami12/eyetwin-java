@@ -194,20 +194,16 @@ public class UserDAO {
 
             if (rs.next()) {
                 String stored = rs.getString("password");
-
-                // ── BCrypt (recommandé si mots de passe hashés par Symfony) ──
-                // return BCrypt.checkpw(plainPassword, stored);
-
-                // ── Comparaison directe (si pas de hashage côté Java) ──
-                return plainPassword.equals(stored);
+                // BCrypt check — works with Symfony's hashed passwords
+                return at.favre.lib.crypto.bcrypt.BCrypt.verifyer()
+                        .verify(plainPassword.toCharArray(), stored)
+                        .verified;
             }
-
         } catch (SQLException e) {
             System.err.println("❌ Erreur verifyPassword: " + e.getMessage());
         }
         return false;
     }
-
     // ═══════════════════════════════════════════════════════════
     //  MAP USER — mapping exact des colonnes DB → User Java
     // ═══════════════════════════════════════════════════════════

@@ -39,7 +39,7 @@ import java.util.List;
 public class BackupCodesController {
 
     // ── Success banner (shown when is_new = true) ──
-    @FXML private VBox   successBanner;
+    @FXML private HBox    successBanner;
 
     // ── Warning card ──
     @FXML private Label  warningLabel;

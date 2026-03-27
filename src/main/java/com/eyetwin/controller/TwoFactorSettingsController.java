@@ -159,7 +159,7 @@ public class TwoFactorSettingsController {
     /** Back to profile */
     @FXML
     public void handleBack() {
-        navigateTo("Profile.fxml");
+        navigateTo("home.fxml"); // ✅ home
     }
 
     // ─────────────────────────────────────────────────────────

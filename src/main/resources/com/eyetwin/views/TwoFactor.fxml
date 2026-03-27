@@ -3,39 +3,42 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
-<!--
-    TwoFactor.fxml  (Settings page)
-    Mirrors: two_factor/settings.html.twig (Symfony)
-    Controller: com.eyetwin.controller.TwoFactorSettingsController
--->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.TwoFactorSettingsController"
             stylesheets="@../styles/gaming.css"
-            style="-fx-background-color: #0b111f;"
+            style="-fx-background-color: #080810;"
             prefWidth="1280" prefHeight="800">
 
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane">
-            <VBox style="-fx-background-color: #0b111f; -fx-padding: 60 60;">
+            <VBox style="-fx-background-color: #080810; -fx-padding: 50 80;">
 
-                <!-- Page header -->
-                <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 30 0;
-                      -fx-border-color: rgba(255,0,0,0.3); -fx-border-width: 0 0 2 0;">
-                    <Label text="🛡  Two-Factor Authentication"
-                           style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                  -fx-font-size: 22; -fx-font-weight: bold;"/>
+                <!-- ══ PAGE HEADER ══ -->
+                <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 35 0;">
+                    <VBox spacing="4">
+                        <Label text="🛡  Two-Factor Authentication"
+                               style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
+                                      -fx-font-size: 26; -fx-font-weight: bold;
+                                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),14,0,0,0);"/>
+                        <Label text="Manage your account security settings"
+                               style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13;"/>
+                    </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="backBtn" text="← Back to Profile" onAction="#handleBack"
-                            style="-fx-background-color: transparent;
-                                   -fx-border-color: rgba(255,255,255,0.2);
+                    <Button fx:id="backBtn" text="← Back to Home" onAction="#handleBack"
+                            style="-fx-background-color: rgba(232,55,42,0.08);
+                                   -fx-border-color: rgba(232,55,42,0.35);
                                    -fx-border-radius: 8; -fx-background-radius: 8;
-                                   -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: bold;
-                                   -fx-font-size: 12; -fx-padding: 10 18; -fx-cursor: hand;"/>
+                                   -fx-text-fill: #ff4d3d; -fx-font-weight: bold;
+                                   -fx-font-size: 12; -fx-padding: 10 20; -fx-cursor: hand;"/>
                 </HBox>
 
-                <!-- Flash message area -->
+                <!-- Red divider -->
+                <Region style="-fx-background-color: linear-gradient(to right, #e8372a, transparent);
+                               -fx-pref-height: 2; -fx-margin: 0 0 30 0;"/>
+
+                <!-- ══ FLASH MESSAGE ══ -->
                 <VBox fx:id="flashBox" visible="false" managed="false"
-                      style="-fx-margin: 0 0 20 0;">
+                      style="-fx-padding: 0 0 20 0;">
                     <Label fx:id="flashMessage" text=""
                            style="-fx-font-size: 13; -fx-wrap-text: true;"/>
                 </VBox>
@@ -43,92 +46,156 @@
                 <!-- ══════════════════════════════════
                      ENABLED STATE
                 ══════════════════════════════════ -->
-                <VBox fx:id="enabledBanner" visible="false" managed="false" spacing="20">
+                <VBox fx:id="enabledBanner" visible="false" managed="false" spacing="22">
 
-                    <!-- Status banner — enabled (cyan gradient) -->
-                    <HBox spacing="18" alignment="CENTER_LEFT"
-                          style="-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);
-                                 -fx-border-radius: 15; -fx-background-radius: 15;
-                                 -fx-padding: 22 28; -fx-max-height: 90;
-                                 -fx-effect: dropshadow(gaussian, rgba(76,211,227,0.3), 20, 0, 0, 5);">
-                        <StackPane style="-fx-background-color: rgba(255,255,255,0.2);
-                                          -fx-background-radius: 50; -fx-min-width: 52; -fx-min-height: 52;
-                                          -fx-max-width: 52; -fx-max-height: 52;">
-                            <Label text="🛡" style="-fx-font-size: 24;"/>
+                    <!-- Status Hero Banner -->
+                    <HBox spacing="20" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(135deg, #0d1a0d, #0b1a12);
+                                 -fx-border-color: #00e676; -fx-border-width: 0 0 0 5;
+                                 -fx-border-radius: 16; -fx-background-radius: 16;
+                                 -fx-padding: 24 30;
+                                 -fx-effect: dropshadow(gaussian,rgba(0,230,118,0.2),30,0,0,0);">
+                        <StackPane style="-fx-background-color: rgba(0,230,118,0.15);
+                                          -fx-background-radius: 50;
+                                          -fx-min-width: 60; -fx-min-height: 60;
+                                          -fx-max-width: 60; -fx-max-height: 60;
+                                          -fx-effect: dropshadow(gaussian,rgba(0,230,118,0.4),16,0,0,0);">
+                            <Label text="🛡" style="-fx-font-size: 28;"/>
                         </StackPane>
-                        <VBox spacing="4">
+                        <VBox spacing="5">
                             <Label text="Two-Factor Authentication is Active"
-                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 17;"/>
+                                   style="-fx-text-fill: #00e676; -fx-font-family: 'Arial Black';
+                                          -fx-font-size: 18; -fx-font-weight: bold;"/>
                             <Label text="Your account is secured with an extra layer of protection"
-                                   style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12;"/>
+                                   style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12;"/>
                         </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="● ACTIVE"
+                               style="-fx-text-fill: #00e676; -fx-font-size: 10;
+                                      -fx-font-weight: bold;
+                                      -fx-background-color: rgba(0,230,118,0.1);
+                                      -fx-border-color: rgba(0,230,118,0.3);
+                                      -fx-border-radius: 20; -fx-background-radius: 20;
+                                      -fx-padding: 5 14;"/>
                     </HBox>
 
-                    <!-- Feature cards grid -->
-                    <HBox spacing="20">
+                    <!-- Cards Row -->
+                    <HBox spacing="22">
 
-                        <!-- Backup Codes card -->
-                        <VBox HBox.hgrow="ALWAYS" spacing="14"
-                              style="-fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-                                     -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12;
-                                     -fx-background-radius: 12; -fx-border-width: 2; -fx-padding: 22;">
-                            <HBox spacing="12" alignment="CENTER_LEFT">
-                                <StackPane style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
+                        <!-- ── Backup Codes Card ── -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="16"
+                              style="-fx-background-color: linear-gradient(135deg, #12101f, #0d0c1a);
+                                     -fx-border-color: rgba(232,55,42,0.25);
+                                     -fx-border-radius: 16; -fx-background-radius: 16;
+                                     -fx-border-width: 2; -fx-padding: 26;">
+
+                            <HBox spacing="14" alignment="CENTER_LEFT">
+                                <StackPane style="-fx-background-color: linear-gradient(135deg,#e8372a,#ff6b2b);
                                                   -fx-background-radius: 10;
-                                                  -fx-min-width: 38; -fx-min-height: 38;
-                                                  -fx-max-width: 38; -fx-max-height: 38;">
-                                    <Label text="🔑" style="-fx-font-size: 18;"/>
+                                                  -fx-min-width: 42; -fx-min-height: 42;
+                                                  -fx-max-width: 42; -fx-max-height: 42;
+                                                  -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),12,0,0,3);">
+                                    <Label text="🔑" style="-fx-font-size: 20;"/>
                                 </StackPane>
-                                <Label text="Backup Codes"
-                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                                <VBox spacing="2">
+                                    <Label text="Backup Codes"
+                                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
+                                    <Label text="Emergency access codes"
+                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;"/>
+                                </VBox>
                             </HBox>
-                            <Label fx:id="backupCodesCountLabel" text="— code(s) remaining"
-                                   style="-fx-background-color: rgba(56,164,255,0.15);
-                                          -fx-border-color: rgba(56,164,255,0.3); -fx-border-width: 1;
-                                          -fx-border-radius: 6; -fx-background-radius: 6;
-                                          -fx-text-fill: #38a4ff; -fx-font-size: 11; -fx-font-weight: bold;
-                                          -fx-padding: 5 12;"/>
+
+                            <HBox>
+                                <Label fx:id="backupCodesCountLabel" text="— code(s) remaining"
+                                       style="-fx-background-color: rgba(232,55,42,0.12);
+                                              -fx-border-color: rgba(232,55,42,0.4);
+                                              -fx-border-width: 1; -fx-border-radius: 6;
+                                              -fx-background-radius: 6;
+                                              -fx-text-fill: #ff6b5b;
+                                              -fx-font-size: 11; -fx-font-weight: bold;
+                                              -fx-padding: 5 14;"/>
+                            </HBox>
+
                             <Label text="Emergency access codes for when you can't use your authenticator app."
-                                   style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12; -fx-wrap-text: true;"/>
+                                   wrapText="true"
+                                   style="-fx-text-fill: rgba(255,255,255,0.65);
+                                          -fx-font-size: 12;"/>
+
+                            <Region VBox.vgrow="ALWAYS"/>
+
                             <Button fx:id="viewBackupCodesBtn" text="👁  View Backup Codes"
-                                    maxWidth="1.7976931348623157E308" onAction="#handleViewBackupCodes"
-                                    style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
-                                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;
-                                           -fx-background-radius: 8; -fx-padding: 10 0; -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.3), 14, 0, 0, 3);"/>
+                                    maxWidth="1.7976931348623157E308"
+                                    onAction="#handleViewBackupCodes"
+                                    styleClass="btn-fire"/>
+
                             <Button fx:id="regenerateCodesBtn" text="⟳  Regenerate Codes"
-                                    maxWidth="1.7976931348623157E308" onAction="#handleRegenerate"
-                                    style="-fx-background-color: transparent;
-                                           -fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 8;
-                                           -fx-background-radius: 8; -fx-text-fill: rgba(255,255,255,0.7);
-                                           -fx-font-weight: bold; -fx-font-size: 12; -fx-padding: 10 0;
-                                           -fx-cursor: hand;"/>
+                                    maxWidth="1.7976931348623157E308"
+                                    onAction="#handleRegenerate"
+                                    style="-fx-background-color: rgba(255,255,255,0.05);
+                                           -fx-border-color: rgba(255,255,255,0.18);
+                                           -fx-border-radius: 8; -fx-background-radius: 8;
+                                           -fx-text-fill: rgba(255,255,255,0.85);
+                                           -fx-font-weight: bold; -fx-font-size: 12;
+                                           -fx-padding: 11 0; -fx-cursor: hand;"/>
                         </VBox>
 
-                        <!-- Disable 2FA card -->
-                        <VBox HBox.hgrow="ALWAYS" spacing="14"
-                              style="-fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-                                     -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12;
-                                     -fx-background-radius: 12; -fx-border-width: 2; -fx-padding: 22;">
-                            <HBox spacing="12" alignment="CENTER_LEFT">
-                                <StackPane style="-fx-background-color: linear-gradient(135deg, #f44a40, #d32f2f);
+                        <!-- ── Disable 2FA Card ── -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="16"
+                              style="-fx-background-color: linear-gradient(135deg, #12101f, #0d0c1a);
+                                     -fx-border-color: rgba(244,74,64,0.3);
+                                     -fx-border-radius: 16; -fx-background-radius: 16;
+                                     -fx-border-width: 2; -fx-padding: 26;">
+
+                            <HBox spacing="14" alignment="CENTER_LEFT">
+                                <StackPane style="-fx-background-color: linear-gradient(135deg,#f44a40,#d32f2f);
                                                   -fx-background-radius: 10;
-                                                  -fx-min-width: 38; -fx-min-height: 38;
-                                                  -fx-max-width: 38; -fx-max-height: 38;">
-                                    <Label text="⏻" style="-fx-font-size: 18; -fx-text-fill: white;"/>
+                                                  -fx-min-width: 42; -fx-min-height: 42;
+                                                  -fx-max-width: 42; -fx-max-height: 42;
+                                                  -fx-effect: dropshadow(gaussian,rgba(244,74,64,0.5),12,0,0,3);">
+                                    <Label text="⏻" style="-fx-font-size: 20; -fx-text-fill: white;"/>
                                 </StackPane>
-                                <Label text="Disable 2FA"
-                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                                <VBox spacing="2">
+                                    <Label text="Disable 2FA"
+                                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
+                                    <Label text="Remove extra security layer"
+                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;"/>
+                                </VBox>
                             </HBox>
-                            <Label text="Remove two-factor authentication from your account. This will make your account less secure."
-                                   style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12; -fx-wrap-text: true;"/>
+
+                            <!-- Warning box -->
+                            <HBox spacing="12" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: rgba(244,74,64,0.1);
+                                         -fx-border-color: rgba(244,74,64,0.35);
+                                         -fx-border-width: 0 0 0 4;
+                                         -fx-border-radius: 8; -fx-background-radius: 8;
+                                         -fx-padding: 14 18;">
+                                <Label text="⚠" style="-fx-text-fill: #ff6b5b; -fx-font-size: 16;"/>
+                                <Label text="This will significantly reduce your account security."
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.85);
+                                              -fx-font-size: 12; -fx-font-weight: bold;"/>
+                            </HBox>
+
+                            <Label text="Remove two-factor authentication from your account. You will only need your password to log in."
+                                   wrapText="true"
+                                   style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 12;"/>
+
                             <Region VBox.vgrow="ALWAYS"/>
+
                             <Button fx:id="disableBtn" text="✕  Disable Protection"
-                                    maxWidth="1.7976931348623157E308" onAction="#handleDisable"
-                                    style="-fx-background-color: linear-gradient(135deg, #f44a40, #d32f2f);
-                                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;
-                                           -fx-background-radius: 8; -fx-padding: 10 0; -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian, rgba(244,74,64,0.3), 14, 0, 0, 3);"/>
+                                    maxWidth="1.7976931348623157E308"
+                                    onAction="#handleDisable"
+                                    style="-fx-background-color: #f44a40 !important;
+               -fx-background: #f44a40;
+               -fx-base: #f44a40;
+               -fx-text-fill: white;
+               -fx-font-weight: bold;
+               -fx-font-size: 13;
+               -fx-background-radius: 10;
+               -fx-padding: 14 0;
+               -fx-cursor: hand;
+               -fx-border-width: 0;
+               -fx-effect: dropshadow(gaussian,rgba(244,74,64,0.5),18,0,0,4);"/>
                         </VBox>
 
                     </HBox>
@@ -137,105 +204,134 @@
                 <!-- ══════════════════════════════════
                      DISABLED STATE
                 ══════════════════════════════════ -->
-                <VBox fx:id="disabledBanner" visible="true" managed="true" spacing="20">
+                <VBox fx:id="disabledBanner" visible="true" managed="true" spacing="22">
 
-                    <!-- Status banner — disabled (yellow gradient) -->
-                    <HBox spacing="18" alignment="CENTER_LEFT"
-                          style="-fx-background-color: linear-gradient(135deg, #f4e700, #fbc02d);
-                                 -fx-border-radius: 15; -fx-background-radius: 15;
-                                 -fx-padding: 22 28; -fx-max-height: 90;
-                                 -fx-effect: dropshadow(gaussian, rgba(244,231,0,0.3), 20, 0, 0, 5);">
-                        <StackPane style="-fx-background-color: rgba(0,0,0,0.15);
-                                          -fx-background-radius: 50; -fx-min-width: 52; -fx-min-height: 52;
-                                          -fx-max-width: 52; -fx-max-height: 52;">
-                            <Label text="⚠" style="-fx-font-size: 24;"/>
+                    <!-- Warning Hero Banner -->
+                    <HBox spacing="20" alignment="CENTER_LEFT"
+                          style="-fx-background-color: linear-gradient(135deg, #1a1200, #120e00);
+                                 -fx-border-color: #f6d860; -fx-border-width: 0 0 0 5;
+                                 -fx-border-radius: 16; -fx-background-radius: 16;
+                                 -fx-padding: 24 30;
+                                 -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.2),30,0,0,0);">
+                        <StackPane style="-fx-background-color: rgba(246,216,96,0.15);
+                                          -fx-background-radius: 50;
+                                          -fx-min-width: 60; -fx-min-height: 60;
+                                          -fx-max-width: 60; -fx-max-height: 60;
+                                          -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.4),16,0,0,0);">
+                            <Label text="⚠" style="-fx-font-size: 28;"/>
                         </StackPane>
-                        <VBox spacing="4">
+                        <VBox spacing="5">
                             <Label text="Two-Factor Authentication is Disabled"
-                                   style="-fx-text-fill: #1a1f2e; -fx-font-weight: bold; -fx-font-size: 17;"/>
+                                   style="-fx-text-fill: #f6d860; -fx-font-family: 'Arial Black';
+                                          -fx-font-size: 18; -fx-font-weight: bold;"/>
                             <Label text="Enhance your account security by enabling 2FA today"
-                                   style="-fx-text-fill: rgba(0,0,0,0.7); -fx-font-size: 12;"/>
+                                   style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12;"/>
                         </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="● INACTIVE"
+                               style="-fx-text-fill: #f6d860; -fx-font-size: 10;
+                                      -fx-font-weight: bold;
+                                      -fx-background-color: rgba(246,216,96,0.1);
+                                      -fx-border-color: rgba(246,216,96,0.3);
+                                      -fx-border-radius: 20; -fx-background-radius: 20;
+                                      -fx-padding: 5 14;"/>
                     </HBox>
 
-                    <!-- Benefits card -->
+                    <!-- Benefits + Enable Card -->
                     <VBox spacing="0"
-                          style="-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);
-                                 -fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 20;
-                                 -fx-background-radius: 20; -fx-border-width: 2;
-                                 -fx-padding: 30 35;">
+                          style="-fx-background-color: linear-gradient(135deg, #12101f, #0d0c1a);
+                                 -fx-border-color: rgba(232,55,42,0.2);
+                                 -fx-border-radius: 20; -fx-background-radius: 20;
+                                 -fx-border-width: 2; -fx-padding: 32 36;">
 
                         <Label text="⭐  Why Enable Two-Factor Authentication?"
-                               style="-fx-text-fill: white; -fx-font-weight: bold;
-                                      -fx-font-size: 16; -fx-padding: 0 0 20 0;"/>
+                               style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
+                                      -fx-font-size: 16; -fx-padding: 0 0 22 0;"/>
 
-                        <!-- Benefits list -->
-                        <HBox spacing="14" style="-fx-padding: 12 0; -fx-border-color: rgba(255,255,255,0.05);
+                        <!-- Benefit 1 -->
+                        <HBox spacing="14" style="-fx-padding: 14 0;
+                              -fx-border-color: rgba(255,255,255,0.07);
                               -fx-border-width: 0 0 1 0;">
-                            <StackPane style="-fx-background-color: rgba(76,211,227,0.15); -fx-background-radius: 8;
-                                              -fx-min-width: 35; -fx-min-height: 35; -fx-max-width: 35; -fx-max-height: 35;">
-                                <Label text="🛡" style="-fx-font-size: 16;"/>
+                            <StackPane style="-fx-background-color: rgba(0,229,255,0.12);
+                                              -fx-background-radius: 10;
+                                              -fx-min-width: 38; -fx-min-height: 38;
+                                              -fx-max-width: 38; -fx-max-height: 38;">
+                                <Label text="🛡" style="-fx-font-size: 17;"/>
                             </StackPane>
                             <VBox spacing="3" VBox.vgrow="ALWAYS">
                                 <Label text="Enhanced Security"
                                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
                                 <Label text="Protects your account even if your password is compromised"
-                                       style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11; -fx-wrap-text: true;"/>
+                                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11;"/>
                             </VBox>
                         </HBox>
 
-                        <HBox spacing="14" style="-fx-padding: 12 0; -fx-border-color: rgba(255,255,255,0.05);
+                        <!-- Benefit 2 -->
+                        <HBox spacing="14" style="-fx-padding: 14 0;
+                              -fx-border-color: rgba(255,255,255,0.07);
                               -fx-border-width: 0 0 1 0;">
-                            <StackPane style="-fx-background-color: rgba(76,211,227,0.15); -fx-background-radius: 8;
-                                              -fx-min-width: 35; -fx-min-height: 35; -fx-max-width: 35; -fx-max-height: 35;">
-                                <Label text="⚡" style="-fx-font-size: 16;"/>
+                            <StackPane style="-fx-background-color: rgba(0,229,255,0.12);
+                                              -fx-background-radius: 10;
+                                              -fx-min-width: 38; -fx-min-height: 38;
+                                              -fx-max-width: 38; -fx-max-height: 38;">
+                                <Label text="⚡" style="-fx-font-size: 17;"/>
                             </StackPane>
                             <VBox spacing="3" VBox.vgrow="ALWAYS">
                                 <Label text="Quick Setup"
                                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
                                 <Label text="Takes less than 2 minutes to configure with your smartphone"
-                                       style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11; -fx-wrap-text: true;"/>
+                                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11;"/>
                             </VBox>
                         </HBox>
 
-                        <HBox spacing="14" style="-fx-padding: 12 0; -fx-border-color: rgba(255,255,255,0.05);
+                        <!-- Benefit 3 -->
+                        <HBox spacing="14" style="-fx-padding: 14 0;
+                              -fx-border-color: rgba(255,255,255,0.07);
                               -fx-border-width: 0 0 1 0;">
-                            <StackPane style="-fx-background-color: rgba(76,211,227,0.15); -fx-background-radius: 8;
-                                              -fx-min-width: 35; -fx-min-height: 35; -fx-max-width: 35; -fx-max-height: 35;">
-                                <Label text="📴" style="-fx-font-size: 16;"/>
+                            <StackPane style="-fx-background-color: rgba(0,229,255,0.12);
+                                              -fx-background-radius: 10;
+                                              -fx-min-width: 38; -fx-min-height: 38;
+                                              -fx-max-width: 38; -fx-max-height: 38;">
+                                <Label text="📴" style="-fx-font-size: 17;"/>
                             </StackPane>
                             <VBox spacing="3" VBox.vgrow="ALWAYS">
                                 <Label text="Works Offline"
                                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
-                                <Label text="Authenticator apps generate codes without an internet connection"
-                                       style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11; -fx-wrap-text: true;"/>
+                                <Label text="Authenticator apps generate codes without internet connection"
+                                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11;"/>
                             </VBox>
                         </HBox>
 
-                        <HBox spacing="14" style="-fx-padding: 12 0;">
-                            <StackPane style="-fx-background-color: rgba(76,211,227,0.15); -fx-background-radius: 8;
-                                              -fx-min-width: 35; -fx-min-height: 35; -fx-max-width: 35; -fx-max-height: 35;">
-                                <Label text="🔑" style="-fx-font-size: 16;"/>
+                        <!-- Benefit 4 -->
+                        <HBox spacing="14" style="-fx-padding: 14 0 22 0;">
+                            <StackPane style="-fx-background-color: rgba(0,229,255,0.12);
+                                              -fx-background-radius: 10;
+                                              -fx-min-width: 38; -fx-min-height: 38;
+                                              -fx-max-width: 38; -fx-max-height: 38;">
+                                <Label text="🔑" style="-fx-font-size: 17;"/>
                             </StackPane>
                             <VBox spacing="3" VBox.vgrow="ALWAYS">
                                 <Label text="Backup Codes"
                                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
                                 <Label text="Emergency backup codes provided in case you lose your device"
-                                       style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11; -fx-wrap-text: true;"/>
+                                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11;"/>
                             </VBox>
                         </HBox>
 
-                        <!-- Info alert -->
-                        <HBox spacing="12" style="-fx-background-color: rgba(56,164,255,0.12);
-                              -fx-border-color: #38a4ff; -fx-border-width: 0 0 0 4;
-                              -fx-border-radius: 10; -fx-background-radius: 10;
-                              -fx-padding: 14 18; -fx-margin: 15 0;">
-                            <Label text="📱" style="-fx-font-size: 18; -fx-text-fill: #38a4ff;"/>
+                        <!-- Info box -->
+                        <HBox spacing="14"
+                              style="-fx-background-color: rgba(0,229,255,0.07);
+                                     -fx-border-color: rgba(0,229,255,0.25);
+                                     -fx-border-width: 0 0 0 4;
+                                     -fx-border-radius: 10; -fx-background-radius: 10;
+                                     -fx-padding: 14 18; -fx-margin: 0 0 22 0;">
+                            <Label text="📱" style="-fx-font-size: 18; -fx-text-fill: #00e5ff;"/>
                             <VBox spacing="3">
                                 <Label text="What You'll Need:"
-                                       style="-fx-text-fill: #38a4ff; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                                       style="-fx-text-fill: #00e5ff; -fx-font-weight: bold; -fx-font-size: 12;"/>
                                 <Label text="Google Authenticator, Authy, or Microsoft Authenticator on your smartphone."
-                                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11; -fx-wrap-text: true;"/>
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 11;"/>
                             </VBox>
                         </HBox>
 
@@ -243,12 +339,11 @@
                         <Button fx:id="enableBtn" text="🛡  Enable Two-Factor Authentication"
                                 maxWidth="1.7976931348623157E308"
                                 onAction="#handleEnable"
-                                style="-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);
-                                       -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
-                                       -fx-background-radius: 12; -fx-padding: 16 0;
-                                       -fx-cursor: hand;
-                                       -fx-effect: dropshadow(gaussian, rgba(76,211,227,0.4), 20, 0, 0, 5);
-                                       -fx-margin: 10 0 0 0;"/>
+                                style="-fx-background-color: linear-gradient(135deg, #00e5ff, #00bcd4);
+                                       -fx-text-fill: #080810; -fx-font-weight: bold;
+                                       -fx-font-size: 15; -fx-background-radius: 12;
+                                       -fx-padding: 17 0; -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian,rgba(0,229,255,0.5),24,0,0,5);"/>
                     </VBox>
                 </VBox>
 

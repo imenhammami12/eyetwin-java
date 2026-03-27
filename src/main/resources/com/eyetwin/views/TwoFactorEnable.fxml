@@ -4,219 +4,447 @@
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 
-<!--
-    TwoFactorEnable.fxml
-    Mirrors: two_factor/enable.html.twig (Symfony)
-    Controller: com.eyetwin.controller.TwoFactorEnableController
--->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.TwoFactorEnableController"
             stylesheets="@../styles/gaming.css"
-            style="-fx-background-color: #0b111f;"
+            style="-fx-background-color: #080810;"
             prefWidth="1280" prefHeight="800">
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane">
-            <VBox style="-fx-background-color: #0b111f; -fx-padding: 50 80;">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane"
+                    style="-fx-background-color: #080810; -fx-background: #080810;
+                           -fx-border-color: transparent;">
+            <VBox style="-fx-background-color: #080810; -fx-padding: 50 120;">
 
-                <!-- Breadcrumb / Title -->
-                <VBox alignment="CENTER" spacing="8" style="-fx-padding: 0 0 40 0;">
-                    <Label text="Enable Two-Factor Authentication"
-                           style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                  -fx-font-size: 26; -fx-font-weight: bold;"/>
-                    <Label text="Secure your account with an extra layer of protection"
-                           style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 13;"/>
-                </VBox>
-
-                <!-- ── Step 1: Download App ── -->
-                <VBox style="-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);
-                             -fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 16;
-                             -fx-background-radius: 16; -fx-border-width: 2;
-                             -fx-padding: 28 32; -fx-margin: 0 0 20 0;">
-                    <HBox spacing="16" alignment="CENTER_LEFT" style="-fx-padding: 0 0 18 0;
-                          -fx-border-color: rgba(255,0,0,0.2); -fx-border-width: 0 0 1 0;">
-                        <Label text="ℹ"
-                               style="-fx-text-fill: #38a4ff; -fx-font-size: 18;"/>
-                        <Label text="Setup Instructions"
-                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
-                    </HBox>
-                    <HBox spacing="30" style="-fx-padding: 18 0 0 0;">
-                        <!-- Step 1 -->
-                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="12">
-                            <StackPane style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
-                                              -fx-background-radius: 50; -fx-min-width: 44; -fx-min-height: 44;
-                                              -fx-max-width: 44; -fx-max-height: 44;
-                                              -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.4), 14, 0, 0, 3);">
-                                <Label text="1" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
-                            </StackPane>
-                            <Label text="Download Authenticator App"
-                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13; -fx-alignment: CENTER;"/>
-                            <Label text="Install Google Authenticator, Authy, or Microsoft Authenticator on your smartphone"
-                                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
-                                          -fx-wrap-text: true; -fx-alignment: CENTER; -fx-text-alignment: CENTER;"/>
-                        </VBox>
-                        <!-- Step 2 -->
-                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="12">
-                            <StackPane style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
-                                              -fx-background-radius: 50; -fx-min-width: 44; -fx-min-height: 44;
-                                              -fx-max-width: 44; -fx-max-height: 44;
-                                              -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.4), 14, 0, 0, 3);">
-                                <Label text="2" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
-                            </StackPane>
-                            <Label text="Scan QR Code"
-                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
-                            <Label text="Open your authenticator app and scan the QR code displayed below"
-                                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
-                                          -fx-wrap-text: true; -fx-alignment: CENTER; -fx-text-alignment: CENTER;"/>
-                        </VBox>
-                        <!-- Step 3 -->
-                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="12">
-                            <StackPane style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
-                                              -fx-background-radius: 50; -fx-min-width: 44; -fx-min-height: 44;
-                                              -fx-max-width: 44; -fx-max-height: 44;
-                                              -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.4), 14, 0, 0, 3);">
-                                <Label text="3" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
-                            </StackPane>
-                            <Label text="Enter Verification Code"
-                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
-                            <Label text="Type the 6-digit code from your app to complete the setup"
-                                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
-                                          -fx-wrap-text: true; -fx-alignment: CENTER; -fx-text-alignment: CENTER;"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-
-                <!-- ── Step 2: QR Code ── -->
-                <VBox style="-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);
-                             -fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 16;
-                             -fx-background-radius: 16; -fx-border-width: 2;
-                             -fx-padding: 28 32; -fx-margin: 0 0 20 0;">
-                    <HBox spacing="16" alignment="CENTER_LEFT" style="-fx-padding: 0 0 18 0;
-                          -fx-border-color: rgba(255,0,0,0.2); -fx-border-width: 0 0 1 0;">
-                        <Label text="⬛" style="-fx-text-fill: #ff0000; -fx-font-size: 18;"/>
-                        <Label text="Step 2: Scan This QR Code"
-                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
-                    </HBox>
-
-                    <VBox alignment="CENTER" spacing="18" style="-fx-padding: 22 0 0 0;">
-                        <!-- QR Code image -->
-                        <StackPane style="-fx-background-color: white; -fx-padding: 12;
-                                          -fx-background-radius: 12; -fx-border-radius: 12;
-                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 5);">
-                            <ImageView fx:id="qrCodeImage" fitWidth="250" fitHeight="250"
-                                       preserveRatio="true" smooth="true"/>
+                <!-- ══ PAGE HEADER ══ -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 0 0 48 0;">
+                    <HBox alignment="CENTER" spacing="12">
+                        <StackPane style="-fx-background-color: rgba(232,55,42,0.15);
+                                          -fx-border-color: rgba(232,55,42,0.4);
+                                          -fx-border-radius: 16; -fx-background-radius: 16;
+                                          -fx-min-width: 56; -fx-min-height: 56;
+                                          -fx-max-width: 56; -fx-max-height: 56;
+                                          -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),20,0,0,0);">
+                            <Label text="🛡" style="-fx-font-size: 26;"/>
                         </StackPane>
-
-                        <!-- QR error label (hidden by default) -->
-                        <Label fx:id="qrErrorLabel" visible="false" managed="false"
-                               style="-fx-text-fill: #f44a40; -fx-font-size: 12; -fx-wrap-text: true;
-                                      -fx-background-color: rgba(244,74,64,0.1);
-                                      -fx-padding: 10 16; -fx-background-radius: 8; -fx-border-radius: 8;
-                                      -fx-border-color: rgba(244,74,64,0.3); -fx-border-width: 1;"/>
-
-                        <!-- Manual secret key section -->
-                        <VBox maxWidth="560" alignment="CENTER" spacing="10"
-                              style="-fx-background-color: rgba(56,164,255,0.08);
-                                     -fx-border-color: rgba(56,164,255,0.2); -fx-border-radius: 12;
-                                     -fx-background-radius: 12; -fx-border-width: 1; -fx-padding: 20;">
-                            <Label text="📱 Can't scan the QR code? Enter this secret key manually:"
-                                   style="-fx-text-fill: #38a4ff; -fx-font-size: 12; -fx-font-weight: bold;"/>
-                            <Label fx:id="secretCodeLabel" text=""
-                                   style="-fx-font-family: 'Courier New'; -fx-font-size: 20;
-                                          -fx-font-weight: bold; -fx-text-fill: white;
-                                          -fx-letter-spacing: 0.15em;
-                                          -fx-background-color: rgba(0,0,0,0.4);
-                                          -fx-padding: 14 24; -fx-background-radius: 8;
-                                          -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.2), 10, 0, 0, 0);"/>
-                            <Button fx:id="copySecretBtn" text="⎘  Copy Secret Key"
-                                    maxWidth="300"
-                                    onAction="#handleCopySecret"
-                                    style="-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a);
-                                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;
-                                           -fx-background-radius: 8; -fx-padding: 11 20; -fx-cursor: hand;"/>
-                        </VBox>
-
-                        <Button fx:id="refreshQrBtn" text="⟳ Refresh QR Code"
-                                onAction="#handleRefreshQr"
-                                style="-fx-background-color: transparent;
-                                       -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 8;
-                                       -fx-background-radius: 8; -fx-text-fill: rgba(255,255,255,0.6);
-                                       -fx-font-size: 11; -fx-padding: 8 18; -fx-cursor: hand;"/>
-                    </VBox>
+                        <Label text="Enable Two-Factor Authentication"
+                               style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
+                                      -fx-font-size: 28; -fx-font-weight: bold;
+                                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.35),18,0,0,0);"/>
+                    </HBox>
+                    <Label text="Secure your account with an extra layer of protection"
+                           style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 14;"/>
+                    <!-- Decorative line -->
+                    <Region style="-fx-background-color: linear-gradient(to right,
+                                   transparent, #e8372a, transparent);
+                                   -fx-pref-height: 2; -fx-max-width: 300;"/>
                 </VBox>
 
-                <!-- ── Step 3: Verify code ── -->
-                <VBox style="-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);
-                             -fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 16;
-                             -fx-background-radius: 16; -fx-border-width: 2;
-                             -fx-padding: 28 32; -fx-margin: 0 0 20 0;">
-                    <HBox spacing="16" alignment="CENTER_LEFT" style="-fx-padding: 0 0 18 0;
-                          -fx-border-color: rgba(255,0,0,0.2); -fx-border-width: 0 0 1 0;">
-                        <Label text="🛡" style="-fx-text-fill: #ff0000; -fx-font-size: 18;"/>
-                        <Label text="Step 3: Verify Your Code"
-                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                <!-- ══ STEP INDICATORS ══ -->
+                <HBox alignment="CENTER" spacing="0" style="-fx-padding: 0 0 40 0;">
+                    <!-- Step 1 -->
+                    <VBox alignment="CENTER" spacing="8" prefWidth="200">
+                        <StackPane style="-fx-background-color: #e8372a;
+                                          -fx-background-radius: 50;
+                                          -fx-min-width: 44; -fx-min-height: 44;
+                                          -fx-max-width: 44; -fx-max-height: 44;
+                                          -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.6),16,0,0,0);">
+                            <Label text="1" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
+                        </StackPane>
+                        <Label text="Download App"
+                               style="-fx-text-fill: #e8372a; -fx-font-size: 11; -fx-font-weight: bold;"/>
+                    </VBox>
+                    <!-- Connector -->
+                    <Region style="-fx-background-color: rgba(232,55,42,0.35);
+                                   -fx-pref-height: 2; -fx-pref-width: 80; -fx-max-height: 2;"
+                            VBox.vgrow="NEVER"/>
+                    <!-- Step 2 -->
+                    <VBox alignment="CENTER" spacing="8" prefWidth="200">
+                        <StackPane style="-fx-background-color: rgba(232,55,42,0.2);
+                                          -fx-border-color: rgba(232,55,42,0.5);
+                                          -fx-border-radius: 50; -fx-background-radius: 50;
+                                          -fx-min-width: 44; -fx-min-height: 44;
+                                          -fx-max-width: 44; -fx-max-height: 44;">
+                            <Label text="2" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: bold; -fx-font-size: 16;"/>
+                        </StackPane>
+                        <Label text="Scan QR Code"
+                               style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 11; -fx-font-weight: bold;"/>
+                    </VBox>
+                    <!-- Connector -->
+                    <Region style="-fx-background-color: rgba(255,255,255,0.1);
+                                   -fx-pref-height: 2; -fx-pref-width: 80; -fx-max-height: 2;"/>
+                    <!-- Step 3 -->
+                    <VBox alignment="CENTER" spacing="8" prefWidth="200">
+                        <StackPane style="-fx-background-color: rgba(255,255,255,0.06);
+                                          -fx-border-color: rgba(255,255,255,0.2);
+                                          -fx-border-radius: 50; -fx-background-radius: 50;
+                                          -fx-min-width: 44; -fx-min-height: 44;
+                                          -fx-max-width: 44; -fx-max-height: 44;">
+                            <Label text="3" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-weight: bold; -fx-font-size: 16;"/>
+                        </StackPane>
+                        <Label text="Verify Code"
+                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- ══ CARD 1 : Setup Instructions ══ -->
+                <VBox spacing="0"
+                      style="-fx-background-color: rgba(6,5,16,0.9);
+                             -fx-border-color: rgba(232,55,42,0.22);
+                             -fx-border-radius: 18; -fx-background-radius: 18;
+                             -fx-border-width: 1.5; -fx-padding: 28 32;
+                             -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.5),30,0,0,8);">
+
+                    <!-- Card Header -->
+                    <HBox spacing="12" alignment="CENTER_LEFT"
+                          style="-fx-padding: 0 0 22 0;
+                                 -fx-border-color: rgba(232,55,42,0.15);
+                                 -fx-border-width: 0 0 1 0;">
+                        <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                          -fx-border-color: rgba(232,55,42,0.3);
+                                          -fx-border-radius: 10; -fx-background-radius: 10;
+                                          -fx-min-width: 38; -fx-min-height: 38;
+                                          -fx-max-width: 38; -fx-max-height: 38;">
+                            <Label text="ℹ" style="-fx-text-fill: #38a4ff; -fx-font-size: 16;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Setup Instructions"
+                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                            <Label text="Follow these 3 simple steps"
+                                   style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- 3 Steps -->
+                    <HBox spacing="0" style="-fx-padding: 24 0 0 0;">
+
+                        <!-- Step 1 -->
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="14"
+                              style="-fx-padding: 0 20 0 0;">
+                            <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                              -fx-border-color: rgba(232,55,42,0.4);
+                                              -fx-border-radius: 50; -fx-background-radius: 50;
+                                              -fx-min-width: 52; -fx-min-height: 52;
+                                              -fx-max-width: 52; -fx-max-height: 52;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),14,0,0,0);">
+                                <Label text="📱" style="-fx-font-size: 22;"/>
+                            </StackPane>
+                            <VBox alignment="CENTER" spacing="6">
+                                <Label text="Download App"
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
+                                <Label text="Install Google Authenticator, Authy, or Microsoft Authenticator"
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
+                                              -fx-text-alignment: CENTER; -fx-alignment: CENTER;"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Divider -->
+                        <Region style="-fx-background-color: rgba(232,55,42,0.15);
+                                       -fx-pref-width: 1; -fx-pref-height: 120; -fx-max-height: 120;"/>
+
+                        <!-- Step 2 -->
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="14"
+                              style="-fx-padding: 0 20 0 20;">
+                            <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                              -fx-border-color: rgba(232,55,42,0.4);
+                                              -fx-border-radius: 50; -fx-background-radius: 50;
+                                              -fx-min-width: 52; -fx-min-height: 52;
+                                              -fx-max-width: 52; -fx-max-height: 52;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),14,0,0,0);">
+                                <Label text="⬛" style="-fx-font-size: 22;"/>
+                            </StackPane>
+                            <VBox alignment="CENTER" spacing="6">
+                                <Label text="Scan QR Code"
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
+                                <Label text="Open your authenticator app and scan the QR code below"
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
+                                              -fx-text-alignment: CENTER; -fx-alignment: CENTER;"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Divider -->
+                        <Region style="-fx-background-color: rgba(232,55,42,0.15);
+                                       -fx-pref-width: 1; -fx-pref-height: 120; -fx-max-height: 120;"/>
+
+                        <!-- Step 3 -->
+                        <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="14"
+                              style="-fx-padding: 0 0 0 20;">
+                            <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                              -fx-border-color: rgba(232,55,42,0.4);
+                                              -fx-border-radius: 50; -fx-background-radius: 50;
+                                              -fx-min-width: 52; -fx-min-height: 52;
+                                              -fx-max-width: 52; -fx-max-height: 52;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),14,0,0,0);">
+                                <Label text="✔" style="-fx-font-size: 22; -fx-text-fill: #e8372a;"/>
+                            </StackPane>
+                            <VBox alignment="CENTER" spacing="6">
+                                <Label text="Enter Code"
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;"/>
+                                <Label text="Type the 6-digit code from your app to complete setup"
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11;
+                                              -fx-text-alignment: CENTER; -fx-alignment: CENTER;"/>
+                            </VBox>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <Region style="-fx-pref-height: 20;"/>
+
+                <!-- ══ CARD 2 : QR Code ══ -->
+                <VBox spacing="0"
+                      style="-fx-background-color: rgba(6,5,16,0.9);
+                             -fx-border-color: rgba(232,55,42,0.22);
+                             -fx-border-radius: 18; -fx-background-radius: 18;
+                             -fx-border-width: 1.5; -fx-padding: 28 32;
+                             -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.5),30,0,0,8);">
+
+                    <!-- Card Header -->
+                    <HBox spacing="12" alignment="CENTER_LEFT"
+                          style="-fx-padding: 0 0 22 0;
+                                 -fx-border-color: rgba(232,55,42,0.15);
+                                 -fx-border-width: 0 0 1 0;">
+                        <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                          -fx-border-color: rgba(232,55,42,0.3);
+                                          -fx-border-radius: 10; -fx-background-radius: 10;
+                                          -fx-min-width: 38; -fx-min-height: 38;
+                                          -fx-max-width: 38; -fx-max-height: 38;">
+                            <Label text="⬛" style="-fx-text-fill: #e8372a; -fx-font-size: 16;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Scan QR Code"
+                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                            <Label text="Use your authenticator app to scan the code below"
+                                   style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="refreshQrBtn" text="⟳  Refresh"
+                                onAction="#handleRefreshQr"
+                                style="-fx-background-color: rgba(255,255,255,0.05);
+                                       -fx-border-color: rgba(255,255,255,0.15);
+                                       -fx-border-radius: 8; -fx-background-radius: 8;
+                                       -fx-text-fill: rgba(255,255,255,0.6);
+                                       -fx-font-size: 11; -fx-padding: 8 16; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- QR + Secret layout -->
+                    <HBox spacing="40" alignment="CENTER" style="-fx-padding: 24 0 0 0;">
+
+                        <!-- QR Code -->
+                        <VBox alignment="CENTER" spacing="14">
+                            <StackPane style="-fx-background-color: white;
+                                              -fx-padding: 14;
+                                              -fx-background-radius: 16;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.3),24,0,0,0);
+                                              -fx-border-color: rgba(232,55,42,0.25);
+                                              -fx-border-radius: 16; -fx-border-width: 2;">
+                                <ImageView fx:id="qrCodeImage" fitWidth="220" fitHeight="220"
+                                           preserveRatio="true" smooth="true"/>
+                            </StackPane>
+                            <Label fx:id="qrErrorLabel" visible="false" managed="false"
+                                   style="-fx-text-fill: #f44a40; -fx-font-size: 12; -fx-wrap-text: true;
+                                          -fx-background-color: rgba(244,74,64,0.1);
+                                          -fx-padding: 10 16; -fx-background-radius: 8;
+                                          -fx-border-color: rgba(244,74,64,0.3); -fx-border-width: 1;
+                                          -fx-border-radius: 8;"/>
+                        </VBox>
+
+                        <!-- Secret Key Section -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="18">
+
+                            <VBox spacing="6">
+                                <Label text="Can't scan the QR code?"
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"/>
+                                <Label text="Enter this secret key manually in your authenticator app."
+                                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;"/>
+                            </VBox>
+
+                            <!-- Secret key display -->
+                            <VBox spacing="10"
+                                  style="-fx-background-color: rgba(56,164,255,0.06);
+                                         -fx-border-color: rgba(56,164,255,0.2);
+                                         -fx-border-radius: 12; -fx-background-radius: 12;
+                                         -fx-border-width: 1.5; -fx-padding: 20 22;">
+                                <Label text="🔐  Secret Key"
+                                       style="-fx-text-fill: #38a4ff; -fx-font-size: 11;
+                                              -fx-font-weight: bold; -fx-letter-spacing: 0.05em;"/>
+                                <Label fx:id="secretCodeLabel" text=""
+                                       style="-fx-font-family: 'Courier New'; -fx-font-size: 22;
+                                              -fx-font-weight: bold; -fx-text-fill: white;
+                                              -fx-background-color: rgba(0,0,0,0.35);
+                                              -fx-padding: 12 18; -fx-background-radius: 8;"/>
+                                <Button fx:id="copySecretBtn" text="⎘  Copy Secret Key"
+                                        onAction="#handleCopySecret"
+                                        style="-fx-background-color: rgba(56,164,255,0.1);
+                                               -fx-border-color: rgba(56,164,255,0.3);
+                                               -fx-border-radius: 8; -fx-background-radius: 8;
+                                               -fx-text-fill: #38a4ff; -fx-font-weight: bold;
+                                               -fx-font-size: 12; -fx-padding: 10 18; -fx-cursor: hand;"/>
+                            </VBox>
+
+                            <!-- Supported apps -->
+                            <VBox spacing="8"
+                                  style="-fx-background-color: rgba(255,255,255,0.03);
+                                         -fx-border-color: rgba(255,255,255,0.08);
+                                         -fx-border-radius: 10; -fx-background-radius: 10;
+                                         -fx-border-width: 1; -fx-padding: 16 18;">
+                                <Label text="📱  Supported Apps"
+                                       style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11;
+                                              -fx-font-weight: bold;"/>
+                                <HBox spacing="8">
+                                    <Label text="Google Authenticator"
+                                           style="-fx-background-color: rgba(232,55,42,0.1);
+                                                  -fx-border-color: rgba(232,55,42,0.25);
+                                                  -fx-border-radius: 6; -fx-background-radius: 6;
+                                                  -fx-border-width: 1; -fx-text-fill: #ff6b5b;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-padding: 4 10;"/>
+                                    <Label text="Authy"
+                                           style="-fx-background-color: rgba(232,55,42,0.1);
+                                                  -fx-border-color: rgba(232,55,42,0.25);
+                                                  -fx-border-radius: 6; -fx-background-radius: 6;
+                                                  -fx-border-width: 1; -fx-text-fill: #ff6b5b;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-padding: 4 10;"/>
+                                    <Label text="Microsoft Authenticator"
+                                           style="-fx-background-color: rgba(232,55,42,0.1);
+                                                  -fx-border-color: rgba(232,55,42,0.25);
+                                                  -fx-border-radius: 6; -fx-background-radius: 6;
+                                                  -fx-border-width: 1; -fx-text-fill: #ff6b5b;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-padding: 4 10;"/>
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Region style="-fx-pref-height: 20;"/>
+
+                <!-- ══ CARD 3 : Verify Code ══ -->
+                <VBox spacing="0"
+                      style="-fx-background-color: rgba(6,5,16,0.9);
+                             -fx-border-color: rgba(232,55,42,0.22);
+                             -fx-border-radius: 18; -fx-background-radius: 18;
+                             -fx-border-width: 1.5; -fx-padding: 28 32;
+                             -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.5),30,0,0,8);">
+
+                    <!-- Card Header -->
+                    <HBox spacing="12" alignment="CENTER_LEFT"
+                          style="-fx-padding: 0 0 22 0;
+                                 -fx-border-color: rgba(232,55,42,0.15);
+                                 -fx-border-width: 0 0 1 0;">
+                        <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                          -fx-border-color: rgba(232,55,42,0.3);
+                                          -fx-border-radius: 10; -fx-background-radius: 10;
+                                          -fx-min-width: 38; -fx-min-height: 38;
+                                          -fx-max-width: 38; -fx-max-height: 38;">
+                            <Label text="🛡" style="-fx-font-size: 18;"/>
+                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="Verify Your Code"
+                                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15;"/>
+                            <Label text="Enter the 6-digit code from your authenticator app"
+                                   style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;"/>
+                        </VBox>
                     </HBox>
 
                     <!-- Error box -->
                     <VBox fx:id="errorBox" visible="false" managed="false"
-                          style="-fx-background-color: rgba(244,74,64,0.12);
-                                 -fx-border-color: #f44a40; -fx-border-width: 0 0 0 4;
+                          style="-fx-background-color: rgba(244,74,64,0.1);
+                                 -fx-border-color: #f44a40;
+                                 -fx-border-width: 0 0 0 4;
                                  -fx-border-radius: 8; -fx-background-radius: 8;
-                                 -fx-padding: 12 16; -fx-margin: 15 0 0 0;">
+                                 -fx-padding: 14 18; -fx-margin: 0 0 16 0;">
                         <Label fx:id="errorLabel" text=""
-                               style="-fx-text-fill: #f44a40; -fx-font-size: 12; -fx-wrap-text: true;"/>
+                               style="-fx-text-fill: #ff6b5b; -fx-font-size: 12;
+                                      -fx-font-weight: bold; -fx-wrap-text: true;"/>
                     </VBox>
 
-                    <VBox alignment="CENTER" spacing="16" style="-fx-padding: 22 0 0 0;" maxWidth="500">
-                        <Label text="Enter the 6-digit code from your authenticator app:"
-                               style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"/>
-                        <TextField fx:id="codeField"
-                                   promptText="000000"
-                                   maxWidth="260"
-                                   style="-fx-font-family: 'Courier New'; -fx-font-size: 32;
-                                          -fx-font-weight: bold; -fx-letter-spacing: 0.5em;
-                                          -fx-text-fill: white; -fx-alignment: CENTER;
-                                          -fx-background-color: rgba(255,255,255,0.04);
-                                          -fx-border-color: rgba(255,255,255,0.15);
-                                          -fx-border-radius: 12; -fx-background-radius: 12;
-                                          -fx-border-width: 2; -fx-padding: 18 0;"/>
-                        <Label text="⏱ Code expires in 30 seconds"
-                               style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;"/>
+                    <!-- Code input centered -->
+                    <VBox alignment="CENTER" spacing="18" style="-fx-padding: 22 0 0 0;">
 
+                        <Label text="Enter 6-digit verification code"
+                               style="-fx-text-fill: rgba(255,255,255,0.75);
+                                      -fx-font-size: 13; -fx-font-weight: bold;"/>
+
+                        <!-- Code field -->
+                        <StackPane>
+                            <TextField fx:id="codeField"
+                                       promptText="● ● ● ● ● ●"
+                                       maxWidth="300"
+                                       style="-fx-font-family: 'Courier New'; -fx-font-size: 34;
+                                              -fx-font-weight: bold; -fx-letter-spacing: 0.6em;
+                                              -fx-text-fill: white; -fx-alignment: CENTER;
+                                              -fx-prompt-text-fill: rgba(255,255,255,0.2);
+                                              -fx-background-color: rgba(232,55,42,0.06);
+                                              -fx-border-color: rgba(232,55,42,0.4);
+                                              -fx-border-radius: 14; -fx-background-radius: 14;
+                                              -fx-border-width: 2; -fx-padding: 18 0;
+                                              -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.2),16,0,0,0);"/>
+                        </StackPane>
+
+                        <HBox alignment="CENTER" spacing="6">
+                            <Label text="⏱"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12;"/>
+                            <Label text="Code refreshes every 30 seconds"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
+                        </HBox>
+
+                        <!-- Action Buttons -->
                         <VBox spacing="12" maxWidth="400">
                             <Button fx:id="verifyBtn" text="✓  Verify and Enable 2FA"
                                     maxWidth="400"
                                     onAction="#handleVerify"
-                                    style="-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);
-                                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
-                                           -fx-background-radius: 12; -fx-padding: 16 0; -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian, rgba(76,211,227,0.4), 20, 0, 0, 5);"/>
-                            <Button fx:id="cancelBtn" text="✕  Cancel"
+                                    style="-fx-base: #00bcd4;
+                                           -fx-background-color: linear-gradient(135deg,#00e5ff,#00bcd4);
+                                           -fx-text-fill: #080810; -fx-font-weight: bold;
+                                           -fx-font-size: 14; -fx-background-radius: 12;
+                                           -fx-padding: 16 0; -fx-cursor: hand;
+                                           -fx-effect: dropshadow(gaussian,rgba(0,229,255,0.4),20,0,0,5);"/>
+                            <Button fx:id="cancelBtn" text="← Cancel Setup"
                                     maxWidth="400"
                                     onAction="#handleCancel"
-                                    style="-fx-background-color: transparent;
-                                           -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 12;
-                                           -fx-background-radius: 12; -fx-text-fill: rgba(255,255,255,0.6);
-                                           -fx-font-weight: bold; -fx-font-size: 14; -fx-padding: 14 0;
-                                           -fx-cursor: hand;"/>
+                                    style="-fx-background-color: rgba(255,255,255,0.04);
+                                           -fx-border-color: rgba(255,255,255,0.12);
+                                           -fx-border-radius: 12; -fx-background-radius: 12;
+                                           -fx-text-fill: rgba(255,255,255,0.6);
+                                           -fx-font-weight: bold; -fx-font-size: 13;
+                                           -fx-padding: 14 0; -fx-cursor: hand;"/>
                         </VBox>
                     </VBox>
                 </VBox>
 
-                <!-- Important notice -->
-                <HBox spacing="14"
-                      style="-fx-background-color: rgba(246,173,85,0.1);
-                             -fx-border-color: #ffc107; -fx-border-width: 0 0 0 5;
-                             -fx-border-radius: 12; -fx-background-radius: 12;
-                             -fx-padding: 18 22;">
-                    <Label text="⚠" style="-fx-font-size: 22; -fx-text-fill: #ffc107;"/>
-                    <VBox spacing="4">
-                        <Label text="Important Information"
-                               style="-fx-text-fill: #ffc107; -fx-font-weight: bold; -fx-font-size: 13;"/>
+                <Region style="-fx-pref-height: 20;"/>
+
+                <!-- ══ IMPORTANT NOTICE ══ -->
+                <HBox spacing="16" alignment="CENTER_LEFT"
+                      style="-fx-background-color: rgba(246,173,85,0.07);
+                             -fx-border-color: #f6a825;
+                             -fx-border-width: 0 0 0 5;
+                             -fx-border-radius: 14; -fx-background-radius: 14;
+                             -fx-padding: 20 24;">
+                    <StackPane style="-fx-background-color: rgba(246,173,85,0.15);
+                                      -fx-border-color: rgba(246,173,85,0.3);
+                                      -fx-border-radius: 10; -fx-background-radius: 10;
+                                      -fx-min-width: 44; -fx-min-height: 44;
+                                      -fx-max-width: 44; -fx-max-height: 44;">
+                        <Label text="⚠" style="-fx-font-size: 20;"/>
+                    </StackPane>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Important — Save Your Backup Codes"
+                               style="-fx-text-fill: #f6a825; -fx-font-weight: bold; -fx-font-size: 13;"/>
                         <Label text="After successful verification, you will receive backup codes. Please save them in a secure location — they are your only way to access your account if you lose your authenticator device."
-                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12; -fx-wrap-text: true;"/>
+                               wrapText="true"
+                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12;"/>
                     </VBox>
                 </HBox>
+
+                <Region style="-fx-pref-height: 40;"/>
 
             </VBox>
         </ScrollPane>
