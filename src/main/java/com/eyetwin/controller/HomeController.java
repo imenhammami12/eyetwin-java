@@ -216,7 +216,7 @@ public class HomeController {
     @FXML public void goToGuides()   { navigateTo("Guides.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTournois() { navigateTo("Tournois.fxml"); }
-    @FXML public void goToProfile()  { navigateTo("Profile.fxml"); }
+    @FXML public void goToProfile()  { navigateTo("UserProfile.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
     @FXML public void goToCoins()    { navigateTo("Coins.fxml"); }
     @FXML public void goToSupport()  { navigateTo("Support.fxml"); }
