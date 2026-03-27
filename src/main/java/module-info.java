@@ -5,6 +5,8 @@ module org.example.eyetwinjava {
     requires jbcrypt;
     requires javafx.web;
     requires jdk.jsobject;
+    requires bcrypt;
+    requires java.prefs;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
