@@ -13,100 +13,218 @@
             prefWidth="1280" prefHeight="800">
 
     <!-- ══════════════════════════════════════════════════
-         NAVBAR — sticky header with red shimmer border
+         NAVBAR — mirror of Symfony .main_menu
     ══════════════════════════════════════════════════ -->
     <top>
         <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="0"
               style="-fx-background-color: rgba(8,8,16,0.95);
                      -fx-border-color: rgba(232,55,42,0.15);
                      -fx-border-width: 0 0 1 0;
-                     -fx-padding: 0 30 0 30;
+                     -fx-padding: 0 24 0 24;
                      -fx-pref-height: 64;
                      -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.6),20,0,0,4);">
 
-            <!-- Logo image (same path as Symfony assets) -->
-            <ImageView fitHeight="40" preserveRatio="true" pickOnBounds="true">
-                <image><Image url="@../assets/img/eyetwin-logo.png"/></image>            </ImageView>
+            <!-- Logo -->
+            <ImageView fitHeight="40" preserveRatio="true" pickOnBounds="true"
+                       onMouseClicked="#goHome" style="-fx-cursor: hand;">
+                <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+            </ImageView>
 
-            <Region style="-fx-min-width: 28;"/>
+            <Region style="-fx-min-width: 22;"/>
 
-            <!-- Nav links -->
-            <Label text="HOME" styleClass="nav-link"
-                   style="-fx-text-fill: white; -fx-font-size:11; -fx-font-weight:bold;
-                          -fx-padding: 22 16 22 16; -fx-cursor: hand;
+            <!-- ── Nav links (always visible) ── -->
+            <Label text="HOME" onMouseClicked="#goHome"
+                   style="-fx-text-fill: white; -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-font-family:'Arial'; -fx-letter-spacing:1;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;
                           -fx-border-color: transparent transparent #e8372a transparent;
                           -fx-border-width: 0 0 2 0;"/>
             <Label text="PLANNING" onMouseClicked="#goToPlanning"
-                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:11; -fx-font-weight:bold;
-                          -fx-padding: 22 16 22 16; -fx-cursor: hand;"/>
+                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
             <Label text="TOURNOIS"
-                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:11; -fx-font-weight:bold;
-                          -fx-padding: 22 16 22 16; -fx-cursor: hand;"/>
+                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
+
+            <!-- ── HIGHLIGHTS — direct link (logged in only) ── -->
+            <Label fx:id="navHighlights" text="HIGHLIGHTS"
+                   visible="false" managed="false"
+                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
+
+            <!-- ── UPLOADER dropdown (logged in only) — MenuButton simulates Bootstrap dropdown ── -->
+            <MenuButton fx:id="navUploaderMenu"
+                        visible="false" managed="false"
+                        text="⬆  UPLOADER"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.5);
+                               -fx-font-size:10; -fx-font-weight:bold;
+                               -fx-padding: 22 14 22 10;
+                               -fx-border-color: transparent;
+                               -fx-mark-color: rgba(255,255,255,0.3);
+                               -fx-cursor: hand;">
+                <!-- animated red dot prefix is visual-only via Label trick below -->
+                <items>
+                    <MenuItem fx:id="menuUpload"    text="⬆  Uploader"  onAction="#goToVideos"/>
+                    <MenuItem fx:id="menuMyClips"   text="🎬  My Clips"  onAction="#goToClips"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem fx:id="menuGuides"    text="📖  Guides"    onAction="#goToGuides"/>
+                </items>
+            </MenuButton>
+
             <Label text="TEAMS" onMouseClicked="#goToTeams"
-                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:11; -fx-font-weight:bold;
-                          -fx-padding: 22 16 22 16; -fx-cursor: hand;"/>
+                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
             <Label text="COMMUNITY"
-                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:11; -fx-font-weight:bold;
-                          -fx-padding: 22 16 22 16; -fx-cursor: hand;"/>
-            <!-- LIVE red dot -->
+                   style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
+                          -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
+
+            <!-- ── LIVE with red dot ── -->
             <HBox alignment="CENTER" spacing="5"
-                  style="-fx-padding: 22 16 22 16; -fx-cursor: hand;">
+                  style="-fx-padding: 22 14 22 14; -fx-cursor: hand;">
                 <Label text="●"
-                       style="-fx-text-fill: #ff4d3d; -fx-font-size: 8;
+                       style="-fx-text-fill: #ff4d3d; -fx-font-size: 7;
                               -fx-effect: dropshadow(gaussian,#ff4d3d,8,0,0,0);"/>
                 <Label text="LIVE"
-                       style="-fx-text-fill: #ff4d3d; -fx-font-size:11; -fx-font-weight:bold;"/>
+                       style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
             </HBox>
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <!-- ── ZONE CONNECTÉ ── -->
-            <HBox fx:id="loggedInZone" alignment="CENTER" spacing="10"
+            <!-- ══════════════════════════════════════
+                 RIGHT SIDE — logged IN zone
+            ══════════════════════════════════════ -->
+            <HBox fx:id="loggedInZone" alignment="CENTER" spacing="8"
                   visible="false" managed="false">
 
-                <!-- Coins pill — gold gradient like Symfony .nav-coins-pill -->
+                <!-- Coins pill — like .nav-coins-pill -->
                 <HBox fx:id="coinsBadge" alignment="CENTER" spacing="6"
+                      onMouseClicked="#goToCoins"
                       style="-fx-background-color: linear-gradient(90deg,#f6d860,#f6ad55);
-                             -fx-background-radius: 20; -fx-padding: 6 14 6 14;
+                             -fx-background-radius: 20; -fx-padding: 5 13 5 13;
                              -fx-cursor: hand;
                              -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.3),10,0,0,0);">
-                    <Label text="🪙" style="-fx-font-size: 12;"/>
+                    <Label text="🪙" style="-fx-font-size: 11;"/>
                     <Label fx:id="coinsNavLabel" text="0"
-                           style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1a1a2e;"/>
+                           style="-fx-font-weight: bold; -fx-font-size: 11; -fx-text-fill: #1a1a2e;"/>
                 </HBox>
 
-                <!-- Profile button — styled like .et-profile-trigger -->
-                <HBox fx:id="profileTrigger" alignment="CENTER" spacing="8"
-                      onMouseClicked="#goToProfile"
-                      style="-fx-background-color: rgba(255,255,255,0.03);
-                             -fx-border-color: rgba(232,55,42,0.18);
-                             -fx-border-radius: 50; -fx-background-radius: 50;
-                             -fx-padding: 5 12 5 5; -fx-cursor: hand;">
-                    <!-- Avatar circle -->
-                    <StackPane style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);
-                                      -fx-background-radius: 50;
-                                      -fx-min-width: 30; -fx-min-height: 30;
-                                      -fx-max-width: 30; -fx-max-height: 30;">
-                        <Label fx:id="avatarInitial" text="A"
-                               style="-fx-text-fill: white; -fx-font-weight:900; -fx-font-size:13;"/>
-                    </StackPane>
-                    <Label fx:id="userButton" text="PLAYER"
-                           style="-fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:11;"/>
-                    <Label text="▾" style="-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size:9;"/>
-                </HBox>
+                <!-- ── Bell / Notifications dropdown — like .nav-bell ── -->
+                <MenuButton fx:id="navNotifMenu"
+                            style="-fx-background-color: transparent;
+                                   -fx-border-color: transparent;
+                                   -fx-text-fill: rgba(255,255,255,0.65);
+                                   -fx-font-size: 14;
+                                   -fx-mark-color: transparent;
+                                   -fx-padding: 6 8 6 8;
+                                   -fx-cursor: hand;">
+                    <!-- Bell icon set in controller via setText or graphic -->
+                    <graphic>
+                        <StackPane>
+                            <Label text="🔔" style="-fx-font-size:16;"/>
+                            <!-- unread badge -->
+                            <Label fx:id="navNotifBadge" text=""
+                                   visible="false" managed="false"
+                                   style="-fx-background-color: #e8372a;
+                                          -fx-text-fill: white;
+                                          -fx-font-size: 8; -fx-font-weight:bold;
+                                          -fx-background-radius: 10;
+                                          -fx-padding: 1 4 1 4;
+                                          -fx-translate-x: 8; -fx-translate-y: -8;
+                                          -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),6,0,0,0);"/>
+                        </StackPane>
+                    </graphic>
+                    <items>
+                        <!-- Header item (non-clickable style) -->
+                        <MenuItem fx:id="notifHeaderItem" text="🔔  Notifications"
+                                  style="-fx-font-weight:bold; -fx-text-fill:#ff4d3d;" disable="true"/>
+                        <SeparatorMenuItem/>
+                        <!-- Dynamic notifications injected by controller via getItems() -->
+                        <MenuItem fx:id="notifEmptyItem" text="✅  All caught up"
+                                  disable="true"
+                                  style="-fx-text-fill: rgba(255,255,255,0.35);"/>
+                    </items>
+                </MenuButton>
 
-                <!-- Logout -->
-                <Button text="LOGOUT" onAction="#handleLogout"
-                        style="-fx-background-color: transparent;
-                               -fx-text-fill: rgba(255,255,255,0.38);
-                               -fx-font-size: 10; -fx-font-weight:bold;
-                               -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.12);
-                               -fx-border-radius: 20; -fx-background-radius: 20;
-                               -fx-padding: 7 14 7 14;"/>
+                <!-- ── Profile dropdown — like .et-profile-trigger + .et-profile-menu ── -->
+                <MenuButton fx:id="navProfileMenu"
+                            style="-fx-background-color: rgba(255,255,255,0.03);
+                                   -fx-border-color: rgba(232,55,42,0.18);
+                                   -fx-border-radius: 50; -fx-background-radius: 50;
+                                   -fx-padding: 4 12 4 4;
+                                   -fx-mark-color: rgba(255,255,255,0.3);
+                                   -fx-cursor: hand;">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="7">
+                            <!-- Avatar circle with initial -->
+                            <StackPane style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);
+                                              -fx-background-radius: 50;
+                                              -fx-min-width: 28; -fx-min-height: 28;
+                                              -fx-max-width: 28; -fx-max-height: 28;">
+                                <Label fx:id="navAvatarInitial" text="A"
+                                       style="-fx-text-fill: white; -fx-font-weight:900; -fx-font-size:12;"/>
+                            </StackPane>
+                            <!-- Username -->
+                            <Label fx:id="navUsername" text="PLAYER"
+                                   style="-fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:10;"/>
+                            <!-- Online dot -->
+                            <Label text="●"
+                                   style="-fx-text-fill: #00e676; -fx-font-size: 7;
+                                          -fx-effect: dropshadow(gaussian,#00e676,6,0,0,0);"/>
+                        </HBox>
+                    </graphic>
+                    <items>
+                        <!-- ── Header (disabled display item) ── -->
+                        <MenuItem fx:id="profileHeaderItem" text=""
+                                  disable="true"
+                                  style="-fx-font-family:'Arial'; -fx-font-size:11;
+                                         -fx-text-fill:rgba(255,255,255,0.35);"/>
+
+                        <!-- ── Stats row ── -->
+                        <MenuItem fx:id="profileStatsItem" text=""
+                                  disable="true"
+                                  style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10;"/>
+
+                        <SeparatorMenuItem/>
+
+                        <!-- My Profile -->
+                        <MenuItem text="👤  My Profile"
+                                  onAction="#goToProfile"
+                                  style="-fx-font-size:11;"/>
+
+                        <!-- Two-Factor Auth -->
+                        <MenuItem text="🛡  Two-Factor Auth"
+                                  onAction="#goTo2FA"
+                                  style="-fx-font-size:11;"/>
+
+                        <!-- Support -->
+                        <MenuItem text="🎧  Support"
+                                  onAction="#goToSupport"
+                                  style="-fx-font-size:11;"/>
+
+                        <SeparatorMenuItem/>
+
+                        <!-- Admin (shown/hidden by controller based on role) -->
+                        <MenuItem fx:id="profileAdminItem"
+                                  text="⚙  Administration"
+                                  visible="false"
+                                  onAction="#goToAdmin"
+                                  style="-fx-font-size:11; -fx-text-fill:#f6d860;"/>
+
+                        <SeparatorMenuItem fx:id="profileAdminSep" visible="false"/>
+
+                        <!-- Logout -->
+                        <MenuItem text="🚪  Logout"
+                                  onAction="#handleLogout"
+                                  style="-fx-font-size:11; -fx-text-fill:#ff4d3d;"/>
+                    </items>
+                </MenuButton>
+
             </HBox>
 
-            <!-- ── ZONE VISITEUR ── -->
+            <!-- ══════════════════════════════════════
+                 RIGHT SIDE — GUEST zone
+            ══════════════════════════════════════ -->
             <HBox fx:id="guestZone" alignment="CENTER" spacing="10"
                   visible="true" managed="true">
                 <Button text="SIGN IN" onAction="#goToLogin"
@@ -117,18 +235,19 @@
                                -fx-border-color: rgba(255,255,255,0.15);
                                -fx-border-radius: 20; -fx-background-radius: 20;
                                -fx-padding: 8 16 8 16;"/>
-                <Button text="GET STARTED" onAction="#goToRegister" styleClass="btn-fire"
+                <Button text="GET STARTED" onAction="#goToRegister"
                         style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
                                -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:10;
                                -fx-cursor: hand; -fx-background-radius: 20;
                                -fx-padding: 8 16 8 16;
                                -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.4),10,0,0,0);"/>
             </HBox>
+
         </HBox>
     </top>
 
     <!-- ══════════════════════════════════════════════════
-         MAIN SCROLL
+         MAIN SCROLL (unchanged)
     ══════════════════════════════════════════════════ -->
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
@@ -142,36 +261,20 @@
                 ══════════════════════════════════ -->
                 <StackPane prefHeight="620"
                            style="-fx-background-color: #05040f;">
-
-                    <!-- Background image (like .et-hero-arcade) -->
                     <ImageView fx:id="heroImage" fitWidth="1280" fitHeight="620"
                                preserveRatio="false" smooth="true" opacity="0.22">
                         <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
                     </ImageView>
-
-                    <!-- Dark gradient overlay -->
                     <Region style="-fx-background-color:
                         linear-gradient(to bottom,
                             rgba(5,4,15,0.25) 0%,
                             rgba(5,4,15,0.65) 50%,
                             rgba(5,4,15,0.97) 100%);"/>
-
-                    <!-- Grid overlay (like .et-hero-grid) -->
-                    <Region style="-fx-background-color: transparent;
-                                   -fx-opacity: 0.5;"/>
-
-                    <!-- Scan lines -->
-                    <Region style="-fx-background-color: transparent; -fx-opacity: 0.3;"/>
-
-                    <!-- Vignette -->
                     <Region style="-fx-background-color:
                         radial-gradient(center 50% 50%, radius 70%, transparent 25%, rgba(0,0,0,0.8) 100%);"/>
 
-                    <!-- Hero content -->
                     <VBox alignment="CENTER_LEFT" spacing="0"
                           style="-fx-padding: 0 80 60 80;">
-
-                        <!-- EYETWIN tag badge -->
                         <HBox alignment="CENTER_LEFT" spacing="8"
                               style="-fx-background-color: rgba(232,55,42,0.08);
                                      -fx-border-color: rgba(232,55,42,0.25);
@@ -183,32 +286,25 @@
                             <Label text="EYETWIN ESPORT PLATFORM"
                                    style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
                         </HBox>
-
                         <Region style="-fx-pref-height: 22;"/>
-
-                        <!-- "Dominate" -->
                         <Label text="Dominate"
                                style="-fx-font-family: 'Arial Black';
                                       -fx-font-size: 78; -fx-font-weight: bold;
                                       -fx-text-fill: white;
                                       -fx-effect: dropshadow(gaussian,rgba(255,255,255,0.1),20,0,0,0);"/>
-                        <!-- "The Arena" red gradient -->
                         <Label text="The Arena"
                                style="-fx-font-family: 'Arial Black';
                                       -fx-font-size: 78; -fx-font-weight: bold;
                                       -fx-text-fill: #e8372a;
                                       -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.65),40,0,0,0);"/>
-
                         <Region style="-fx-pref-height: 18;"/>
-
                         <Label text="Intelligent analysis · Personalized coaching · Competitive tournaments."
                                style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 14;"/>
                         <Label text="Level up your game with the ultimate eSport ecosystem."
                                style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 14;"/>
-
                         <Region style="-fx-pref-height: 30;"/>
 
-                        <!-- CTA VISITEUR -->
+                        <!-- CTA GUEST -->
                         <HBox fx:id="heroCTAGuest" spacing="14" alignment="CENTER_LEFT"
                               visible="true" managed="true">
                             <Button text="⚡  Get Started" onAction="#goToRegister"
@@ -226,7 +322,7 @@
                                            -fx-padding: 14 28 14 28; -fx-cursor: hand;"/>
                         </HBox>
 
-                        <!-- CTA CONNECTÉ -->
+                        <!-- CTA LOGGED IN -->
                         <HBox fx:id="heroCTAUser" spacing="14" alignment="CENTER_LEFT"
                               visible="false" managed="false">
                             <Button text="⬆  Upload a Video" onAction="#goToVideos"
@@ -247,7 +343,7 @@
                 </StackPane>
 
                 <!-- ══════════════════════════════════
-                     STATS BAR (like .et-hero-statsbar)
+                     STATS BAR
                 ══════════════════════════════════ -->
                 <HBox alignment="CENTER"
                       style="-fx-background-color: rgba(0,0,0,0.5);
@@ -279,22 +375,16 @@
                 </HBox>
 
                 <!-- ══════════════════════════════════
-                     FEATURES SECTION (like .et-features)
+                     FEATURES SECTION
                 ══════════════════════════════════ -->
                 <VBox style="-fx-background-color: #080810; -fx-padding: 64 64 64 64;">
-
-                    <!-- Section header -->
                     <VBox alignment="CENTER" spacing="10" style="-fx-padding: 0 0 44 0;">
                         <Label text="Platform Features" styleClass="section-tag"/>
                         <Label text="Everything You Need To Win" styleClass="section-title"/>
                         <Label text="A complete ecosystem built for competitive players and coaches."
                                styleClass="section-sub"/>
                     </VBox>
-
-                    <!-- Row 1 -->
                     <HBox spacing="18" style="-fx-padding: 0 0 18 0;">
-
-                        <!-- Card 1: Video Analysis (highlight) -->
                         <VBox spacing="12" HBox.hgrow="ALWAYS" onMouseClicked="#goToVideos"
                               styleClass="feat-card-highlight">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
@@ -309,10 +399,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="Upload Now →" styleClass="feat-link"/>
                         </VBox>
-
-                        <!-- Card 2: Live Streams -->
-                        <VBox spacing="12" HBox.hgrow="ALWAYS"
-                              styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;
@@ -325,10 +412,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="Watch Live →" styleClass="feat-link"/>
                         </VBox>
-
-                        <!-- Card 3: Tournaments -->
-                        <VBox spacing="12" HBox.hgrow="ALWAYS"
-                              styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;
@@ -342,13 +426,8 @@
                             <Label text="Browse Tournois →" styleClass="feat-link"/>
                         </VBox>
                     </HBox>
-
-                    <!-- Row 2 -->
                     <HBox spacing="18">
-
-                        <!-- Card 4: Training -->
-                        <VBox spacing="12" HBox.hgrow="ALWAYS"
-                              styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;
@@ -361,10 +440,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="View Planning →" styleClass="feat-link" onMouseClicked="#goToPlanning"/>
                         </VBox>
-
-                        <!-- Card 5: Teams -->
-                        <VBox spacing="12" HBox.hgrow="ALWAYS"
-                              onMouseClicked="#goToTeams" styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" onMouseClicked="#goToTeams" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;
@@ -377,10 +453,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="My Teams →" styleClass="feat-link"/>
                         </VBox>
-
-                        <!-- Card 6: Community -->
-                        <VBox spacing="12" HBox.hgrow="ALWAYS"
-                              styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;
@@ -397,41 +470,29 @@
                 </VBox>
 
                 <!-- ══════════════════════════════════
-                     EVENT SECTION (like .et-event)
+                     EVENT SECTION
                 ══════════════════════════════════ -->
-                <StackPane prefHeight="380"
-                           style="-fx-background-color: #05040f;">
-
-                    <!-- Event background image -->
+                <StackPane prefHeight="380" style="-fx-background-color: #05040f;">
                     <ImageView fitWidth="1280" fitHeight="380"
                                preserveRatio="false" smooth="true" opacity="0.3">
                         <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
                     </ImageView>
-
-                    <!-- Dark gradient left-to-right -->
                     <Region style="-fx-background-color:
                         linear-gradient(to right,
                             rgba(8,8,16,0.98) 28%,
                             rgba(8,8,16,0.55) 65%,
                             rgba(8,8,16,0.88) 100%);"/>
-
-                    <!-- Content -->
-                    <HBox alignment="CENTER_LEFT" spacing="60"
-                          style="-fx-padding: 0 80 0 80;">
-
+                    <HBox alignment="CENTER_LEFT" spacing="60" style="-fx-padding: 0 80 0 80;">
                         <VBox spacing="16" HBox.hgrow="ALWAYS" maxWidth="560">
-                            <!-- Tag -->
                             <HBox alignment="CENTER_LEFT" spacing="8"
                                   style="-fx-background-color: rgba(246,216,96,0.07);
-                                         -fx-border-color: rgba(246,216,96,0.3);
-                                         -fx-border-width:1;
+                                         -fx-border-color: rgba(246,216,96,0.3); -fx-border-width:1;
                                          -fx-border-radius:3; -fx-background-radius:3;
                                          -fx-padding: 4 12 4 12; -fx-max-width:170;">
                                 <Label text="●" style="-fx-text-fill: #f6d860; -fx-font-size:8;"/>
                                 <Label text="Upcoming Event"
                                        style="-fx-text-fill: #f6d860; -fx-font-size:10; -fx-font-weight:bold;"/>
                             </HBox>
-
                             <Label text="EyeTwin"
                                    style="-fx-font-family: 'Arial Black'; -fx-font-size:42;
                                           -fx-font-weight:bold; -fx-text-fill:white;"/>
@@ -439,11 +500,9 @@
                                    style="-fx-font-family: 'Arial Black'; -fx-font-size:42;
                                           -fx-font-weight:bold; -fx-text-fill: #e8372a;
                                           -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.6),30,0,0,0);"/>
-
-                            <Label text="The biggest eSport event of the year is coming. Compete for glory, prestige, and exclusive rewards. Register your team and prove you belong at the top."
+                            <Label text="The biggest eSport event of the year is coming. Compete for glory, prestige, and exclusive rewards."
                                    style="-fx-text-fill: rgba(255,255,255,0.48); -fx-font-size:13;
                                           -fx-wrap-text:true; -fx-max-width:500;"/>
-
                             <Button fx:id="eventRegisterBtn" text="🏆  Register Now"
                                     onAction="#goToRegister"
                                     style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
@@ -452,8 +511,6 @@
                                            -fx-cursor: hand;
                                            -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.55),18,0,0,5);"/>
                         </VBox>
-
-                        <!-- Event badges -->
                         <VBox spacing="14" alignment="CENTER">
                             <VBox alignment="CENTER" spacing="5"
                                   style="-fx-background-color: rgba(8,8,20,0.75);
@@ -461,8 +518,7 @@
                                          -fx-border-radius:14; -fx-background-radius:14;
                                          -fx-padding: 18 32 18 32;">
                                 <Label text="🏆" style="-fx-font-size:24;"/>
-                                <Label text="50K"
-                                       style="-fx-text-fill: white; -fx-font-size:22; -fx-font-weight:bold;"/>
+                                <Label text="50K" style="-fx-text-fill: white; -fx-font-size:22; -fx-font-weight:bold;"/>
                                 <Label text="PRIZE POOL"
                                        style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size:10; -fx-font-weight:bold;"/>
                             </VBox>
@@ -495,7 +551,7 @@
                 </StackPane>
 
                 <!-- ══════════════════════════════════
-                     CTA BOTTOM — visiteur only
+                     CTA BOTTOM — guest only
                 ══════════════════════════════════ -->
                 <VBox fx:id="ctaBottomGuest" alignment="CENTER" spacing="22"
                       visible="true" managed="true"
@@ -536,26 +592,22 @@
                     <Label text="  ·  Copyright © 2025 — All Rights Reserved"
                            style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size:11;"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <!-- Social icons placeholder -->
                     <HBox spacing="10">
                         <Label text="f"
                                style="-fx-background-color: rgba(255,255,255,0.04);
                                       -fx-border-color: rgba(232,55,42,0.15);
                                       -fx-border-radius:8; -fx-background-radius:8;
-                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38);
-                                      -fx-cursor:hand;"/>
+                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38); -fx-cursor:hand;"/>
                         <Label text="tw"
                                style="-fx-background-color: rgba(255,255,255,0.04);
                                       -fx-border-color: rgba(232,55,42,0.15);
                                       -fx-border-radius:8; -fx-background-radius:8;
-                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38);
-                                      -fx-cursor:hand;"/>
+                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38); -fx-cursor:hand;"/>
                         <Label text="dc"
                                style="-fx-background-color: rgba(255,255,255,0.04);
                                       -fx-border-color: rgba(232,55,42,0.15);
                                       -fx-border-radius:8; -fx-background-radius:8;
-                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38);
-                                      -fx-cursor:hand;"/>
+                                      -fx-padding: 8 11 8 11; -fx-text-fill: rgba(255,255,255,0.38); -fx-cursor:hand;"/>
                     </HBox>
                 </HBox>
 

@@ -5,13 +5,20 @@ import com.eyetwin.model.User;
 import com.eyetwin.service.AuthService;
 import com.eyetwin.service.GamingCaptchaService;
 import com.eyetwin.service.RememberMeService;
+import com.eyetwin.service.TwoFactorAuthService;
+import com.eyetwin.dao.UserDAO;
+import com.eyetwin.util.SessionManager;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
 public class LoginController {
@@ -26,13 +33,14 @@ public class LoginController {
 
     private final AuthService          authService          = new AuthService();
     private final GamingCaptchaService gamingCaptchaService = new GamingCaptchaService();
+    private final TwoFactorAuthService twoFactorService     = new TwoFactorAuthService(new UserDAO());
 
-    private String      captchaToken  = null;
-    private boolean     captchaPassed = false;
-    private boolean     captchaReady  = false;
+    private String     captchaToken  = null;
+    private boolean    captchaPassed = false;
+    private boolean    captchaReady  = false;
     // Référence forte indispensable : sans ça, le GC Java détruit le bridge
     // après quelques secondes et JS→Java ne fonctionne plus silencieusement
-    private JavaBridge  javaBridge    = null;
+    private JavaBridge javaBridge    = null;
 
     // ─────────────────────────────────────────────
     @FXML
@@ -41,18 +49,13 @@ public class LoginController {
         String savedEmail = RememberMeService.load();
         if (savedEmail != null) {
             emailField.setText(savedEmail);
-            // setSelected() AVANT d'attacher le listener
-            // pour ne pas déclencher clear() sur l'init
             if (rememberMeCheckBox != null) rememberMeCheckBox.setSelected(true);
         }
 
         // 2. Attacher le listener APRÈS l'initialisation de la checkbox
-        //    Si l'utilisateur décoche → suppression immédiate du fichier
         if (rememberMeCheckBox != null) {
             rememberMeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
                 if (wasSelected && !isNowSelected) {
-                    // wasSelected=true garantit que c'est une vraie action utilisateur
-                    // et non un changement programmatique à l'init
                     RememberMeService.clear();
                     System.out.println("Remember Me désactivé — email supprimé");
                 }
@@ -75,7 +78,7 @@ public class LoginController {
             if (newState == Worker.State.SUCCEEDED) {
                 Platform.runLater(() -> {
                     try {
-                        javaBridge = new JavaBridge(); // référence forte stockée dans le champ
+                        javaBridge = new JavaBridge();
                         JSObject window = (JSObject) engine.executeScript("window");
                         window.setMember("javaBridge", javaBridge);
                         engine.executeScript(
@@ -101,6 +104,151 @@ public class LoginController {
         engine.loadContent(buildCaptchaHTML());
     }
 
+    // ─────────────────────────────────────────────
+    //  JavaBridge
+    // ─────────────────────────────────────────────
+    public class JavaBridge {
+
+        public void onCaptchaSuccess(String token) {
+            Platform.runLater(() -> {
+                captchaToken  = token;
+                captchaPassed = true;
+                if (captchaStatusLabel != null) {
+                    captchaStatusLabel.setText("[ OK ]  Verified gamer!");
+                    captchaStatusLabel.setStyle(
+                            "-fx-text-fill: #3fb950; -fx-font-weight: bold; -fx-font-size: 11;");
+                }
+                System.out.println("✅ Captcha token reçu : " + token);
+            });
+        }
+
+        public void resizeWebView(double h) {
+            Platform.runLater(() -> {
+                if (captchaWebView != null) {
+                    captchaWebView.setPrefHeight(h);
+                    captchaWebView.setMinHeight(Math.min(h, 52));
+                }
+            });
+        }
+
+        public void onCaptchaExpired() {
+            Platform.runLater(() -> {
+                captchaToken  = null;
+                captchaPassed = false;
+                if (captchaStatusLabel != null) {
+                    captchaStatusLabel.setText("Captcha expired — please redo");
+                    captchaStatusLabel.setStyle("-fx-text-fill: #d29922; -fx-font-size: 11;");
+                }
+            });
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  LOGIN — avec 2FA + Trusted Device
+    // ─────────────────────────────────────────────
+    @FXML
+    public void handleLogin() {
+        String email    = emailField.getText().trim();
+        String password = passwordField.getText();
+        errorLabel.setText("");
+
+        System.out.println("handleLogin() — captchaPassed=" + captchaPassed
+                + " | token=" + captchaToken);
+
+        // 1. Vérifier le captcha
+        if (!captchaPassed || captchaToken == null) {
+            errorLabel.setText("Please complete the gaming verification.");
+            return;
+        }
+
+        if (!gamingCaptchaService.verify(captchaToken)) {
+            errorLabel.setText("Captcha verification failed. Please retry.");
+            captchaPassed = false;
+            captchaToken  = null;
+            loadGamingCaptcha();
+            return;
+        }
+
+        boolean remember = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
+
+        try {
+            // 2. Vérifier email + password
+            User user = authService.login(email, password);
+            if (user == null) {
+                errorLabel.setText("Invalid email or password.");
+                return;
+            }
+
+            // 3. Sauvegarder Remember Me
+            RememberMeService.save(email, remember);
+
+            // 4. ✅ Vérifier 2FA
+            if (twoFactorService.isTwoFactorEnabled(user)) {
+
+                // ✅ Vérifier si l'appareil est de confiance → skip 2FA
+                if (SessionManager.isTrustedDevice(user.getId())) {
+                    System.out.println("[Login] Appareil de confiance détecté → login direct");
+                    SessionManager.completeTwoFactorLogin(user, false);
+                    navigateAfterLogin(user);
+                    return;
+                }
+
+                // Appareil non trusted → afficher la page 2FA
+                System.out.println("[Login] 2FA activé → TwoFactorVerify");
+                navigateTo2FA(user);
+
+            } else {
+                // Pas de 2FA → login direct
+                SessionManager.setCurrentUser(user);
+                navigateAfterLogin(user);
+            }
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            errorLabel.setText(e.getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  Navigation après login réussi
+    // ─────────────────────────────────────────────
+    private void navigateAfterLogin(User user) {
+        if (user.isAdmin()) {
+            MainApp.navigateTo("/com/eyetwin/views/dashboard.fxml", "Dashboard");
+        } else {
+            MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  Navigation vers 2FA
+    // ─────────────────────────────────────────────
+    private void navigateTo2FA(User user) {
+        try {
+            SessionManager.setPending2FAUser(user);
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/eyetwin/views/TwoFactorVerify.fxml")
+            );
+            Parent root  = loader.load();
+            Stage  stage = (Stage) emailField.getScene().getWindow();
+            stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
+
+        } catch (Exception e) {
+            System.err.println("[Login] Erreur navigation 2FA : " + e.getMessage());
+            errorLabel.setText("Erreur lors de la redirection 2FA.");
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  NAVIGATION
+    // ─────────────────────────────────────────────
+    @FXML public void goToHome()           { MainApp.navigateTo("/com/eyetwin/views/home.fxml",            "Home");           }
+    @FXML public void goToRegister()       { MainApp.navigateTo("/com/eyetwin/views/register.fxml",        "Register");       }
+    @FXML public void goToForgotPassword() { MainApp.navigateTo("/com/eyetwin/views/forgot-password.fxml", "Reset Password"); }
+
+    // ─────────────────────────────────────────────
+    //  buildCaptchaHTML()
+    // ─────────────────────────────────────────────
     private String buildCaptchaHTML() {
         return """
             <!DOCTYPE html>
@@ -123,8 +271,6 @@ public class LoginController {
                     * { margin:0; padding:0; box-sizing:border-box; }
                     html,body { width:100%; background:#0a0a0a;
                                 font-family:Consolas,'Courier New',monospace; overflow:hidden; }
-
-                    /* ─ Trigger ─ */
                     #tz {
                         border:1px solid var(--bdr); border-left:3px solid var(--acc);
                         border-radius:6px; background:var(--ag); padding:11px 14px;
@@ -145,8 +291,6 @@ public class LoginController {
                     #tz.ok .lbl { color:var(--green); }
                     .tr  { font-size:8px; color:var(--acc); letter-spacing:.12em;
                             text-align:right; line-height:1.7; }
-
-                    /* ─ Modal ─ */
                     #modal {
                         display:none; position:fixed; inset:0;
                         background:rgba(1,4,9,.96); align-items:center;
@@ -221,7 +365,6 @@ public class LoginController {
                 </style>
             </head>
             <body>
-
             <div id="tz" onclick="tryOpen()">
                 <div class="tl">
                     <div class="chk" id="chk"></div>
@@ -229,7 +372,6 @@ public class LoginController {
                 </div>
                 <div class="tr">GAMING<br>VERIFY</div>
             </div>
-
             <div id="modal">
                 <div id="box">
                     <div class="c1"></div><div class="c2"></div>
@@ -259,7 +401,6 @@ public class LoginController {
                     </div>
                 </div>
             </div>
-
             <script>
             const QS = [
                 {cat:'[CONTROLS]',  q:'What do you use to play a video game?',
@@ -287,15 +428,12 @@ public class LoginController {
                 {cat:'[PROGRESS]',   q:'What is a "level up" in a game?',
                  o:['Losing the game','Getting stronger','Game gets easier','Losing a life'], a:1}
             ];
-
             const TOT=3, TIME=20;
             let cur=0, sc=0, ans=false, tl=TIME, ti=null, sQ=[], bridgeReady=false;
-
             function onBridgeReady() {
                 bridgeReady = true;
                 document.getElementById('lbl').textContent = "I'm a real gamer";
             }
-
             function tryOpen() {
                 if (!bridgeReady) return;
                 if (document.getElementById('tz').classList.contains('ok')) return;
@@ -306,24 +444,17 @@ public class LoginController {
                 try { window.javaBridge.resizeWebView(420); } catch(e){}
                 dots(); loadQ();
             }
-
-            // FIX RACE CONDITION:
-            // close_() = fermeture simple sans resize (utilisée en interne)
-            // closeModal() = fermeture + resize à 52 (appelée APRES que Java a reçu le token)
             function close_() {
                 document.getElementById('modal').classList.remove('on');
                 clearInterval(ti);
             }
-
             function closeModal() {
                 close_();
                 try { window.javaBridge.resizeWebView(52); } catch(e){}
             }
-
             function pick() {
                 sQ = [...QS].sort(() => Math.random() - .5).slice(0, TOT);
             }
-
             function dots() {
                 const r = document.getElementById('dts'); r.innerHTML='';
                 for (let i=0;i<TOT;i++) {
@@ -331,7 +462,6 @@ public class LoginController {
                     d.className='dot'; d.id='d'+i; r.appendChild(d);
                 }
             }
-
             function loadQ() {
                 const q=sQ[cur]; ans=false;
                 document.getElementById('res').style.display='none';
@@ -350,7 +480,6 @@ public class LoginController {
                 });
                 startT();
             }
-
             function startT() {
                 clearInterval(ti); tl=TIME; updT();
                 ti=setInterval(()=>{ tl--; updT(); if(tl<=0){clearInterval(ti);if(!ans)tout();}},1000);
@@ -373,48 +502,34 @@ public class LoginController {
             }
             function mark(i,ok) { const d=document.getElementById('d'+i); if(d)d.classList.add(ok?'ok':'fail'); }
             function nxt() { cur++; cur<TOT?loadQ():showRes(); }
-
             function showRes() {
                 document.getElementById('pb').style.width='100%';
                 document.getElementById('opts').style.display='none';
                 const ok=sc>=2, r=document.getElementById('res');
                 r.style.display='block';
-
                 const rico=document.getElementById('rico');
                 rico.textContent = ok ? '[ WIN ]' : '[ FAIL ]';
                 rico.className   = 'r-ico '+(ok?'ok':'fail');
-
                 document.getElementById('rtit').textContent = ok ? 'ACCESS GRANTED' : 'ACCESS DENIED';
                 document.getElementById('rtit').className   = 'rtit '+(ok?'ok':'fail');
                 document.getElementById('rsub').textContent = sc+'/'+TOT+' correct -- '+(ok?'Real gamer!':'Try again, rookie!');
                 document.getElementById('rbtn').style.display = ok?'none':'inline-block';
-
                 if (ok) {
-                    // Étape 1 : mettre à jour le trigger visuellement
                     const tz=document.getElementById('tz');
                     tz.classList.add('ok');
                     document.getElementById('chk').textContent='V';
                     document.getElementById('lbl').textContent='Verified gamer!';
-
-                    // Étape 2 : envoyer le token à Java EN PREMIER
                     const tok='GC_'+Date.now()+'_'+sc+'_ok';
                     try { window.javaBridge.onCaptchaSuccess(tok); } catch(e){ console.error(e); }
-
-                    // Étape 3 : fermer le modal + rétrécir le WebView
-                    // avec un délai de 800ms pour laisser le temps à Java
-                    // de recevoir et traiter onCaptchaSuccess() avant le resize
                     setTimeout(closeModal, 800);
                 }
             }
-
             function restart() {
                 pick(); cur=0; sc=0;
                 document.getElementById('res').style.display='none';
                 document.getElementById('game').style.display='block';
                 dots(); loadQ();
             }
-
-            // Clic en dehors du modal = fermeture + resize
             document.getElementById('modal').addEventListener('click', function(e){
                 if (e.target === this) closeModal();
             });
@@ -423,95 +538,4 @@ public class LoginController {
             </html>
             """;
     }
-
-    // ─────────────────────────────────────────────
-    //  JavaBridge
-    // ─────────────────────────────────────────────
-    public class JavaBridge {
-
-        public void onCaptchaSuccess(String token) {
-            Platform.runLater(() -> {
-                captchaToken  = token;
-                captchaPassed = true;
-                if (captchaStatusLabel != null) {
-                    captchaStatusLabel.setText("[ OK ]  Verified gamer!");
-                    captchaStatusLabel.setStyle(
-                            "-fx-text-fill: #3fb950; -fx-font-weight: bold; -fx-font-size: 11;");
-                }
-                System.out.println("✅ Captcha token reçu : " + token);
-                System.out.println("✅ captchaPassed = true");
-            });
-        }
-
-        public void resizeWebView(double h) {
-            Platform.runLater(() -> {
-                if (captchaWebView != null) {
-                    captchaWebView.setPrefHeight(h);
-                    captchaWebView.setMinHeight(Math.min(h, 52));
-                }
-            });
-        }
-
-        public void onCaptchaExpired() {
-            Platform.runLater(() -> {
-                captchaToken  = null;
-                captchaPassed = false;
-                if (captchaStatusLabel != null) {
-                    captchaStatusLabel.setText("Captcha expired — please redo");
-                    captchaStatusLabel.setStyle("-fx-text-fill: #d29922; -fx-font-size: 11;");
-                }
-            });
-        }
-    }
-
-    // ─────────────────────────────────────────────
-    //  LOGIN
-    // ─────────────────────────────────────────────
-    @FXML
-    public void handleLogin() {
-        String email    = emailField.getText().trim();
-        String password = passwordField.getText();
-        errorLabel.setText("");
-
-        // LOG DEBUG — à retirer en production
-        System.out.println("handleLogin() — captchaPassed=" + captchaPassed + " | token=" + captchaToken);
-
-        if (!captchaPassed || captchaToken == null) {
-            errorLabel.setText("Please complete the gaming verification.");
-            return;
-        }
-
-        if (!gamingCaptchaService.verify(captchaToken)) {
-            errorLabel.setText("Captcha verification failed. Please retry.");
-            captchaPassed = false;
-            captchaToken  = null;
-            loadGamingCaptcha();
-            return;
-        }
-
-        boolean remember = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
-
-        try {
-            User user = authService.login(email, password);
-            if (user == null) { errorLabel.setText("Invalid email or password."); return; }
-
-            // On sauvegarde l'email SEULEMENT si le login est réussi
-            RememberMeService.save(email, remember);
-
-            if (authService.isAdmin()) {
-                MainApp.navigateTo("/com/eyetwin/views/dashboard.fxml", "Dashboard");
-            } else {
-                MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
-            }
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            errorLabel.setText(e.getMessage());
-        }
-    }
-
-    // ─────────────────────────────────────────────
-    //  NAVIGATION
-    // ─────────────────────────────────────────────
-    @FXML public void goToHome()           { MainApp.navigateTo("/com/eyetwin/views/home.fxml",            "Home");           }
-    @FXML public void goToRegister()       { MainApp.navigateTo("/com/eyetwin/views/register.fxml",        "Register");       }
-    @FXML public void goToForgotPassword() { MainApp.navigateTo("/com/eyetwin/views/forgot-password.fxml", "Reset Password"); }
 }
