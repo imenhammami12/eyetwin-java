@@ -62,20 +62,16 @@ public class TeamDAO {
 
     /**
      * Supprimer une équipe et tous ses memberships (CASCADE).
-     * On supprime d'abord les memberships pour éviter les FK violations
-     * si la DB n'a pas ON DELETE CASCADE configuré.
      */
     public void deleteTeam(int teamId) throws SQLException {
         try (Connection c = DatabaseConfig.getConnection()) {
             c.setAutoCommit(false);
             try {
-                // 1. Supprimer tous les memberships de la team
                 try (PreparedStatement ps = c.prepareStatement(
                         "DELETE FROM team_membership WHERE team_id = ?")) {
                     ps.setInt(1, teamId);
                     ps.executeUpdate();
                 }
-                // 2. Supprimer la team
                 try (PreparedStatement ps = c.prepareStatement(
                         "DELETE FROM team WHERE id = ?")) {
                     ps.setInt(1, teamId);
@@ -91,9 +87,7 @@ public class TeamDAO {
         }
     }
 
-    /**
-     * Trouver une équipe par id — avec hydratation du owner (JOIN)
-     */
+    /** Trouver une équipe par id avec hydratation du owner */
     public Team findById(int id) throws SQLException {
         String sql = """
             SELECT t.*, u.username AS owner_username, u.email AS owner_email
@@ -107,7 +101,6 @@ public class TeamDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Team team = mapTeam(rs);
-                    // Hydrate owner
                     User owner = new User();
                     owner.setId(team.getOwnerId());
                     owner.setUsername(rs.getString("owner_username"));
@@ -120,7 +113,7 @@ public class TeamDAO {
         return null;
     }
 
-    /** Toutes les équipes actives avec leurs memberships (findAllActiveWithMembers) */
+    /** Toutes les équipes actives avec leurs memberships */
     public List<Team> findAllActiveWithMembers() throws SQLException {
         String sql = """
             SELECT t.*, u.username AS owner_username
@@ -146,7 +139,7 @@ public class TeamDAO {
         return teams;
     }
 
-    /** Équipes dont l'utilisateur est owner (findByOwner) */
+    /** Équipes dont l'utilisateur est owner */
     public List<Team> findByOwner(int ownerId) throws SQLException {
         String sql = """
             SELECT t.*, u.username AS owner_username
@@ -174,7 +167,15 @@ public class TeamDAO {
         return teams;
     }
 
-    /** Équipes où l'utilisateur est membre ACTIVE (pas owner) — findTeamsByMember */
+    /**
+     * ✅ ALIAS de findByOwner — utilisé par UserProfileController.
+     * Miroir de user.getOwnedTeams() Symfony.
+     */
+    public List<Team> getOwnedTeams(int userId) throws SQLException {
+        return findByOwner(userId);
+    }
+
+    /** Équipes où l'utilisateur est membre ACTIVE (pas owner) */
     public List<Team> findTeamsByMember(int userId) throws SQLException {
         String sql = """
             SELECT t.*, u.username AS owner_username
@@ -206,6 +207,65 @@ public class TeamDAO {
     }
 
     // ════════════════════════════════════════════════════════════
+    //  ✅ MÉTHODES COUNT — ajoutées pour UserProfileController
+    //     Miroir de user.getTeamMemberships().count() Symfony
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * Compte le nombre d'équipes dont l'user est owner.
+     * Miroir : user.getOwnedTeams().count()
+     */
+    public int countOwnedTeams(int userId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM team WHERE owner_id = ?";
+        try (Connection c = DatabaseConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    /**
+     * Compte le nombre d'équipes dont l'user est membre ACTIVE.
+     * Inclut les équipes dont il est owner (comme Symfony getTeamMemberships().count()).
+     * Miroir : user.getTeamMemberships().count()
+     */
+    public int countMemberTeams(int userId) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) FROM team_membership
+            WHERE user_id = ? AND status = 'ACTIVE'
+            """;
+        try (Connection c = DatabaseConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    /**
+     * Compte les notifications non lues d'un user.
+     * Miroir : user.getNotifications().filter(fn($n) => !$n->isRead())->count()
+     * Retourne 0 si la table notification n'existe pas encore.
+     */
+    public int countUnreadNotifications(int userId) {
+        String sql = "SELECT COUNT(*) FROM notification WHERE user_id = ? AND is_read = 0";
+        try (Connection c = DatabaseConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        } catch (SQLException e) {
+            // Table notification peut ne pas exister encore
+            System.err.println("[TeamDAO] countUnreadNotifications: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  MEMBERSHIP CRUD
     // ════════════════════════════════════════════════════════════
 
@@ -231,7 +291,7 @@ public class TeamDAO {
         return -1;
     }
 
-    /** Mettre à jour le status + joinedAt d'un membership (accept/decline) */
+    /** Mettre à jour le status + joinedAt d'un membership */
     public void updateMembership(TeamMembership m) throws SQLException {
         String sql = "UPDATE team_membership SET status=?, joined_at=? WHERE id=?";
         try (Connection c = DatabaseConfig.getConnection();
@@ -243,7 +303,7 @@ public class TeamDAO {
         }
     }
 
-    /** Supprimer un membership (remove member, cancel request, reject) */
+    /** Supprimer un membership */
     public void deleteMembership(int membershipId) throws SQLException {
         String sql = "DELETE FROM team_membership WHERE id = ?";
         try (Connection c = DatabaseConfig.getConnection();
@@ -280,7 +340,7 @@ public class TeamDAO {
         return list;
     }
 
-    /** Membres ACTIVE d'une team (findActiveMembers) */
+    /** Membres ACTIVE d'une team */
     public List<TeamMembership> findActiveMembers(int teamId) throws SQLException {
         String sql = """
             SELECT tm.*, u.username, u.email, u.profile_picture
@@ -308,7 +368,7 @@ public class TeamDAO {
         return list;
     }
 
-    /** Demandes PENDING d'une team (findPendingRequests) */
+    /** Demandes PENDING d'une team */
     public List<TeamMembership> findPendingRequests(int teamId) throws SQLException {
         String sql = """
             SELECT tm.*, u.username, u.email, u.profile_picture
@@ -336,7 +396,7 @@ public class TeamDAO {
         return list;
     }
 
-    /** Invitations PENDING pour un user (findPendingInvitations) */
+    /** Invitations PENDING pour un user */
     public List<TeamMembership> findPendingInvitations(int userId) throws SQLException {
         String sql = """
             SELECT tm.*, t.name AS team_name, u.username AS owner_username
@@ -367,7 +427,7 @@ public class TeamDAO {
         return list;
     }
 
-    /** Demandes PENDING envoyées par un user (findUserPendingRequests) */
+    /** Demandes PENDING envoyées par un user */
     public List<TeamMembership> findUserPendingRequests(int userId) throws SQLException {
         String sql = """
             SELECT tm.*, t.name AS team_name, u.username AS owner_username
@@ -398,7 +458,7 @@ public class TeamDAO {
         return list;
     }
 
-    /** Vérifier si un user est déjà membre ou invité (isMemberOrInvited) */
+    /** Vérifier si un user est déjà membre ou invité */
     public boolean isMemberOrInvited(int teamId, int userId) throws SQLException {
         String sql = """
             SELECT COUNT(*) FROM team_membership
@@ -415,7 +475,7 @@ public class TeamDAO {
         }
     }
 
-    /** Vérifier si un user a une demande PENDING (hasPendingRequest) */
+    /** Vérifier si un user a une demande PENDING */
     public boolean hasPendingRequest(int teamId, int userId) throws SQLException {
         String sql = """
             SELECT COUNT(*) FROM team_membership
@@ -431,7 +491,7 @@ public class TeamDAO {
         }
     }
 
-    /** Compter les membres ACTIVE (countActiveMembers) */
+    /** Compter les membres ACTIVE */
     public int countActiveMembers(int teamId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE team_id = ? AND status = 'ACTIVE'";
         try (Connection c = DatabaseConfig.getConnection();
@@ -443,7 +503,7 @@ public class TeamDAO {
         }
     }
 
-    /** Compter les demandes PENDING (countPendingRequests) */
+    /** Compter les demandes PENDING */
     public int countPendingRequests(int teamId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE team_id = ? AND status = 'PENDING'";
         try (Connection c = DatabaseConfig.getConnection();
@@ -455,7 +515,7 @@ public class TeamDAO {
         }
     }
 
-    /** Rechercher des users pour invitation (searchForInvitation) */
+    /** Rechercher des users pour invitation */
     public List<User> searchUsersForInvitation(String query) throws SQLException {
         String sql = """
             SELECT id, username, email, roles_json

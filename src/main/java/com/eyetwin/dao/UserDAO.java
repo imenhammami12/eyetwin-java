@@ -251,4 +251,32 @@ public class UserDAO {
 
         return user;
     }
+
+
+    // ═══════════════════════════════════════════════════════════
+//  SAVE PROFILE PICTURE — stores image bytes to disk and
+//  updates the profile_picture column in DB
+// ═══════════════════════════════════════════════════════════
+
+    public void saveProfilePicture(int userId, byte[] imageBytes, String filename) throws Exception {
+        // 1. Write file to uploads/profiles/
+        java.nio.file.Path uploadDir = java.nio.file.Paths.get(
+                System.getProperty("user.dir"), "uploads", "profiles");
+        java.nio.file.Files.createDirectories(uploadDir);
+        java.nio.file.Files.write(uploadDir.resolve(filename), imageBytes);
+
+        // 2. Update the DB column
+        String sql = "UPDATE `user` SET profile_picture = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, filename);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur saveProfilePicture: " + e.getMessage());
+            throw e;
+        }
+    }
 }
