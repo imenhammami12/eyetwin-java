@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
 
 <!--
     TwoFactorVerify.fxml
@@ -31,13 +31,12 @@
                              -fx-padding: 60 48;">
 
                     <VBox spacing="20" alignment="CENTER_LEFT">
-                        <!-- Logo -->
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <Label text="🛡" style="-fx-font-size: 24;"/>
-                            <Label text="EYETWIN"
-                                   style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                          -fx-font-size: 18; -fx-font-weight: bold;"/>
-                        </HBox>
+
+                        <!-- Real logo -->
+                        <ImageView fitHeight="40" preserveRatio="true" pickOnBounds="true"
+                                   onMouseClicked="#handleCancel" style="-fx-cursor: hand;">
+                            <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+                        </ImageView>
 
                         <!-- Divider -->
                         <Region style="-fx-background-color: rgba(232,55,42,0.3);
@@ -53,7 +52,7 @@
                                           -fx-line-spacing: 3;"/>
                         </VBox>
 
-                        <!-- Info box -->
+                        <!-- Info hints -->
                         <VBox spacing="16" style="-fx-padding: 24 0 0 0;">
                             <HBox spacing="12" alignment="CENTER_LEFT">
                                 <StackPane style="-fx-background-color: rgba(0,229,255,0.08);
@@ -106,9 +105,7 @@
                 </VBox>
 
                 <!-- ══ RIGHT PANEL: Form ══ -->
-                <VBox HBox.hgrow="ALWAYS" alignment="CENTER"
-                      style="-fx-padding: 60 80;">
-
+                <VBox HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 60 80;">
                     <VBox maxWidth="420" spacing="0">
 
                         <!-- Form header -->
@@ -126,8 +123,7 @@
                         <VBox fx:id="errorBox" visible="false" managed="false"
                               style="-fx-background-color: rgba(244,74,64,0.07);
                                      -fx-border-color: rgba(244,74,64,0.4);
-                                     -fx-border-width: 0 0 0 3; -fx-padding: 11 14;
-                                     -fx-margin: 0 0 16 0;">
+                                     -fx-border-width: 0 0 0 3; -fx-padding: 11 14;">
                             <Label fx:id="errorLabel" text=""
                                    style="-fx-text-fill: #ff7060; -fx-font-size: 12;
                                           -fx-font-weight: bold; -fx-wrap-text: true;"/>
@@ -136,32 +132,27 @@
                         <!-- TOTP Input -->
                         <VBox spacing="8" style="-fx-padding: 24 0 20 0;">
                             <Label text="AUTHENTICATION CODE"
-                                   style="-fx-text-fill: rgba(255,255,255,0.35);
-                                          -fx-font-size: 10; -fx-font-weight: bold;"/>
-                            <TextField fx:id="totpCodeField"
-                                       promptText="000000"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            <TextField fx:id="totpCodeField" promptText="000000"
                                        maxWidth="1.7976931348623157E308"
                                        style="-fx-font-family: 'Courier New'; -fx-font-size: 32;
                                               -fx-font-weight: bold; -fx-text-fill: white;
                                               -fx-alignment: CENTER;
                                               -fx-prompt-text-fill: rgba(255,255,255,0.18);
                                               -fx-background-color: rgba(232,55,42,0.06);
-                                              -fx-border-color: rgba(232,55,42,0.4);
-                                              -fx-border-width: 1.5;
+                                              -fx-border-color: rgba(232,55,42,0.4); -fx-border-width: 1.5;
                                               -fx-border-radius: 10; -fx-background-radius: 10;
                                               -fx-padding: 18 0;"/>
                         </VBox>
 
                         <!-- Trust device -->
-                        <CheckBox fx:id="trustedDeviceCheck"
-                                  text="Trust this device for 30 days"
+                        <CheckBox fx:id="trustedDeviceCheck" text="Trust this device for 30 days"
                                   style="-fx-text-fill: rgba(255,255,255,0.55);
                                          -fx-font-size: 12; -fx-padding: 0 0 22 0;"/>
 
                         <!-- Verify button -->
                         <Button fx:id="verifyBtn" text="✓  Verify and Continue"
-                                maxWidth="1.7976931348623157E308"
-                                onAction="#handleVerifyTotp"
+                                maxWidth="1.7976931348623157E308" onAction="#handleVerifyTotp"
                                 style="-fx-background-color: #e8372a; -fx-border-width: 0;
                                        -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
                                        -fx-background-radius: 10; -fx-padding: 16 0; -fx-cursor: hand;"/>
@@ -185,31 +176,25 @@
                                                -fx-padding: 8 18; -fx-cursor: hand;"/>
                             </VBox>
 
-                            <!-- Backup code form -->
-                            <VBox fx:id="backupCodeSection" visible="false" managed="false"
-                                  spacing="10"
+                            <VBox fx:id="backupCodeSection" visible="false" managed="false" spacing="10"
                                   style="-fx-background-color: rgba(255,255,255,0.025);
                                          -fx-border-color: rgba(255,255,255,0.07); -fx-border-width: 1;
                                          -fx-border-radius: 9; -fx-background-radius: 9;
                                          -fx-padding: 18;">
                                 <Label text="BACKUP CODE"
-                                       style="-fx-text-fill: rgba(255,255,255,0.3);
-                                              -fx-font-size: 10; -fx-font-weight: bold;"/>
-                                <TextField fx:id="backupCodeField"
-                                           promptText="XXXXX-XXXXX"
+                                       style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10; -fx-font-weight: bold;"/>
+                                <TextField fx:id="backupCodeField" promptText="XXXXX-XXXXX"
                                            style="-fx-text-fill: white; -fx-alignment: CENTER;
                                                   -fx-background-color: rgba(255,255,255,0.04);
-                                                  -fx-border-color: rgba(255,255,255,0.1);
-                                                  -fx-border-width: 1; -fx-border-radius: 7;
-                                                  -fx-background-radius: 7; -fx-padding: 12;
-                                                  -fx-font-size: 15;
+                                                  -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 1;
+                                                  -fx-border-radius: 7; -fx-background-radius: 7;
+                                                  -fx-padding: 12; -fx-font-size: 15;
                                                   -fx-font-family: 'Courier New';
                                                   -fx-prompt-text-fill: rgba(255,255,255,0.2);"/>
                                 <Label text="Each backup code can only be used once."
                                        style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 11;"/>
                                 <Button fx:id="verifyBackupBtn" text="Verify Backup Code"
-                                        maxWidth="1.7976931348623157E308"
-                                        onAction="#handleVerifyBackup"
+                                        maxWidth="1.7976931348623157E308" onAction="#handleVerifyBackup"
                                         style="-fx-background-color: rgba(255,255,255,0.05);
                                                -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 1;
                                                -fx-border-radius: 7; -fx-background-radius: 7;
@@ -221,10 +206,8 @@
 
                         <!-- Cancel -->
                         <VBox alignment="CENTER" style="-fx-padding: 20 0 0 0;">
-                            <Button fx:id="cancelBtn" text="← Cancel and Logout"
-                                    onAction="#handleCancel"
-                                    style="-fx-background-color: transparent;
-                                           -fx-border-color: transparent;
+                            <Button fx:id="cancelBtn" text="← Cancel and Logout" onAction="#handleCancel"
+                                    style="-fx-background-color: transparent; -fx-border-color: transparent;
                                            -fx-text-fill: rgba(255,255,255,0.28);
                                            -fx-font-size: 11; -fx-cursor: hand;"/>
                         </VBox>
