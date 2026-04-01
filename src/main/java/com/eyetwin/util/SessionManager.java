@@ -7,13 +7,19 @@ import java.time.LocalDateTime;
 import java.util.prefs.Preferences;
 
 /**
- * SessionManager — Gestion de session avec support 2FA + Trusted Device.
+ * SessionManager — Gestion de session avec support 2FA + Trusted Device + Flash Messages.
  *
  * Flux 2FA :
  *   1. LoginController → password OK + 2FA activée
  *      → isTrustedDevice(userId) ? login direct : setPending2FAUser(user)
  *   2. TwoFactorVerifyController → code OK
  *      → completeTwoFactorLogin(user, trustDevice) → home.fxml
+ *
+ * Flash Messages :
+ *   - Avant navigateTo() : SessionManager.setPendingFlash("success", "Message");
+ *   - Dans initialize() de la vue cible :
+ *       String[] flash = SessionManager.consumeFlash();
+ *       if (flash != null) showFlashBanner(flash[0], flash[1]);
  */
 public class SessionManager {
 
@@ -23,6 +29,12 @@ public class SessionManager {
     private static User    currentUser        = null;
     private static User    pending2FAUser     = null;
     private static boolean twoFactorCompleted = false;
+
+    // ─────────────────────────────────────────────────────────
+    //  Flash messages (miroir de addFlash() Symfony)
+    // ─────────────────────────────────────────────────────────
+    private static String pendingFlashType    = null;
+    private static String pendingFlashMessage = null;
 
     // Nœud Preferences pour les appareils de confiance
     private static final String PREFS_NODE = "eyetwin/trusted";
@@ -62,6 +74,67 @@ public class SessionManager {
         if (isCoach())      return "ROLE_COACH";
         if (isUser())       return "ROLE_USER";
         return "GUEST";
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Flash Messages
+    //  Miroir de $this->addFlash() / $this->getFlashes() Symfony
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * Stocke un message flash à afficher sur la prochaine vue.
+     * Appelé AVANT navigateTo() — miroir de addFlash() Symfony.
+     *
+     * Types standards : "success" | "info" | "warning" | "error"
+     *
+     * Exemple :
+     *   SessionManager.setPendingFlash("success", "Application submitted!");
+     *   navigateTo("UserProfile.fxml");
+     */
+    public static void setPendingFlash(String type, String message) {
+        pendingFlashType    = type;
+        pendingFlashMessage = message;
+        System.out.println("[SessionManager] Flash set — [" + type + "] " + message);
+    }
+
+    /**
+     * Consomme le flash (lecture unique + effacement automatique).
+     * Appelez dans initialize() de la vue cible.
+     *
+     * Exemple dans UserProfileController#initialize() :
+     *
+     *   String[] flash = SessionManager.consumeFlash();
+     *   if (flash != null) {
+     *       // flash[0] = type  ("success" | "info" | "warning" | "error")
+     *       // flash[1] = message
+     *       showFlashBanner(flash[0], flash[1]);
+     *   }
+     *
+     * @return String[2] { type, message } ou null si aucun flash en attente
+     */
+    public static String[] consumeFlash() {
+        if (pendingFlashType == null) return null;
+        String[] result = { pendingFlashType, pendingFlashMessage };
+        pendingFlashType    = null;
+        pendingFlashMessage = null;
+        System.out.println("[SessionManager] Flash consumed — [" + result[0] + "] " + result[1]);
+        return result;
+    }
+
+    /**
+     * Vérifie si un flash est en attente sans le consommer.
+     * Utile pour conditionner l'affichage sans l'effacer.
+     */
+    public static boolean hasPendingFlash() {
+        return pendingFlashType != null;
+    }
+
+    /**
+     * Efface le flash en attente sans le lire.
+     */
+    public static void clearFlash() {
+        pendingFlashType    = null;
+        pendingFlashMessage = null;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -117,8 +190,8 @@ public class SessionManager {
                 System.out.println("[SessionManager] Aucun appareil de confiance pour userId=" + userId);
                 return false;
             }
-            LocalDateTime until = LocalDateTime.parse(storedDate);
-            boolean trusted = LocalDateTime.now().isBefore(until);
+            LocalDateTime until   = LocalDateTime.parse(storedDate);
+            boolean       trusted = LocalDateTime.now().isBefore(until);
             System.out.println("[SessionManager] Trusted device check — userId=" + userId
                     + " | until=" + storedDate + " | valid=" + trusted);
             return trusted;
@@ -135,8 +208,8 @@ public class SessionManager {
      */
     private static void saveTrustedDevice(int userId) {
         try {
-            Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
-            String expiry = LocalDateTime.now().plusDays(30).toString();
+            Preferences prefs  = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
+            String      expiry = LocalDateTime.now().plusDays(30).toString();
             prefs.put("trusted_until", expiry);
             prefs.flush();
             System.out.println("[SessionManager] Trusted device saved — userId=" + userId
@@ -190,6 +263,8 @@ public class SessionManager {
         currentUser        = null;
         pending2FAUser     = null;
         twoFactorCompleted = false;
+        pendingFlashType   = null;
+        pendingFlashMessage = null;
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }

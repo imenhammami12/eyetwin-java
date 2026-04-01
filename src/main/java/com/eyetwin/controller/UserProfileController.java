@@ -1,8 +1,11 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
+import com.eyetwin.dao.CoachApplicationDAO;
 import com.eyetwin.dao.TeamDAO;
 import com.eyetwin.dao.UserDAO;
+import com.eyetwin.model.ApplicationStatus;
+import com.eyetwin.model.CoachApplication;
 import com.eyetwin.model.Team;
 import com.eyetwin.model.User;
 import com.eyetwin.util.SessionManager;
@@ -45,35 +48,58 @@ public class UserProfileController {
     private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a");
     private static final String VIEWS = "/com/eyetwin/views/";
 
+    // ══════════════════════════════════════════════════════════════════════
+    //  FXML FIELDS
+    // ══════════════════════════════════════════════════════════════════════
+
     // ── NAVBAR (commun aux 3 vues) ──
-    @FXML protected Label    navUsername;
-    @FXML protected Label    navAvatarInitial;
-    @FXML protected Label    coinsNavLabel;
-    @FXML protected MenuItem profileAdminItem;
+    @FXML protected Label           navUsername;
+    @FXML protected Label           navAvatarInitial;
+    @FXML protected Label           coinsNavLabel;
+    @FXML protected MenuItem        profileAdminItem;
     @FXML protected SeparatorMenuItem profileAdminSep;
 
-    // ── UserProfile.fxml ──
-    @FXML protected ImageView profileImageView;
-    @FXML protected StackPane avatarPlaceholder;
-    @FXML protected Label     avatarInitial;
-    @FXML protected Label     usernameLabel;
-    @FXML protected Label     emailLabel;
-    @FXML protected Label     statusActiveBadge;
-    @FXML protected Label     coachBadge;
-    @FXML protected Label     adminBadge;
-    @FXML protected Button    applyCoachBtn;
-    @FXML protected VBox      bioCard;
-    @FXML protected Label     bioLabel;
-    @FXML protected VBox      coachCongratsBanner;
-    @FXML protected VBox      coachApplicationCard;
-    @FXML protected Label     coachApplicationStatus;
-    @FXML protected Button    reapplyBtn;
-    @FXML protected Label     coinBalanceLabel;
-    @FXML protected Label     teamsCountLabel;
-    @FXML protected Label     ownedTeamsLabel;
-    @FXML protected Label     memberSinceLabel;
-    @FXML protected Label     lastLoginLabel;
-    @FXML protected Label     coinsInfoLabel;
+    // ── UserProfile.fxml — champs existants ──
+    @FXML protected ImageView  profileImageView;
+    @FXML protected StackPane  avatarPlaceholder;
+    @FXML protected Label      avatarInitial;
+    @FXML protected Label      usernameLabel;
+    @FXML protected Label      emailLabel;
+    @FXML protected Label      statusActiveBadge;
+    @FXML protected Label      coachBadge;
+    @FXML protected Label      adminBadge;
+    @FXML protected Button     applyCoachBtn;
+    @FXML protected VBox       bioCard;
+    @FXML protected Label      bioLabel;
+    @FXML protected VBox       coachCongratsBanner;
+    @FXML protected VBox       coachApplicationCard;    // ancien champ conservé
+    @FXML protected Label      coachApplicationStatus; // ancien champ conservé
+    @FXML protected Button     reapplyBtn;
+    @FXML protected Label      coinBalanceLabel;
+    @FXML protected Label      teamsCountLabel;
+    @FXML protected Label      ownedTeamsLabel;
+    @FXML protected Label      memberSinceLabel;
+    @FXML protected Label      lastLoginLabel;
+    @FXML protected Label      coinsInfoLabel;
+
+    // ── Flash banners (PATCH) ──
+    @FXML protected VBox   flashSuccessBanner;
+    @FXML protected Label  flashSuccessText;
+    @FXML protected VBox   flashWarningBanner;
+    @FXML protected Label  flashWarningText;
+    @FXML protected VBox   flashInfoBanner;
+    @FXML protected Label  flashInfoText;
+
+    // ── Application Tracking Card (PATCH) ──
+    @FXML protected VBox   applicationTrackingCard;
+    @FXML protected HBox   appStatusBadge;
+    @FXML protected Label  appStatusDot;
+    @FXML protected Label  appStatusLabel;
+    @FXML protected Label  appStatusSub;
+    @FXML protected Label  appSubmittedDate;
+    @FXML protected VBox   appReviewCommentBox;
+    @FXML protected Label  appReviewComment;
+    @FXML protected VBox   appProgressBox;
 
     // ── UserStatistics.fxml ──
     @FXML protected Label statTeamsCount;
@@ -112,14 +138,19 @@ public class UserProfileController {
     @FXML protected Label      previewMemberSince;
     @FXML protected Label      selectedFileLabel;
 
-    // ── STATE ──
-    protected final UserDAO userDAO = new UserDAO();
-    protected final TeamDAO teamDAO = new TeamDAO();
+    // ══════════════════════════════════════════════════════════════════════
+    //  STATE / DAOs
+    // ══════════════════════════════════════════════════════════════════════
+
+    protected final UserDAO             userDAO             = new UserDAO();
+    protected final TeamDAO             teamDAO             = new TeamDAO();
+    protected final CoachApplicationDAO coachApplicationDAO = new CoachApplicationDAO(); // PATCH
     protected File selectedProfilePicture = null;
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  INITIALIZE
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();
@@ -133,9 +164,10 @@ public class UserProfileController {
         if (emailField     != null) initEditProfileView(user);
     }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  NAVBAR
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     private void fillNavbar(User user) {
         if (navUsername != null)
             navUsername.setText(user.getUsername() != null
@@ -150,25 +182,25 @@ public class UserProfileController {
         if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  VIEW : UserProfile  (user_profile)
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //  VIEW : UserProfile  (user_profile)  ← VERSION PATCHÉE
+    // ══════════════════════════════════════════════════════════════════════
+
     private void initProfileView(User user) {
+
+        // ── Avatar + infos de base ──
         loadAvatar(user, profileImageView, avatarPlaceholder, avatarInitial, 48);
         setText(usernameLabel, user.getUsername());
         setText(emailLabel,    user.getEmail());
 
+        // ── Badges de rôle ──
         boolean isCoach = hasRole(user, "ROLE_COACH");
         boolean isAdmin = hasRole(user, "ROLE_ADMIN") || hasRole(user, "ROLE_SUPER_ADMIN");
-        show(coachBadge,         isCoach);
-        show(adminBadge,         isAdmin);
-        show(applyCoachBtn,      !isCoach && !isAdmin);
+        show(coachBadge,          isCoach);
+        show(adminBadge,          isAdmin);
         show(coachCongratsBanner, isCoach);
 
-        if (user.getBio() != null && !user.getBio().isBlank()) {
-            show(bioCard, true);
-            setText(bioLabel, user.getBio());
-        }
+        // ── Coins & dates ──
         setText(coinBalanceLabel, String.valueOf(user.getCoinBalance()));
         setText(coinsInfoLabel,   String.valueOf(user.getCoinBalance()));
         if (user.getCreatedAt() != null)
@@ -176,7 +208,35 @@ public class UserProfileController {
         if (user.getLastLogin() != null)
             setText(lastLoginLabel, user.getLastLogin().format(DATETIME_FMT));
 
-        // Stats async — utilise countMemberTeams + countOwnedTeams de TeamDAO
+        // ── Bio ──
+        if (user.getBio() != null && !user.getBio().isBlank()) {
+            show(bioCard, true);
+            setText(bioLabel, user.getBio());
+        }
+
+        // ── Flash message en attente (SessionManager) ──
+        consumeAndShowFlash();
+
+        // ── État candidature coach (async) ──
+        if (!isCoach && !isAdmin) {
+            new Thread(() -> {
+                try {
+                    CoachApplication latest =
+                            coachApplicationDAO.findLatestByUserId(user.getId());
+                    Platform.runLater(() -> applyCoachApplicationUI(latest));
+                } catch (Exception e) {
+                    System.err.println("[Profile] Coach app check error: " + e.getMessage());
+                    // Fallback : afficher le bouton postuler
+                    Platform.runLater(() -> applyCoachApplicationUI(null));
+                }
+            }).start();
+        } else {
+            // Déjà coach ou admin → cacher le bouton et la carte de suivi
+            show(applyCoachBtn,           false);
+            show(applicationTrackingCard, false);
+        }
+
+        // ── Stats équipes (async) ──
         new Thread(() -> {
             try {
                 int joined = teamDAO.countMemberTeams(user.getId());
@@ -191,9 +251,133 @@ public class UserProfileController {
         }).start();
     }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //  COACH APPLICATION UI — machine à états (PATCH)
+    //
+    //  null / pas de demande → applyCoachBtn visible,  trackingCard caché
+    //  PENDING               → applyCoachBtn caché,    trackingCard visible (style pending)
+    //  APPROVED              → applyCoachBtn caché,    trackingCard caché   (banner congrats)
+    //  REJECTED              → applyCoachBtn visible,  trackingCard visible (style rejected + re-apply)
+    // ══════════════════════════════════════════════════════════════════════
+
+    private void applyCoachApplicationUI(CoachApplication application) {
+
+        if (application == null) {
+            show(applyCoachBtn,           true);
+            show(applicationTrackingCard, false);
+            return;
+        }
+
+        ApplicationStatus status = application.getStatus();
+
+        switch (status) {
+
+            case PENDING -> {
+                show(applyCoachBtn, false);
+                show(applicationTrackingCard, true);
+
+                // Badge — amber/orange
+                if (appStatusBadge != null)
+                    appStatusBadge.setStyle(
+                            "-fx-background-color: rgba(246,173,85,0.1);" +
+                                    "-fx-border-color: rgba(246,173,85,0.3);" +
+                                    "-fx-border-width: 0 0 0 3;" +
+                                    "-fx-border-radius: 4; -fx-background-radius: 4;" +
+                                    "-fx-padding: 10 14;");
+                setText(appStatusDot,   "⏳");
+                setText(appStatusLabel, "Under Review");
+                setText(appStatusSub,   "Our team is reviewing your application");
+                if (appStatusLabel != null)
+                    appStatusLabel.setStyle(
+                            "-fx-text-fill: #f6a825; -fx-font-size: 12; -fx-font-weight: bold;");
+
+                if (application.getSubmittedAt() != null)
+                    setText(appSubmittedDate, application.getSubmittedAt().format(DATE_FMT));
+
+                show(appProgressBox,      true);
+                show(appReviewCommentBox, false);
+                show(reapplyBtn,          false);
+            }
+
+            case REJECTED -> {
+                show(applyCoachBtn, true);
+                show(applicationTrackingCard, true);
+
+                // Badge — rouge
+                if (appStatusBadge != null)
+                    appStatusBadge.setStyle(
+                            "-fx-background-color: rgba(232,55,42,0.1);" +
+                                    "-fx-border-color: rgba(232,55,42,0.35);" +
+                                    "-fx-border-width: 0 0 0 3;" +
+                                    "-fx-border-radius: 4; -fx-background-radius: 4;" +
+                                    "-fx-padding: 10 14;");
+                setText(appStatusDot,   "✕");
+                setText(appStatusLabel, "Not Approved");
+                setText(appStatusSub,   "You can review the feedback and re-apply");
+                if (appStatusLabel != null)
+                    appStatusLabel.setStyle(
+                            "-fx-text-fill: #ff6b5b; -fx-font-size: 12; -fx-font-weight: bold;");
+
+                if (application.getSubmittedAt() != null)
+                    setText(appSubmittedDate, application.getSubmittedAt().format(DATE_FMT));
+
+                // Commentaire du reviewer si présent
+                if (application.getReviewComment() != null
+                        && !application.getReviewComment().isBlank()) {
+                    show(appReviewCommentBox, true);
+                    setText(appReviewComment, application.getReviewComment());
+                } else {
+                    show(appReviewCommentBox, false);
+                }
+
+                show(appProgressBox, false);
+                show(reapplyBtn,     true);
+            }
+
+            case APPROVED -> {
+                // L'utilisateur a maintenant ROLE_COACH → banner congrats déjà affiché
+                show(applyCoachBtn,           false);
+                show(applicationTrackingCard, false);
+            }
+
+            default -> {
+                show(applyCoachBtn,           true);
+                show(applicationTrackingCard, false);
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  FLASH CONSUMER — lit SessionManager.consumeFlash() (PATCH)
+    // ══════════════════════════════════════════════════════════════════════
+
+    private void consumeAndShowFlash() {
+        String[] flash = SessionManager.consumeFlash();
+        if (flash == null) return;
+
+        String type = flash[0];
+        String msg  = flash[1];
+
+        switch (type) {
+            case "success" -> {
+                if (flashSuccessText != null) flashSuccessText.setText(msg);
+                show(flashSuccessBanner, true);
+            }
+            case "warning" -> {
+                if (flashWarningText != null) flashWarningText.setText(msg);
+                show(flashWarningBanner, true);
+            }
+            case "info", "error" -> {
+                if (flashInfoText != null) flashInfoText.setText(msg);
+                show(flashInfoBanner, true);
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
     //  VIEW : UserStatistics  (user_statistics)
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     private void initStatisticsView(User user) {
         if (user.getCreatedAt() != null) {
             setText(registrationDateLabel, user.getCreatedAt().format(DATETIME_FMT));
@@ -263,9 +447,10 @@ public class UserProfileController {
         return row;
     }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  VIEW : UserEditProfile  (user_edit_profile)
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     private void initEditProfileView(User user) {
         if (usernameField != null) usernameField.setText(user.getUsername());
         if (emailField    != null) emailField.setText(user.getEmail());
@@ -302,9 +487,10 @@ public class UserProfileController {
                 : "-fx-text-fill: rgba(255,255,255,0.28); -fx-font-size: 11;");
     }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  ACTIONS — Edit Profile
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     @FXML
     public void handlePickProfilePicture() {
         FileChooser chooser = new FileChooser();
@@ -325,7 +511,7 @@ public class UserProfileController {
                 if (previewImageView != null) {
                     previewImageView.setImage(img);
                     previewImageView.setClip(new Circle(45, 45, 45));
-                    show(previewImageView,  true);
+                    show(previewImageView,   true);
                     show(previewPlaceholder, false);
                 }
             } catch (Exception e) {
@@ -388,7 +574,6 @@ public class UserProfileController {
                 Platform.runLater(() -> {
                     selectedProfilePicture = null;
                     resetSaveBtn();
-                    // ── Redirect to profile page after successful save ──
                     navigateTo("UserProfile.fxml");
                 });
             } catch (Exception e) {
@@ -400,13 +585,15 @@ public class UserProfileController {
             }
         }).start();
     }
+
     private void resetSaveBtn() {
         if (saveBtn != null) { saveBtn.setDisable(false); saveBtn.setText("💾  Save Changes"); }
     }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  NAVIGATION
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     @FXML public void goToProfile()     { navigateTo("UserProfile.fxml"); }
     @FXML public void goToEditProfile() { navigateTo("UserEditProfile.fxml"); }
     @FXML public void goToStatistics()  { navigateTo("UserStatistics.fxml"); }
@@ -428,9 +615,10 @@ public class UserProfileController {
     @FXML public void openAiAvatarDialog() { System.out.println("[Profile] AI Avatar — à implémenter"); }
     @FXML public void openCycleGANDialog() { System.out.println("[Profile] CycleGAN — à implémenter"); }
 
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
     //  HELPERS
-    // ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+
     private void loadAvatar(User user, ImageView imgView, StackPane placeholder,
                             Label initial, double radius) {
         if (user.getProfilePicture() != null && !user.getProfilePicture().isBlank()
@@ -439,7 +627,7 @@ public class UserProfileController {
                 File f = new File(System.getProperty("user.dir"),
                         "uploads/profiles/" + user.getProfilePicture());
                 if (f.exists()) {
-                    Image img = new Image(f.toURI().toString(), radius*2, radius*2, false, true);
+                    Image img = new Image(f.toURI().toString(), radius * 2, radius * 2, false, true);
                     imgView.setImage(img);
                     imgView.setClip(new Circle(radius, radius, radius));
                     show(imgView,     true);
