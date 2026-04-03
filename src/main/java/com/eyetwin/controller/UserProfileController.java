@@ -1,14 +1,17 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
-import com.eyetwin.dao.CoachApplicationDAO;
-import com.eyetwin.dao.TeamDAO;
-import com.eyetwin.dao.UserDAO;
-import com.eyetwin.model.ApplicationStatus;
-import com.eyetwin.model.CoachApplication;
-import com.eyetwin.model.Team;
-import com.eyetwin.model.User;
-import com.eyetwin.util.SessionManager;
+import com.eyetwin.entities.ApplicationStatus;
+import com.eyetwin.entities.CoachApplication;
+import com.eyetwin.entities.Team;
+import com.eyetwin.entities.User;
+import com.eyetwin.interfaces.ICoachApplicationService;
+import com.eyetwin.interfaces.ITeamService;
+import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.CoachApplicationServiceImpl;
+import com.eyetwin.services.TeamServiceImpl;
+import com.eyetwin.services.UserServiceImpl;
+import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,34 +35,38 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
- * UserProfileController — miroir de Symfony UserController (#[Route('/profile')])
+ * UserProfileController — adapté à la nouvelle structure sans DAO.
  *
- * Gère les 3 vues :
- *   - UserProfile.fxml     → user_profile
- *   - UserEditProfile.fxml → user_edit_profile
- *   - UserStatistics.fxml  → user_statistics
- *
- * initialize() détecte quelle vue est chargée via les fx:id présents.
- * UserStatisticsController et UserEditProfileController héritent de cette classe.
+ * Remplacements effectués :
+ *   UserDAO             → IUserService  / UserServiceImpl
+ *   TeamDAO             → ITeamService  / TeamServiceImpl
+ *   CoachApplicationDAO → ICoachApplicationService / CoachApplicationServiceImpl
  */
 public class UserProfileController {
 
     private static final DateTimeFormatter DATE_FMT     = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter DATETIME_FMT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a");
-    private static final String VIEWS = "/com/eyetwin/views/";
+    private static final String            VIEWS        = "/com/eyetwin/views/";
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  SERVICES  (✅ interfaces, pas de DAO)
+    // ══════════════════════════════════════════════════════════════════════
+    protected final IUserService             userService     = new UserServiceImpl();
+    protected final ITeamService             teamService     = new TeamServiceImpl();
+    protected final ICoachApplicationService coachAppService = new CoachApplicationServiceImpl();
 
     // ══════════════════════════════════════════════════════════════════════
     //  FXML FIELDS
     // ══════════════════════════════════════════════════════════════════════
 
-    // ── NAVBAR (commun aux 3 vues) ──
-    @FXML protected Label           navUsername;
-    @FXML protected Label           navAvatarInitial;
-    @FXML protected Label           coinsNavLabel;
-    @FXML protected MenuItem        profileAdminItem;
+    // ── NAVBAR ──
+    @FXML protected Label            navUsername;
+    @FXML protected Label            navAvatarInitial;
+    @FXML protected Label            coinsNavLabel;
+    @FXML protected MenuItem         profileAdminItem;
     @FXML protected SeparatorMenuItem profileAdminSep;
 
-    // ── UserProfile.fxml — champs existants ──
+    // ── UserProfile — base ──
     @FXML protected ImageView  profileImageView;
     @FXML protected StackPane  avatarPlaceholder;
     @FXML protected Label      avatarInitial;
@@ -72,8 +79,8 @@ public class UserProfileController {
     @FXML protected VBox       bioCard;
     @FXML protected Label      bioLabel;
     @FXML protected VBox       coachCongratsBanner;
-    @FXML protected VBox       coachApplicationCard;    // ancien champ conservé
-    @FXML protected Label      coachApplicationStatus; // ancien champ conservé
+    @FXML protected VBox       coachApplicationCard;
+    @FXML protected Label      coachApplicationStatus;
     @FXML protected Button     reapplyBtn;
     @FXML protected Label      coinBalanceLabel;
     @FXML protected Label      teamsCountLabel;
@@ -82,26 +89,26 @@ public class UserProfileController {
     @FXML protected Label      lastLoginLabel;
     @FXML protected Label      coinsInfoLabel;
 
-    // ── Flash banners (PATCH) ──
-    @FXML protected VBox   flashSuccessBanner;
-    @FXML protected Label  flashSuccessText;
-    @FXML protected VBox   flashWarningBanner;
-    @FXML protected Label  flashWarningText;
-    @FXML protected VBox   flashInfoBanner;
-    @FXML protected Label  flashInfoText;
+    // ── Flash banners ──
+    @FXML protected VBox  flashSuccessBanner;
+    @FXML protected Label flashSuccessText;
+    @FXML protected VBox  flashWarningBanner;
+    @FXML protected Label flashWarningText;
+    @FXML protected VBox  flashInfoBanner;
+    @FXML protected Label flashInfoText;
 
-    // ── Application Tracking Card (PATCH) ──
-    @FXML protected VBox   applicationTrackingCard;
-    @FXML protected HBox   appStatusBadge;
-    @FXML protected Label  appStatusDot;
-    @FXML protected Label  appStatusLabel;
-    @FXML protected Label  appStatusSub;
-    @FXML protected Label  appSubmittedDate;
-    @FXML protected VBox   appReviewCommentBox;
-    @FXML protected Label  appReviewComment;
-    @FXML protected VBox   appProgressBox;
+    // ── Application Tracking Card ──
+    @FXML protected VBox  applicationTrackingCard;
+    @FXML protected HBox  appStatusBadge;
+    @FXML protected Label appStatusDot;
+    @FXML protected Label appStatusLabel;
+    @FXML protected Label appStatusSub;
+    @FXML protected Label appSubmittedDate;
+    @FXML protected VBox  appReviewCommentBox;
+    @FXML protected Label appReviewComment;
+    @FXML protected VBox  appProgressBox;
 
-    // ── UserStatistics.fxml ──
+    // ── UserStatistics ──
     @FXML protected Label statTeamsCount;
     @FXML protected Label statOwnedTeams;
     @FXML protected Label statNotifications;
@@ -115,7 +122,7 @@ public class UserProfileController {
     @FXML protected Label coachRoleBadge;
     @FXML protected Label adminRoleBadge;
 
-    // ── UserEditProfile.fxml ──
+    // ── UserEditProfile ──
     @FXML protected TextField  usernameField;
     @FXML protected TextField  emailField;
     @FXML protected TextField  fullNameField;
@@ -139,12 +146,8 @@ public class UserProfileController {
     @FXML protected Label      selectedFileLabel;
 
     // ══════════════════════════════════════════════════════════════════════
-    //  STATE / DAOs
+    //  STATE
     // ══════════════════════════════════════════════════════════════════════
-
-    protected final UserDAO             userDAO             = new UserDAO();
-    protected final TeamDAO             teamDAO             = new TeamDAO();
-    protected final CoachApplicationDAO coachApplicationDAO = new CoachApplicationDAO(); // PATCH
     protected File selectedProfilePicture = null;
 
     // ══════════════════════════════════════════════════════════════════════
@@ -183,24 +186,21 @@ public class UserProfileController {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  VIEW : UserProfile  (user_profile)  ← VERSION PATCHÉE
+    //  VIEW : UserProfile
     // ══════════════════════════════════════════════════════════════════════
 
     private void initProfileView(User user) {
 
-        // ── Avatar + infos de base ──
         loadAvatar(user, profileImageView, avatarPlaceholder, avatarInitial, 48);
         setText(usernameLabel, user.getUsername());
         setText(emailLabel,    user.getEmail());
 
-        // ── Badges de rôle ──
         boolean isCoach = hasRole(user, "ROLE_COACH");
         boolean isAdmin = hasRole(user, "ROLE_ADMIN") || hasRole(user, "ROLE_SUPER_ADMIN");
         show(coachBadge,          isCoach);
         show(adminBadge,          isAdmin);
         show(coachCongratsBanner, isCoach);
 
-        // ── Coins & dates ──
         setText(coinBalanceLabel, String.valueOf(user.getCoinBalance()));
         setText(coinsInfoLabel,   String.valueOf(user.getCoinBalance()));
         if (user.getCreatedAt() != null)
@@ -208,39 +208,34 @@ public class UserProfileController {
         if (user.getLastLogin() != null)
             setText(lastLoginLabel, user.getLastLogin().format(DATETIME_FMT));
 
-        // ── Bio ──
         if (user.getBio() != null && !user.getBio().isBlank()) {
             show(bioCard, true);
             setText(bioLabel, user.getBio());
         }
 
-        // ── Flash message en attente (SessionManager) ──
         consumeAndShowFlash();
 
-        // ── État candidature coach (async) ──
+        // ✅ coachAppService au lieu de coachApplicationDAO
         if (!isCoach && !isAdmin) {
             new Thread(() -> {
                 try {
-                    CoachApplication latest =
-                            coachApplicationDAO.findLatestByUserId(user.getId());
+                    CoachApplication latest = coachAppService.findLatestByUserId(user.getId());
                     Platform.runLater(() -> applyCoachApplicationUI(latest));
                 } catch (Exception e) {
                     System.err.println("[Profile] Coach app check error: " + e.getMessage());
-                    // Fallback : afficher le bouton postuler
                     Platform.runLater(() -> applyCoachApplicationUI(null));
                 }
             }).start();
         } else {
-            // Déjà coach ou admin → cacher le bouton et la carte de suivi
             show(applyCoachBtn,           false);
             show(applicationTrackingCard, false);
         }
 
-        // ── Stats équipes (async) ──
+        // ✅ teamService au lieu de teamDAO
         new Thread(() -> {
             try {
-                int joined = teamDAO.countMemberTeams(user.getId());
-                int owned  = teamDAO.countOwnedTeams(user.getId());
+                int joined = teamService.countMemberTeams(user.getId());
+                int owned  = teamService.countOwnedTeams(user.getId());
                 Platform.runLater(() -> {
                     setText(teamsCountLabel, String.valueOf(joined));
                     setText(ownedTeamsLabel, String.valueOf(owned));
@@ -252,12 +247,7 @@ public class UserProfileController {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  COACH APPLICATION UI — machine à états (PATCH)
-    //
-    //  null / pas de demande → applyCoachBtn visible,  trackingCard caché
-    //  PENDING               → applyCoachBtn caché,    trackingCard visible (style pending)
-    //  APPROVED              → applyCoachBtn caché,    trackingCard caché   (banner congrats)
-    //  REJECTED              → applyCoachBtn visible,  trackingCard visible (style rejected + re-apply)
+    //  COACH APPLICATION UI — machine à états
     // ══════════════════════════════════════════════════════════════════════
 
     private void applyCoachApplicationUI(CoachApplication application) {
@@ -276,7 +266,6 @@ public class UserProfileController {
                 show(applyCoachBtn, false);
                 show(applicationTrackingCard, true);
 
-                // Badge — amber/orange
                 if (appStatusBadge != null)
                     appStatusBadge.setStyle(
                             "-fx-background-color: rgba(246,173,85,0.1);" +
@@ -303,7 +292,6 @@ public class UserProfileController {
                 show(applyCoachBtn, true);
                 show(applicationTrackingCard, true);
 
-                // Badge — rouge
                 if (appStatusBadge != null)
                     appStatusBadge.setStyle(
                             "-fx-background-color: rgba(232,55,42,0.1);" +
@@ -321,7 +309,6 @@ public class UserProfileController {
                 if (application.getSubmittedAt() != null)
                     setText(appSubmittedDate, application.getSubmittedAt().format(DATE_FMT));
 
-                // Commentaire du reviewer si présent
                 if (application.getReviewComment() != null
                         && !application.getReviewComment().isBlank()) {
                     show(appReviewCommentBox, true);
@@ -335,7 +322,6 @@ public class UserProfileController {
             }
 
             case APPROVED -> {
-                // L'utilisateur a maintenant ROLE_COACH → banner congrats déjà affiché
                 show(applyCoachBtn,           false);
                 show(applicationTrackingCard, false);
             }
@@ -348,7 +334,7 @@ public class UserProfileController {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  FLASH CONSUMER — lit SessionManager.consumeFlash() (PATCH)
+    //  FLASH CONSUMER
     // ══════════════════════════════════════════════════════════════════════
 
     private void consumeAndShowFlash() {
@@ -375,7 +361,7 @@ public class UserProfileController {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  VIEW : UserStatistics  (user_statistics)
+    //  VIEW : UserStatistics
     // ══════════════════════════════════════════════════════════════════════
 
     private void initStatisticsView(User user) {
@@ -401,13 +387,13 @@ public class UserProfileController {
         show(coachRoleBadge, hasRole(user, "ROLE_COACH"));
         show(adminRoleBadge, hasRole(user, "ROLE_ADMIN") || hasRole(user, "ROLE_SUPER_ADMIN"));
 
-        // Stats async
+        // ✅ teamService au lieu de teamDAO
         new Thread(() -> {
             try {
-                int joined       = teamDAO.countMemberTeams(user.getId());
-                int owned        = teamDAO.countOwnedTeams(user.getId());
-                int notifs       = teamDAO.countUnreadNotifications(user.getId());
-                List<Team> teams = teamDAO.getOwnedTeams(user.getId());
+                int joined       = teamService.countMemberTeams(user.getId());
+                int owned        = teamService.countOwnedTeams(user.getId());
+                int notifs       = teamService.countUnreadNotifications(user.getId());
+                List<Team> teams = teamService.getOwnedTeams(user.getId());
 
                 Platform.runLater(() -> {
                     setText(statTeamsCount,    String.valueOf(joined));
@@ -448,7 +434,7 @@ public class UserProfileController {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  VIEW : UserEditProfile  (user_edit_profile)
+    //  VIEW : UserEditProfile
     // ══════════════════════════════════════════════════════════════════════
 
     private void initEditProfileView(User user) {
@@ -468,9 +454,10 @@ public class UserProfileController {
             bioField.textProperty().addListener((obs, o, n) -> updateBioCounter());
         }
 
+        // ✅ teamService au lieu de teamDAO
         new Thread(() -> {
             try {
-                int joined = teamDAO.countMemberTeams(user.getId());
+                int joined = teamService.countMemberTeams(user.getId());
                 Platform.runLater(() -> setText(previewTeamsLabel, joined + " Teams"));
             } catch (SQLException e) {
                 System.err.println("[EditProfile] Preview stats error: " + e.getMessage());
@@ -546,8 +533,9 @@ public class UserProfileController {
 
         new Thread(() -> {
             try {
+                // ✅ userService au lieu de userDAO
                 if (!newEmail.equalsIgnoreCase(user.getEmail())) {
-                    User existing = userDAO.findByEmail(newEmail);
+                    User existing = userService.findByEmail(newEmail);
                     if (existing != null && existing.getId() != user.getId()) {
                         Platform.runLater(() -> {
                             showFieldError(emailErrorLabel,
@@ -562,13 +550,15 @@ public class UserProfileController {
                     String ext      = getExtension(pictureFile.getName());
                     String filename = "profile_" + user.getId() + "_"
                             + System.currentTimeMillis() + "." + ext;
-                    userDAO.saveProfilePicture(user.getId(), bytes, filename);
+                    // ✅ userService au lieu de userDAO
+                    userService.saveProfilePicture(user.getId(), bytes, filename);
                     user.setProfilePicture(filename);
                 }
                 user.setEmail(newEmail);
                 user.setFullName(newFullName.isEmpty() ? null : newFullName);
                 user.setBio(newBio.isEmpty() ? null : newBio);
-                userDAO.update(user);
+                // ✅ userService au lieu de userDAO
+                userService.update(user);
                 SessionManager.refresh();
 
                 Platform.runLater(() -> {
@@ -661,14 +651,6 @@ public class UserProfileController {
         label.setText(msg);
         label.setVisible(true);
         label.setManaged(true);
-    }
-
-    private void showSuccess(String msg) {
-        if (flashSuccessBox != null && flashSuccessLabel != null) {
-            flashSuccessLabel.setText(msg);
-            show(flashSuccessBox, true);
-        }
-        show(flashErrorBox, false);
     }
 
     private void showError(String msg) {

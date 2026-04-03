@@ -1,12 +1,14 @@
-package com.eyetwin.service;
+package com.eyetwin.tools;
 
 import java.io.*;
 import java.nio.file.*;
 import java.util.Properties;
 
 /**
- * Gère le "Remember Me" en sauvegardant l'email dans
- * ~/.eyetwin/remember.properties  (comme un cookie persistant)
+ * RememberMeService — gère la persistance du "Se souvenir de moi"
+ * en sauvegardant l'email dans ~/.eyetwin/remember.properties.
+ *
+ * Déplacé dans tools/ car c'est un utilitaire système (pas de logique métier).
  */
 public class RememberMeService {
 
@@ -24,10 +26,8 @@ public class RememberMeService {
             try {
                 Path dir = Paths.get(System.getProperty("user.home"), DIR_NAME);
                 Files.createDirectories(dir);
-
                 Properties props = new Properties();
                 props.setProperty(KEY_EMAIL, email);
-
                 try (OutputStream out = new FileOutputStream(getFilePath().toFile())) {
                     props.store(out, "EyeTwin Remember Me");
                 }
@@ -44,13 +44,10 @@ public class RememberMeService {
     public static String load() {
         Path path = getFilePath();
         if (!Files.exists(path)) return null;
-
         try (InputStream in = new FileInputStream(path.toFile())) {
             Properties props = new Properties();
             props.load(in);
-            String email = props.getProperty(KEY_EMAIL);
-            System.out.println("✅ Remember Me loaded: " + email);
-            return email;
+            return props.getProperty(KEY_EMAIL);
         } catch (IOException e) {
             System.err.println("❌ RememberMe load error: " + e.getMessage());
             return null;

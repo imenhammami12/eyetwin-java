@@ -13,9 +13,10 @@ module org.example.eyetwinjava {
 
     exports com.eyetwin;
     exports com.eyetwin.config;
-    exports com.eyetwin.util;
-    exports com.eyetwin.service;
-    exports com.eyetwin.dao;
-    exports com.eyetwin.model;
+    exports com.eyetwin.tools;
+    exports com.eyetwin.services;
+    exports com.eyetwin.entities;
     exports com.eyetwin.controller;
+    exports com.eyetwin.interfaces;
+
 }

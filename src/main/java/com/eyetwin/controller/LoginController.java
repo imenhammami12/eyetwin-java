@@ -1,13 +1,15 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
-import com.eyetwin.model.User;
-import com.eyetwin.service.AuthService;
-import com.eyetwin.service.GamingCaptchaService;
-import com.eyetwin.service.RememberMeService;
-import com.eyetwin.service.TwoFactorAuthService;
-import com.eyetwin.dao.UserDAO;
-import com.eyetwin.util.SessionManager;
+import com.eyetwin.entities.User;
+import com.eyetwin.interfaces.ITwoFactorService;
+import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.AuthService;
+import com.eyetwin.services.GamingCaptchaService;
+import com.eyetwin.services.TwoFactorServiceImpl;
+import com.eyetwin.services.UserServiceImpl;
+import com.eyetwin.tools.RememberMeService;
+import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
@@ -31,17 +33,15 @@ public class LoginController {
     @FXML private Label         captchaStatusLabel;
     @FXML private VBox          captchaContainer;
 
-    private final AuthService          authService          = new AuthService();
+    private final IUserService         userService          = new UserServiceImpl();
+    private final AuthService          authService          = new AuthService(userService);
     private final GamingCaptchaService gamingCaptchaService = new GamingCaptchaService();
-    private final TwoFactorAuthService twoFactorService     = new TwoFactorAuthService(new UserDAO());
+    private final ITwoFactorService    twoFactorService     = new TwoFactorServiceImpl(userService);
 
     private String     captchaToken  = null;
     private boolean    captchaPassed = false;
     private boolean    captchaReady  = false;
-    // Référence forte indispensable : sans ça, le GC Java détruit le bridge
-    // après quelques secondes et JS→Java ne fonctionne plus silencieusement
     private JavaBridge javaBridge    = null;
-
     // ─────────────────────────────────────────────
     @FXML
     public void initialize() {

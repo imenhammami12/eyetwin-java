@@ -1,8 +1,10 @@
-package com.eyetwin.service;
+package com.eyetwin.services;
 
 /**
- * Valide le token généré par le Gaming Captcha custom.
- * Format : GC_{timestamp_ms}_{score}_ok
+ * GamingCaptchaService — valide le token généré par le Gaming Captcha custom.
+ * Format attendu : GC_{timestamp_ms}_{score}_ok
+ *
+ * Pas d'interface nécessaire : logique stateless sans dépendance externe.
  */
 public class GamingCaptchaService {
 

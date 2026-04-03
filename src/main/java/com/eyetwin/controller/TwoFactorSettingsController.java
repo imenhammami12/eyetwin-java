@@ -1,9 +1,7 @@
 package com.eyetwin.controller;
 
-import com.eyetwin.model.User;
-import com.eyetwin.service.TwoFactorAuthService;
-import com.eyetwin.util.SessionManager;
-import com.eyetwin.dao.UserDAO;
+import com.eyetwin.entities.User;
+import com.eyetwin.tools.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,7 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
+import com.eyetwin.interfaces.ITwoFactorService;
+import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.TwoFactorServiceImpl;
+import com.eyetwin.services.UserServiceImpl;
 import java.io.IOException;
 
 /**
@@ -46,13 +47,13 @@ public class TwoFactorSettingsController {
     // ── Back button ──
     @FXML private Button backBtn;
 
-    private TwoFactorAuthService twoFactorService;
-
+    private ITwoFactorService twoFactorService;
+    private IUserService userService;
     // ─────────────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        twoFactorService = new TwoFactorAuthService(new UserDAO());
-        loadSettings();
+        userService = new UserServiceImpl();
+        twoFactorService = new TwoFactorServiceImpl(userService);        loadSettings();
     }
 
     /** Load and render the current 2FA state — mirrors settings() action */
@@ -171,13 +172,7 @@ public class TwoFactorSettingsController {
         // Example using Spring Security BCrypt or jBCrypt:
         //   return BCrypt.checkpw(password, user.getPassword());
         // For now: delegate to UserDAO
-        try {
-            UserDAO dao = new UserDAO();
-            return dao.verifyPassword(user.getEmail(), password);
-        } catch (Exception e) {
-            System.err.println("[2FA] Password verify error: " + e.getMessage());
-            return false;
-        }
+        return userService.verifyPassword(user.getEmail(), password);
     }
 
     private void showFlash(String message, boolean isError) {

@@ -1,10 +1,8 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
-import com.eyetwin.model.User;
-import com.eyetwin.service.TwoFactorAuthService;
-import com.eyetwin.util.SessionManager;
-import com.eyetwin.dao.UserDAO;
+import com.eyetwin.entities.User;
+import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +11,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import com.eyetwin.interfaces.ITwoFactorService;
+import com.eyetwin.services.TwoFactorServiceImpl;
+import com.eyetwin.services.UserServiceImpl;
 
 import java.io.IOException;
 
@@ -50,7 +51,7 @@ public class TwoFactorVerifyController {
     // ── Cancel ──
     @FXML private Button    cancelBtn;
 
-    private TwoFactorAuthService twoFactorService;
+    private ITwoFactorService twoFactorService;
 
     // L'utilisateur qui a passé username/password mais pas encore 2FA
     private User pendingUser;
@@ -58,7 +59,7 @@ public class TwoFactorVerifyController {
     // ─────────────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        twoFactorService = new TwoFactorAuthService(new UserDAO());
+        twoFactorService = new TwoFactorServiceImpl(new UserServiceImpl());
         pendingUser      = SessionManager.getPending2FAUser();
 
         // Sécurité : si pas d'utilisateur en attente → retour login

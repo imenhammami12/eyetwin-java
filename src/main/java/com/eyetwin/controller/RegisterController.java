@@ -1,19 +1,21 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
-import com.eyetwin.service.AuthService;
+import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.UserServiceImpl;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 public class RegisterController {
 
-    @FXML private TextField fullNameField;
-    @FXML private TextField emailField;
+    @FXML private TextField     fullNameField;
+    @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private Label errorLabel;
+    @FXML private Label         errorLabel;
 
-    private final AuthService authService = new AuthService();
+    // ✅ IUserService au lieu de AuthService (qui est interdit)
+    private final IUserService userService = new UserServiceImpl();
 
     @FXML
     public void handleRegister() {
@@ -31,7 +33,7 @@ public class RegisterController {
         }
 
         try {
-            boolean success = authService.register(fullName, email, password);
+            boolean success = userService.register(fullName, email, password);
 
             if (!success) {
                 errorLabel.setText("This email is already registered.");
@@ -42,7 +44,7 @@ public class RegisterController {
             MainApp.navigateTo("/com/eyetwin/views/login.fxml", "Login");
 
         } catch (IllegalArgumentException e) {
-            // Validation serveur
+            // Validation serveur (retournée par UserServiceImpl)
             errorLabel.setText(e.getMessage());
         }
     }

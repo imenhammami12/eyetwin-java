@@ -1,9 +1,7 @@
 package com.eyetwin.controller;
 
-import com.eyetwin.model.User;
-import com.eyetwin.service.TwoFactorAuthService;
-import com.eyetwin.util.SessionManager;
-import com.eyetwin.dao.UserDAO;
+import com.eyetwin.entities.User;
+import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +13,9 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
+import com.eyetwin.interfaces.ITwoFactorService;
+import com.eyetwin.services.TwoFactorServiceImpl;
+import com.eyetwin.services.UserServiceImpl;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -55,13 +55,13 @@ public class TwoFactorEnableController {
     @FXML private Label errorLabel;
     @FXML private VBox  errorBox;
 
-    private TwoFactorAuthService twoFactorService;
+    private ITwoFactorService twoFactorService;
     private String               currentSecret;
 
     // ─────────────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        twoFactorService = new TwoFactorAuthService(new UserDAO());
+        twoFactorService = new TwoFactorServiceImpl(new UserServiceImpl());
         setupCodeField();
 
         User user = SessionManager.getCurrentUser();

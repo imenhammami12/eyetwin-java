@@ -1,5 +1,7 @@
 package com.eyetwin.config;
 
+import com.eyetwin.tools.DatabaseConfig;
+
 import java.sql.Connection;
 
 public class TestConnection {
