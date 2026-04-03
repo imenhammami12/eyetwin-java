@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    FaceVerify.fxml — Écran de vérification faciale avant accès admin.
+
+    Flux :
+      HomeController.goToAdmin()
+        → user a face_descriptor → charge ce FXML
+        → FaceVerifyController gère tout
+
+    Controller : com.eyetwin.controller.admin.FaceVerifyController
+-->
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.eyetwin.controller.admin.FaceVerifyController"
+           style="-fx-background-color: linear-gradient(to bottom right, #1a0e2e, #2d1b3d, #1a0e2e);"
+           prefWidth="800" prefHeight="700">
+
+    <!-- Carte centrale -->
+    <VBox alignment="TOP_CENTER" maxWidth="680" spacing="0"
+          style="-fx-background-color: rgba(20,10,35,0.95);
+                 -fx-background-radius: 20; -fx-border-radius: 20;
+                 -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 1;
+                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.5),60,0,0,20);"
+          StackPane.alignment="CENTER">
+
+        <!-- HEADER -->
+        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 36 40 20 40;">
+            <ImageView fitWidth="150" fitHeight="50" preserveRatio="true">
+                <image><Image url="@../../assets/img/eyetwin-logo.png"/></image>
+            </ImageView>
+            <Label text="🎭  Face Verification"
+                   style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 26;"/>
+            <Label text="Verify your identity to access the Admin Dashboard"
+                   style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13;"/>
+        </VBox>
+
+        <!-- BODY -->
+        <VBox spacing="16" style="-fx-padding: 0 40 36 40;">
+
+            <!-- STATUS BAR -->
+            <VBox fx:id="statusBox"
+                  style="-fx-background-color: rgba(90,103,216,0.15);
+                         -fx-border-color: rgba(90,103,216,0.3);
+                         -fx-border-radius:12; -fx-background-radius:12;
+                         -fx-border-width:1; -fx-padding:14 16 14 16;">
+                <Label fx:id="statusLabel" text="⏳  Loading face detection..."
+                       style="-fx-text-fill: #818cf8; -fx-font-size: 13;"/>
+            </VBox>
+
+            <!-- WEBCAM PREVIEW — caché jusqu'à init caméra -->
+            <VBox fx:id="videoContainer" visible="false" managed="true"
+                  alignment="CENTER"
+                  style="-fx-background-color: #000;
+                         -fx-background-radius: 14; -fx-border-radius: 14;
+                         -fx-min-height: 360;">
+                <ImageView fx:id="cameraPreview"
+                           fitWidth="600" fitHeight="380"
+                           preserveRatio="true"/>
+            </VBox>
+
+            <!-- VERIFY BUTTON -->
+            <Button fx:id="verifyBtn"
+                    text="📷  Verify my face"
+                    onAction="#handleVerify"
+                    disable="true"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
+                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
+                           -fx-background-radius: 12; -fx-padding: 15;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian,rgba(255,60,100,0.35),20,0,0,5);"/>
+
+            <!-- CANCEL BUTTON -->
+            <Button fx:id="cancelBtn"
+                    text="← Back"
+                    onAction="#handleCancel"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.6);
+                           -fx-border-color: rgba(255,255,255,0.15);
+                           -fx-border-radius: 12; -fx-background-radius: 12;
+                           -fx-border-width: 1; -fx-font-size: 13; -fx-font-weight: 600;
+                           -fx-padding: 13; -fx-cursor: hand;"/>
+
+            <!-- HINT -->
+            <Label text="Make sure you are in a well-lit area and look straight at the camera."
+                   wrapText="true"
+                   style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 11;
+                          -fx-alignment: CENTER; -fx-text-alignment: CENTER;"/>
+        </VBox>
+    </VBox>
+</StackPane>

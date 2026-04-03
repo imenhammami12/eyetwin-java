@@ -6,10 +6,7 @@ import com.eyetwin.services.TeamServiceImpl;
 import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -36,8 +33,6 @@ public class TeamController {
     @FXML private VBox viewEdit;
 
     // ── NAVBAR ──
-    @FXML private Label coinsLabel;
-    @FXML private Label navBreadcrumb;
 
     // ════════════════ LIST VIEW ════════════════
     @FXML private Label statOwned;
@@ -128,6 +123,7 @@ public class TeamController {
     @FXML private Button    editSubmitBtn;
     @FXML private Label     editLogoLabel;
     @FXML private Button    editLogoBtn;
+    @FXML private NavbarController navbarController;
 
     // ════════════════════════════════════════════════════════════
     //  STATE  ← LE SEUL CHANGEMENT
@@ -146,9 +142,7 @@ public class TeamController {
     // ════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
-        User user = SessionManager.getCurrentUser();
-        if (user != null && coinsLabel != null)
-            coinsLabel.setText(String.valueOf(user.getCoinBalance()));
+        navbarController.setActivePage("teams");  // ← ajouter
         applyTextAreaFix(createDescField);
         applyTextAreaFix(editDescField);
         showView("list");
@@ -1147,22 +1141,10 @@ public class TeamController {
     // ════════════════════════════════════════════════════════════
     //  NAVIGATION EXTERNE
     // ════════════════════════════════════════════════════════════
-    @FXML private void goHome() { navigateExternal("Home.fxml"); }
-    @FXML private void handleLogout() { SessionManager.logout(); navigateExternal("Login.fxml"); }
 
     private void navigateExternal(String fxml) {
-        try {
-            var url = getClass().getResource("/com/eyetwin/view/" + fxml);
-            if (url == null) url = getClass().getResource("/com/eyetwin/views/" + fxml);
-            if (url == null) { System.err.println("❌ FXML not found: " + fxml); return; }
-            Parent root  = FXMLLoader.load(url);
-            Stage  stage = (Stage) viewList.getScene().getWindow();
-            stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
-        } catch (IOException e) {
-            showAlert("Navigation error: " + e.getMessage());
-        }
+        navbarController.navigateTo(fxml);
     }
-
     // ════════════════════════════════════════════════════════════
     //  UTILITAIRES
     // ════════════════════════════════════════════════════════════
