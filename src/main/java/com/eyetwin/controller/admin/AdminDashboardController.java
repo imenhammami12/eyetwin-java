@@ -38,9 +38,15 @@ public class AdminDashboardController {
     @FXML private Label userGrowthRateLabel;
     @FXML private Label pendingApplicationsBadge;
     @FXML private Label pendingComplaintsBadge;
+    @FXML private AdminSidebarController adminSidebarController;
+    @FXML private AdminTopbarController  adminTopbarController;
+
 
     @FXML
     public void initialize() {
+        adminSidebarController.setActivePage("dashboard");
+        adminTopbarController.setTitle("Dashboard");
+
         if (!SessionManager.isAdmin()) {
             navigateTo("AdminLogin.fxml");
             return;
