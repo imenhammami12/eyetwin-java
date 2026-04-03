@@ -8,45 +8,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.io.IOException;
-import java.net.URL;
 
 public class HomeController {
 
-    // ── Navbar — zones ──
-    @FXML private HBox loggedInZone;
-    @FXML private HBox guestZone;
-
-    // ── Navbar — coins pill ──
-    @FXML private HBox  coinsBadge;
-    @FXML private Label coinsNavLabel;
-
-    // ── Navbar — notifications MenuButton ──
-    @FXML private MenuButton navNotifMenu;
-    @FXML private Label      navNotifBadge;
-    @FXML private MenuItem   notifHeaderItem;
-    @FXML private MenuItem   notifEmptyItem;
-
-    // ── Navbar — profile MenuButton ──
-    @FXML private MenuButton      navProfileMenu;
-    @FXML private Label           navAvatarInitial;
-    @FXML private Label           navUsername;
-    @FXML private MenuItem        profileHeaderItem;
-    @FXML private MenuItem        profileStatsItem;
-    @FXML private MenuItem        profileAdminItem;
-    @FXML private SeparatorMenuItem profileAdminSep;
-
-    // ── Navbar — uploader MenuButton ──
-    @FXML private MenuButton navUploaderMenu;
-    @FXML private Label      navHighlights;
+    // ── Navbar (injectée via fx:include) ──
+    @FXML private NavbarController navbarController;
 
     // ── Hero CTA ──
     @FXML private HBox heroCTAGuest;
@@ -66,110 +35,41 @@ public class HomeController {
     // ── CTA bottom (guest) ──
     @FXML private VBox ctaBottomGuest;
 
-    // ── Service (interface, plus de DAO direct) ──
     private final IStatsService statsService = new StatsServiceImpl();
 
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     //  INITIALIZE
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     @FXML
     public void initialize() {
+        navbarController.setActivePage("home");
         User user = SessionManager.getCurrentUser();
         if (user != null) setupLoggedIn(user);
         else              setupGuest();
         new Thread(this::loadStats).start();
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  SETUP — LOGGED IN
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
+    //  SETUP
+    // ════════════════════════════════════════════
     private void setupLoggedIn(User user) {
-        show(loggedInZone);
-        hide(guestZone);
-
-        if (coinsNavLabel != null)
-            coinsNavLabel.setText(String.valueOf(user.getCoinBalance()));
-
-        String username = user.getUsername() != null ? user.getUsername() : "?";
-        if (navAvatarInitial != null)
-            navAvatarInitial.setText(String.valueOf(username.charAt(0)).toUpperCase());
-        if (navUsername != null)
-            navUsername.setText(username.toUpperCase());
-
-        if (profileHeaderItem != null)
-            profileHeaderItem.setText("👤  " + username + "\n    " + user.getEmail());
-
-        if (profileStatsItem != null)
-            profileStatsItem.setText(
-                    "🪙 " + user.getCoinBalance() + " coins   |   ⚡ Rank: —   |   🏆 Wins: —"
-            );
-
-        boolean isAdmin = user.getRolesJson() != null
-                && user.getRolesJson().contains("ROLE_ADMIN");
-        if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
-        if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
-
-        updateNotifBadge(0);
-
-        show(navUploaderMenu);
-        show(navHighlights);
-        hide(heroCTAGuest);
         show(heroCTAUser);
+        hide(heroCTAGuest);
         hide(ctaBottomGuest);
 
         if (eventRegisterBtn != null)
-            eventRegisterBtn.setOnAction(e -> goToTournois());
+            eventRegisterBtn.setOnAction(e -> navigateTo("Tournois.fxml"));
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  SETUP — GUEST
-    // ════════════════════════════════════════════════════════════
     private void setupGuest() {
-        hide(loggedInZone);
-        show(guestZone);
-        hide(navUploaderMenu);
-        hide(navHighlights);
         show(heroCTAGuest);
         hide(heroCTAUser);
         show(ctaBottomGuest);
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  NOTIFICATIONS
-    // ════════════════════════════════════════════════════════════
-    private void updateNotifBadge(int unreadCount) {
-        if (navNotifBadge == null) return;
-        if (unreadCount > 0) {
-            navNotifBadge.setText(String.valueOf(unreadCount));
-            navNotifBadge.setVisible(true);
-            navNotifBadge.setManaged(true);
-            if (notifEmptyItem != null) notifEmptyItem.setVisible(false);
-        } else {
-            navNotifBadge.setVisible(false);
-            navNotifBadge.setManaged(false);
-            if (notifEmptyItem != null) notifEmptyItem.setVisible(true);
-        }
-    }
-
-    public void addNotifItem(String message, String action) {
-        if (navNotifMenu == null) return;
-        MenuItem item = new MenuItem(message);
-        if (action != null && !action.isEmpty())
-            item.setOnAction(e -> handleNotifAction(action));
-        int insertAt = Math.max(0, navNotifMenu.getItems().size() - 1);
-        navNotifMenu.getItems().add(insertAt, item);
-    }
-
-    private void handleNotifAction(String action) {
-        if      (action.contains("team"))    goToTeams();
-        else if (action.contains("profile")) goToProfile();
-        else if (action.contains("tournoi")) goToTournois();
-        else if (action.contains("support")) goToSupport();
-    }
-
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     //  STATS
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     private void loadStats() {
         try {
             int players     = statsService.countPlayers();
@@ -209,97 +109,27 @@ public class HomeController {
         tl.play();
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  NAVIGATION
-    // ════════════════════════════════════════════════════════════
-    @FXML public void goHome()       { navigateTo("home.fxml"); }
-    @FXML public void goToLogin()    { navigateTo("login.fxml"); }
+    // ════════════════════════════════════════════
+    //  NAVIGATION (buttons dans home.fxml uniquement)
+    // ════════════════════════════════════════════
     @FXML public void goToRegister() { navigateTo("register.fxml"); }
+    @FXML public void goToLogin()    { navigateTo("login.fxml"); }
     @FXML public void goToVideos()   { navigateTo("Videos.fxml"); }
-    @FXML public void goToClips()    { navigateTo("Clips.fxml"); }
-    @FXML public void goToGuides()   { navigateTo("Guides.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
-    @FXML public void goToTournois() { navigateTo("Tournois.fxml"); }
-    @FXML public void goToProfile()  { navigateTo("UserProfile.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
-    @FXML public void goToCoins()    { navigateTo("Coins.fxml"); }
-    @FXML public void goToSupport()  { navigateTo("Support.fxml"); }
-    @FXML public void goToAdmin()    { navigateTo("Admin.fxml"); }
-
-    @FXML
-    public void goTo2FA() {
-        if (SessionManager.getCurrentUser() == null) {
-            navigateTo("login.fxml");
-            return;
-        }
-        navigateTo("TwoFactor.fxml");
-    }
-
-    @FXML
-    public void handleLogout() {
-        SessionManager.logout();
-        navigateTo("login.fxml");
-    }
 
     private void navigateTo(String fxml) {
-        String[] paths = {
-                "/com/eyetwin/views/" + fxml,
-                "/com/eyetwin/view/"  + fxml,
-                "/com/eyetwin/"       + fxml
-        };
-
-        URL url = null;
-        for (String path : paths) {
-            url = getClass().getResource(path);
-            if (url != null) {
-                System.out.println("[HomeController] ✅ FXML trouvé : " + path);
-                break;
-            }
-        }
-
-        if (url == null) {
-            System.err.println("[HomeController] ❌ FXML introuvable : " + fxml);
-            for (String path : paths) System.err.println("    " + path);
-            return;
-        }
-
-        try {
-            Parent root  = FXMLLoader.load(url);
-            Stage  stage = resolveStage();
-            if (stage == null) {
-                System.err.println("[HomeController] ❌ Stage introuvable pour : " + fxml);
-                return;
-            }
-            stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
-        } catch (IOException e) {
-            System.err.println("[HomeController] ❌ Erreur chargement FXML : " + fxml);
-            System.err.println("  Cause : " + e.getMessage());
-            if (e.getCause() != null) {
-                System.err.println("  Cause racine : " + e.getCause().getMessage());
-                e.getCause().printStackTrace();
-            }
-            e.printStackTrace();
-        }
+        // Délègue à la navbar qui a déjà la logique complète
+        navbarController.navigateTo(fxml);  // rendre public dans NavbarController
     }
 
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     //  HELPERS
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════
     private void show(javafx.scene.Node n) {
         if (n != null) { n.setVisible(true);  n.setManaged(true);  }
     }
     private void hide(javafx.scene.Node n) {
         if (n != null) { n.setVisible(false); n.setManaged(false); }
-    }
-
-    private Stage resolveStage() {
-        for (javafx.scene.Node n : new javafx.scene.Node[]{
-                loggedInZone, guestZone, heroCTAGuest, heroCTAUser,
-                navProfileMenu, navNotifMenu
-        }) {
-            if (n != null && n.getScene() != null)
-                return (Stage) n.getScene().getWindow();
-        }
-        return null;
     }
 }

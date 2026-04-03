@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    AdminProfile.fxml — My Profile avec activation face recognition inline.
+
+    NOUVEAUX fx:id par rapport à l'ancienne version :
+      cameraPanel       → panneau caméra (caché par défaut, affiché au clic "Enable")
+      cameraStatusBox   → barre de statut colorée
+      cameraStatusLabel → texte du statut
+      cameraVideoBox    → conteneur ImageView (caché jusqu'à init caméra)
+      cameraPreview     → ImageView flux webcam
+      captureBtn        → bouton "Capture my face"
+      cameraCancelBtn   → bouton "Cancel"
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminProfileController"
+            style="-fx-background-color: #0d0618;"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- ══════════════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════════════ -->
+    <left>
+        <VBox prefWidth="260"
+              style="-fx-background-color: #0d0618;
+                     -fx-border-color: rgba(255,60,100,0.15);
+                     -fx-border-width: 0 1 0 0;">
+
+            <VBox alignment="CENTER"
+                  style="-fx-padding: 20 20 16 20;
+                         -fx-border-color: transparent transparent rgba(255,60,100,0.12) transparent;
+                         -fx-border-width: 0 0 1 0;">
+                <ImageView fitWidth="160" fitHeight="45" preserveRatio="true"
+                           onMouseClicked="#goToDashboard" style="-fx-cursor: hand;">
+                    <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+                </ImageView>
+            </VBox>
+
+            <VBox spacing="2" style="-fx-padding: 12 10 12 10;" VBox.vgrow="ALWAYS">
+                <Button text="⚡  Dashboard"          onAction="#goToDashboard"         maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="👥  Users"              onAction="#goToUsers"             maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="📅  Planning"           onAction="#goToPlanning"          maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="🏆  Tournaments"        onAction="#goToTournaments"       maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="🎬  Videos"             onAction="#goToVideos"            maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="✅  Coach Applications" onAction="#goToCoachApplications" maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="💬  Channels"           onAction="#goToChannels"          maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="🎧  Complaints"         onAction="#goToComplaints"        maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="📨  Messages"           onAction="#goToMessages"          maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button text="🔲  Teams"              onAction="#goToTeams"             maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+                <Button fx:id="navAuditLogs" text="📋  Audit Logs" onAction="#goToAuditLogs"
+                        maxWidth="Infinity" visible="false" managed="false"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+
+                <Region style="-fx-background-color:rgba(255,255,255,0.07);-fx-pref-height:1;-fx-max-height:1;"/>
+
+                <!-- Profile — actif -->
+                <Button text="👤  My Profile" onAction="#goToProfile" maxWidth="Infinity"
+                        style="-fx-background-color:rgba(255,60,100,0.12);-fx-border-color:rgba(255,60,100,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-border-width:1;-fx-text-fill:white;-fx-font-size:12;-fx-font-weight:bold;-fx-alignment:CENTER_LEFT;-fx-padding:11 14 11 14;-fx-cursor:hand;"/>
+                <Button text="🌐  View Site ↗" onAction="#goToSite" maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.35);-fx-font-size:11;-fx-alignment:CENTER_LEFT;-fx-padding:9 14 9 14;-fx-cursor:hand;-fx-background-radius:10;"/>
+            </VBox>
+
+            <Button text="🚪  Logout" onAction="#handleLogout" maxWidth="Infinity"
+                    style="-fx-background-color:rgba(255,60,100,0.08);-fx-border-color:rgba(255,60,100,0.2);-fx-border-width:1 0 0 0;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:12;-fx-alignment:CENTER_LEFT;-fx-padding:16 20 16 20;-fx-cursor:hand;"/>
+        </VBox>
+    </left>
+
+    <!-- ══════════════════════════════════════════════════
+         TOPBAR
+    ══════════════════════════════════════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16" prefHeight="64"
+              style="-fx-background-color:#0d0618;-fx-border-color:rgba(255,60,100,0.25);-fx-border-width:0 0 1 0;-fx-padding:0 24 0 24;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.6),20,0,0,2);">
+            <Label fx:id="pageTitle" text="My Profile" HBox.hgrow="ALWAYS"
+                   style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:17;-fx-padding:0 0 0 14;"/>
+            <MenuButton style="-fx-background-color:transparent;-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;-fx-border-width:1;-fx-padding:6 12 6 8;-fx-mark-color:rgba(255,255,255,0.3);-fx-cursor:hand;">
+                <graphic>
+                    <HBox alignment="CENTER" spacing="8">
+                        <Label fx:id="usernameLabel" text="Admin"
+                               style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;"/>
+                        <StackPane style="-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);-fx-background-radius:50;-fx-min-width:34;-fx-min-height:34;-fx-max-width:34;-fx-max-height:34;">
+                            <Label fx:id="userAvatarInitial" text="A"
+                                   style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;"/>
+                        </StackPane>
+                    </HBox>
+                </graphic>
+                <items>
+                    <MenuItem text="👤  My Profile"    onAction="#goToProfile"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="🚪  Logout"        onAction="#handleLogout" style="-fx-text-fill:#ff3c64;"/>
+                </items>
+            </MenuButton>
+        </HBox>
+    </top>
+
+    <!-- ══════════════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:#0d0618;-fx-background:#0d0618;-fx-border-color:transparent;">
+            <VBox spacing="20" style="-fx-padding:28 32 28 32;-fx-background-color:#0d0618;">
+
+                <!-- PROFILE HEADER -->
+                <HBox alignment="CENTER_LEFT" spacing="28"
+                      style="-fx-background-color:linear-gradient(135deg,rgba(255,60,100,0.08),rgba(120,40,200,0.08));-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:32;">
+                    <StackPane style="-fx-background-color:linear-gradient(135deg,#ff3c64,#7828c8);-fx-background-radius:60;-fx-min-width:100;-fx-min-height:100;-fx-max-width:100;-fx-max-height:100;">
+                        <Label fx:id="avatarInitialLarge" text="AD"
+                               style="-fx-text-fill:white;-fx-font-weight:900;-fx-font-size:36;"/>
+                    </StackPane>
+                    <VBox spacing="6">
+                        <Label fx:id="fullNameLabel" text="Admin"
+                               style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:26;"/>
+                        <Label fx:id="emailLabel" text="✉  —"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;"/>
+                        <Label fx:id="usernameDisplayLabel" text="@  —"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;"/>
+                        <Label fx:id="memberSinceLabel" text="📅  Member since —"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- TABS -->
+                <HBox spacing="0" style="-fx-border-color:transparent transparent rgba(255,255,255,0.1) transparent;-fx-border-width:0 0 2 0;">
+                    <Button fx:id="tabGeneralBtn" text="👤  Information" onAction="#showGeneralTab"
+                            style="-fx-background-color:rgba(255,60,100,0.12);-fx-border-color:rgba(255,60,100,0.4) rgba(255,60,100,0.4) transparent rgba(255,60,100,0.4);-fx-border-width:1 1 0 1;-fx-border-radius:8 8 0 0;-fx-background-radius:8 8 0 0;-fx-text-fill:#ff3c64;-fx-font-weight:bold;-fx-font-size:12;-fx-padding:10 20 10 20;-fx-cursor:hand;"/>
+                    <Button fx:id="tabSecurityBtn" text="🛡  Security" onAction="#showSecurityTab"
+                            style="-fx-background-color:transparent;-fx-border-color:transparent;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:12;-fx-padding:10 20 10 20;-fx-cursor:hand;"/>
+                </HBox>
+
+                <!-- ══ TAB GÉNÉRAL ══ -->
+                <VBox fx:id="generalTab" spacing="0"
+                      style="-fx-background-color:rgba(30,15,45,0.6);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:28;">
+                    <Label text="ℹ  Personal Information"
+                           style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:16;-fx-padding:0 0 16 0;"/>
+                    <HBox alignment="CENTER_LEFT" style="-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;-fx-padding:14 0 14 0;">
+                        <Label text="👤  Full Name" HBox.hgrow="ALWAYS"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;-fx-font-weight:600;"/>
+                        <Label fx:id="fullNameLabel" text="—"
+                               style="-fx-text-fill:white;-fx-font-size:13;-fx-font-weight:500;"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" style="-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;-fx-padding:14 0 14 0;">
+                        <Label text="✉  Email" HBox.hgrow="ALWAYS"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;-fx-font-weight:600;"/>
+                        <Label fx:id="emailLabel" text="—"
+                               style="-fx-text-fill:white;-fx-font-size:13;-fx-font-weight:500;"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding:14 0 0 0;">
+                        <Label text="@  Username" HBox.hgrow="ALWAYS"
+                               style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:13;-fx-font-weight:600;"/>
+                        <Label fx:id="usernameDisplayLabel" text="—"
+                               style="-fx-text-fill:white;-fx-font-size:13;-fx-font-weight:500;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- ══ TAB SECURITY ══ -->
+                <VBox fx:id="securityTab" spacing="16" visible="false" managed="false"
+                      style="-fx-background-color:rgba(30,15,45,0.6);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:28;">
+
+                    <Label text="🛡  Security Features"
+                           style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:16;"/>
+
+                    <!-- Face Auth card -->
+                    <HBox alignment="CENTER_LEFT" spacing="16"
+                          style="-fx-background-color:rgba(255,255,255,0.03);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:12;-fx-background-radius:12;-fx-border-width:1;-fx-padding:20;">
+                        <Label text="📷" style="-fx-font-size:32;"/>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Facial Recognition"
+                                       style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:15;"/>
+                                <Label fx:id="faceAuthStatusBadge" text="Disabled"
+                                       style="-fx-background-color:rgba(255,60,100,0.2);-fx-text-fill:#ff3c64;-fx-background-radius:6;-fx-padding:4 10 4 10;-fx-font-size:11;-fx-font-weight:bold;"/>
+                            </HBox>
+                            <Label text="Use your face to access the Admin Dashboard securely"
+                                   style="-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:12;"/>
+                        </VBox>
+                        <Button fx:id="faceAuthActionBtn" text="📷  Enable"
+                                style="-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);-fx-background-radius:8;-fx-border-color:transparent;-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;-fx-cursor:hand;-fx-padding:10 18 10 18;"/>
+                    </HBox>
+
+                    <!-- ══ PANNEAU CAMÉRA (caché par défaut, affiché au clic "Enable") ══ -->
+                    <VBox fx:id="cameraPanel" spacing="14" visible="false" managed="false"
+                          style="-fx-background-color:rgba(20,10,35,0.8);-fx-border-color:rgba(255,60,100,0.2);-fx-border-radius:14;-fx-background-radius:14;-fx-border-width:1;-fx-padding:24;">
+
+                        <Label text="📸  Capture your face"
+                               style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:15;"/>
+
+                        <!-- Status bar -->
+                        <VBox fx:id="cameraStatusBox"
+                              style="-fx-background-color:rgba(90,103,216,0.15);-fx-border-color:rgba(90,103,216,0.3);-fx-border-radius:10;-fx-background-radius:10;-fx-border-width:1;-fx-padding:12 16 12 16;">
+                            <Label fx:id="cameraStatusLabel" text="⏳  Initializing camera..."
+                                   style="-fx-text-fill:#818cf8;-fx-font-size:13;"/>
+                        </VBox>
+
+                        <!-- Webcam preview (caché jusqu'à init) -->
+                        <VBox fx:id="cameraVideoBox" alignment="CENTER"
+                              visible="false" managed="false"
+                              style="-fx-background-color:#000;-fx-background-radius:12;-fx-border-radius:12;">
+                            <ImageView fx:id="cameraPreview"
+                                       fitWidth="500" fitHeight="320"
+                                       preserveRatio="true"/>
+                        </VBox>
+
+                        <!-- Boutons Capture / Cancel -->
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Button fx:id="captureBtn"
+                                    text="📸  Capture my face"
+                                    onAction="#handleCapture"
+                                    disable="true"
+                                    style="-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;-fx-background-radius:10;-fx-padding:12 24 12 24;-fx-cursor:hand;"/>
+                            <Button fx:id="cameraCancelBtn"
+                                    text="✕  Cancel"
+                                    onAction="#handleCameraCancel"
+                                    style="-fx-background-color:rgba(255,255,255,0.08);-fx-border-color:rgba(255,255,255,0.2);-fx-border-radius:10;-fx-background-radius:10;-fx-border-width:1;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:13;-fx-padding:12 24 12 24;-fx-cursor:hand;"/>
+                        </HBox>
+
+                    </VBox>
+                    <!-- ══ FIN PANNEAU CAMÉRA ══ -->
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

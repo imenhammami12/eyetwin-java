@@ -6,8 +6,9 @@ import java.time.LocalDateTime;
 import java.util.prefs.Preferences;
 import com.eyetwin.interfaces.IUserService;
 import com.eyetwin.services.UserServiceImpl;
+
 /**
- * SessionManager — Gestion de session avec support 2FA + Trusted Device + Flash Messages.
+ * SessionManager — Gestion de session avec support 2FA + Trusted Device + Flash Messages + Face Login.
  *
  * Flux 2FA :
  *   1. LoginController → password OK + 2FA activée
@@ -20,8 +21,14 @@ import com.eyetwin.services.UserServiceImpl;
  *   - Dans initialize() de la vue cible :
  *       String[] flash = SessionManager.consumeFlash();
  *       if (flash != null) showFlashBanner(flash[0], flash[1]);
+ *
+ * Face Login (Admin) :
+ *   - AdminLoginController → setPendingFaceEmail(email) → navigateTo("AdminFaceVerify.fxml")
+ *   - AdminFaceVerifyController → getPendingFaceEmail() → vérifie la face → clearPendingFaceEmail()
  */
 public class SessionManager {
+    private static boolean openSecurityTab = false;
+
     private static final IUserService userService = new UserServiceImpl();
 
     // ─────────────────────────────────────────────────────────
@@ -30,6 +37,7 @@ public class SessionManager {
     private static User    currentUser        = null;
     private static User    pending2FAUser     = null;
     private static boolean twoFactorCompleted = false;
+    private static String  pendingFaceEmail   = null; // ← PATCH : Face Login Admin
 
     // ─────────────────────────────────────────────────────────
     //  Flash messages (miroir de addFlash() Symfony)
@@ -51,6 +59,16 @@ public class SessionManager {
         return currentUser != null
                 && currentUser.getRolesJson() != null
                 && currentUser.getRolesJson().contains("ROLE_SUPER_ADMIN");
+    }
+
+    public static void setOpenSecurityTab(boolean value) {
+        openSecurityTab = value;
+    }
+
+    public static boolean consumeOpenSecurityTab() {
+        boolean val = openSecurityTab;
+        openSecurityTab = false;
+        return val;
     }
 
     public static boolean isAdmin() {
@@ -124,7 +142,6 @@ public class SessionManager {
 
     /**
      * Vérifie si un flash est en attente sans le consommer.
-     * Utile pour conditionner l'affichage sans l'effacer.
      */
     public static boolean hasPendingFlash() {
         return pendingFlashType != null;
@@ -136,6 +153,34 @@ public class SessionManager {
     public static void clearFlash() {
         pendingFlashType    = null;
         pendingFlashMessage = null;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  FACE LOGIN — email en attente de vérification faciale
+    //  Miroir de la redirection Symfony vers /admin/face-verify
+    //
+    //  Usage :
+    //    1. AdminLoginController détecte que l'user a une face
+    //       → SessionManager.setPendingFaceEmail(email);
+    //       → navigateTo("AdminFaceVerify.fxml");
+    //    2. AdminFaceVerifyController récupère l'email
+    //       → String email = SessionManager.getPendingFaceEmail();
+    //       → [vérifie la face]
+    //       → SessionManager.clearPendingFaceEmail();
+    // ─────────────────────────────────────────────────────────
+
+    public static void setPendingFaceEmail(String email) {
+        pendingFaceEmail = email;
+        System.out.println("[SessionManager] Face email set — " + email);
+    }
+
+    public static String getPendingFaceEmail() {
+        return pendingFaceEmail;
+    }
+
+    public static void clearPendingFaceEmail() {
+        System.out.println("[SessionManager] Face email cleared — " + pendingFaceEmail);
+        pendingFaceEmail = null;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -179,9 +224,6 @@ public class SessionManager {
     /**
      * Vérifie si l'appareil est de confiance pour cet utilisateur.
      * Appelé dans LoginController AVANT d'afficher la page 2FA.
-     *
-     * @param userId ID de l'utilisateur
-     * @return true si l'appareil est enregistré et la date non expirée
      */
     public static boolean isTrustedDevice(int userId) {
         try {
@@ -204,8 +246,6 @@ public class SessionManager {
 
     /**
      * Enregistre l'appareil comme de confiance pour 30 jours.
-     *
-     * @param userId ID de l'utilisateur
      */
     private static void saveTrustedDevice(int userId) {
         try {
@@ -222,9 +262,6 @@ public class SessionManager {
 
     /**
      * Révoque la confiance de l'appareil pour un utilisateur.
-     * Appelé lors du disable 2FA ou logout sécurisé.
-     *
-     * @param userId ID de l'utilisateur
      */
     public static void revokeTrustedDevice(int userId) {
         try {
@@ -261,11 +298,14 @@ public class SessionManager {
     public static void logout() {
         System.out.println("👋 Déconnexion : "
                 + (currentUser != null ? currentUser.getEmail() : "?"));
-        currentUser        = null;
-        pending2FAUser     = null;
-        twoFactorCompleted = false;
-        pendingFlashType   = null;
+        currentUser         = null;
+        pending2FAUser      = null;
+        twoFactorCompleted  = false;
+        pendingFlashType    = null;
         pendingFlashMessage = null;
+
+        openSecurityTab = false;
+        pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }

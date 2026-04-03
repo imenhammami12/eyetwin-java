@@ -7,9 +7,11 @@ module org.example.eyetwinjava {
     requires jdk.jsobject;
     requires bcrypt;
     requires java.prefs;
+    requires opencv;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
+    opens com.eyetwin.controller.admin to javafx.fxml;
 
     exports com.eyetwin;
     exports com.eyetwin.config;
