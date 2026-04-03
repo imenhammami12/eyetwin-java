@@ -1,11 +1,11 @@
-package com.eyetwin.util;
+package com.eyetwin.tools;
 
-import com.eyetwin.model.User;
-import com.eyetwin.dao.UserDAO;
+import com.eyetwin.entities.User;
 
 import java.time.LocalDateTime;
 import java.util.prefs.Preferences;
-
+import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.UserServiceImpl;
 /**
  * SessionManager — Gestion de session avec support 2FA + Trusted Device + Flash Messages.
  *
@@ -22,6 +22,7 @@ import java.util.prefs.Preferences;
  *       if (flash != null) showFlashBanner(flash[0], flash[1]);
  */
 public class SessionManager {
+    private static final IUserService userService = new UserServiceImpl();
 
     // ─────────────────────────────────────────────────────────
     //  État de session
@@ -243,7 +244,7 @@ public class SessionManager {
         User current = getCurrentUser();
         if (current != null) {
             try {
-                User refreshed = new UserDAO().findById(current.getId());
+                User refreshed = userService.findById(current.getId());
                 if (refreshed != null) {
                     setCurrentUser(refreshed);
                     System.out.println("[SessionManager] 🔄 Utilisateur rechargé : " + refreshed.getEmail());

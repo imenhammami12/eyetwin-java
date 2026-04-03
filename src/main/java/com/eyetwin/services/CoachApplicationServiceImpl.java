@@ -1,27 +1,24 @@
-package com.eyetwin.dao;
+package com.eyetwin.services;
 
-import com.eyetwin.config.DatabaseConfig;
-import com.eyetwin.model.ApplicationStatus;
-import com.eyetwin.model.CoachApplication;
+import com.eyetwin.entities.ApplicationStatus;
+import com.eyetwin.entities.CoachApplication;
+import com.eyetwin.interfaces.ICoachApplicationService;
+import com.eyetwin.tools.DatabaseConfig;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 
 /**
- * CoachApplicationDAO
- *
- * Mirrors Symfony CoachApplicationRepository queries used in UserController#applyCoach().
- * Uses DatabaseConfig (same as UserDAO) instead of DatabaseConnection.
+ * CoachApplicationServiceImpl — implémentation de ICoachApplicationService.
+ * Fusionne l'ancien CoachApplicationDAO (accès SQL) + logique métier.
  */
-public class CoachApplicationDAO {
+public class CoachApplicationServiceImpl implements ICoachApplicationService {
 
-    /**
-     * Mirrors:
-     *   $em->getRepository(CoachApplication::class)
-     *      ->findOneBy(['user' => $user, 'status' => ApplicationStatus::PENDING])
-     *
-     * Returns true if the user already has a PENDING application.
-     */
+    // ════════════════════════════════════════════════════════════
+    //  HAS PENDING APPLICATION
+    // ════════════════════════════════════════════════════════════
+
+    @Override
     public boolean hasPendingApplication(int userId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM coach_application WHERE user_id = ? AND status = 'PENDING'";
         try (Connection conn = DatabaseConfig.getConnection();
@@ -32,39 +29,37 @@ public class CoachApplicationDAO {
         }
     }
 
-    /**
-     * Mirrors:  $em->persist($application); $em->flush();
-     * Inserts a new CoachApplication row with status = PENDING.
-     */
+    // ════════════════════════════════════════════════════════════
+    //  SAVE
+    // ════════════════════════════════════════════════════════════
+
+    @Override
     public void save(CoachApplication app) throws SQLException {
-        String sql = "INSERT INTO coach_application "
-                + "(user_id, status, certifications, experience, cv_file, submitted_at) "
-                + "VALUES (?, 'PENDING', ?, ?, ?, ?)";
+        String sql = "INSERT INTO coach_application " +
+                "(user_id, status, certifications, experience, cv_file, submitted_at) " +
+                "VALUES (?, 'PENDING', ?, ?, ?, ?)";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, app.getUserId());
             ps.setString(2, app.getCertifications());
             ps.setString(3, app.getExperience());
-            ps.setString(4, app.getCvFile());   // nullable — OK with setString(null)
+            ps.setString(4, app.getCvFile());
             ps.setTimestamp(5, Timestamp.valueOf(
                     app.getSubmittedAt() != null ? app.getSubmittedAt() : LocalDateTime.now()));
             ps.executeUpdate();
-
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) app.setId(keys.getInt(1));
         }
     }
 
-    /**
-     * Mirrors:
-     *   $em->getRepository(CoachApplication::class)
-     *      ->findBy(['user' => $user], ['submittedAt' => 'DESC'])  — first result
-     *
-     * Used by UserProfileController to show latest application status.
-     */
+    // ════════════════════════════════════════════════════════════
+    //  FIND LATEST BY USER ID
+    // ════════════════════════════════════════════════════════════
+
+    @Override
     public CoachApplication findLatestByUserId(int userId) throws SQLException {
-        String sql = "SELECT * FROM coach_application "
-                + "WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 1";
+        String sql = "SELECT * FROM coach_application WHERE user_id = ? " +
+                "ORDER BY submitted_at DESC LIMIT 1";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -74,7 +69,10 @@ public class CoachApplicationDAO {
         return null;
     }
 
-    // ── Row mapper ──
+    // ════════════════════════════════════════════════════════════
+    //  MAPPING ResultSet → CoachApplication
+    // ════════════════════════════════════════════════════════════
+
     private CoachApplication mapRow(ResultSet rs) throws SQLException {
         CoachApplication app = new CoachApplication();
         app.setId(rs.getInt("id"));

@@ -1,4 +1,4 @@
-package com.eyetwin.model;
+package com.eyetwin.entities;
 
 /**
  * ApplicationStatus — miroir de l'enum Symfony ApplicationStatus

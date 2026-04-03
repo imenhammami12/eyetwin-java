@@ -1,8 +1,9 @@
 package com.eyetwin.controller;
 
-import com.eyetwin.util.SessionManager;
-import com.eyetwin.model.User;
-import com.eyetwin.dao.StatsDAO;
+import com.eyetwin.interfaces.IStatsService;
+import com.eyetwin.services.StatsServiceImpl;
+import com.eyetwin.tools.SessionManager;
+import com.eyetwin.entities.User;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -35,12 +36,12 @@ public class HomeController {
     @FXML private MenuItem   notifEmptyItem;
 
     // ── Navbar — profile MenuButton ──
-    @FXML private MenuButton navProfileMenu;
-    @FXML private Label      navAvatarInitial;
-    @FXML private Label      navUsername;
-    @FXML private MenuItem   profileHeaderItem;
-    @FXML private MenuItem   profileStatsItem;
-    @FXML private MenuItem   profileAdminItem;
+    @FXML private MenuButton      navProfileMenu;
+    @FXML private Label           navAvatarInitial;
+    @FXML private Label           navUsername;
+    @FXML private MenuItem        profileHeaderItem;
+    @FXML private MenuItem        profileStatsItem;
+    @FXML private MenuItem        profileAdminItem;
     @FXML private SeparatorMenuItem profileAdminSep;
 
     // ── Navbar — uploader MenuButton ──
@@ -64,6 +65,9 @@ public class HomeController {
 
     // ── CTA bottom (guest) ──
     @FXML private VBox ctaBottomGuest;
+
+    // ── Service (interface, plus de DAO direct) ──
+    private final IStatsService statsService = new StatsServiceImpl();
 
     // ════════════════════════════════════════════════════════════
     //  INITIALIZE
@@ -100,7 +104,8 @@ public class HomeController {
                     "🪙 " + user.getCoinBalance() + " coins   |   ⚡ Rank: —   |   🏆 Wins: —"
             );
 
-        boolean isAdmin = user.getRolesJson() != null && user.getRolesJson().contains("ROLE_ADMIN");
+        boolean isAdmin = user.getRolesJson() != null
+                && user.getRolesJson().contains("ROLE_ADMIN");
         if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
         if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
 
@@ -156,7 +161,7 @@ public class HomeController {
     }
 
     private void handleNotifAction(String action) {
-        if (action.contains("team"))         goToTeams();
+        if      (action.contains("team"))    goToTeams();
         else if (action.contains("profile")) goToProfile();
         else if (action.contains("tournoi")) goToTournois();
         else if (action.contains("support")) goToSupport();
@@ -167,11 +172,10 @@ public class HomeController {
     // ════════════════════════════════════════════════════════════
     private void loadStats() {
         try {
-            StatsDAO dao        = new StatsDAO();
-            long players        = dao.countPlayers();
-            long tournaments    = dao.countTournaments();
-            long teams          = dao.countTeams();
-            long coaches        = dao.countCoaches();
+            int players     = statsService.countPlayers();
+            int tournaments = statsService.countTournaments();
+            int teams       = statsService.countTeams();
+            int coaches     = statsService.countCoaches();
 
             Platform.runLater(() -> {
                 animateCounter(statPlayers,     players,     1400);
@@ -206,7 +210,7 @@ public class HomeController {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  NAVIGATION — handlers @FXML
+    //  NAVIGATION
     // ════════════════════════════════════════════════════════════
     @FXML public void goHome()       { navigateTo("home.fxml"); }
     @FXML public void goToLogin()    { navigateTo("login.fxml"); }
@@ -222,16 +226,8 @@ public class HomeController {
     @FXML public void goToSupport()  { navigateTo("Support.fxml"); }
     @FXML public void goToAdmin()    { navigateTo("Admin.fxml"); }
 
-    /**
-     * ── 2FA Settings ──
-     * Navigue vers TwoFactor.fxml (TwoFactorSettingsController).
-     * Lié au MenuItem "🛡  Two-Factor Auth" dans le dropdown profil.
-     *
-     * Si l'utilisateur n'est pas connecté → redirige vers login.
-     */
     @FXML
     public void goTo2FA() {
-        // Guard : doit être connecté
         if (SessionManager.getCurrentUser() == null) {
             navigateTo("login.fxml");
             return;
@@ -245,13 +241,7 @@ public class HomeController {
         navigateTo("login.fxml");
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  NAVIGATION — méthode centrale
-    //  Cherche le FXML dans 3 chemins possibles.
-    //  En cas d'erreur, affiche le détail complet dans la console.
-    // ════════════════════════════════════════════════════════════
     private void navigateTo(String fxml) {
-        // ── Cherche dans les 3 chemins possibles ──
         String[] paths = {
                 "/com/eyetwin/views/" + fxml,
                 "/com/eyetwin/view/"  + fxml,
@@ -269,24 +259,19 @@ public class HomeController {
 
         if (url == null) {
             System.err.println("[HomeController] ❌ FXML introuvable : " + fxml);
-            System.err.println("  Chemins testés :");
             for (String path : paths) System.err.println("    " + path);
-            System.err.println("  → Vérifiez que le fichier est dans src/main/resources/com/eyetwin/views/");
             return;
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(url);
-            Parent root  = loader.load();
+            Parent root  = FXMLLoader.load(url);
             Stage  stage = resolveStage();
             if (stage == null) {
                 System.err.println("[HomeController] ❌ Stage introuvable pour : " + fxml);
                 return;
             }
             stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
-
         } catch (IOException e) {
-            // ── Affiche le vrai message d'erreur (souvent une erreur dans le Controller) ──
             System.err.println("[HomeController] ❌ Erreur chargement FXML : " + fxml);
             System.err.println("  Cause : " + e.getMessage());
             if (e.getCause() != null) {

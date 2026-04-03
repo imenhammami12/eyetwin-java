@@ -1,4 +1,4 @@
-package com.eyetwin.model;
+package com.eyetwin.entities;
 
 public enum MembershipStatus {
     ACTIVE,

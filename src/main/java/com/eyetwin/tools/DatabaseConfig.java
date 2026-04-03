@@ -1,4 +1,4 @@
-package com.eyetwin.config;
+package com.eyetwin.tools;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

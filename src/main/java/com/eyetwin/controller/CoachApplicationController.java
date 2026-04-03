@@ -1,13 +1,12 @@
 package com.eyetwin.controller;
 
 import com.eyetwin.MainApp;
-import com.eyetwin.config.DatabaseConfig;
-import com.eyetwin.dao.CoachApplicationDAO;
-import com.eyetwin.dao.UserDAO;
-import com.eyetwin.model.ApplicationStatus;
-import com.eyetwin.model.CoachApplication;
-import com.eyetwin.model.User;
-import com.eyetwin.util.SessionManager;
+import com.eyetwin.entities.ApplicationStatus;
+import com.eyetwin.entities.CoachApplication;
+import com.eyetwin.entities.User;
+import com.eyetwin.interfaces.ICoachApplicationService;
+import com.eyetwin.services.CoachApplicationServiceImpl;
+import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,39 +25,23 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 
-/**
- * CoachApplicationController
- *
- * Mirrors: UserController#applyCoach() — POST /profile/apply-coach
- *
- * Guards (replicated from Symfony):
- *   1. User must be logged in                   → redirect to login
- *   2. User must NOT already have ROLE_COACH    → flash info   + redirect to profile
- *   3. User must NOT have a PENDING application → flash warning + redirect to profile
- *
- * On submit:
- *   - Validates certifications (min 50 chars) and experience (min 100 chars)
- *   - Optionally saves a CV file (PDF/DOC/DOCX, max 5 MB) to uploads/cv/
- *   - Persists a new CoachApplication (status = PENDING) via CoachApplicationDAO
- *   - Redirects to UserProfile with a success message stored in SessionManager
- */
 public class CoachApplicationController {
 
     private static final String VIEWS        = "/com/eyetwin/views/";
-    private static final long   MAX_CV_BYTES = 5L * 1024 * 1024;  // 5 MB
+    private static final long   MAX_CV_BYTES = 5L * 1024 * 1024;
     private static final int    MIN_CERT_LEN = 50;
     private static final int    MIN_EXP_LEN  = 100;
 
-    // ── DAOs ──
-    private final CoachApplicationDAO coachApplicationDAO = new CoachApplicationDAO();
+    // ── Service (interface, plus de DAO direct) ──
+    private final ICoachApplicationService coachApplicationService = new CoachApplicationServiceImpl();
 
     // ── State ──
     private File selectedCvFile = null;
 
     // ── FXML — Navbar ──
-    @FXML private Label      navUsername;
-    @FXML private Label      navAvatarInitial;
-    @FXML private Label      coinsNavLabel;
+    @FXML private Label navUsername;
+    @FXML private Label navAvatarInitial;
+    @FXML private Label coinsNavLabel;
 
     // ── FXML — Flash messages ──
     @FXML private VBox  flashErrorBox;
@@ -91,10 +74,7 @@ public class CoachApplicationController {
         User user = SessionManager.getCurrentUser();
 
         // Guard 1 — must be logged in
-        if (user == null) {
-            navigateTo("login.fxml");
-            return;
-        }
+        if (user == null) { navigateTo("login.fxml"); return; }
 
         fillNavbar(user);
 
@@ -110,7 +90,7 @@ public class CoachApplicationController {
         // Guard 3 — pending application exists (async DB check)
         new Thread(() -> {
             try {
-                if (coachApplicationDAO.hasPendingApplication(user.getId())) {
+                if (coachApplicationService.hasPendingApplication(user.getId())) {
                     Platform.runLater(() -> {
                         SessionManager.setPendingFlash("warning",
                                 "You already have a pending application.");
@@ -122,7 +102,6 @@ public class CoachApplicationController {
             }
         }).start();
 
-        // Wire live character counters
         wireCounter(certificationsField, certCounter, MIN_CERT_LEN);
         wireCounter(experienceField,     expCounter,  MIN_EXP_LEN);
     }
@@ -145,19 +124,18 @@ public class CoachApplicationController {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  CHARACTER COUNTERS  (mirrors JS initCounter())
+    //  CHARACTER COUNTERS
     // ─────────────────────────────────────────────────────────
     private void wireCounter(TextArea field, Label counter, int min) {
         if (field == null || counter == null) return;
         Runnable update = () -> {
             int len = field.getText().length();
             counter.setText(len + " / " + min + " min");
-            if (len >= min)
-                counter.setStyle("-fx-text-fill: #4cd3e3; -fx-font-size: 11; -fx-font-weight: bold;");
-            else
-                counter.setStyle("-fx-text-fill: #f44a40; -fx-font-size: 11; -fx-font-weight: bold;");
+            counter.setStyle(len >= min
+                    ? "-fx-text-fill: #4cd3e3; -fx-font-size: 11; -fx-font-weight: bold;"
+                    : "-fx-text-fill: #f44a40; -fx-font-size: 11; -fx-font-weight: bold;");
         };
-        field.textProperty().addListener((obs, oldVal, newVal) -> update.run());
+        field.textProperty().addListener((obs, o, n) -> update.run());
         update.run();
     }
 
@@ -207,9 +185,7 @@ public class CoachApplicationController {
         String certText = certificationsField != null ? certificationsField.getText().trim() : "";
         String expText  = experienceField     != null ? experienceField.getText().trim()     : "";
 
-        // ── Client-side validation ──
         boolean valid = true;
-
         if (certText.isEmpty()) {
             showError(certErrorLabel, "Certifications are required.");
             valid = false;
@@ -218,7 +194,6 @@ public class CoachApplicationController {
                     "Certifications must be at least " + MIN_CERT_LEN + " characters.");
             valid = false;
         }
-
         if (expText.isEmpty()) {
             showError(expErrorLabel, "Experience is required.");
             valid = false;
@@ -227,22 +202,20 @@ public class CoachApplicationController {
                     "Experience must be at least " + MIN_EXP_LEN + " characters.");
             valid = false;
         }
-
         if (!valid) return;
 
-        // Disable submit button while processing
         if (submitBtn != null) {
             submitBtn.setDisable(true);
             submitBtn.setText("⏳  Sending…");
         }
 
-        final File cvFile   = selectedCvFile;
+        final File   cvFile    = selectedCvFile;
         final String certFinal = certText;
         final String expFinal  = expText;
 
         new Thread(() -> {
             try {
-                // ── Server-side guards (defensive re-check) ──
+                // Server-side guards (defensive re-check)
                 if (hasRole(user, "ROLE_COACH")) {
                     Platform.runLater(() -> {
                         SessionManager.setPendingFlash("info", "You are already a coach!");
@@ -250,7 +223,7 @@ public class CoachApplicationController {
                     });
                     return;
                 }
-                if (coachApplicationDAO.hasPendingApplication(user.getId())) {
+                if (coachApplicationService.hasPendingApplication(user.getId())) {
                     Platform.runLater(() -> {
                         SessionManager.setPendingFlash("warning",
                                 "You already have a pending application.");
@@ -259,22 +232,19 @@ public class CoachApplicationController {
                     return;
                 }
 
-                // ── Build & save entity ──
                 CoachApplication application = new CoachApplication();
                 application.setUserId(user.getId());
                 application.setStatus(ApplicationStatus.PENDING);
                 application.setCertifications(certFinal);
                 application.setExperience(expFinal);
 
-                // Optional CV upload
                 if (cvFile != null) {
                     String savedName = saveCvFile(cvFile, user.getId());
                     if (savedName != null) application.setCvFile(savedName);
                 }
 
-                coachApplicationDAO.save(application);
+                coachApplicationService.save(application);
 
-                // ── Notify admins (log only — plug in your NotificationDAO here) ──
                 System.out.println("[CoachApplication] New application submitted by user id="
                         + user.getId() + " (application id=" + application.getId() + ")");
 
@@ -296,8 +266,7 @@ public class CoachApplicationController {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  CV FILE SAVE  (mirrors Symfony SluggerInterface + move())
-    //  Saves to  {workdir}/uploads/cv/
+    //  CV FILE SAVE
     // ─────────────────────────────────────────────────────────
     private String saveCvFile(File source, int userId) {
         try {
@@ -310,7 +279,6 @@ public class CoachApplicationController {
             String ext      = original.contains(".")
                     ? original.substring(original.lastIndexOf('.') + 1).toLowerCase() : "pdf";
 
-            // Slug sanitize — mirrors Symfony SluggerInterface
             String safeStem = stem.replaceAll("[^a-zA-Z0-9]", "-").toLowerCase();
             String newName  = safeStem + "-" + userId + "-" + System.currentTimeMillis() + "." + ext;
 
@@ -391,9 +359,6 @@ public class CoachApplicationController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  ROLE CHECK  (reads rolesJson — same as UserProfileController)
-    // ─────────────────────────────────────────────────────────
     private boolean hasRole(User user, String role) {
         return user.getRolesJson() != null && user.getRolesJson().contains(role);
     }

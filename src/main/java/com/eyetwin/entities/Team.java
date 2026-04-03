@@ -1,4 +1,4 @@
-package com.eyetwin.model;
+package com.eyetwin.entities;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
