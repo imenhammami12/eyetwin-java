@@ -69,6 +69,8 @@ public class AdminProfileController {
     // ════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
+
+
         if (!SessionManager.isAdmin()) { navigateTo("AdminLogin.fxml"); return; }
 
         // Recharge depuis DB pour avoir face_descriptor à jour

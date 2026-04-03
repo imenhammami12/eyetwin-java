@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.admin.AdminSidebarController"
+      prefWidth="260"
+      style="-fx-background-color: #0d0618;
+             -fx-border-color: rgba(255,60,100,0.15);
+             -fx-border-width: 0 1 0 0;
+             -fx-pref-height: 800;">
+
+    <!-- Logo -->
+    <VBox alignment="CENTER"
+          style="-fx-padding: 20 20 16 20;
+                 -fx-border-color: transparent transparent rgba(255,60,100,0.12) transparent;
+                 -fx-border-width: 0 0 1 0;">
+        <ImageView fitWidth="160" fitHeight="45" preserveRatio="true"
+                   onMouseClicked="#goToDashboard" style="-fx-cursor: hand;">
+            <image><Image url="@../../assets/img/eyetwin-logo.png"/></image>
+        </ImageView>
+    </VBox>
+
+    <!-- Nav -->
+    <VBox fx:id="sidebarNav" spacing="2"
+          style="-fx-padding: 12 10 12 10;" VBox.vgrow="ALWAYS">
+
+        <Button fx:id="navDashboard" text="⚡  Dashboard"
+                onAction="#goToDashboard" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navUsers" text="👥  Users"
+                onAction="#goToUsers" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navPlanning" text="📅  Planning"
+                onAction="#goToPlanning" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navTournaments" text="🏆  Tournaments"
+                onAction="#goToTournaments" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navVideos" text="🎬  Videos"
+                onAction="#goToVideos" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <!-- Coach Applications avec badge -->
+        <HBox alignment="CENTER_LEFT" spacing="0">
+            <Button fx:id="navCoachApps" text="✅  Coach Applications"
+                    onAction="#goToCoachApplications"
+                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-border-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                           -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                           -fx-cursor: hand; -fx-background-radius: 10;"/>
+            <Label fx:id="pendingApplicationsBadge" text="0"
+                   visible="false" managed="false"
+                   style="-fx-background-color: #e8372a; -fx-text-fill: white;
+                          -fx-font-size: 10; -fx-font-weight: bold;
+                          -fx-background-radius: 10; -fx-padding: 2 7 2 7;"/>
+        </HBox>
+
+        <Button fx:id="navChannels" text="💬  Channels"
+                onAction="#goToChannels" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <!-- Complaints avec badge -->
+        <HBox alignment="CENTER_LEFT" spacing="0">
+            <Button fx:id="navComplaints" text="🎧  Complaints"
+                    onAction="#goToComplaints"
+                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-border-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                           -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                           -fx-cursor: hand; -fx-background-radius: 10;"/>
+            <Label fx:id="pendingComplaintsBadge" text="0"
+                   visible="false" managed="false"
+                   style="-fx-background-color: #e8372a; -fx-text-fill: white;
+                          -fx-font-size: 10; -fx-font-weight: bold;
+                          -fx-background-radius: 10; -fx-padding: 2 7 2 7;"/>
+        </HBox>
+
+        <Button fx:id="navMessages" text="📨  Messages"
+                onAction="#goToMessages" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navTeams" text="🔲  Teams"
+                onAction="#goToTeams" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Button fx:id="navAuditLogs" text="📋  Audit Logs"
+                onAction="#goToAuditLogs"
+                maxWidth="Infinity" visible="false" managed="false"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
+        <Region style="-fx-background-color: rgba(255,255,255,0.07);
+                       -fx-pref-height: 1; -fx-max-height: 1;"/>
+
+        <Button text="🌐  View Site ↗" onAction="#goToSite"
+                maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 9 14 9 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+    </VBox>
+
+    <!-- Logout -->
+    <Button text="🚪  Logout" onAction="#handleLogout" maxWidth="Infinity"
+            style="-fx-background-color: rgba(255,60,100,0.08);
+                   -fx-border-color: rgba(255,60,100,0.2);
+                   -fx-border-width: 1 0 0 0; -fx-border-radius: 0;
+                   -fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;
+                   -fx-alignment: CENTER_LEFT; -fx-padding: 16 20 16 20;
+                   -fx-cursor: hand;"/>
+</VBox>
