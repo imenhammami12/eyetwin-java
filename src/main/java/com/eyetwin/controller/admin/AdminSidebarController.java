@@ -15,7 +15,6 @@ import java.net.URL;
 
 public class AdminSidebarController {
 
-    // ── Boutons nav avec fx:id ──
     @FXML private Button navDashboard;
     @FXML private Button navUsers;
     @FXML private Button navPlanning;
@@ -28,7 +27,6 @@ public class AdminSidebarController {
     @FXML private Button navTeams;
     @FXML private Button navAuditLogs;
 
-    // ── Badges ──
     @FXML private Label pendingApplicationsBadge;
     @FXML private Label pendingComplaintsBadge;
 
@@ -57,7 +55,6 @@ public class AdminSidebarController {
         }
     }
 
-    // ── Appelé par chaque page admin pour surligner le bon item ──
     public void setActivePage(String page) {
         Button[] all = { navDashboard, navUsers, navPlanning, navTournaments,
                 navVideos, navCoachApps, navChannels, navComplaints,
@@ -66,18 +63,18 @@ public class AdminSidebarController {
             if (b != null) b.setStyle(STYLE_INACTIVE);
 
         Button active = switch (page) {
-            case "dashboard"    -> navDashboard;
-            case "users"        -> navUsers;
-            case "planning"     -> navPlanning;
-            case "tournaments"  -> navTournaments;
-            case "videos"       -> navVideos;
-            case "coachapps"    -> navCoachApps;
-            case "channels"     -> navChannels;
-            case "complaints"   -> navComplaints;
-            case "messages"     -> navMessages;
-            case "teams"        -> navTeams;
-            case "auditlogs"    -> navAuditLogs;
-            default             -> null;
+            case "dashboard"   -> navDashboard;
+            case "users"       -> navUsers;
+            case "planning"    -> navPlanning;
+            case "tournaments" -> navTournaments;
+            case "videos"      -> navVideos;
+            case "coachapps"   -> navCoachApps;
+            case "channels"    -> navChannels;
+            case "complaints"  -> navComplaints;
+            case "messages"    -> navMessages;
+            case "teams"       -> navTeams;
+            case "auditlogs"   -> navAuditLogs;
+            default            -> null;
         };
         if (active != null) active.setStyle(STYLE_ACTIVE);
     }
@@ -101,19 +98,18 @@ public class AdminSidebarController {
         }
     }
 
-    // ── Navigation ──
-    @FXML public void goToDashboard()        { navigateTo("Admin.fxml"); }
-    @FXML public void goToUsers()            { navigateTo("AdminUsers.fxml"); }
-    @FXML public void goToPlanning()         { navigateTo("AdminPlanning.fxml"); }
-    @FXML public void goToTournaments()      { navigateTo("AdminTournaments.fxml"); }
-    @FXML public void goToVideos()           { navigateTo("AdminVideos.fxml"); }
-    @FXML public void goToCoachApplications(){ navigateTo("AdminCoachApplications.fxml"); }
-    @FXML public void goToChannels()         { navigateTo("AdminChannels.fxml"); }
-    @FXML public void goToComplaints()       { navigateTo("AdminComplaints.fxml"); }
-    @FXML public void goToMessages()         { navigateTo("AdminMessages.fxml"); }
-    @FXML public void goToTeams()            { navigateTo("AdminTeams.fxml"); }
-    @FXML public void goToAuditLogs()        { navigateTo("AdminAuditLogs.fxml"); }
-    @FXML public void goToSite()             { navigateTo("home.fxml"); }
+    @FXML public void goToDashboard()         { navigateTo("Admin.fxml"); }
+    @FXML public void goToUsers()             { navigateTo("AdminUsers.fxml"); }
+    @FXML public void goToPlanning()          { navigateTo("AdminPlanning.fxml"); }
+    @FXML public void goToTournaments()       { navigateTo("AdminTournaments.fxml"); }
+    @FXML public void goToVideos()            { navigateTo("AdminVideos.fxml"); }
+    @FXML public void goToCoachApplications() { navigateTo("AdminCoachApplications.fxml"); }
+    @FXML public void goToChannels()          { navigateTo("AdminChannels.fxml"); }
+    @FXML public void goToComplaints()        { navigateTo("AdminComplaints.fxml"); }
+    @FXML public void goToMessages()          { navigateTo("AdminMessages.fxml"); }
+    @FXML public void goToTeams()             { navigateTo("AdminTeams.fxml"); }
+    @FXML public void goToAuditLogs()         { navigateTo("AdminAuditLogs.fxml"); }
+    @FXML public void goToSite()              { navigateTo("home.fxml"); }
 
     @FXML
     public void handleLogout() {
@@ -132,13 +128,18 @@ public class AdminSidebarController {
             url = getClass().getResource(path);
             if (url != null) break;
         }
-        if (url == null) { System.err.println("❌ FXML not found: " + fxml); return; }
+        if (url == null) {
+            System.err.println("❌ FXML not found: " + fxml);
+            return;
+        }
         try {
-            Parent root  = FXMLLoader.load(url);
+            Parent root  = FXMLLoader.load(url);   // ✅ méthode statique — résout les chemins relatifs
             Stage  stage = resolveStage();
             if (stage == null) return;
             stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Stage resolveStage() {
