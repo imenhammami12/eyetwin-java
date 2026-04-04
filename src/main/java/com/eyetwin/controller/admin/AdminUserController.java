@@ -137,7 +137,7 @@ public class AdminUserController {
     private ObservableList<User> allUsers        = FXCollections.observableArrayList();
     private boolean              passwordVisible = false;
 
-    private static final int PAGE_SIZE = 20;
+    private static final int PAGE_SIZE = 10;
     private int currentPage = 1;
     private int totalPages  = 1;
 
@@ -348,19 +348,59 @@ public class AdminUserController {
                         setGraphic(null); return;
                     }
                     User u = (User) getTableRow().getItem();
+
+                    String photoFile = u.getProfilePicture();
+                    if (photoFile != null && !photoFile.isBlank()) {
+                        try {
+                            // ── Chemin absolu vers le dossier uploads Symfony ──
+                            // Adapte ce chemin selon ton projet Symfony
+                            String basePath = System.getProperty("user.dir") + "/uploads/profiles/";
+                            java.io.File file = new java.io.File(basePath + photoFile);
+
+                            if (file.exists()) {
+                                javafx.scene.image.Image img = new javafx.scene.image.Image(
+                                        file.toURI().toString(), 40, 40, true, true
+                                );
+
+                                if (!img.isError()) {
+                                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                                    iv.setFitWidth(40); iv.setFitHeight(40);
+                                    iv.setPreserveRatio(false);
+
+                                    // Clip circulaire
+                                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
+                                    iv.setClip(clip);
+
+                                    javafx.scene.layout.StackPane pane = new javafx.scene.layout.StackPane(iv);
+                                    pane.setMinSize(40, 40); pane.setMaxSize(40, 40);
+                                    pane.setStyle(
+                                            "-fx-background-radius: 20;" +
+                                                    "-fx-border-radius: 20;" +
+                                                    "-fx-border-color: rgba(255,255,255,0.20);" +
+                                                    "-fx-border-width: 2;"
+                                    );
+                                    setGraphic(pane);
+                                    setAlignment(Pos.CENTER);
+                                    return;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    // ── Fallback : initiales ───────────────────────────
                     String initials = u.getUsername() != null && !u.getUsername().isEmpty()
                             ? u.getUsername().substring(0, Math.min(2, u.getUsername().length())).toUpperCase()
                             : "?";
-                    String gradient = getAvatarGradient(u);
                     Label avatar = new Label(initials);
                     avatar.setStyle(
-                            "-fx-background-color: " + gradient + ";" +
+                            "-fx-background-color: " + getAvatarGradient(u) + ";" +
                                     "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;" +
                                     "-fx-min-width: 40; -fx-min-height: 40;" +
                                     "-fx-max-width: 40; -fx-max-height: 40;" +
                                     "-fx-background-radius: 20; -fx-alignment: center;" +
                                     "-fx-border-color: rgba(255,255,255,0.15);" +
-                                    "-fx-border-width: 2; -fx-border-radius: 20;");
+                                    "-fx-border-width: 2; -fx-border-radius: 20;"
+                    );
                     setGraphic(avatar);
                     setAlignment(Pos.CENTER);
                 }
@@ -455,13 +495,7 @@ public class AdminUserController {
         }
 
         usersTable.setPlaceholder(new Label("No users found"));
-        usersTable.setRowFactory(tv -> {
-            TableRow<User> row = new TableRow<>();
-            row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty()) openDetail(row.getItem());
-            });
-            return row;
-        });
+
     }
 
     /** Returns the avatar gradient string based on user role (matches Symfony color coding) */
@@ -653,20 +687,35 @@ public class AdminUserController {
 
         totalPages  = Math.max(1, (int) Math.ceil((double) filtered.size() / PAGE_SIZE));
         currentPage = Math.min(currentPage, totalPages);
+        currentPage = Math.max(1, currentPage); // ← sécurité : jamais < 1
         int from    = (currentPage - 1) * PAGE_SIZE;
         int to      = Math.min(from + PAGE_SIZE, filtered.size());
 
-        if (usersTable != null)
+        if (usersTable != null) {
             usersTable.setItems(FXCollections.observableArrayList(filtered.subList(from, to)));
+            // Re-applique le style header après chaque changement de page
+            Platform.runLater(() -> Platform.runLater(() ->
+                    usersTable.lookupAll(".column-header .label").forEach(node ->
+                            node.setStyle(
+                                    "-fx-text-fill: rgba(255,255,255,0.90);" +
+                                            "-fx-font-weight: bold;" +
+                                            "-fx-font-size: 11px;" +
+                                            "-fx-background-color: transparent;" +
+                                            "-fx-padding: 0 16;"
+                            )
+                    )
+            ));
+        }
 
-        setLabel(resultCountLabel,    "Found " + filtered.size() + " user" + (filtered.size() != 1 ? "s" : ""));
-        setLabel(pageNumberLabel,     "Page " + currentPage + " / " + totalPages);
+        setLabel(resultCountLabel, "Found " + filtered.size() + " user" + (filtered.size() != 1 ? "s" : ""));
+        setLabel(pageNumberLabel,  "Page " + currentPage + " / " + totalPages);
         setLabel(paginationInfoLabel, filtered.isEmpty() ? ""
-                : "Showing " + (from + 1) + " to " + to + " of " + filtered.size() + " entries");
+                : "Showing " + (from + 1) + " – " + to + " of " + filtered.size() + " entries");
 
         if (prevPageBtn != null) prevPageBtn.setDisable(currentPage <= 1);
         if (nextPageBtn != null) nextPageBtn.setDisable(currentPage >= totalPages);
     }
+
 
     @FXML public void handlePrevPage() { if (currentPage > 1)         { currentPage--; applyFilters(); } }
     @FXML public void handleNextPage() { if (currentPage < totalPages) { currentPage++; applyFilters(); } }
