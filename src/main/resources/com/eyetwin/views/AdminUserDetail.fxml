@@ -2,6 +2,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.admin.AdminUserController"
@@ -45,7 +46,7 @@
                     <!-- Main body -->
                     <HBox spacing="16" alignment="TOP_LEFT">
 
-                        <!-- ══ LEFT COLUMN — Profile card ══ -->
+                        <!-- LEFT — Profile card -->
                         <VBox spacing="14" prefWidth="300"
                               style="-fx-background-color: rgba(255,255,255,0.02);
                                      -fx-border-color: rgba(255,255,255,0.07);
@@ -128,41 +129,43 @@
 
                             <!-- Action buttons -->
                             <VBox spacing="8" fillWidth="true">
-                                <Button fx:id="suspendBtn" text="⚠  Suspend" onAction="#handleSuspend"
-                                        maxWidth="Infinity"
+                                <Button fx:id="suspendBtn" text="⚠  Suspend User"
+                                        onAction="#handleSuspend" maxWidth="Infinity"
                                         style="-fx-background-color: rgba(255,171,0,0.08);
                                                -fx-border-color: rgba(255,171,0,0.35); -fx-border-radius: 8;
                                                -fx-background-radius: 8; -fx-text-fill: #ffb700;
                                                -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;"/>
-                                <Button fx:id="banBtn" text="✕  Ban" onAction="#handleBan"
-                                        maxWidth="Infinity"
+                                <Button fx:id="banBtn" text="✕  Ban User"
+                                        onAction="#handleBan" maxWidth="Infinity"
                                         style="-fx-background-color: rgba(255,60,100,0.08);
                                                -fx-border-color: rgba(255,60,100,0.35); -fx-border-radius: 8;
                                                -fx-background-radius: 8; -fx-text-fill: #ff6b7a;
                                                -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;"/>
-                                <Button fx:id="reactivateBtn" text="✓  Reactivate" onAction="#handleReactivate"
-                                        maxWidth="Infinity" visible="false" managed="false"
+                                <Button fx:id="reactivateBtn" text="✓  Reactivate User"
+                                        onAction="#handleReactivate" maxWidth="Infinity"
+                                        visible="false" managed="false"
                                         style="-fx-background-color: rgba(67,233,123,0.08);
                                                -fx-border-color: rgba(67,233,123,0.35); -fx-border-radius: 8;
                                                -fx-background-radius: 8; -fx-text-fill: #43e97b;
                                                -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;"/>
-                                <Button fx:id="deleteBtn" text="🗑  Delete" onAction="#handleDeleteUser"
-                                        maxWidth="Infinity"
-                                        style="-fx-background-color: rgba(180,40,60,0.08);
+                                <Button fx:id="deleteBtn" text="🗑  Delete User"
+                                        onAction="#handleDeleteUser" maxWidth="Infinity"
+                                        style="-fx-background-color: rgba(140,20,40,0.08);
                                                -fx-border-color: rgba(180,40,60,0.3); -fx-border-radius: 8;
-                                               -fx-background-radius: 8; -fx-text-fill: rgba(255,107,122,0.7);
+                                               -fx-background-radius: 8;
+                                               -fx-text-fill: rgba(255,107,122,0.65);
                                                -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;"/>
                                 <Label fx:id="actionPermNote" text="" visible="false" managed="false"
-                                       style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"
-                                       wrapText="true"/>
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
                             </VBox>
 
                         </VBox>
 
-                        <!-- ══ RIGHT COLUMN ══ -->
+                        <!-- RIGHT — Details -->
                         <VBox spacing="14" HBox.hgrow="ALWAYS">
 
-                            <!-- Personal information -->
+                            <!-- Personal Information -->
                             <VBox spacing="0"
                                   style="-fx-background-color: rgba(255,255,255,0.02);
                                          -fx-border-color: rgba(255,255,255,0.07);
@@ -176,7 +179,6 @@
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
                                         <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
                                     </columnConstraints>
-
                                     <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                         <Label text="EMAIL" style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35); -fx-font-family: monospace;"/>
                                         <Label fx:id="emailInfoLabel" text="—" style="-fx-text-fill: #4facfe; -fx-font-size: 13;"/>
@@ -191,15 +193,23 @@
                                     </VBox>
                                     <VBox spacing="3" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                         <Label text="REGISTERED" style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35); -fx-font-family: monospace;"/>
-                                        <Label fx:id="registeredLabel" text="—" style="-fx-text-fill: white; -fx-font-size: 13;"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label fx:id="registeredLabel" text="—" style="-fx-text-fill: white; -fx-font-size: 13;"/>
+                                            <Label fx:id="registeredAgoLabel" text="" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;"/>
+                                        </HBox>
                                     </VBox>
                                     <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="2">
                                         <Label text="LAST LOGIN" style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35); -fx-font-family: monospace;"/>
                                         <Label fx:id="lastLoginLabel" text="—" style="-fx-text-fill: white; -fx-font-size: 13;"/>
                                     </VBox>
                                     <VBox spacing="3" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                        <Label text="STATUS" style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35); -fx-font-family: monospace;"/>
-                                        <Label fx:id="statusInfoLabel" text="—" style="-fx-text-fill: white; -fx-font-size: 13;"/>
+                                        <Label text="ACCOUNT STATUS" style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35); -fx-font-family: monospace;"/>
+                                        <Label fx:id="statusInfoLabel" text="ACTIVE"
+                                               style="-fx-background-color: rgba(67,233,123,0.15);
+                                                      -fx-border-color: rgba(67,233,123,0.35);
+                                                      -fx-border-radius: 8; -fx-background-radius: 8;
+                                                      -fx-text-fill: #43e97b; -fx-font-size: 11;
+                                                      -fx-font-weight: bold; -fx-padding: 5 10;"/>
                                     </VBox>
                                 </GridPane>
                             </VBox>
@@ -217,23 +227,21 @@
                                                   -fx-background-radius: 10; -fx-font-size: 10; -fx-padding: 2 8;"/>
                                 </HBox>
                                 <Separator style="-fx-background-color: rgba(255,255,255,0.07);"/>
-
                                 <VBox fx:id="teamsEmptyState" alignment="CENTER" spacing="8"
                                       style="-fx-padding: 36;">
                                     <Label text="⬛" style="-fx-font-size: 40; -fx-opacity: 0.12;"/>
-                                    <Label text="No teams"
+                                    <Label text="No teams yet"
                                            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 14;"/>
                                     <Label text="This user hasn't joined any team yet."
                                            style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 12;"/>
                                 </VBox>
-
                                 <TableView fx:id="teamsTable" visible="false" managed="false"
                                            style="-fx-background-color: transparent; -fx-border-color: transparent;">
                                     <columns>
-                                        <TableColumn text="Team"     prefWidth="200"/>
-                                        <TableColumn text="Role"     prefWidth="120"/>
-                                        <TableColumn text="Status"   prefWidth="110"/>
-                                        <TableColumn text="Joined"   prefWidth="130"/>
+                                        <TableColumn text="Team"   prefWidth="200"/>
+                                        <TableColumn text="Role"   prefWidth="120"/>
+                                        <TableColumn text="Status" prefWidth="110"/>
+                                        <TableColumn text="Joined" prefWidth="130"/>
                                     </columns>
                                 </TableView>
                             </VBox>

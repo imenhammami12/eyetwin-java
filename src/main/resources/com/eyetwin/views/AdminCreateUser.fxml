@@ -1,56 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.eyetwin.controller.admin.AdminUserController"
-      spacing="0" prefWidth="580"
-      style="-fx-background-color: #0d0618; -fx-background-radius: 14;">
+      spacing="0"
+      prefWidth="640"
+      style="-fx-background-color: #0d0618;">
 
     <!-- Header -->
-    <VBox spacing="4"
-          style="-fx-background-color: linear-gradient(to bottom right,#667eea,#764ba2);
-                 -fx-padding: 22 24; -fx-background-radius: 14 14 0 0;">
-        <Label text="＋  Create User"
-               style="-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: white;"/>
-        <Label text="Fill in the details to add a new member to the platform."
-               style="-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.65);"/>
-    </VBox>
+    <HBox spacing="14"
+          alignment="CENTER_LEFT"
+          style="-fx-background-color: #5a6fd6; -fx-padding: 24;">
+        <StackPane style="-fx-background-color: #7b8fe0; -fx-background-radius: 12; -fx-min-width: 44; -fx-min-height: 44; -fx-max-width: 44; -fx-max-height: 44;">
+            <Label text="&#x1F464;" style="-fx-font-size: 20;"/>
+        </StackPane>
+        <VBox spacing="3">
+            <Label text="Create New User"
+                   style="-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Fill in the details to add a new member to the platform."
+                   style="-fx-font-size: 12; -fx-text-fill: #ccccff;"/>
+        </VBox>
+    </HBox>
 
     <!-- Scrollable form -->
-    <ScrollPane fitToWidth="true" maxHeight="540"
+    <ScrollPane fitToWidth="true" maxHeight="520"
                 style="-fx-background-color: transparent; -fx-background: transparent;">
-        <VBox spacing="18" style="-fx-padding: 24;">
+        <VBox spacing="20" style="-fx-padding: 26; -fx-background-color: #0d0618;">
 
             <!-- Row 1: Full Name + Username -->
             <HBox spacing="16">
 
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="👤  Full Name *"
-                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                    <TextField fx:id="createFullNameField" promptText="e.g. John Smith"
-                               style="-fx-background-color: rgba(255,255,255,0.05);
-                                      -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                      -fx-background-radius: 8; -fx-text-fill: white;
-                                      -fx-prompt-text-fill: rgba(255,255,255,0.3); -fx-padding: 9 12;"/>
+                <!-- Full Name -->
+                <VBox spacing="6" prefWidth="280">
+                    <Label text="Full Name *"
+                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #ddddee;"/>
+                    <TextField fx:id="createFullNameField"
+                               promptText="e.g. John Smith"
+                               prefWidth="270"
+                               style="-fx-background-color: #1e1530; -fx-border-color: #883355; -fx-border-radius: 9; -fx-background-radius: 9; -fx-text-fill: white; -fx-prompt-text-fill: #777788; -fx-padding: 10;"/>
                     <Label fx:id="errFullName" text="" visible="false" managed="false"
                            style="-fx-text-fill: #ff6b7a; -fx-font-size: 11;"/>
-                    <Label text="ℹ  Enter the user's full name"
-                           style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.3);"/>
+                    <Label text="Enter the user's full name"
+                           style="-fx-font-size: 10; -fx-text-fill: #777788;"/>
                 </VBox>
 
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="@  Username *"
-                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                    <TextField fx:id="createUsernameField" promptText="e.g. johnsmith"
-                               style="-fx-background-color: rgba(255,255,255,0.05);
-                                      -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                      -fx-background-radius: 8; -fx-text-fill: white;
-                                      -fx-prompt-text-fill: rgba(255,255,255,0.3); -fx-padding: 9 12;"/>
+                <!-- Username -->
+                <VBox spacing="6" prefWidth="280">
+                    <Label text="Username *"
+                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #ddddee;"/>
+                    <HBox spacing="0" prefWidth="270"
+                          style="-fx-background-color: #1e1530; -fx-border-color: #883355; -fx-border-radius: 9; -fx-background-radius: 9;">
+                        <Label text="@"
+                               style="-fx-background-color: #552233; -fx-background-radius: 9; -fx-text-fill: #eeddee; -fx-font-weight: bold; -fx-padding: 10;"/>
+                        <TextField fx:id="createUsernameField"
+                                   promptText="e.g. johnsmith"
+                                   prefWidth="230"
+                                   style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #777788; -fx-padding: 10;"/>
+                    </HBox>
                     <Label fx:id="errUsername" text="" visible="false" managed="false"
                            style="-fx-text-fill: #ff6b7a; -fx-font-size: 11;"/>
-                    <Label text="ℹ  3-50 chars: letters, digits, - and _"
-                           style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.3);"/>
+                    <Label text="3-50 chars: letters, digits, - and _"
+                           style="-fx-font-size: 10; -fx-text-fill: #777788;"/>
                 </VBox>
 
             </HBox>
@@ -58,112 +77,102 @@
             <!-- Row 2: Email + Password -->
             <HBox spacing="16">
 
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="✉  Email Address *"
-                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                    <TextField fx:id="createEmailField" promptText="e.g. john@example.com"
-                               style="-fx-background-color: rgba(255,255,255,0.05);
-                                      -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                      -fx-background-radius: 8; -fx-text-fill: white;
-                                      -fx-prompt-text-fill: rgba(255,255,255,0.3); -fx-padding: 9 12;"/>
+                <!-- Email -->
+                <VBox spacing="6" prefWidth="280">
+                    <Label text="Email Address *"
+                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #ddddee;"/>
+                    <TextField fx:id="createEmailField"
+                               promptText="e.g. john@example.com"
+                               prefWidth="270"
+                               style="-fx-background-color: #1e1530; -fx-border-color: #883355; -fx-border-radius: 9; -fx-background-radius: 9; -fx-text-fill: white; -fx-prompt-text-fill: #777788; -fx-padding: 10;"/>
                     <Label fx:id="errEmail" text="" visible="false" managed="false"
                            style="-fx-text-fill: #ff6b7a; -fx-font-size: 11;"/>
-                    <Label text="ℹ  Must be unique in the system"
-                           style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.3);"/>
+                    <Label text="Must be unique in the system"
+                           style="-fx-font-size: 10; -fx-text-fill: #777788;"/>
                 </VBox>
 
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="🔒  Password *"
-                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                    <StackPane>
-                        <PasswordField fx:id="createPasswordField" promptText="Minimum 6 characters"
-                                       style="-fx-background-color: rgba(255,255,255,0.05);
-                                              -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                              -fx-background-radius: 8; -fx-text-fill: white;
-                                              -fx-prompt-text-fill: rgba(255,255,255,0.3); -fx-padding: 9 36 9 12;"/>
-                        <TextField fx:id="createPasswordVisible" visible="false" managed="false"
-                                   promptText="Minimum 6 characters"
-                                   style="-fx-background-color: rgba(255,255,255,0.05);
-                                          -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                          -fx-background-radius: 8; -fx-text-fill: white;
-                                          -fx-prompt-text-fill: rgba(255,255,255,0.3); -fx-padding: 9 36 9 12;"/>
-                        <Button fx:id="createTogglePasswordBtn" text="👁" onAction="#handleTogglePassword"
-                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.4);
-                                       -fx-cursor: hand; -fx-font-size: 14;"
-                                StackPane.alignment="CENTER_RIGHT"/>
-                    </StackPane>
-                    <ProgressBar fx:id="createPasswordStrength" progress="0"
-                                 maxWidth="Infinity" prefHeight="4"
+                <!-- Password -->
+                <VBox spacing="6" prefWidth="280">
+                    <Label text="Password *"
+                           style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #ddddee;"/>
+                    <HBox spacing="0" prefWidth="270" alignment="CENTER_LEFT"
+                          style="-fx-background-color: #1e1530; -fx-border-color: #883355; -fx-border-radius: 9; -fx-background-radius: 9;">
+                        <PasswordField fx:id="createPasswordField"
+                                       promptText="Min 6 characters"
+                                       prefWidth="220"
+                                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #777788; -fx-padding: 10;"/>
+                        <TextField fx:id="createPasswordVisible"
+                                   promptText="Min 6 characters"
+                                   prefWidth="220"
+                                   visible="false"
+                                   managed="false"
+                                   style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #777788; -fx-padding: 10;"/>
+                        <Button fx:id="createTogglePasswordBtn"
+                                text="&#x1F441;"
+                                onAction="#handleTogglePassword"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #aaaacc; -fx-cursor: hand; -fx-font-size: 14; -fx-padding: 4;"/>
+                    </HBox>
+                    <ProgressBar fx:id="createPasswordStrength"
+                                 progress="0" prefWidth="270" prefHeight="4"
                                  style="-fx-accent: #ff6b6b;"/>
-                    <HBox alignment="CENTER_RIGHT">
+                    <HBox prefWidth="270">
                         <Label fx:id="createStrengthLabel" text=""
-                               style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.4);"/>
+                               style="-fx-font-size: 10; -fx-text-fill: #aaaacc;"/>
                     </HBox>
                     <Label fx:id="errPassword" text="" visible="false" managed="false"
                            style="-fx-text-fill: #ff6b7a; -fx-font-size: 11;"/>
+                    <Label text="Minimum 6 characters recommended"
+                           style="-fx-font-size: 10; -fx-text-fill: #777788;"/>
                 </VBox>
 
             </HBox>
 
             <!-- Row 3: Role -->
             <VBox spacing="8">
-                <Label text="🛡  Role *"
-                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                <ComboBox fx:id="createRoleCombo" maxWidth="Infinity"
-                          style="-fx-background-color: rgba(255,255,255,0.05);
-                                 -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
-                                 -fx-background-radius: 8;"/>
+                <Label text="User Role *"
+                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #ddddee;"/>
+                <ComboBox fx:id="createRoleCombo"
+                          prefWidth="576"
+                          style="-fx-background-color: #1e1530; -fx-border-color: #883355; -fx-border-radius: 9; -fx-background-radius: 9;"/>
                 <Label fx:id="errRole" text="" visible="false" managed="false"
                        style="-fx-text-fill: #ff6b7a; -fx-font-size: 11;"/>
-                <Label text="ℹ  Defines the user's permissions in the system"
-                       style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.3);"/>
-
-                <!-- Role description -->
+                <Label text="Defines the user's permissions in the system"
+                       style="-fx-font-size: 10; -fx-text-fill: #777788;"/>
                 <VBox fx:id="createRoleDescBox" spacing="4" visible="false" managed="false"
-                      style="-fx-background-color: rgba(102,126,234,0.1);
-                             -fx-border-color: rgba(102,126,234,0.3);
-                             -fx-border-width: 0 0 0 3; -fx-padding: 12 16;">
+                      style="-fx-background-color: #1a1a3a; -fx-border-color: #4a5aaa; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12;">
                     <Label fx:id="createRoleTitleLabel" text=""
                            style="-fx-text-fill: #a78bfa; -fx-font-weight: bold; -fx-font-size: 13;"/>
                     <Label fx:id="createRoleTextLabel" text="" wrapText="true"
-                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;"/>
+                           style="-fx-text-fill: #aaaacc; -fx-font-size: 12;"/>
                 </VBox>
             </VBox>
 
             <!-- Welcome email notice -->
             <HBox spacing="12" alignment="CENTER_LEFT"
-                  style="-fx-background-color: rgba(102,126,234,0.08);
-                         -fx-border-color: rgba(102,126,234,0.2);
-                         -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 14;">
-                <Label text="✉" style="-fx-font-size: 22; -fx-text-fill: #667eea;"/>
+                  style="-fx-background-color: #1a1a3a; -fx-border-color: #4a5aaa; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 14;">
                 <VBox spacing="2">
                     <Label text="Welcome Email"
                            style="-fx-text-fill: #a78bfa; -fx-font-weight: bold; -fx-font-size: 13;"/>
                     <Label text="A welcome email will automatically be sent to the new user."
-                           style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;" wrapText="true"/>
+                           wrapText="true"
+                           style="-fx-text-fill: #aaaacc; -fx-font-size: 12;"/>
                 </VBox>
             </HBox>
 
         </VBox>
     </ScrollPane>
 
-    <!-- Footer buttons -->
+    <!-- Footer -->
     <HBox spacing="10"
-          style="-fx-padding: 16 24;
-                 -fx-border-color: rgba(255,255,255,0.07) transparent transparent transparent;
-                 -fx-border-width: 1 0 0 0;">
-        <Button fx:id="createSubmitBtn" text="✓  Create User"
+          style="-fx-padding: 16; -fx-background-color: #0d0618; -fx-border-color: #333344; -fx-border-width: 1;">
+        <Button fx:id="createSubmitBtn"
+                text="Create User"
                 onAction="#handleCreateSubmit"
-                style="-fx-background-color: linear-gradient(to right,#667eea,#764ba2);
-                       -fx-text-fill: white; -fx-background-radius: 8;
-                       -fx-padding: 10 24; -fx-cursor: hand;
-                       -fx-font-weight: bold; -fx-font-size: 13;"/>
-        <Button fx:id="createCancelBtn" text="✕  Cancel"
+                style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 9; -fx-border-color: transparent; -fx-padding: 11; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 13;"/>
+        <Button fx:id="createCancelBtn"
+                text="Cancel"
                 onAction="#handleCreateCancel"
-                style="-fx-background-color: rgba(255,255,255,0.05);
-                       -fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8;
-                       -fx-background-radius: 8; -fx-text-fill: rgba(255,255,255,0.6);
-                       -fx-padding: 10 24; -fx-cursor: hand; -fx-font-size: 13;"/>
+                style="-fx-background-color: #1e1530; -fx-border-color: #444466; -fx-border-radius: 9; -fx-background-radius: 9; -fx-text-fill: #aaaacc; -fx-padding: 11; -fx-cursor: hand; -fx-font-size: 13;"/>
     </HBox>
 
 </VBox>
