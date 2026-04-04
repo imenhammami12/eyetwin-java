@@ -9,12 +9,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+
+// ✅ Charts
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+// ✅ Java collections
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class AdminDashboardController {
 
@@ -23,6 +34,16 @@ public class AdminDashboardController {
     @FXML private Label  pageTitle;
     @FXML private Label  usernameLabel;
     @FXML private Label  userAvatarInitial;
+
+    // Nouveaux @FXML pour les charts
+    @FXML private LineChart<String, Number> activityLineChart;
+    @FXML private CategoryAxis             lineChartXAxis;
+    @FXML private NumberAxis               lineChartYAxis;
+    @FXML private PieChart                 userPieChart;
+    @FXML private BarChart<String, Number> monthlyBarChart;
+    @FXML private Label                    adminsCountLabel;
+    @FXML private Label                    regularUsersLabel2;
+    @FXML private Label                    coachesCountLabel2;
 
     // KPI badges
     @FXML private Label userGrowthBadge;
@@ -93,7 +114,16 @@ public class AdminDashboardController {
     public void initialize() {
         adminSidebarController.setActivePage("dashboard");
         adminTopbarController.setTitle("Dashboard");
-
+        if (activityLineChart != null) {
+            URL cssUrl = getClass().getResource("/com/eyetwin/css/chart.css");
+            if (cssUrl != null) {
+                if (activityLineChart.getScene() != null) {
+                    activityLineChart.getScene().getStylesheets().add(cssUrl.toExternalForm());
+                } else {
+                    activityLineChart.getStylesheets().add(cssUrl.toExternalForm());
+                }
+            }
+        }
         if (!SessionManager.isAdmin()) {
             navigateTo("AdminLogin.fxml");
             return;
@@ -129,7 +159,7 @@ public class AdminDashboardController {
             try {
                 IStatsService s = new StatsServiceImpl();
 
-                // ── User stats ──
+                // User stats
                 int    totalUsers     = s.getTotalUsers();
                 int    activeUsers    = s.getActiveUsers();
                 int    suspendedUsers = s.getSuspendedUsers();
@@ -139,22 +169,23 @@ public class AdminDashboardController {
                 int    usersLast7     = s.getUsersLast7Days();
                 int    regularUsers   = s.getRegularUsers();
                 int    coaches        = s.countCoaches();
+                int    admins         = s.getTotalAdmins();
                 double growthRate     = s.getUserGrowthRate();
                 double avgPerDay      = s.getAvgUsersPerDay();
                 double activePct      = s.getActiveUsersPercentage();
 
-                // ── Team stats ──
-                int    totalTeams    = s.getTotalTeams();
-                int    activeTeams   = s.getActiveTeams();
-                int    inactiveTeams = s.getInactiveTeams();
-                int    teamsLast7    = s.getTeamsLast7Days();
-                int    teamsThisMonth= s.getTeamsThisMonth();
-                int    totalMembers  = s.getTotalMembers();
-                double teamGrowth    = s.getTeamGrowthRate();
-                double avgMembers    = s.getAvgMembersPerTeam();
-                double activeTeamPct = s.getActiveTeamsPercentage();
+                // Team stats
+                int    totalTeams     = s.getTotalTeams();
+                int    activeTeams    = s.getActiveTeams();
+                int    inactiveTeams  = s.getInactiveTeams();
+                int    teamsLast7     = s.getTeamsLast7Days();
+                int    teamsThisMonth = s.getTeamsThisMonth();
+                int    totalMembers   = s.getTotalMembers();
+                double teamGrowth     = s.getTeamGrowthRate();
+                double avgMembers     = s.getAvgMembersPerTeam();
+                double activeTeamPct  = s.getActiveTeamsPercentage();
 
-                // ── Application stats ──
+                // App stats
                 int    totalApps    = s.getTotalApplications();
                 int    pendingApps  = s.getPendingApplications();
                 int    approvedApps = s.getApprovedApplications();
@@ -164,9 +195,21 @@ public class AdminDashboardController {
                 int    appsLast30   = s.getApplicationsLast30Days();
                 double approvalRate = s.getApprovalRate();
 
-                Platform.runLater(() -> {
+                // Chart data
+                List<String>  labels     = s.getLast7DaysLabels();
+                List<Integer> usersChart = s.getUsersLast7DaysChart();
+                List<Integer> teamsChart = s.getTeamsLast7DaysChart();
+                List<Integer> appsChart  = s.getAppsLast7DaysChart();
 
-                    // ── KPI row ──
+                // Monthly comparison
+                int usersThisMonth = s.getUsersThisMonth();
+                int usersLastMonth = s.getUsersLastMonth();
+                int teamsLastMonth = s.getTeamsLastMonth();
+                int appsThisMonth  = s.getApplicationsLast30Days();
+                int appsLastMonth  = rejectedApps + approvedApps;
+
+                Platform.runLater(() -> {
+                    // KPI
                     setLabel(totalUsersLabel,          String.valueOf(totalUsers));
                     setLabel(totalTeamsLabel,          String.valueOf(totalTeams));
                     setLabel(pendingApplicationsLabel, String.valueOf(pendingApps));
@@ -177,14 +220,14 @@ public class AdminDashboardController {
                     setLabel(approvalRateSmall,        String.format("%.1f%% approved", approvalRate));
                     setLabel(usersLast7Badge,          usersLast7 + " this week");
 
-                    // ── User stats row ──
+                    // User stats
                     setLabel(totalUsersLabel2,         String.valueOf(totalUsers));
                     setLabel(activeUsersLabel,         String.valueOf(activeUsers));
                     setLabel(suspendedUsersLabel,      String.valueOf(suspendedUsers));
                     setLabel(bannedUsersLabel,         String.valueOf(bannedUsers));
                     setLabel(userGrowthRateLabel,      formatRate(growthRate));
 
-                    // ── Advanced metrics ──
+                    // Advanced metrics
                     setLabel(activeUsersPercentageLabel, String.format("%.1f%%", activePct));
                     setLabel(activeUsersDetailLabel,     activeUsers + " of " + totalUsers + " users");
                     setLabel(avgMembersPerTeamLabel,     String.format("%.1f", avgMembers));
@@ -194,20 +237,20 @@ public class AdminDashboardController {
                     setLabel(activeTeamsPercentageLabel, String.format("%.1f%%", activeTeamPct));
                     setLabel(activeTeamsDetailLabel,     activeTeams + " of " + totalTeams + " teams");
 
-                    // ── Progress bars ──
+                    // Progress bars
                     if (activeUsersProgress != null) activeUsersProgress.setProgress(activePct / 100.0);
                     if (approvalProgress    != null) approvalProgress.setProgress(approvalRate / 100.0);
                     if (activeTeamsProgress != null) activeTeamsProgress.setProgress(activeTeamPct / 100.0);
                     if (membersProgress     != null) membersProgress.setProgress(Math.min(avgMembers / 10.0, 1.0));
 
-                    // ── Team stats row ──
+                    // Teams
                     setLabel(totalTeamsLabel2,    String.valueOf(totalTeams));
                     setLabel(activeTeamsLabel,    String.valueOf(activeTeams));
                     setLabel(inactiveTeamsLabel,  String.valueOf(inactiveTeams));
                     setLabel(teamsLast7Label,     String.valueOf(teamsLast7));
                     setLabel(teamGrowthRateLabel, formatRate(teamGrowth));
 
-                    // ── Applications row ──
+                    // Applications
                     setLabel(totalApplicationsLabel,    String.valueOf(totalApps));
                     setLabel(pendingApplicationsLabel2, String.valueOf(pendingApps));
                     setLabel(approvedApplicationsLabel, String.valueOf(approvedApps));
@@ -215,15 +258,29 @@ public class AdminDashboardController {
                     setLabel(appsLast7Label,            String.valueOf(appsLast7));
                     setLabel(approvalRateLabel2,        String.format("%.1f%%", approvalRate));
 
-                    // ── Summary row ──
-                    setLabel(usersTodayLabel,    String.valueOf(usersToday));
+                    // Summary
+                    setLabel(usersTodayLabel,     String.valueOf(usersToday));
                     setLabel(usersYesterdayLabel, usersYesterday + " yesterday");
-                    setLabel(teamsLast7Label2,   String.valueOf(teamsLast7));
+                    setLabel(teamsLast7Label2,    String.valueOf(teamsLast7));
                     setLabel(teamsThisMonthLabel, teamsThisMonth + " this month");
-                    setLabel(appsLast7Label2,    String.valueOf(appsLast7));
-                    setLabel(appsLast30Label,    appsLast30 + " (30 days)");
-                    setLabel(regularUsersLabel,  String.valueOf(regularUsers));
-                    setLabel(coachesCountLabel,  coaches + " coaches");
+                    setLabel(appsLast7Label2,     String.valueOf(appsLast7));
+                    setLabel(appsLast30Label,     appsLast30 + " (30 days)");
+                    setLabel(regularUsersLabel,   String.valueOf(regularUsers));
+                    setLabel(coachesCountLabel,   coaches + " coaches");
+                    setLabel(regularUsersLabel2,  String.valueOf(regularUsers));
+                    setLabel(coachesCountLabel2,  coaches + " coaches");
+                    setLabel(adminsCountLabel,    String.valueOf(admins));
+
+                    // ══ LINE CHART ══
+                    setupLineChart(labels, usersChart, teamsChart, appsChart);
+
+                    // ══ PIE CHART ══
+                    setupPieChart(regularUsers, coaches, admins);
+
+                    // ══ BAR CHART ══
+                    setupBarChart(usersThisMonth, usersLastMonth,
+                            teamsThisMonth, teamsLastMonth,
+                            appsLast7, appsLastMonth);
                 });
 
             } catch (Exception e) {
@@ -231,6 +288,83 @@ public class AdminDashboardController {
                 e.printStackTrace();
             }
         }, "DashboardStats").start();
+    }
+
+    private void setupLineChart(List<String> labels,
+                                List<Integer> users,
+                                List<Integer> teams,
+                                List<Integer> apps) {
+        if (activityLineChart == null) return;
+
+        activityLineChart.setAnimated(true);
+        activityLineChart.setCreateSymbols(true);
+        activityLineChart.setLegendVisible(true);
+
+        URL cssUrl = getClass().getResource("/com/eyetwin/css/chart.css");
+        if (cssUrl != null)
+            activityLineChart.getStylesheets().add(cssUrl.toExternalForm());
+
+        XYChart.Series<String, Number> userSeries = new XYChart.Series<>();
+        userSeries.setName("Users");
+        XYChart.Series<String, Number> teamSeries = new XYChart.Series<>();
+        teamSeries.setName("Teams");
+        XYChart.Series<String, Number> appSeries  = new XYChart.Series<>();
+        appSeries.setName("Applications");
+
+        for (int i = 0; i < labels.size(); i++) {
+            userSeries.getData().add(new XYChart.Data<>(labels.get(i), users.get(i)));
+            teamSeries.getData().add(new XYChart.Data<>(labels.get(i), teams.get(i)));
+            appSeries.getData().add(new XYChart.Data<>(labels.get(i),  apps.get(i)));
+        }
+
+        activityLineChart.getData().clear();
+        activityLineChart.getData().addAll(userSeries, teamSeries, appSeries);
+
+        activityLineChart.lookupAll(".chart-series-line").forEach(n ->
+                n.setStyle("-fx-stroke-width: 2.5;"));
+    }
+
+    private void setupPieChart(int regular, int coaches, int admins) {
+        if (userPieChart == null) return;
+        userPieChart.setAnimated(true);
+        userPieChart.setLegendVisible(false);
+        userPieChart.getData().clear();
+        if (regular + coaches + admins == 0) return;
+
+        PieChart.Data d1 = new PieChart.Data("Users",   regular);
+        PieChart.Data d2 = new PieChart.Data("Coaches", coaches);
+        PieChart.Data d3 = new PieChart.Data("Admins",  admins);
+        userPieChart.getData().addAll(d1, d2, d3);
+
+        Platform.runLater(() -> {
+            if (d1.getNode() != null) d1.getNode().setStyle("-fx-pie-color: #667eea;");
+            if (d2.getNode() != null) d2.getNode().setStyle("-fx-pie-color: #f093fb;");
+            if (d3.getNode() != null) d3.getNode().setStyle("-fx-pie-color: #4facfe;");
+        });
+    }
+
+    private void setupBarChart(int usersThis, int usersLast,
+                               int teamsThis, int teamsLast,
+                               int appsThis,  int appsLast) {
+        if (monthlyBarChart == null) return;
+        monthlyBarChart.setAnimated(true);
+        monthlyBarChart.setLegendVisible(true);
+        monthlyBarChart.getData().clear();
+
+        XYChart.Series<String, Number> thisMonth = new XYChart.Series<>();
+        thisMonth.setName("This Month");
+        XYChart.Series<String, Number> lastMonth = new XYChart.Series<>();
+        lastMonth.setName("Last Month");
+
+        thisMonth.getData().add(new XYChart.Data<>("Users", usersThis));
+        thisMonth.getData().add(new XYChart.Data<>("Teams", teamsThis));
+        thisMonth.getData().add(new XYChart.Data<>("Apps",  appsThis));
+
+        lastMonth.getData().add(new XYChart.Data<>("Users", usersLast));
+        lastMonth.getData().add(new XYChart.Data<>("Teams", teamsLast));
+        lastMonth.getData().add(new XYChart.Data<>("Apps",  appsLast));
+
+        monthlyBarChart.getData().addAll(thisMonth, lastMonth);
     }
 
     private String formatRate(double rate) {

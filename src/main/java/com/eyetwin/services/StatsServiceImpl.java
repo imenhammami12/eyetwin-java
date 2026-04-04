@@ -4,6 +4,10 @@ import com.eyetwin.interfaces.IStatsService;
 import com.eyetwin.tools.DatabaseConfig;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * StatsServiceImpl — implémentation de IStatsService.
@@ -163,5 +167,49 @@ import java.sql.*;
             System.err.println("❌ StatsServiceImpl: " + e.getMessage());
         }
         return 0;
+    }
+
+
+    // Dans StatsServiceImpl — implémentation
+    @Override
+    public List<Integer> getUsersLast7DaysChart() {
+        return getLast7DaysData("SELECT COUNT(*) FROM `user` WHERE DATE(created_at) = ?");
+    }
+
+    @Override
+    public List<Integer> getTeamsLast7DaysChart() {
+        return getLast7DaysData("SELECT COUNT(*) FROM `team` WHERE DATE(created_at) = ?");
+    }
+
+    @Override
+    public List<Integer> getAppsLast7DaysChart() {
+        return getLast7DaysData("SELECT COUNT(*) FROM `coach_application` WHERE DATE(submitted_at) = ?");
+    }
+
+    @Override
+    public List<String> getLast7DaysLabels() {
+        List<String> labels = new ArrayList<>();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate d = LocalDate.now().minusDays(i);
+            labels.add(d.format(DateTimeFormatter.ofPattern("dd/MM")));
+        }
+        return labels;
+    }
+
+    private List<Integer> getLast7DaysData(String sql) {
+        List<Integer> data = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 6; i >= 0; i--) {
+                stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now().minusDays(i)));
+                try (ResultSet rs = stmt.executeQuery()) {
+                    data.add(rs.next() ? rs.getInt(1) : 0);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ getLast7DaysData: " + e.getMessage());
+            for (int i = 0; i < 7; i++) data.add(0);
+        }
+        return data;
     }
 }

@@ -1,5 +1,8 @@
 package com.eyetwin.services;
 
+import com.eyetwin.entities.MemberRole;
+import com.eyetwin.entities.MembershipStatus;
+import com.eyetwin.entities.TeamMembership;
 import com.eyetwin.entities.User;
 import com.eyetwin.interfaces.IUserService;
 import com.eyetwin.tools.DatabaseConfig;
@@ -8,6 +11,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * UserServiceImpl — implémentation de IUserService.
@@ -54,6 +59,24 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
+    //  FIND BY USERNAME
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public User findByUsername(String username) {
+        String sql = "SELECT * FROM `user` WHERE username = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapUser(rs);
+        } catch (SQLException e) {
+            System.err.println("❌ findByUsername: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  EMAIL EXISTS
     // ════════════════════════════════════════════════════════════
 
@@ -68,6 +91,24 @@ public class UserServiceImpl implements IUserService {
             System.err.println("❌ emailExists: " + e.getMessage());
             return false;
         }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GET ALL USERS
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public List<User> getAllUsers() {
+        String sql = "SELECT * FROM `user` ORDER BY created_at DESC";
+        List<User> users = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) users.add(mapUser(rs));
+        } catch (SQLException e) {
+            System.err.println("❌ getAllUsers: " + e.getMessage());
+        }
+        return users;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -89,7 +130,7 @@ public class UserServiceImpl implements IUserService {
             stmt.setString(2, username);
             stmt.setString(3, "[\"ROLE_USER\"]");
             stmt.setString(4, hashedPassword);
-            stmt.setString(5, "ACTIVE");
+            stmt.setString(5, "active");
             stmt.setString(6, fullName);
             stmt.executeUpdate();
             return true;
@@ -161,7 +202,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  LOGIN — logique métier (ex-AuthService)
+    //  LOGIN
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -185,10 +226,10 @@ public class UserServiceImpl implements IUserService {
 
         String status = user.getAccountStatus();
         if (status == null || status.isBlank()) return null;
-        switch (status.toUpperCase()) {
-            case "ACTIVE"    -> {}
-            case "BANNED"    -> throw new IllegalStateException("Your account has been banned.");
-            case "SUSPENDED" -> throw new IllegalStateException("Your account is suspended.");
+        switch (status.toLowerCase()) {
+            case "active"    -> {}
+            case "banned"    -> throw new IllegalStateException("Your account has been banned.");
+            case "suspended" -> throw new IllegalStateException("Your account is suspended.");
             default          -> throw new IllegalStateException("Account not active: " + status);
         }
 
@@ -198,7 +239,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  REGISTER — logique métier (ex-AuthService)
+    //  REGISTER
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -282,6 +323,153 @@ public class UserServiceImpl implements IUserService {
     @Override
     public boolean isLoggedIn() {
         return SessionManager.getCurrentUser() != null;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ADMIN — CREATE USER
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public void adminCreateUser(String fullName, String username,
+                                String email, String plainPassword,
+                                String role) throws Exception {
+        if (findByUsername(username) != null)
+            throw new Exception("Username \"" + username + "\" est déjà pris.");
+        if (emailExists(email))
+            throw new Exception("Email \"" + email + "\" est déjà enregistré.");
+
+        String hashed = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+        String rolesJson = "[\"" + role + "\"]";
+        // ROLE_USER toujours inclus sauf si c'est déjà ROLE_USER
+        if (!role.equals("ROLE_USER")) {
+            rolesJson = "[\"" + role + "\",\"ROLE_USER\"]";
+        }
+
+        String sql = "INSERT INTO `user` " +
+                "(email, username, roles_json, password, account_status, " +
+                " full_name, created_at, last_login, coin_balance, is_totp_enabled) " +
+                "VALUES (?, ?, ?, ?, 'active', ?, NOW(), NOW(), 0, 0)";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, username);
+            stmt.setString(3, rolesJson);
+            stmt.setString(4, hashed);
+            stmt.setString(5, fullName);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new Exception("Erreur SQL adminCreateUser : " + e.getMessage());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ADMIN — UPDATE ROLE
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public void updateUserRole(int userId, String newRole) throws Exception {
+        String rolesJson = newRole.equals("ROLE_USER")
+                ? "[\"ROLE_USER\"]"
+                : "[\"" + newRole + "\",\"ROLE_USER\"]";
+
+        String sql = "UPDATE `user` SET roles_json = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, rolesJson);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new Exception("Erreur SQL updateUserRole : " + e.getMessage());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ADMIN — SUSPEND / BAN / ACTIVATE / DELETE
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public void suspendUser(int userId) throws Exception {
+        updateStatus(userId, "suspended");
+    }
+
+    @Override
+    public void banUser(int userId) throws Exception {
+        updateStatus(userId, "banned");
+    }
+
+    @Override
+    public void activateUser(int userId) throws Exception {
+        updateStatus(userId, "active");
+    }
+
+    private void updateStatus(int userId, String status) throws Exception {
+        String sql = "UPDATE `user` SET account_status = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new Exception("Erreur SQL updateStatus : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteUser(int userId) throws Exception {
+        String sql = "DELETE FROM `user` WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new Exception("Erreur SQL deleteUser : " + e.getMessage());
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  GET TEAM MEMBERSHIPS
+    // ════════════════════════════════════════════════════════════
+
+    @Override
+    public List<TeamMembership> getTeamMemberships(int userId) {
+        String sql = "SELECT * FROM `team_membership` WHERE user_id = ?";
+        List<TeamMembership> list = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                TeamMembership tm = new TeamMembership();
+                tm.setId(rs.getInt("id"));
+                tm.setTeamId(rs.getInt("team_id"));
+                tm.setUserId(rs.getInt("user_id"));
+
+                // MemberRole enum
+                String roleStr = rs.getString("role");
+                if (roleStr != null) {
+                    try { tm.setRole(MemberRole.valueOf(roleStr.toUpperCase())); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+
+                // MembershipStatus enum
+                String statusStr = rs.getString("status");
+                if (statusStr != null) {
+                    try { tm.setStatus(MembershipStatus.valueOf(statusStr.toUpperCase())); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+
+                Timestamp invitedAt = rs.getTimestamp("invited_at");
+                if (invitedAt != null) tm.setInvitedAt(invitedAt.toLocalDateTime());
+
+                Timestamp joinedAt = rs.getTimestamp("joined_at");
+                if (joinedAt != null) tm.setJoinedAt(joinedAt.toLocalDateTime());
+
+                list.add(tm);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ getTeamMemberships: " + e.getMessage());
+        }
+        return list;
     }
 
     // ════════════════════════════════════════════════════════════

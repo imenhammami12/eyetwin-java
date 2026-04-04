@@ -15,11 +15,11 @@
             prefWidth="1280" prefHeight="800">
 
     <left>
-        <fx:include source="admin-sidebar.fxml" fx:id="adminSidebar"/>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
     </left>
 
     <top>
-        <fx:include source="admin-topbar.fxml" fx:id="adminTopbar"/>
+        <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
     </top>
 
 
