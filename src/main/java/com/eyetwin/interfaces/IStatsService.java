@@ -1,5 +1,7 @@
 package com.eyetwin.interfaces;
 
+import java.util.List;
+
 public interface IStatsService {
     // ── Existants ──
     int countPlayers();
@@ -47,4 +49,9 @@ public interface IStatsService {
     int getApplicationsLast7Days();
     int getApplicationsLast30Days();
     double getApprovalRate();
+    // Dans IStatsService — ajoute ces méthodes
+    List<Integer> getUsersLast7DaysChart();   // 1 valeur par jour
+    List<Integer> getTeamsLast7DaysChart();
+    List<Integer> getAppsLast7DaysChart();
+    List<String>  getLast7DaysLabels();
 }

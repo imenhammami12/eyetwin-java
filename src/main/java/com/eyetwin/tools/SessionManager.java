@@ -30,6 +30,7 @@ public class SessionManager {
     private static boolean openSecurityTab = false;
 
     private static final IUserService userService = new UserServiceImpl();
+    private static User selectedUser = null;
 
     // ─────────────────────────────────────────────────────────
     //  État de session
@@ -292,6 +293,18 @@ public class SessionManager {
         }
     }
 
+    public static void setSelectedUser(User user) {
+        selectedUser = user;
+    }
+
+    public static User getSelectedUser() {
+        return selectedUser;
+    }
+
+    public static void clearSelectedUser() {
+        selectedUser = null;
+    }
+
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
     // ─────────────────────────────────────────────────────────
@@ -303,6 +316,7 @@ public class SessionManager {
         twoFactorCompleted  = false;
         pendingFlashType    = null;
         pendingFlashMessage = null;
+ selectedUser = null;
 
         openSecurityTab = false;
         pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email
