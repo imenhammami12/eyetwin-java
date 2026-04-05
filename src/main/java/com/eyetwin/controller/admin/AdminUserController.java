@@ -1,5 +1,7 @@
 package com.eyetwin.controller.admin;
 
+import com.eyetwin.entities.MemberRole;
+import com.eyetwin.entities.MembershipStatus;
 import com.eyetwin.entities.User;
 import com.eyetwin.entities.TeamMembership;
 import com.eyetwin.interfaces.IUserService;
@@ -104,7 +106,14 @@ public class AdminUserController {
     @FXML private Label statusInfoLabel;
     @FXML private Label teamsBadge;
     @FXML private VBox  teamsEmptyState;
-    @FXML private TableView<?> teamsTable;
+
+
+    @FXML private TableView<TeamMembership>           teamsTable;
+    @FXML private TableColumn<TeamMembership, String> colTeamName;
+    @FXML private TableColumn<TeamMembership, String> colTeamRole;
+    @FXML private TableColumn<TeamMembership, String> colTeamStatus;
+    @FXML private TableColumn<TeamMembership, String> colTeamJoined;
+
 
     @FXML private TextField        createFullNameField;
     @FXML private TextField        createUsernameField;
@@ -1146,11 +1155,211 @@ public class AdminUserController {
         int teamCount = memberships != null ? memberships.size() : 0;
         setLabel(teamsBadge, String.valueOf(teamCount));
         showNode(teamsEmptyState, teamCount == 0);
-        if (teamsTable != null) { teamsTable.setVisible(teamCount > 0); teamsTable.setManaged(teamCount > 0); }
+        if (teamsTable != null) {
+            if (teamCount > 0) {
+                setupTeamsTable();
+                teamsTable.setItems(FXCollections.observableArrayList(memberships));
+                applyTeamsTableTheme();
+            }
+            showNode(teamsTable, teamCount > 0);
+        }
     }
 
     private List<TeamMembership> loadTeamMemberships(int userId) {
         try { return userService.getTeamMemberships(userId); } catch (Exception e) { return List.of(); }
+    }
+
+    // ── Setup cellules du tableau Teams ──────────────────────────
+    private void setupTeamsTable() {
+        if (teamsTable == null) return;
+
+        // ── Colonne Team Name ─────────────────────────────────────
+        if (colTeamName != null) {
+            colTeamName.setCellValueFactory(d -> {
+                TeamMembership m = d.getValue();
+                // getTeam() est maintenant toujours non-null (JOIN dans le service)
+                String name = (m.getTeam() != null && m.getTeam().getName() != null)
+                        ? m.getTeam().getName()
+                        : "Team #" + m.getTeamId();
+                return new SimpleStringProperty(name);
+            });
+            colTeamName.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); return; }
+                    Label icon = new Label("👥");
+                    icon.setStyle("-fx-font-size:13;");
+                    Label lbl = new Label(item);
+                    lbl.setStyle(
+                            "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;");
+                    HBox box = new HBox(8, icon, lbl);
+                    box.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(box);
+                    setText(null);
+                }
+            });
+        }
+
+        // ── Colonne Role ──────────────────────────────────────────
+        if (colTeamRole != null) {
+            colTeamRole.setCellValueFactory(d -> {
+                MemberRole r = d.getValue().getRole();
+                return new SimpleStringProperty(r != null ? r.name() : "MEMBER");
+            });
+            colTeamRole.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); return; }
+                    boolean isOwner  = "OWNER".equals(item) || "LEADER".equals(item);
+                    boolean isCaptain= "CAPTAIN".equals(item);
+                    String bg, border, color, prefix;
+                    if (isOwner) {
+                        bg="#fbbf2420"; border="rgba(251,191,36,0.50)";
+                        color="#fbbf24"; prefix="👑 ";
+                    } else if (isCaptain) {
+                        bg="rgba(245,166,35,0.15)"; border="rgba(245,166,35,0.45)";
+                        color="#f5a623"; prefix="⭐ ";
+                    } else {
+                        bg="rgba(79,172,254,0.15)"; border="rgba(79,172,254,0.45)";
+                        color="#4facfe"; prefix="";
+                    }
+                    Label badge = new Label(prefix + item);
+                    badge.setStyle(
+                            "-fx-background-color:" + bg + ";"
+                                    + "-fx-border-color:" + border + ";"
+                                    + "-fx-border-width:1;-fx-background-radius:8;"
+                                    + "-fx-border-radius:8;-fx-text-fill:" + color + ";"
+                                    + "-fx-font-size:11;-fx-font-weight:bold;-fx-padding:4 10;");
+                    setGraphic(badge);
+                    setText(null);
+                }
+            });
+        }
+
+        // ── Colonne Status ────────────────────────────────────────
+        if (colTeamStatus != null) {
+            colTeamStatus.setCellValueFactory(d -> {
+                MembershipStatus s = d.getValue().getStatus();
+                return new SimpleStringProperty(s != null ? s.name() : "UNKNOWN");
+            });
+            colTeamStatus.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); return; }
+                    String bg, border, color;
+                    switch (item) {
+                        case "ACTIVE"   -> { bg="rgba(67,233,123,0.15)";  border="rgba(67,233,123,0.45)";  color="#43e97b"; }
+                        case "INVITED"  -> { bg="rgba(79,172,254,0.15)";  border="rgba(79,172,254,0.45)";  color="#4facfe"; }
+                        case "PENDING"  -> { bg="rgba(255,193,7,0.15)";   border="rgba(255,193,7,0.45)";   color="#ffd54f"; }
+                        case "INACTIVE",
+                             "LEFT"     -> { bg="rgba(255,60,100,0.15)";  border="rgba(255,60,100,0.45)";  color="#ff6b7a"; }
+                        default         -> { bg="rgba(255,255,255,0.08)"; border="rgba(255,255,255,0.20)"; color="rgba(255,255,255,0.60)"; }
+                    }
+                    Label badge = new Label(item);
+                    badge.setStyle(
+                            "-fx-background-color:" + bg + ";"
+                                    + "-fx-border-color:" + border + ";"
+                                    + "-fx-border-width:1;-fx-background-radius:8;"
+                                    + "-fx-border-radius:8;-fx-text-fill:" + color + ";"
+                                    + "-fx-font-size:11;-fx-font-weight:bold;-fx-padding:4 10;");
+                    setGraphic(badge);
+                    setText(null);
+                }
+            });
+        }
+
+        // ── Colonne Joined ────────────────────────────────────────
+        if (colTeamJoined != null) {
+            colTeamJoined.setCellValueFactory(d -> {
+                java.time.LocalDateTime dt = d.getValue().getJoinedAt();
+                return new SimpleStringProperty(
+                        dt != null ? dt.toString().substring(0, 10) : "Pending");
+            });
+            colTeamJoined.setCellFactory(col -> new TableCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setText(null); return; }
+                    setText(item);
+                    setStyle(
+                            "-fx-text-fill:" + ("Pending".equals(item)
+                                    ? "rgba(255,193,7,0.70)" : "rgba(255,255,255,0.55)") + ";"
+                                    + "-fx-font-size:12;-fx-padding:0 16;");
+                }
+            });
+        }
+    }
+    // ── Applique le thème sombre gaming au tableau Teams ──────────
+    private void applyTeamsTableTheme() {
+        if (teamsTable == null) return;
+
+        teamsTable.setStyle(
+                "-fx-background-color:transparent;"
+                        + "-fx-border-color:transparent;"
+                        + "-fx-table-cell-border-color:transparent;"
+                        + "-fx-control-inner-background:rgba(20,10,35,0.80);"
+                        + "-fx-control-inner-background-alt:rgba(30,15,45,0.60);");
+
+        // Row factory sombre
+        teamsTable.setRowFactory(tv -> {
+            TableRow<TeamMembership> row = new TableRow<>() {
+                @Override protected void updateItem(TeamMembership m, boolean empty) {
+                    super.updateItem(m, empty);
+                    if (empty || m == null) {
+                        setStyle("-fx-background-color:transparent;"
+                                + "-fx-border-color:transparent;");
+                    } else {
+                        String bg = (getIndex() % 2 == 0)
+                                ? "rgba(20,10,35,0.85)" : "rgba(30,15,45,0.70)";
+                        setStyle("-fx-background-color:" + bg + ";"
+                                + "-fx-background-radius:8;"
+                                + "-fx-border-color:rgba(255,255,255,0.05);"
+                                + "-fx-border-width:1;-fx-border-radius:8;");
+                    }
+                }
+            };
+            row.setOnMouseEntered(e -> {
+                if (!row.isEmpty()) row.setStyle(
+                        "-fx-background-color:rgba(255,255,255,0.07);"
+                                + "-fx-background-radius:8;"
+                                + "-fx-border-color:rgba(102,126,234,0.35);"
+                                + "-fx-border-width:1;-fx-border-radius:8;-fx-cursor:hand;");
+            });
+            row.setOnMouseExited(e -> {
+                if (!row.isEmpty()) {
+                    String bg = (row.getIndex() % 2 == 0)
+                            ? "rgba(20,10,35,0.85)" : "rgba(30,15,45,0.70)";
+                    row.setStyle("-fx-background-color:" + bg + ";"
+                            + "-fx-background-radius:8;"
+                            + "-fx-border-color:rgba(255,255,255,0.05);"
+                            + "-fx-border-width:1;-fx-border-radius:8;");
+                }
+            });
+            return row;
+        });
+
+        // Headers sombres — double runLater pour attendre le layout JavaFX
+        Platform.runLater(() -> Platform.runLater(() -> {
+            javafx.scene.Node hBg = teamsTable.lookup(".column-header-background");
+            if (hBg != null)
+                hBg.setStyle("-fx-background-color:rgba(8,4,16,0.98);-fx-padding:0;");
+
+            javafx.scene.Node filler =
+                    teamsTable.lookup(".column-header-background .filler");
+            if (filler != null)
+                filler.setStyle("-fx-background-color:rgba(8,4,16,0.98);");
+
+            teamsTable.lookupAll(".column-header").forEach(n -> n.setStyle(
+                    "-fx-background-color:rgba(8,4,16,0.98);"
+                            + "-fx-border-color:transparent transparent "
+                            + "rgba(102,126,234,0.35) transparent;"
+                            + "-fx-border-width:0 0 1 0;-fx-size:44px;"));
+
+            teamsTable.lookupAll(".column-header .label").forEach(n -> n.setStyle(
+                    "-fx-text-fill:rgba(255,255,255,0.90);"
+                            + "-fx-font-weight:bold;-fx-font-size:11px;"
+                            + "-fx-background-color:transparent;"
+                            + "-fx-alignment:CENTER_LEFT;-fx-padding:0 16;"));
+        }));
     }
 
     @FXML public void handleUpdateRole() {

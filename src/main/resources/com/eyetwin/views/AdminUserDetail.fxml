@@ -215,37 +215,58 @@
                             </VBox>
 
                             <!-- Teams -->
+                            <!-- Teams -->
                             <VBox spacing="0"
                                   style="-fx-background-color: rgba(255,255,255,0.02);
-                                         -fx-border-color: rgba(255,255,255,0.07);
-                                         -fx-border-radius: 14; -fx-background-radius: 14;">
+             -fx-border-color: rgba(255,255,255,0.07);
+             -fx-border-radius: 14; -fx-background-radius: 14;">
+
                                 <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 14 16;">
-                                    <Label text="⬛  Teams"
+                                    <Label text="👥  Teams"
                                            style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;"/>
                                     <Label fx:id="teamsBadge" text="0"
-                                           style="-fx-background-color: #667eea; -fx-text-fill: white;
-                                                  -fx-background-radius: 10; -fx-font-size: 10; -fx-padding: 2 8;"/>
+                                           style="-fx-background-color: rgba(102,126,234,0.25);
+                      -fx-border-color: rgba(102,126,234,0.50);
+                      -fx-border-radius: 10; -fx-background-radius: 10;
+                      -fx-text-fill: #a5b4fc; -fx-font-size: 10;
+                      -fx-font-weight: bold; -fx-padding: 2 8;"/>
                                 </HBox>
+
                                 <Separator style="-fx-background-color: rgba(255,255,255,0.07);"/>
+
+                                <!-- Empty state -->
                                 <VBox fx:id="teamsEmptyState" alignment="CENTER" spacing="8"
                                       style="-fx-padding: 36;">
-                                    <Label text="⬛" style="-fx-font-size: 40; -fx-opacity: 0.12;"/>
+                                    <Label text="👥"
+                                           style="-fx-font-size: 36; -fx-opacity: 0.15;"/>
                                     <Label text="No teams yet"
-                                           style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 14;"/>
+                                           style="-fx-text-fill: rgba(255,255,255,0.50);
+                      -fx-font-size: 14; -fx-font-weight: bold;"/>
                                     <Label text="This user hasn't joined any team yet."
-                                           style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 12;"/>
+                                           style="-fx-text-fill: rgba(255,255,255,0.30); -fx-font-size: 12;"/>
                                 </VBox>
-                                <TableView fx:id="teamsTable" visible="false" managed="false"
-                                           style="-fx-background-color: transparent; -fx-border-color: transparent;">
-                                    <columns>
-                                        <TableColumn text="Team"   prefWidth="200"/>
-                                        <TableColumn text="Role"   prefWidth="120"/>
-                                        <TableColumn text="Status" prefWidth="110"/>
-                                        <TableColumn text="Joined" prefWidth="130"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
 
+                                <!-- Table — fx:id sur les 4 colonnes -->
+                                <TableView fx:id="teamsTable" visible="false" managed="false"
+                                           prefHeight="220"
+                                           style="-fx-background-color: transparent;
+                      -fx-border-color: transparent;
+                      -fx-table-cell-border-color: transparent;
+                      -fx-control-inner-background: rgba(20,10,35,0.80);
+                      -fx-control-inner-background-alt: rgba(30,15,45,0.60);">
+                                    <columns>
+                                        <TableColumn fx:id="colTeamName"   text="Team"   prefWidth="185"/>
+                                        <TableColumn fx:id="colTeamRole"   text="Role"   prefWidth="130"/>
+                                        <TableColumn fx:id="colTeamStatus" text="Status" prefWidth="115"/>
+                                        <TableColumn fx:id="colTeamJoined" text="Joined" prefWidth="130"/>
+                                    </columns>
+                                    <placeholder>
+                                        <Label text="No teams found"
+                                               style="-fx-text-fill: rgba(255,255,255,0.30); -fx-font-size: 13;"/>
+                                    </placeholder>
+                                </TableView>
+
+                            </VBox>
                         </VBox>
                     </HBox>
 
