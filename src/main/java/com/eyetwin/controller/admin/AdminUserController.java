@@ -1200,20 +1200,31 @@ public class AdminUserController {
 
     private void setupCreateRoleCombo() {
         if (createRoleCombo == null) return;
-        createRoleCombo.setItems(FXCollections.observableArrayList("ROLE_USER","ROLE_COACH","ROLE_ADMIN"));
+
+        // Construire la liste selon le rang de l'admin connecté
+        java.util.List<String> roles = new java.util.ArrayList<>();
+        roles.add("ROLE_USER");
+        roles.add("ROLE_COACH");
+        roles.add("ROLE_ADMIN");
+        if (SessionManager.isSuperAdmin()) {
+            roles.add("ROLE_SUPER_ADMIN");
+        }
+        createRoleCombo.setItems(FXCollections.observableArrayList(roles));
         createRoleCombo.setValue("ROLE_USER");
 
-        // ── cellFactory avec fond sombre (même pattern que roleFilterCombo) ──
         createRoleCombo.setCellFactory(lv -> new ListCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty && item != null) {
                     setText(roleDisplayName(item));
-                    setDisable("ROLE_ADMIN".equals(item) && !SessionManager.isSuperAdmin());
+                    // Admin → Super Admin only. Super Admin → Super Admin only
+                    boolean restricted = ("ROLE_ADMIN".equals(item) || "ROLE_SUPER_ADMIN".equals(item))
+                            && !SessionManager.isSuperAdmin();
+                    setDisable(restricted);
+                    setOpacity(restricted ? 0.4 : 1.0);
                 } else {
                     setText(null);
                 }
-                // ← CLEF : fond sombre forcé sur chaque cellule
                 setStyle(
                         "-fx-background-color:" + BG_FIELD + ";" +
                                 "-fx-text-fill:rgba(255,255,255,0.85);" +
@@ -1222,7 +1233,6 @@ public class AdminUserController {
             }
         });
 
-        // ── buttonCell (cellule affichée quand le combo est fermé) ──
         createRoleCombo.setButtonCell(new ListCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -1235,7 +1245,6 @@ public class AdminUserController {
             }
         });
 
-        // ── Popup (la liste déroulante) — style sombre + hover rouge ──
         createRoleCombo.showingProperty().addListener((obs, wasShowing, isShowing) -> {
             if (!isShowing) return;
             Platform.runLater(() -> {
@@ -1251,7 +1260,6 @@ public class AdminUserController {
                                         "-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.6),20,0,0,4);"
                         );
                     }
-                    // Style + hover sur chaque cellule du popup
                     applyDarkCellsToPopup(w.getScene().getRoot());
                 }
             });
@@ -1289,83 +1297,101 @@ public class AdminUserController {
     private void updateRoleDesc(String role) {
         if (createRoleDescBox == null) return;
 
-        String title, text;
+        String emoji, title, text, accentColor;
         switch (nvl(role, "")) {
-            case "ROLE_COACH" -> { title = "⚡  Coach";         text = "All User permissions + create teams and manage members."; }
-            case "ROLE_ADMIN" -> { title = "🛡  Administrator"; text = "Full access: manage all users, teams, content and settings."; }
-            default           -> { title = "🎮  User";          text = "Can join teams, participate in activities and manage their profile."; }
+            case "ROLE_COACH" -> {
+                emoji       = "⚡";
+                title       = "Coach";
+                text        = "All User permissions + can host live streams and earn revenue from user subscriptions and tips.";
+                accentColor = "#f5a623";
+            }
+            case "ROLE_ADMIN" -> {
+                emoji       = "🛡";
+                title       = "Administrator";
+                text        = "Full platform access: manage all users, teams, content, tournaments and system settings.";
+                accentColor = "#ff3c64";
+            }
+            case "ROLE_SUPER_ADMIN" -> {
+                emoji       = "👑";
+                title       = "Super Administrator";
+                text        = "Unrestricted access: everything Admins can do + manage admin accounts, audit logs and platform-wide configuration. Only Super Admins can create or promote other Super Admins.";
+                accentColor = "#a78bfa";
+            }
+            default -> {
+                emoji       = "🎮";
+                title       = "User";
+                text        = "Standard access: join teams, participate in tournaments and activities, manage personal profile and interact with coaches.";
+                accentColor = "#4facfe";
+            }
         }
 
         createRoleDescBox.getChildren().clear();
 
-        Label titleLbl = new Label(title);
-        titleLbl.setStyle("-fx-text-fill:#ff8fa3;-fx-font-weight:bold;-fx-font-size:13;");
+        // Accent bar (couleur selon le rôle)
+        Region bar = new Region();
+        bar.setPrefWidth(3); bar.setMinWidth(3);
+        bar.setPrefHeight(44); bar.setMinHeight(44);
+        bar.setBackground(new Background(new BackgroundFill(
+                Color.web(accentColor), new CornerRadii(2), Insets.EMPTY)));
+
+        // Emoji badge
+        Label emojiBadge = new Label(emoji);
+        emojiBadge.setStyle(
+                "-fx-font-size:15;" +
+                        "-fx-background-color:" + accentColor.replace("#", "rgba(") + ",0.15);" +
+                        "-fx-background-radius:8;" +
+                        "-fx-padding:4 8;"
+        );
+        // Fallback simple si rgba ne parse pas bien
+        emojiBadge.setStyle(
+                "-fx-font-size:15;" +
+                        "-fx-text-fill:" + accentColor + ";"
+        );
+
+        Label titleLbl = new Label(emoji + "  " + title);
+        titleLbl.setStyle(
+                "-fx-text-fill:" + accentColor + ";" +
+                        "-fx-font-weight:bold;" +
+                        "-fx-font-size:13;"
+        );
         titleLbl.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
         Label textLbl = new Label(text);
-        textLbl.setStyle("-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:12;");
+        textLbl.setStyle("-fx-text-fill:rgba(255,255,255,0.60);-fx-font-size:12;");
         textLbl.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
         textLbl.setWrapText(true);
-
-        Region bar = new Region();
-        bar.setPrefWidth(3); bar.setMinWidth(3);
-        bar.setPrefHeight(40); bar.setMinHeight(40);
-        bar.setBackground(new Background(new BackgroundFill(
-                Color.web("#ff3c64"), new CornerRadii(2), Insets.EMPTY)));
+        textLbl.setMaxWidth(Double.MAX_VALUE);
 
         VBox texts = new VBox(5, titleLbl, textLbl);
         texts.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-        texts.setPadding(new Insets(0, 0, 0, 10));
+        texts.setPadding(new Insets(0, 0, 0, 12));
         HBox.setHgrow(texts, Priority.ALWAYS);
 
-        HBox inner = new HBox(10, bar, texts);
+        HBox inner = new HBox(0, bar, texts);
         inner.setAlignment(Pos.CENTER_LEFT);
         inner.setMaxWidth(Double.MAX_VALUE);
         inner.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
         createRoleDescBox.getChildren().add(inner);
 
-        // Style inline ET Java API ensemble — les deux sont nécessaires
-        final String descStyle =
-                "-fx-background-color:" + BG_FIELD + ";" +
-                        "-fx-border-color:" + RED_BORDER_MED + ";" +
-                        "-fx-border-radius:10;" +
-                        "-fx-background-radius:10;" +
-                        "-fx-padding:14;";
-
-        createRoleDescBox.setStyle(descStyle);
+        // Style de la boîte — couleur de bordure selon le rôle
+        Color borderColor = Color.web(accentColor, 0.30);
         createRoleDescBox.setBackground(new Background(new BackgroundFill(
                 Color.web(BG_FIELD), new CornerRadii(10), Insets.EMPTY)));
         createRoleDescBox.setBorder(new Border(new BorderStroke(
-                Color.web("#ff3c64", 0.28),
-                BorderStrokeStyle.SOLID,
-                new CornerRadii(10),
-                new BorderWidths(1))));
+                borderColor, BorderStrokeStyle.SOLID, new CornerRadii(10), new BorderWidths(1))));
         createRoleDescBox.setPadding(new Insets(14));
         createRoleDescBox.setVisible(true);
         createRoleDescBox.setManaged(true);
 
-        // Forcer le re-apply après le layout JavaFX
-        Platform.runLater(() -> {
-            createRoleDescBox.setStyle(descStyle);
-            createRoleDescBox.setBackground(new Background(new BackgroundFill(
-                    Color.web(BG_FIELD), new CornerRadii(10), Insets.EMPTY)));
-            // Patcher aussi le viewport du ScrollPane parent
-            javafx.scene.Node node = createRoleDescBox;
-            while (node != null) {
-                if (node instanceof ScrollPane sp) {
-                    javafx.scene.Node vp = sp.lookup(".viewport");
-                    if (vp instanceof javafx.scene.layout.Region r) {
-                        r.setBackground(new Background(new BackgroundFill(
-                                Color.web(BG_DARK), CornerRadii.EMPTY, Insets.EMPTY)));
-                        r.setStyle("-fx-background-color:" + BG_DARK + ";-fx-background:" + BG_DARK + ";");
-                    }
-                    break;
-                }
-                node = node.getParent();
-            }
-        });
+        final String descStyle =
+                "-fx-background-color:" + BG_FIELD + ";" +
+                        "-fx-border-radius:10;-fx-background-radius:10;-fx-padding:14;";
+        createRoleDescBox.setStyle(descStyle);
+
+        Platform.runLater(() -> createRoleDescBox.setStyle(descStyle));
     }
+
     private void setupPasswordStrength() {
         if (createPasswordField == null || createPasswordStrength == null) return;
         createPasswordField.textProperty().addListener((obs, o, n) -> {
@@ -1426,7 +1452,13 @@ public class AdminUserController {
     @FXML public void handleCreateSubmit() {
         clearAllErrors(); if (!validateCreateForm()) return;
         String role = createRoleCombo != null ? createRoleCombo.getValue() : "ROLE_USER";
-        if ("ROLE_ADMIN".equals(role) && !SessionManager.isSuperAdmin()) { setErr(errRole,"Only Super Admins can create an Admin account."); return; }
+
+        // Double vérification côté logique (la liste est déjà filtrée côté UI)
+        if (("ROLE_ADMIN".equals(role) || "ROLE_SUPER_ADMIN".equals(role))
+                && !SessionManager.isSuperAdmin()) {
+            setErr(errRole, "Only Super Admins can create an Admin or Super Admin account.");
+            return;
+        }
         String fullName = trim(createFullNameField), username = trim(createUsernameField), email = trim(createEmailField);
         String password = createPasswordField != null ? createPasswordField.getText() : "";
         if (createSubmitBtn != null) { createSubmitBtn.setText("Creating…"); createSubmitBtn.setDisable(true); }
@@ -1504,13 +1536,15 @@ public class AdminUserController {
     }
 
     private String roleDisplayName(String role) {
-        return switch (nvl(role,"")) {
-            case "ROLE_COACH" -> "Coach — Team management";
-            case "ROLE_ADMIN" -> "Administrator — Full access" + (SessionManager.isSuperAdmin() ? "" : " (Super Admin only)");
-            default           -> "User — Standard access";
+        return switch (nvl(role, "")) {
+            case "ROLE_COACH"       -> "⚡  Coach — Live streams & revenue";
+            case "ROLE_ADMIN"       -> "🛡  Administrator — Full access"
+                    + (SessionManager.isSuperAdmin() ? "" : " (Super Admin only)");
+            case "ROLE_SUPER_ADMIN" -> "👑  Super Administrator — Unrestricted"
+                    + (SessionManager.isSuperAdmin() ? "" : " (Super Admin only)");
+            default                 -> "🎮  User — Standard access";
         };
     }
-
     private void setLabel(Label l, String v)           { if (l!=null) l.setText(v); }
     private void setProgress(ProgressBar pb, double v) { if (pb!=null) pb.setProgress(v); }
     private void showNode(javafx.scene.Node n, boolean show) { if (n!=null) { n.setVisible(show); n.setManaged(show); } }
