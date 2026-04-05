@@ -8,6 +8,7 @@ module org.example.eyetwinjava {
     requires bcrypt;
     requires java.prefs;
     requires opencv;
+    requires jakarta.mail;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
