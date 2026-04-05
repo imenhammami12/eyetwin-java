@@ -3,6 +3,7 @@ package com.eyetwin.controller.admin;
 import com.eyetwin.entities.User;
 import com.eyetwin.entities.TeamMembership;
 import com.eyetwin.interfaces.IUserService;
+import com.eyetwin.services.EmailService;
 import com.eyetwin.services.UserServiceImpl;
 import com.eyetwin.tools.SessionManager;
 
@@ -920,7 +921,7 @@ public class AdminUserController {
         colEM.setStyle("-fx-background-color:transparent;");
 
         VBox colPW = new VBox(6, fieldLabel("Password"), passwordBox, createPasswordStrength,
-                new HBox(createStrengthLabel), errPassword, hint("Minimum 6 characters recommended"));
+                new HBox(createStrengthLabel), errPassword, hint("Min 8 chars · uppercase · lowercase · number · special char"));
         colPW.setPrefWidth(280);
         colPW.setStyle("-fx-background-color:transparent;");
 
@@ -1406,23 +1407,75 @@ public class AdminUserController {
         }
     }
 
+    // ── Remplacer evaluateStrength() ──────────────────────────────
     private void evaluateStrength(String pwd) {
         int s = 0;
-        if (pwd.length() >= 6) s++; if (pwd.length() >= 10) s++;
-        if (pwd.matches(".*[a-z].*") && pwd.matches(".*[A-Z].*")) s++;
-        if (pwd.matches(".*[0-9].*")) s++;
-        if (pwd.matches(".*[^a-zA-Z0-9].*")) s++;
-        double progress = Math.min(s, 4) / 4.0;
+        boolean hasUpper   = pwd.matches(".*[A-Z].*");
+        boolean hasLower   = pwd.matches(".*[a-z].*");
+        boolean hasDigit   = pwd.matches(".*[0-9].*");
+        boolean hasSpecial = pwd.matches(".*[^a-zA-Z0-9].*");
+        boolean hasLength  = pwd.length() >= 8;
+
+        if (hasLength)  s++;
+        if (hasUpper && hasLower) s++;
+        if (hasDigit)   s++;
+        if (hasSpecial) s++;
+
+        double progress = s / 4.0;
         String color, label, styleClass;
+
         if      (s <= 1) { color="#ff6b6b"; label="Weak";   styleClass="strength-weak";   }
         else if (s == 2) { color="#ffa751"; label="Fair";   styleClass="strength-fair";   }
         else if (s == 3) { color="#fee140"; label="Good";   styleClass="strength-good";   }
         else             { color="#43e97b"; label="Strong"; styleClass="strength-strong"; }
-        if (createPasswordStrength != null) { createPasswordStrength.setProgress(progress); applyProgressStyle(createPasswordStrength, styleClass); }
+
+        if (createPasswordStrength != null) {
+            createPasswordStrength.setProgress(progress);
+            applyProgressStyle(createPasswordStrength, styleClass);
+        }
         setLabel(createStrengthLabel, label);
-        if (createStrengthLabel != null) createStrengthLabel.setStyle("-fx-text-fill:"+color+";-fx-font-size:10;");
+        if (createStrengthLabel != null)
+            createStrengthLabel.setStyle("-fx-text-fill:" + color + ";-fx-font-size:10;");
     }
 
+    // ── Remplacer validateCreateForm() ───────────────────────────
+    private boolean validateCreateForm() {
+        boolean ok = true;
+
+        if (trim(createFullNameField).isBlank()) {
+            setErr(errFullName, "Name is required.");
+            ok = false;
+        }
+        if (!trim(createUsernameField).matches("[a-zA-Z0-9_-]{3,50}")) {
+            setErr(errUsername, "Invalid username (3-50 chars, letters/digits/- and _).");
+            ok = false;
+        }
+        if (!trim(createEmailField).matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            setErr(errEmail, "Invalid email address.");
+            ok = false;
+        }
+
+        // ── Validation mot de passe renforcée ────────────────────
+        String pwd = createPasswordField != null ? createPasswordField.getText() : "";
+        if (pwd.isBlank()) {
+            setErr(errPassword, "Password is required.");
+            ok = false;
+        } else {
+            java.util.List<String> pwdErrors = new java.util.ArrayList<>();
+            if (pwd.length() < 8)                        pwdErrors.add("at least 8 characters");
+            if (!pwd.matches(".*[A-Z].*"))               pwdErrors.add("one uppercase letter");
+            if (!pwd.matches(".*[a-z].*"))               pwdErrors.add("one lowercase letter");
+            if (!pwd.matches(".*[0-9].*"))               pwdErrors.add("one number");
+            if (!pwd.matches(".*[^a-zA-Z0-9].*"))        pwdErrors.add("one special character (!@#$…)");
+
+            if (!pwdErrors.isEmpty()) {
+                setErr(errPassword, "Password must contain: " + String.join(", ", pwdErrors) + ".");
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
     private void setupCreateValidation() {
         addBlurValidation(createFullNameField, errFullName, f -> !f.isBlank(), "Name is required.");
         addBlurValidation(createUsernameField, errUsername, f -> f.matches("[a-zA-Z0-9_-]{3,50}"), "3-50 chars: letters, digits, - and _.");
@@ -1450,40 +1503,64 @@ public class AdminUserController {
     }
 
     @FXML public void handleCreateSubmit() {
-        clearAllErrors(); if (!validateCreateForm()) return;
-        String role = createRoleCombo != null ? createRoleCombo.getValue() : "ROLE_USER";
+        clearAllErrors();
+        if (!validateCreateForm()) return;
 
-        // Double vérification côté logique (la liste est déjà filtrée côté UI)
+        String role = createRoleCombo != null ? createRoleCombo.getValue() : "ROLE_USER";
         if (("ROLE_ADMIN".equals(role) || "ROLE_SUPER_ADMIN".equals(role))
                 && !SessionManager.isSuperAdmin()) {
             setErr(errRole, "Only Super Admins can create an Admin or Super Admin account.");
             return;
         }
-        String fullName = trim(createFullNameField), username = trim(createUsernameField), email = trim(createEmailField);
-        String password = createPasswordField != null ? createPasswordField.getText() : "";
-        if (createSubmitBtn != null) { createSubmitBtn.setText("Creating…"); createSubmitBtn.setDisable(true); }
+
+        String fullName = trim(createFullNameField);
+        String username = trim(createUsernameField);
+        String email    = trim(createEmailField);
+        // ── Garder le mot de passe brut AVANT hachage pour l'email ──
+        String rawPassword = createPasswordField != null ? createPasswordField.getText() : "";
+
+        if (createSubmitBtn != null) {
+            createSubmitBtn.setText("Creating…");
+            createSubmitBtn.setDisable(true);
+        }
+
         new Thread(() -> {
             try {
-                if (userService.findByUsername(username) != null) { Platform.runLater(() -> { setErr(errUsername,"This username is already taken."); resetCreateBtn(); }); return; }
-                if (userService.emailExists(email))               { Platform.runLater(() -> { setErr(errEmail,"This email is already registered."); resetCreateBtn(); }); return; }
-                userService.adminCreateUser(fullName, username, email, password, role);
+                // Vérifications unicité
+                if (userService.findByUsername(username) != null) {
+                    Platform.runLater(() -> {
+                        setErr(errUsername, "This username is already taken.");
+                        resetCreateBtn();
+                    });
+                    return;
+                }
+                if (userService.emailExists(email)) {
+                    Platform.runLater(() -> {
+                        setErr(errEmail, "This email is already registered.");
+                        resetCreateBtn();
+                    });
+                    return;
+                }
+
+                // Création du compte
+                userService.adminCreateUser(fullName, username, email, rawPassword, role);
+
+                // ── Envoi de l'email de bienvenue (thread séparé) ──
+                EmailService.getInstance().sendWelcomeEmail(
+                        email, fullName, username, rawPassword, role);
+
                 Platform.runLater(this::closeModal);
-            } catch (Exception e) { Platform.runLater(() -> { resetCreateBtn(); alert(Alert.AlertType.ERROR,"Error",e.getMessage()); }); }
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    resetCreateBtn();
+                    alert(Alert.AlertType.ERROR, "Error", e.getMessage());
+                });
+            }
         }).start();
     }
-
     @FXML public void handleCreateCancel() { closeModal(); }
 
-    private boolean validateCreateForm() {
-        boolean ok = true;
-        if (trim(createFullNameField).isBlank())                                 { setErr(errFullName,"Name is required."); ok=false; }
-        if (!trim(createUsernameField).matches("[a-zA-Z0-9_-]{3,50}"))           { setErr(errUsername,"Invalid username (3-50 chars)."); ok=false; }
-        if (!trim(createEmailField).matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))  { setErr(errEmail,"Invalid email."); ok=false; }
-        String pwd = createPasswordField != null ? createPasswordField.getText() : "";
-        if (pwd.isBlank())       { setErr(errPassword,"Password is required."); ok=false; }
-        else if (pwd.length()<6) { setErr(errPassword,"Minimum 6 characters."); ok=false; }
-        return ok;
-    }
 
     private void resetCreateBtn() { if (createSubmitBtn!=null) { createSubmitBtn.setText("✓  Create User"); createSubmitBtn.setDisable(false); } }
     private void clearAllErrors() { for (Label l : new Label[]{errFullName,errUsername,errEmail,errPassword,errRole}) clearErr(l); }
