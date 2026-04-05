@@ -185,10 +185,11 @@
                                              -fx-border-color: rgba(255,60,100,0.30);
                                              -fx-border-radius: 10; -fx-background-radius: 10;"/>
                             <Button text="🔍  Filter" onAction="#handleFilter"
-                                    style="-fx-background-color: #667eea; -fx-text-fill: white;
-                                           -fx-background-radius: 8; -fx-border-color: transparent;
-                                           -fx-padding: 9 18; -fx-cursor: hand; -fx-font-weight: bold;"/>
-                            <Button text="✕  Clear" onAction="#handleClearFilters"
+                                    style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+               -fx-text-fill: white;
+               -fx-background-radius: 8; -fx-border-color: transparent;
+               -fx-padding: 9 18; -fx-cursor: hand; -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>                            <Button text="✕  Clear" onAction="#handleClearFilters"
                                     style="-fx-background-color: rgba(255,255,255,0.05);
                                            -fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8;
                                            -fx-background-radius: 8;
@@ -205,12 +206,11 @@
                                style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button text="＋  New User" onAction="#handleNewUser"
-                                style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
-                                       -fx-text-fill: white; -fx-background-radius: 10;
-                                       -fx-border-color: transparent;
-                                       -fx-padding: 10 22; -fx-cursor: hand; -fx-font-weight: bold;
-                                       -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.35), 12, 0, 0, 4);"/>
-                    </HBox>
+                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+               -fx-text-fill: white; -fx-background-radius: 10;
+               -fx-border-color: transparent;
+               -fx-padding: 10 22; -fx-cursor: hand; -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>                    </HBox>
 
                     <!-- ═══════════════════════════════════════════
                          TABLE CARD
