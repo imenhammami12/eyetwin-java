@@ -29,21 +29,37 @@
                     <HBox spacing="16" alignment="TOP_LEFT">
 
                         <!-- ════ LEFT COLUMN ════ -->
-                        <VBox spacing="16" HBox.hgrow="ALWAYS">
+                        <VBox spacing="14" HBox.hgrow="ALWAYS">
 
                             <!-- Header card -->
                             <VBox spacing="12"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
-                                         -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:14;-fx-background-radius:14;
-                                         -fx-padding:24;">
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
+                                         -fx-border-color:rgba(102,126,234,0.30);
+                                         -fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;
+                                         -fx-padding:24;
+                                         -fx-effect:dropshadow(gaussian,rgba(102,126,234,0.15),20,0,0,4);">
                                 <Label fx:id="detailSubjectLabel" text="—"
                                        wrapText="true"
-                                       style="-fx-font-size:20;-fx-font-weight:bold;-fx-text-fill:white;"/>
-                                <HBox spacing="8">
-                                    <Label fx:id="detailStatusBadge"   text="PENDING"/>
-                                    <Label fx:id="detailPriorityBadge" text="MEDIUM"/>
-                                    <Label fx:id="detailCategoryBadge" text="OTHER"/>
+                                       style="-fx-font-size:18;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label fx:id="detailStatusBadge"   text="PENDING"
+                                           style="-fx-background-color:rgba(255,213,79,0.15);
+                                                  -fx-border-color:rgba(255,213,79,0.40);
+                                                  -fx-border-radius:8;-fx-background-radius:8;
+                                                  -fx-text-fill:#ffd54f;-fx-font-size:11;
+                                                  -fx-font-weight:bold;-fx-padding:4 12;"/>
+                                    <Label fx:id="detailPriorityBadge" text="MEDIUM"
+                                           style="-fx-background-color:rgba(79,172,254,0.15);
+                                                  -fx-border-color:rgba(79,172,254,0.40);
+                                                  -fx-border-radius:8;-fx-background-radius:8;
+                                                  -fx-text-fill:#4facfe;-fx-font-size:11;
+                                                  -fx-font-weight:bold;-fx-padding:4 12;"/>
+                                    <Label fx:id="detailCategoryBadge" text="OTHER"
+                                           style="-fx-background-color:rgba(255,255,255,0.08);
+                                                  -fx-border-color:rgba(255,255,255,0.20);
+                                                  -fx-border-radius:8;-fx-background-radius:8;
+                                                  -fx-text-fill:rgba(255,255,255,0.75);-fx-font-size:11;
+                                                  -fx-font-weight:bold;-fx-padding:4 12;"/>
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Label fx:id="detailIdLabel" text="Complaint #—"
                                            style="-fx-text-fill:rgba(255,255,255,0.35);-fx-font-size:12;"/>
@@ -51,270 +67,281 @@
                             </VBox>
 
                             <!-- Description -->
-                            <VBox spacing="8"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                            <VBox spacing="10"
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
                                          -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:20;">
-                                <Label text="📄 Description"
+                                <Label text="📄  Description"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
                                 <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
                                 <Label fx:id="detailDescriptionLabel" text="—"
                                        wrapText="true"
-                                       style="-fx-text-fill:rgba(255,255,255,0.7);-fx-font-size:13;"/>
+                                       style="-fx-text-fill:rgba(255,255,255,0.75);-fx-font-size:13;-fx-line-spacing:3;"/>
                             </VBox>
 
                             <!-- Admin Response (shown if exists) -->
-                            <VBox fx:id="adminResponseBox" spacing="8" visible="false" managed="false"
+                            <VBox fx:id="adminResponseBox" spacing="10" visible="false" managed="false"
                                   style="-fx-background-color:rgba(79,172,254,0.06);
                                          -fx-border-color:rgba(79,172,254,0.25);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:20;">
-                                <Label text="↩ Admin Response"
+                                <Label text="↩  Admin Response"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:#4facfe;"/>
+                                <Separator style="-fx-background-color:rgba(79,172,254,0.15);"/>
                                 <Label fx:id="detailAdminResponseLabel" text="—"
                                        wrapText="true"
-                                       style="-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:13;"/>
+                                       style="-fx-text-fill:rgba(255,255,255,0.80);-fx-font-size:13;"/>
                             </VBox>
 
                             <!-- Resolution Notes (shown if resolved) -->
-                            <VBox fx:id="resolutionNotesBox" spacing="8" visible="false" managed="false"
+                            <VBox fx:id="resolutionNotesBox" spacing="10" visible="false" managed="false"
                                   style="-fx-background-color:rgba(67,233,123,0.06);
                                          -fx-border-color:rgba(67,233,123,0.25);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:20;">
-                                <Label text="✓ Resolution Notes"
+                                <Label text="✓  Resolution Notes"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:#43e97b;"/>
+                                <Separator style="-fx-background-color:rgba(67,233,123,0.15);"/>
                                 <Label fx:id="detailResolutionNotesLabel" text="—"
                                        wrapText="true"
-                                       style="-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:13;"/>
+                                       style="-fx-text-fill:rgba(255,255,255,0.80);-fx-font-size:13;"/>
                             </VBox>
 
                             <!-- Attachment badge -->
                             <VBox fx:id="attachmentBox" spacing="8" visible="false" managed="false"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
                                          -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:16;">
-                                <Label text="📎 Attachment"
+                                <Label text="📎  Attachment"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
                                 <Label text="File attached to this complaint"
                                        style="-fx-text-fill:#4facfe;-fx-font-size:12;"/>
                             </VBox>
 
-                            <!-- ── Respond Form (hidden when resolved) ── -->
-                            <VBox fx:id="responseFormBox" spacing="10"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
-                                         -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                            <!-- ── Respond Form ── -->
+                            <VBox fx:id="responseFormBox" spacing="12"
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
+                                         -fx-border-color:rgba(102,126,234,0.30);
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:20;">
-                                <Label text="↩ Add Response"
+                                <Label text="↩  Add Response"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
                                 <TextArea fx:id="responseTextArea"
                                           promptText="Type your response to the user..."
                                           prefRowCount="4" wrapText="true"
-                                          style="-fx-background-color:rgba(30,15,45,0.95);
+                                          style="-fx-control-inner-background:#160a22;
+                                                 -fx-background-color:#160a22;
                                                  -fx-text-fill:white;
-                                                 -fx-prompt-text-fill:rgba(255,255,255,0.35);
-                                                 -fx-border-color:rgba(102,126,234,0.3);
+                                                 -fx-prompt-text-fill:rgba(255,255,255,0.30);
+                                                 -fx-border-color:rgba(102,126,234,0.30);
                                                  -fx-border-radius:10;-fx-background-radius:10;
-                                                 -fx-padding:12;"/>
+                                                 -fx-padding:12;-fx-font-size:13;"/>
                                 <Button text="📤  Send Response" onAction="#handleRespond"
                                         style="-fx-background-color:linear-gradient(to right,#667eea,#764ba2);
                                                -fx-text-fill:white;-fx-font-weight:bold;
                                                -fx-background-radius:8;-fx-border-color:transparent;
-                                               -fx-padding:10 20;-fx-cursor:hand;"/>
+                                               -fx-padding:10 22;-fx-cursor:hand;-fx-font-size:13;
+                                               -fx-effect:dropshadow(gaussian,rgba(102,126,234,0.45),14,0,0,4);"/>
                             </VBox>
 
-                            <!-- ── Resolve Form (hidden when resolved) ── -->
-                            <VBox fx:id="resolveFormBox" spacing="10"
-                                  style="-fx-background-color:rgba(67,233,123,0.04);
-                                         -fx-border-color:rgba(67,233,123,0.20);
-                                         -fx-border-radius:12;-fx-background-radius:12;
+                            <!-- ── Resolve Form ── -->
+                            <VBox fx:id="resolveFormBox" spacing="12"
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
+                                         -fx-border-color:rgba(67,233,123,0.25);
+                                         -fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;
                                          -fx-padding:20;">
-                                <Label text="✓ Resolve Complaint"
+                                <Label text="✓  Resolve Complaint"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:#43e97b;"/>
+                                <Separator style="-fx-background-color:rgba(67,233,123,0.15);"/>
+                                <Label text="Resolution notes (required)"
+                                       style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.45);"/>
                                 <TextArea fx:id="resolutionTextArea"
                                           promptText="Describe how this complaint was resolved..."
                                           prefRowCount="3" wrapText="true"
-                                          style="-fx-background-color:rgba(30,15,45,0.95);
+                                          style="-fx-control-inner-background:#160a22;
+                                                 -fx-background-color:#160a22;
                                                  -fx-text-fill:white;
-                                                 -fx-prompt-text-fill:rgba(255,255,255,0.35);
-                                                 -fx-border-color:rgba(67,233,123,0.3);
+                                                 -fx-prompt-text-fill:rgba(255,255,255,0.30);
+                                                 -fx-border-color:rgba(67,233,123,0.25);
                                                  -fx-border-radius:10;-fx-background-radius:10;
-                                                 -fx-padding:12;"/>
+                                                 -fx-padding:12;-fx-font-size:13;"/>
                                 <Button text="✓  Mark as Resolved" onAction="#handleResolve"
                                         style="-fx-background-color:rgba(67,233,123,0.12);
-                                               -fx-border-color:rgba(67,233,123,0.4);
-                                               -fx-border-radius:8;-fx-background-radius:8;
+                                               -fx-border-color:rgba(67,233,123,0.40);
+                                               -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
                                                -fx-text-fill:#43e97b;-fx-font-weight:bold;
-                                               -fx-padding:10 20;-fx-cursor:hand;"/>
+                                               -fx-padding:10 22;-fx-cursor:hand;-fx-font-size:13;"/>
                             </VBox>
 
                         </VBox>
 
                         <!-- ════ RIGHT SIDEBAR ════ -->
-                        <VBox spacing="14" prefWidth="300">
+                        <VBox spacing="14" prefWidth="320" minWidth="320">
 
                             <!-- Info Card -->
                             <VBox spacing="0"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
                                          -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:14;-fx-background-radius:14;
+                                         -fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;
                                          -fx-padding:20;">
-                                <Label text="ℹ Information"
+                                <Label text="ℹ  Information"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:0 0 12 0;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.08);-fx-padding:0 0 8 0;"/>
 
-                                <!-- Submitted By -->
-                                <VBox spacing="2" style="-fx-padding:8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.05) transparent;-fx-border-width:0 0 1 0;">
-                                    <Label text="Submitted By"
-                                           style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
+                                <VBox spacing="2" style="-fx-padding:10 0 8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;">
+                                    <Label text="SUBMITTED BY"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <Label fx:id="infoSubmittedBy" text="—"
                                            style="-fx-text-fill:#43e97b;-fx-font-weight:bold;-fx-font-size:13;"/>
                                 </VBox>
-                                <!-- Assigned To -->
-                                <VBox spacing="2" style="-fx-padding:8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.05) transparent;-fx-border-width:0 0 1 0;">
-                                    <Label text="Assigned To"
-                                           style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
+                                <VBox spacing="2" style="-fx-padding:10 0 8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;">
+                                    <Label text="ASSIGNED TO"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <Label fx:id="infoAssignedTo" text="Not assigned"
                                            style="-fx-text-fill:#4facfe;-fx-font-weight:bold;-fx-font-size:13;"/>
                                 </VBox>
-                                <!-- Created -->
-                                <VBox spacing="2" style="-fx-padding:8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.05) transparent;-fx-border-width:0 0 1 0;">
-                                    <Label text="Created"
-                                           style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
+                                <VBox spacing="2" style="-fx-padding:10 0 8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;">
+                                    <Label text="CREATED"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <Label fx:id="infoCreatedAt" text="—"
-                                           style="-fx-text-fill:rgba(255,255,255,0.7);-fx-font-size:12;"/>
+                                           style="-fx-text-fill:rgba(255,255,255,0.70);-fx-font-size:12;"/>
                                 </VBox>
-                                <!-- Updated -->
-                                <VBox spacing="2" style="-fx-padding:8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.05) transparent;-fx-border-width:0 0 1 0;">
-                                    <Label text="Last Updated"
-                                           style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
+                                <VBox spacing="2" style="-fx-padding:10 0 8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.06) transparent;-fx-border-width:0 0 1 0;">
+                                    <Label text="LAST UPDATED"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <Label fx:id="infoUpdatedAt" text="—"
-                                           style="-fx-text-fill:rgba(255,255,255,0.7);-fx-font-size:12;"/>
+                                           style="-fx-text-fill:rgba(255,255,255,0.70);-fx-font-size:12;"/>
                                 </VBox>
-                                <!-- Resolved -->
-                                <VBox spacing="2" style="-fx-padding:8 0;">
-                                    <Label text="Resolved At"
-                                           style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
+                                <VBox spacing="2" style="-fx-padding:10 0 0 0;">
+                                    <Label text="RESOLVED AT"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <Label fx:id="infoResolvedAt" text="—"
-                                           style="-fx-text-fill:rgba(255,255,255,0.7);-fx-font-size:12;"/>
+                                           style="-fx-text-fill:rgba(255,255,255,0.70);-fx-font-size:12;"/>
                                 </VBox>
                             </VBox>
 
-                            <!-- ── Sentiment Analysis Card ── -->
+                            <!-- Sentiment Analysis Card -->
                             <VBox spacing="10"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
                                          -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:14;-fx-background-radius:14;
+                                         -fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;
                                          -fx-padding:20;">
-                                <Label text="😐 Sentiment Analysis"
+                                <Label text="😐  Sentiment Analysis"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
 
-                                <!-- No sentiment placeholder -->
                                 <Label fx:id="noSentimentLabel" text="No sentiment data available."
                                        style="-fx-text-fill:rgba(255,255,255,0.35);-fx-font-size:12;"/>
 
-                                <!-- Sentiment data (hidden if no analysis) -->
-                                <VBox fx:id="sentimentBox" spacing="8" visible="false" managed="false">
+                                <VBox fx:id="sentimentBox" spacing="10" visible="false" managed="false">
                                     <HBox spacing="12" alignment="CENTER_LEFT">
                                         <Label fx:id="sentimentEmoji" text="😐"
                                                style="-fx-font-size:28;"/>
                                         <VBox spacing="4">
-                                            <Label fx:id="sentimentBadge" text="Neutral"/>
+                                            <Label fx:id="sentimentBadge" text="Neutral"
+                                                   style="-fx-background-color:rgba(255,213,79,0.15);
+                                                          -fx-border-color:rgba(255,213,79,0.40);
+                                                          -fx-border-radius:8;-fx-background-radius:8;
+                                                          -fx-text-fill:#ffd54f;-fx-font-size:11;
+                                                          -fx-font-weight:bold;-fx-padding:4 10;"/>
                                             <Label fx:id="sentimentSourceLabel" text=""
-                                                   style="-fx-font-size:11;"/>
+                                                   style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.50);"/>
                                         </VBox>
                                     </HBox>
 
-                                    <!-- Confidence bar -->
-                                    <VBox spacing="4">
+                                    <VBox spacing="6">
                                         <HBox alignment="CENTER_LEFT">
                                             <Label text="Confidence"
-                                                   style="-fx-text-fill:rgba(255,255,255,0.4);-fx-font-size:11;"/>
+                                                   style="-fx-text-fill:rgba(255,255,255,0.45);-fx-font-size:11;"/>
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label fx:id="sentimentConfidencePct" text="0%"
-                                                   style="-fx-text-fill:rgba(255,255,255,0.7);-fx-font-size:11;-fx-font-weight:bold;"/>
+                                                   style="-fx-text-fill:white;-fx-font-size:12;-fx-font-weight:bold;"/>
                                         </HBox>
                                         <ProgressBar fx:id="sentimentConfidenceBar" progress="0"
                                                      maxWidth="Infinity" prefHeight="6"
                                                      styleClass="progress-green"/>
                                     </VBox>
 
-                                    <!-- Priority suggestion alert -->
-                                    <VBox fx:id="sentimentSuggestionBox" spacing="4"
+                                    <VBox fx:id="sentimentSuggestionBox" spacing="6"
                                           visible="false" managed="false"
-                                          style="-fx-background-color:rgba(255,193,7,0.10);
+                                          style="-fx-background-color:rgba(255,193,7,0.08);
                                                  -fx-border-color:rgba(255,193,7,0.30);
-                                                 -fx-border-radius:8;-fx-background-radius:8;
+                                                 -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
                                                  -fx-padding:10;">
-                                        <Label text="⚡ Sentiment suggested priority:"
+                                        <Label text="⚡  Sentiment suggested priority:"
                                                style="-fx-text-fill:#ffd54f;-fx-font-size:11;"/>
                                         <Label fx:id="sentimentSuggestionLabel" text=""
-                                               style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;"/>
+                                               style="-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;"/>
                                     </VBox>
                                 </VBox>
                             </VBox>
 
-                            <!-- ── Admin Actions Card ── -->
+                            <!-- Actions Card -->
                             <VBox spacing="12"
-                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                  style="-fx-background-color:rgba(10,5,20,0.92);
                                          -fx-border-color:rgba(255,255,255,0.07);
-                                         -fx-border-radius:14;-fx-background-radius:14;
+                                         -fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;
                                          -fx-padding:20;">
-                                <Label text="⚙ Actions"
+                                <Label text="⚙  Actions"
                                        style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
 
-                                <!-- Assign -->
+                                <!-- Assign to Admin -->
                                 <VBox spacing="6">
-                                    <Label text="Assign to Admin:"
-                                           style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;"/>
+                                    <Label text="ASSIGN TO ADMIN"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <HBox spacing="8">
                                         <ComboBox fx:id="assignAdminCombo" HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                                                  style="-fx-background-color:rgba(30,15,45,0.95);
-                                                         -fx-border-color:rgba(102,126,234,0.3);
-                                                         -fx-border-radius:8;-fx-background-radius:8;"/>
+                                                  style="-fx-background-color:#160a22;
+                                                         -fx-border-color:rgba(102,126,234,0.30);
+                                                         -fx-border-radius:8;-fx-background-radius:8;
+                                                         -fx-text-fill:white;"/>
                                         <Button text="Assign" onAction="#handleAssign"
                                                 style="-fx-background-color:rgba(102,126,234,0.15);
-                                                       -fx-border-color:rgba(102,126,234,0.4);
-                                                       -fx-border-radius:8;-fx-background-radius:8;
-                                                       -fx-text-fill:#667eea;-fx-font-weight:bold;
+                                                       -fx-border-color:rgba(102,126,234,0.40);
+                                                       -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
+                                                       -fx-text-fill:#a5b4fc;-fx-font-weight:bold;
                                                        -fx-padding:8 14;-fx-cursor:hand;"/>
                                     </HBox>
                                 </VBox>
 
                                 <!-- Change Status -->
                                 <VBox spacing="6">
-                                    <Label text="Change Status:"
-                                           style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;"/>
+                                    <Label text="CHANGE STATUS"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <HBox spacing="8">
                                         <ComboBox fx:id="changeStatusCombo" HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                                                  style="-fx-background-color:rgba(30,15,45,0.95);
-                                                         -fx-border-color:rgba(102,126,234,0.3);
-                                                         -fx-border-radius:8;-fx-background-radius:8;"/>
+                                                  style="-fx-background-color:#160a22;
+                                                         -fx-border-color:rgba(102,126,234,0.30);
+                                                         -fx-border-radius:8;-fx-background-radius:8;
+                                                         -fx-text-fill:white;"/>
                                         <Button text="Update" onAction="#handleUpdateStatus"
                                                 style="-fx-background-color:rgba(102,126,234,0.15);
-                                                       -fx-border-color:rgba(102,126,234,0.4);
-                                                       -fx-border-radius:8;-fx-background-radius:8;
-                                                       -fx-text-fill:#667eea;-fx-font-weight:bold;
+                                                       -fx-border-color:rgba(102,126,234,0.40);
+                                                       -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
+                                                       -fx-text-fill:#a5b4fc;-fx-font-weight:bold;
                                                        -fx-padding:8 14;-fx-cursor:hand;"/>
                                     </HBox>
                                 </VBox>
 
                                 <!-- Change Priority -->
                                 <VBox spacing="6">
-                                    <Label text="Change Priority:"
-                                           style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;"/>
+                                    <Label text="CHANGE PRIORITY"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:9;-fx-font-family:monospace;"/>
                                     <HBox spacing="8">
                                         <ComboBox fx:id="changePriorityCombo" HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                                                  style="-fx-background-color:rgba(30,15,45,0.95);
-                                                         -fx-border-color:rgba(102,126,234,0.3);
-                                                         -fx-border-radius:8;-fx-background-radius:8;"/>
+                                                  style="-fx-background-color:#160a22;
+                                                         -fx-border-color:rgba(102,126,234,0.30);
+                                                         -fx-border-radius:8;-fx-background-radius:8;
+                                                         -fx-text-fill:white;"/>
                                         <Button text="Update" onAction="#handleUpdatePriority"
                                                 style="-fx-background-color:rgba(102,126,234,0.15);
-                                                       -fx-border-color:rgba(102,126,234,0.4);
-                                                       -fx-border-radius:8;-fx-background-radius:8;
-                                                       -fx-text-fill:#667eea;-fx-font-weight:bold;
+                                                       -fx-border-color:rgba(102,126,234,0.40);
+                                                       -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
+                                                       -fx-text-fill:#a5b4fc;-fx-font-weight:bold;
                                                        -fx-padding:8 14;-fx-cursor:hand;"/>
                                     </HBox>
                                 </VBox>
@@ -325,8 +352,8 @@
                                 <Button text="🗑  Delete Complaint" onAction="#handleDelete"
                                         maxWidth="Infinity"
                                         style="-fx-background-color:rgba(140,20,40,0.08);
-                                               -fx-border-color:rgba(180,40,60,0.3);
-                                               -fx-border-radius:8;-fx-background-radius:8;
+                                               -fx-border-color:rgba(180,40,60,0.30);
+                                               -fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;
                                                -fx-text-fill:rgba(255,107,122,0.75);
                                                -fx-font-weight:bold;-fx-padding:10;-fx-cursor:hand;"/>
                             </VBox>

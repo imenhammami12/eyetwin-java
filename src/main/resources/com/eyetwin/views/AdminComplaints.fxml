@@ -173,17 +173,20 @@
                                       style="-fx-background-color:rgba(30,15,45,0.95);
                                              -fx-border-color:rgba(102,126,234,0.30);
                                              -fx-border-radius:10;-fx-background-radius:10;"/>
+
+
                             <Button text="🔍  Filter" onAction="#handleFilter"
-                                    style="-fx-background-color:linear-gradient(to right,#667eea,#764ba2);
-                                           -fx-text-fill:white;-fx-background-radius:8;
-                                           -fx-border-color:transparent;-fx-padding:9 18;
-                                           -fx-cursor:hand;-fx-font-weight:bold;"/>
+                                    style="-fx-background-color:linear-gradient(to right,#ff3c64,#c0132f);
+               -fx-text-fill:white;-fx-background-radius:8;
+               -fx-border-color:transparent;-fx-padding:9 18;
+               -fx-cursor:hand;-fx-font-weight:bold;
+               -fx-effect:dropshadow(gaussian,rgba(255,60,100,0.45),14,0,0,4);"/>
                             <Button text="✕ Clear" onAction="#handleClearFilters"
                                     style="-fx-background-color:rgba(255,255,255,0.05);
-                                           -fx-border-color:rgba(255,255,255,0.15);
-                                           -fx-border-radius:8;-fx-background-radius:8;
-                                           -fx-text-fill:rgba(255,255,255,0.65);
-                                           -fx-padding:9 12;-fx-cursor:hand;"/>
+               -fx-border-color:rgba(255,255,255,0.15);
+               -fx-border-radius:8;-fx-background-radius:8;
+               -fx-text-fill:rgba(255,255,255,0.65);
+               -fx-padding:9 12;-fx-cursor:hand;"/>
                         </HBox>
                     </VBox>
 
@@ -202,8 +205,9 @@
                                    style="-fx-background-color:transparent;-fx-border-color:transparent;
                                           -fx-table-cell-border-color:transparent;">
                             <columns>
-                                <TableColumn fx:id="colUser"      text="User"       prefWidth="130"/>
-                                <TableColumn fx:id="colSubject"   text="Subject"    prefWidth="220"/>
+                                <TableColumn fx:id="colAvatar"    text="Photo"      prefWidth="65"/>
+                                <TableColumn fx:id="colUser"      text="User"       prefWidth="110"/>
+                                <TableColumn fx:id="colSubject"   text="Subject"    prefWidth="200"/>
                                 <TableColumn fx:id="colCategory"  text="Category"   prefWidth="120"/>
                                 <TableColumn fx:id="colPriority"  text="Priority"   prefWidth="100"/>
                                 <TableColumn fx:id="colStatus"    text="Status"     prefWidth="110"/>

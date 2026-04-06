@@ -74,6 +74,7 @@ public class AdminComplaintController {
     @FXML private TableColumn<Complaint, String> colAssigned;
     @FXML private TableColumn<Complaint, String> colCreated;
     @FXML private TableColumn<Complaint, Void>   colActions;
+    @FXML private TableColumn<Complaint, Void> colAvatar;
 
     // ── LIST VIEW — Pagination ────────────────────────────────────
     @FXML private Label  paginationInfoLabel;
@@ -130,7 +131,7 @@ public class AdminComplaintController {
     // ── State ─────────────────────────────────────────────────────
     private IComplaintService            complaintService;
     private ObservableList<Complaint>    allComplaints = FXCollections.observableArrayList();
-    private static final int             PAGE_SIZE = 15;
+    private static final int             PAGE_SIZE = 10;
     private int currentPage = 1;
     private int totalPages  = 1;
 
@@ -313,22 +314,87 @@ public class AdminComplaintController {
     private void setupComplaintsTable() {
         if (complaintsTable == null) return;
 
-        // User column
+        // ── User column ──────────────────────────────────────────────
+
+        // ── Avatar column ────────────────────────────────────────────
+        if (colAvatar != null) {
+            colAvatar.setCellFactory(col -> new TableCell<>() {
+                {
+                    setAlignment(Pos.CENTER);
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(null);
+                    if (c == null) return;
+                    User u = c.getSubmittedBy();
+                    if (u == null) {
+                        setGraphic(makeInitialsAvatar("?", "linear-gradient(to bottom right,#667eea,#764ba2)"));
+                        return;
+                    }
+
+                    // Essayer de charger la photo de profil
+                    String photoFile = u.getProfilePicture();
+                    if (photoFile != null && !photoFile.isBlank()) {
+                        try {
+                            java.io.File file = new java.io.File(
+                                    System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                            if (file.exists()) {
+                                javafx.scene.image.Image img =
+                                        new javafx.scene.image.Image(file.toURI().toString(), 36, 36, true, true);
+                                if (!img.isError()) {
+                                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                                    iv.setFitWidth(36); iv.setFitHeight(36); iv.setPreserveRatio(false);
+                                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(18, 18, 18);
+                                    iv.setClip(clip);
+                                    StackPane pane = new StackPane(iv);
+                                    pane.setMinSize(36, 36); pane.setMaxSize(36, 36);
+                                    pane.setStyle(
+                                            "-fx-background-radius:18;" +
+                                                    "-fx-border-radius:18;" +
+                                                    "-fx-border-color:rgba(255,255,255,0.20);" +
+                                                    "-fx-border-width:2;");
+                                    setGraphic(pane);
+                                    return;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    // Fallback initiales
+                    String initials = u.getUsername() != null && !u.getUsername().isEmpty()
+                            ? u.getUsername().substring(0, Math.min(2, u.getUsername().length())).toUpperCase()
+                            : "?";
+                    String gradient = getAvatarGradient(u);
+                    setGraphic(makeInitialsAvatar(initials, gradient));
+                }
+
+                @Override protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
+                }
+            });
+        }
         if (colUser != null) {
             colUser.setCellValueFactory(d -> {
                 User u = d.getValue().getSubmittedBy();
-                return new SimpleStringProperty(u != null ? u.getUsername() : "—");
+                return new SimpleStringProperty(u != null ? "@" + u.getUsername() : "—");
             });
             colUser.setCellFactory(col -> new TableCell<>() {
                 @Override protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : "@" + item);
+                    setText(empty || item == null ? null : item);
                     setStyle("-fx-text-fill:#43e97b;-fx-font-weight:bold;-fx-font-size:12;-fx-padding:0 12;");
                 }
             });
         }
 
-        // Subject column
+        // ── Subject column ───────────────────────────────────────────
         if (colSubject != null) {
             colSubject.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getSubject()));
             colSubject.setCellFactory(col -> new TableCell<>() {
@@ -345,78 +411,130 @@ public class AdminComplaintController {
             });
         }
 
-        // Category column
+        // ── Category column — FIX: listener pattern ──────────────────
         if (colCategory != null) {
             colCategory.setCellFactory(col -> new TableCell<>() {
+                {
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(null);
+                    if (c == null) return;
+                    setGraphic(makeBadge(
+                            c.getCategory().getLabel(),
+                            "rgba(255,255,255,0.15)",
+                            "rgba(255,255,255,0.3)",
+                            "rgba(255,255,255,0.7)"));
+                    setText(null);
+                }
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) { setGraphic(null); return; }
-                    Complaint c = getRow();
-                    if (c == null) return;
-                    setGraphic(makeBadge(c.getCategory().getLabel(), "rgba(255,255,255,0.15)",
-                            "rgba(255,255,255,0.3)", "rgba(255,255,255,0.7)"));
-                    setText(null);
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
 
-        // Priority column
+        // ── Priority column — FIX: listener pattern ──────────────────
         if (colPriority != null) {
             colPriority.setCellFactory(col -> new TableCell<>() {
-                @Override protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) { setGraphic(null); return; }
-                    Complaint c = getRow();
+                {
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(null);
                     if (c == null) return;
                     ComplaintPriority p = c.getPriority();
-                    String color = p.getColor();
-                    String bg    = color.replace(")", ",0.15)").replace("rgba(", "rgba(")
-                                        .replace("rgb(", "rgba(");
-                    setGraphic(makeBadge(p.getLabel(), "rgba(255,255,255,0.08)",
-                            color.replace(")", ",0.4)").replace("rgb(","rgba("), color));
+                    setGraphic(makeBadge(
+                            p.getLabel(),
+                            "rgba(255,255,255,0.08)",
+                            p.getColor().replace(")", ",0.4)").replace("rgb(", "rgba("),
+                            p.getColor()));
                     setText(null);
+                }
+                @Override protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
 
-        // Status column
+        // ── Status column — FIX: listener pattern ───────────────────
         if (colStatus != null) {
             colStatus.setCellFactory(col -> new TableCell<>() {
+                {
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(null);
+                    if (c == null) return;
+                    ComplaintStatus s = c.getStatus();
+                    setGraphic(makeBadge(
+                            s.getLabel(),
+                            s.getBgColor(),
+                            s.getColor().replace(")", ",0.4)"),
+                            s.getColor()));
+                    setText(null);
+                }
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) { setGraphic(null); return; }
-                    Complaint c = getRow();
-                    if (c == null) return;
-                    ComplaintStatus s = c.getStatus();
-                    setGraphic(makeBadge(s.getLabel(), s.getBgColor(),
-                            s.getColor().replace(")", ",0.4)"), s.getColor()));
-                    setText(null);
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
 
-        // Sentiment column
+        // ── Sentiment column — FIX: listener pattern ─────────────────
         if (colSentiment != null) {
             colSentiment.setCellFactory(col -> new TableCell<>() {
-                @Override protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) { setGraphic(null); return; }
-                    Complaint c = getRow();
-                    if (c == null || !c.hasSentiment()) {
+                {
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(null);
+                    if (c == null) return;
+                    if (!c.hasSentiment()) {
                         Label l = new Label("—");
                         l.setStyle("-fx-text-fill:rgba(255,255,255,0.3);-fx-font-size:12;");
-                        setGraphic(l); return;
+                        setGraphic(l);
+                        return;
                     }
                     Label badge = new Label(c.getSentimentEmoji() + " " + c.getSentimentTextLabel());
-                    badge.setStyle("-fx-text-fill:" + c.getSentimentColor() + ";"
-                            + "-fx-font-size:11;-fx-font-weight:bold;");
+                    badge.setStyle("-fx-text-fill:" + c.getSentimentColor()
+                            + ";-fx-font-size:11;-fx-font-weight:bold;");
                     setGraphic(badge);
                     setText(null);
                 }
+                @Override protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
+                }
             });
         }
 
-        // Assigned column
+        // ── Assigned column ──────────────────────────────────────────
         if (colAssigned != null) {
             colAssigned.setCellValueFactory(d -> {
                 User a = d.getValue().getAssignedTo();
@@ -437,7 +555,7 @@ public class AdminComplaintController {
             });
         }
 
-        // Created column
+        // ── Created column ───────────────────────────────────────────
         if (colCreated != null) {
             colCreated.setCellValueFactory(d -> {
                 var dt = d.getValue().getCreatedAt();
@@ -452,39 +570,52 @@ public class AdminComplaintController {
             });
         }
 
-        // Actions column
+        // ── Actions column — FIX: listener pattern ───────────────────
         if (colActions != null) {
             colActions.setCellFactory(col -> new TableCell<>() {
                 private final Button viewBtn = makeBtn("👁", "info");
                 private final HBox   box     = new HBox(6, viewBtn);
                 {
                     box.setAlignment(Pos.CENTER);
-                    viewBtn.setOnAction(e -> {
-                        Complaint c = getRow();
-                        if (c != null) openDetail(c);
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldC, newC) -> refresh(newC));
                     });
+                    viewBtn.setOnAction(e -> {
+                        TableRow<Complaint> row = getTableRow();
+                        if (row != null && row.getItem() != null) openDetail(row.getItem());
+                    });
+                }
+                private void refresh(Complaint c) {
+                    setGraphic(c == null ? null : box);
                 }
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
-                    setGraphic(empty ? null : box);
+                    if (empty) { setGraphic(null); return; }
+                    TableRow<Complaint> row = getTableRow();
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
 
+        // ── Row factory ──────────────────────────────────────────────
         complaintsTable.setRowFactory(tv -> {
             TableRow<Complaint> row = new TableRow<>();
-            row.setOnMouseClicked(e -> { if (e.getClickCount() == 2 && !row.isEmpty()) openDetail(row.getItem()); });
-            row.setOnMouseEntered(e -> { if (!row.isEmpty()) row.setStyle(
-                    "-fx-background-color:rgba(255,255,255,0.07);-fx-cursor:hand;"); });
-            row.setOnMouseExited( e -> { if (!row.isEmpty()) row.setStyle(""); });
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty()) openDetail(row.getItem());
+            });
+            row.setOnMouseEntered(e -> {
+                if (!row.isEmpty()) row.setStyle(
+                        "-fx-background-color:rgba(255,255,255,0.07);-fx-cursor:hand;");
+            });
+            row.setOnMouseExited(e -> {
+                if (!row.isEmpty()) row.setStyle("");
+            });
             return row;
         });
 
         complaintsTable.setPlaceholder(new Label("No complaints found"));
-    }
-
-    private Complaint getRow() {
-        return null; // called from anonymous class — subclasses override via getTableRow()
     }
 
     // helper for cell factories (needs to call getTableRow() in context)
@@ -495,6 +626,27 @@ public class AdminComplaintController {
                 + "-fx-text-fill:" + color + ";-fx-font-size:11;"
                 + "-fx-font-weight:bold;-fx-padding:3 9;");
         return l;
+    }
+
+    private javafx.scene.layout.StackPane makeInitialsAvatar(String initials, String gradient) {
+        Label lbl = new Label(initials);
+        lbl.setStyle(
+                "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;" +
+                        "-fx-background-color:" + gradient + ";" +
+                        "-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;" +
+                        "-fx-background-radius:18;-fx-alignment:center;" +
+                        "-fx-border-color:rgba(255,255,255,0.15);-fx-border-width:2;-fx-border-radius:18;");
+        StackPane pane = new StackPane(lbl);
+        pane.setMinSize(36, 36); pane.setMaxSize(36, 36);
+        return pane;
+    }
+
+    private String getAvatarGradient(User u) {
+        if (u == null) return "linear-gradient(to bottom right,#667eea,#764ba2)";
+        String roles = u.getRolesJson() != null ? u.getRolesJson() : "";
+        if (roles.contains("ROLE_ADMIN"))  return "linear-gradient(to bottom right,#ff3c64,#ff1744)";
+        if (roles.contains("ROLE_COACH"))  return "linear-gradient(to bottom right,#f093fb,#f5576c)";
+        return "linear-gradient(to bottom right,#667eea,#764ba2)";
     }
 
     private void openDetail(Complaint complaint) {
@@ -607,17 +759,45 @@ public class AdminComplaintController {
     }
 
     private void loadAdminUsersForCombo() {
-        // Populate assign combo — admin users fetched from session or DB
         if (assignAdminCombo == null) return;
         assignAdminCombo.getItems().clear();
-        assignAdminCombo.getItems().add("Select Admin...");
         assignAdminCombo.getItems().add("— Unassign —");
-        // In a real app: load from UserRepository.findAdmins()
-        // Here we leave it extensible — controller wires up the list
-        assignAdminCombo.setValue("Select Admin...");
+        assignAdminCombo.setValue("— Unassign —");
         styleCombo(assignAdminCombo);
-    }
 
+        new Thread(() -> {
+            try {
+                // Charger les admins depuis la DB via UserService
+                com.eyetwin.interfaces.IUserService userService =
+                        new com.eyetwin.services.UserServiceImpl();
+                List<User> admins = userService.getAllUsers().stream()
+                        .filter(u -> {
+                            String roles = u.getRolesJson() != null ? u.getRolesJson() : "";
+                            return roles.contains("ROLE_ADMIN") || roles.contains("ROLE_SUPER_ADMIN");
+                        })
+                        .toList();
+
+                adminUsers = admins;
+
+                Platform.runLater(() -> {
+                    Complaint c = SessionManager.getSelectedComplaint();
+
+                    for (User admin : admins) {
+                        assignAdminCombo.getItems().add(admin.getUsername());
+                    }
+
+                    // Sélectionner l'admin déjà assigné si existant
+                    if (c != null && c.getAssignedTo() != null) {
+                        assignAdminCombo.setValue(c.getAssignedTo().getUsername());
+                    }
+
+                    styleCombo(assignAdminCombo);
+                });
+            } catch (Exception e) {
+                System.err.println("[AdminComplaintController] loadAdminUsersForCombo: " + e.getMessage());
+            }
+        }, "LoadAdminUsers").start();
+    }
     // ─────────────────────────────────────────────────────────────
     //  DETAIL ACTIONS  (mirrors each Symfony route)
     // ─────────────────────────────────────────────────────────────
@@ -634,8 +814,17 @@ public class AdminComplaintController {
                 if (selected.contains("Unassign")) {
                     complaintService.unassign(c.getId());
                 } else {
-                    // In real app: resolve username → user id from UserRepository
-                    int adminId = SessionManager.getCurrentUser().getId(); // fallback
+                    // Trouver l'admin par username dans la liste chargée
+                    User targetAdmin = null;
+                    if (adminUsers != null) {
+                        targetAdmin = adminUsers.stream()
+                                .filter(u -> u.getUsername().equals(selected))
+                                .findFirst()
+                                .orElse(null);
+                    }
+                    int adminId = targetAdmin != null
+                            ? targetAdmin.getId()
+                            : SessionManager.getCurrentUser().getId();
                     complaintService.assign(c.getId(), adminId);
                 }
                 reloadDetail(c.getId());
@@ -644,7 +833,6 @@ public class AdminComplaintController {
             }
         }).start();
     }
-
     /** POST /admin/complaints/{id}/update-status */
     @FXML public void handleUpdateStatus() {
         Complaint c = SessionManager.getSelectedComplaint();
@@ -786,22 +974,33 @@ public class AdminComplaintController {
 
     private void applyTableTheme(TableView<?> table) {
         table.setStyle(
-            "-fx-background-color:transparent;-fx-border-color:transparent;"
-            + "-fx-table-cell-border-color:transparent;"
-            + "-fx-control-inner-background:rgba(20,10,35,0.80);"
-            + "-fx-control-inner-background-alt:rgba(30,15,45,0.60);");
+                "-fx-background-color:transparent;-fx-border-color:transparent;"
+                        + "-fx-table-cell-border-color:transparent;"
+                        + "-fx-control-inner-background:rgba(20,10,35,0.80);"
+                        + "-fx-control-inner-background-alt:rgba(30,15,45,0.60);");
+
         Platform.runLater(() -> Platform.runLater(() -> {
-            var hBg = table.lookup(".column-header-background");
-            if (hBg != null) hBg.setStyle("-fx-background-color:rgba(8,4,16,0.98);");
+            // ── Filler (le carré blanc) ───────────────────────────
+            javafx.scene.Node filler = table.lookup(".column-header-background .filler");
+            if (filler != null)
+                filler.setStyle("-fx-background-color:rgba(8,4,16,0.98);-fx-border-color:transparent;");
+
+            // ── Header background ─────────────────────────────────
+            javafx.scene.Node hBg = table.lookup(".column-header-background");
+            if (hBg != null)
+                hBg.setStyle("-fx-background-color:rgba(8,4,16,0.98);");
+
+            // ── Chaque colonne header ─────────────────────────────
             table.lookupAll(".column-header").forEach(n -> n.setStyle(
-                "-fx-background-color:rgba(8,4,16,0.98);"
-                + "-fx-border-color:transparent transparent rgba(102,126,234,0.35) transparent;"
-                + "-fx-border-width:0 0 1 0;-fx-size:46px;"));
+                    "-fx-background-color:rgba(8,4,16,0.98);"
+                            + "-fx-border-color:transparent transparent rgba(79,172,254,0.35) transparent;"
+                            + "-fx-border-width:0 0 1 0;-fx-size:46px;"));
+
+            // ── Labels dans les headers ───────────────────────────
             table.lookupAll(".column-header .label").forEach(n -> n.setStyle(
-                "-fx-text-fill:rgba(255,255,255,0.90);-fx-font-weight:bold;-fx-font-size:11px;"));
+                    "-fx-text-fill:rgba(255,255,255,0.90);-fx-font-weight:bold;-fx-font-size:11px;"));
         }));
     }
-
     // ═══════════════════════════════════════════════════════════
     //  UTILITIES
     // ═══════════════════════════════════════════════════════════
