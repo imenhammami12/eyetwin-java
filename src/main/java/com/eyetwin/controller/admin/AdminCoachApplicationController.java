@@ -92,7 +92,7 @@ public class AdminCoachApplicationController {
     @FXML private Label    certificationsLabel;
     @FXML private Label    experienceLabel;
     @FXML private VBox     cvBox;
-    @FXML private Label    cvFileLabel;
+    @FXML private Button   cvFileLabel;        // ← Label → Button
     @FXML private VBox     reviewCommentBox;
     @FXML private Label    reviewCommentTitleLabel;
     @FXML private Label    reviewCommentLabel;
@@ -139,6 +139,83 @@ public class AdminCoachApplicationController {
         setupFilterCombos();
         setupTable();
         loadAll();
+    }
+
+
+    @FXML
+    public void handleOpenCv() {
+        if (selectedApplication == null) return;
+        String cvPath = selectedApplication.getCvFile();
+        if (cvPath == null || cvPath.isBlank()) return;
+
+        new Thread(() -> {
+            try {
+                java.io.File file;
+
+                if (cvPath.startsWith("http://") || cvPath.startsWith("https://")) {
+                    // URL distante → navigateur
+                    Desktop.getDesktop().browse(new URI(cvPath));
+                    return;
+                }
+
+                if (new java.io.File(cvPath).isAbsolute()) {
+                    // Chemin absolu stocké en base
+                    file = new java.io.File(cvPath);
+                } else {
+                    // Nom de fichier seul → chercher dans les dossiers connus
+                    java.io.File found = resolveUploadedFile(cvPath);
+                    if (found != null) {
+                        file = found;
+                    } else {
+                        final String name = cvPath;
+                        Platform.runLater(() ->
+                                alert(Alert.AlertType.WARNING, "CV Not Found",
+                                        "File not found:\n" + name
+                                                + "\n\nExpected in:\n" + getUploadDir()));
+                        return;
+                    }
+                }
+
+                if (file.exists()) {
+                    Desktop.getDesktop().open(file);
+                } else {
+                    final java.io.File f = file;
+                    Platform.runLater(() ->
+                            alert(Alert.AlertType.WARNING, "CV Not Found",
+                                    "Cannot open file:\n" + f.getAbsolutePath()));
+                }
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        alert(Alert.AlertType.ERROR, "Error", "Cannot open CV: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    /**
+     * Cherche le fichier dans les dossiers d'upload possibles.
+     */
+    private java.io.File resolveUploadedFile(String filename) {
+        String[] searchDirs = {
+                getUploadDir(),
+                System.getProperty("user.home") + "/uploads/cv",
+                System.getProperty("user.home") + "/uploads",
+                System.getProperty("user.dir") + "/uploads/cv",
+                System.getProperty("user.dir") + "/uploads",
+                "C:/eyetwin/uploads/cv",
+                "C:/eyetwin/uploads"
+        };
+        for (String dir : searchDirs) {
+            java.io.File f = new java.io.File(dir, filename);
+            if (f.exists()) return f;
+        }
+        return null;
+    }
+
+    /**
+     * Dossier principal d'upload — adapte ce chemin à ton projet.
+     */
+    private String getUploadDir() {
+        return System.getProperty("user.dir") + "/uploads/cv";
     }
 
     private void setupFilterCombos() {
@@ -507,6 +584,18 @@ public class AdminCoachApplicationController {
         if (adminTopbarController != null) adminTopbarController.setTitle("Application Details");
         if (selectedApplication == null) { navigateTo("AdminCoachApplications.fxml"); return; }
         populateDetail(selectedApplication);
+
+        Platform.runLater(() -> {
+            if (approveCommentField != null) {
+                approveCommentField.lookup(".content").setStyle(
+                        "-fx-background-color:#160a22;-fx-background-radius:8;");
+            }
+            if (rejectCommentField != null) {
+                rejectCommentField.lookup(".content").setStyle(
+                        "-fx-background-color:#160a22;-fx-background-radius:8;");
+            }
+        });
+
     }
 
     private void populateDetail(CoachApplication app) {
@@ -561,7 +650,14 @@ public class AdminCoachApplicationController {
         // ── CV ─────────────────────────────────────────────
         boolean hasCv = app.getCvFile() != null && !app.getCvFile().isBlank();
         showNode(cvBox, hasCv);
-        if (hasCv) setLabelText(cvFileLabel, app.getCvFile());
+        if (hasCv) {
+            // Affiche seulement le nom du fichier, pas le chemin complet
+            String cvPath = app.getCvFile();
+            String cvName = cvPath.contains("/") || cvPath.contains("\\")
+                    ? new java.io.File(cvPath).getName()
+                    : cvPath;
+            if (cvFileLabel != null) cvFileLabel.setText("📄  " + cvName);
+        }
 
         // ── Review comment (if already reviewed) ──────────
         boolean hasComment = app.getReviewComment() != null && !app.getReviewComment().isBlank();
@@ -695,55 +791,60 @@ public class AdminCoachApplicationController {
     @FXML public void goBackToList() { navigateTo("AdminCoachApplications.fxml"); }
 
     // ─────────────────────────────────────────────────────
-    //  EMAIL NOTIFICATIONS
-    // ─────────────────────────────────────────────────────
+//  EMAIL NOTIFICATIONS
+// ─────────────────────────────────────────────────────
     private void sendApprovalEmail(User user, String comment) {
+        int year = java.time.LocalDate.now().getYear();
+        String name = user.getFullName() != null ? user.getFullName() : user.getUsername();
+
         String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
-            + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
-            + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
-            + "<tr><td align='center'>"
-            + "<table width='560' cellpadding='0' cellspacing='0' border='0'"
-            + " style='background:#0d0618;border-radius:18px;overflow:hidden;"
-            + "border:1px solid rgba(67,233,123,0.25);'>"
-            + "<tr><td height='5' style='background:linear-gradient(to right,#43e97b,#38f9d7);font-size:0;'>&nbsp;</td></tr>"
-            + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(67,233,123,0.20);'>"
-            + "<span style='font-size:20px;font-weight:900;color:white;'>EYE<span style='color:#43e97b;'>TWIN</span></span>"
-            + "</td></tr>"
-            + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
-            + "<div style='font-size:48px;margin-bottom:16px;'>🎉</div>"
-            + "<h1 style='margin:0 0 10px;color:white;font-size:24px;'>Congratulations, " + (user.getFullName() != null ? user.getFullName() : user.getUsername()) + "!</h1>"
-            + "<p style='margin:0 0 24px;color:rgba(255,255,255,0.55);font-size:14px;line-height:1.7;'>"
-            + "Your <strong style='color:#43e97b;'>Coach application</strong> has been <strong style='color:#43e97b;'>approved</strong>!<br>"
-            + "You now have full Coach access on the EyeTwin platform."
-            + "</p>"
-            + "</td></tr>"
-            + "<tr><td style='padding:0 32px 24px;'>"
-            + "<div style='background:#160a22;border:1px solid rgba(67,233,123,0.22);border-radius:12px;padding:20px;'>"
-            + "<p style='margin:0 0 8px;color:rgba(255,255,255,0.50);font-size:12px;'>Your new role:</p>"
-            + "<p style='margin:0;color:#43e97b;font-size:18px;font-weight:bold;'>⚡ Coach</p>"
-            + (comment != null && !comment.isBlank()
+                + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0'"
+                + " style='background:#0d0618;border-radius:18px;overflow:hidden;"
+                + "border:1px solid rgba(67,233,123,0.25);'>"
+                + "<tr><td height='5' style='background:linear-gradient(to right,#43e97b,#38f9d7);font-size:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(67,233,123,0.20);'>"
+                + "<span style='font-size:20px;font-weight:900;color:white;'>EYE<span style='color:#43e97b;'>TWIN</span></span>"
+                + "</td></tr>"
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
+                + "<div style='font-size:48px;margin-bottom:16px;'>&#127881;</div>"
+                + "<h1 style='margin:0 0 10px;color:white;font-size:24px;'>Congratulations, " + name + "!</h1>"
+                + "<p style='margin:0 0 24px;color:rgba(255,255,255,0.55);font-size:14px;line-height:1.7;'>"
+                + "Your <strong style='color:#43e97b;'>Coach application</strong> has been <strong style='color:#43e97b;'>approved</strong>!<br>"
+                + "You now have full Coach access on the EyeTwin platform."
+                + "</p></td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<div style='background:#160a22;border:1px solid rgba(67,233,123,0.22);border-radius:12px;padding:20px;'>"
+                + "<p style='margin:0 0 8px;color:rgba(255,255,255,0.50);font-size:12px;'>Your new role:</p>"
+                + "<p style='margin:0;color:#43e97b;font-size:18px;font-weight:bold;'>&#9889; Coach</p>"
+                + (comment != null && !comment.isBlank()
                 ? "<hr style='border-color:rgba(255,255,255,0.08);margin:14px 0;'>"
-                  + "<p style='margin:0 0 6px;color:rgba(255,255,255,0.50);font-size:12px;'>Admin comment:</p>"
-                  + "<p style='margin:0;color:rgba(255,255,255,0.80);font-size:13px;line-height:1.6;'>" + comment + "</p>"
+                + "<p style='margin:0 0 6px;color:rgba(255,255,255,0.50);font-size:12px;'>Admin comment:</p>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.80);font-size:13px;line-height:1.6;'>" + comment + "</p>"
                 : "")
-            + "</div></td></tr>"
-            + "<tr><td align='center' style='padding:8px 32px 36px;'>"
-            + "<a href='https://eye2win-metamind.onrender.com'"
-            + " style='display:inline-block;padding:14px 36px;"
-            + "background:linear-gradient(to right,#43e97b,#38f9d7);"
-            + "color:#0a0514;text-decoration:none;border-radius:10px;"
-            + "font-weight:bold;font-size:14px;'>Access the Platform →</a>"
-            + "</td></tr>"
-            + "<tr><td style='padding:18px 32px;text-align:center;"
-            + "border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.15);'>"
-            + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:10px;'>"
-            + "© " + java.time.LocalDate.now().getYear() + " EyeTwin E-Sport Platform</p>"
-            + "</td></tr></table></td></tr></table></body></html>";
+                + "</div></td></tr>"
+                + "<tr><td align='center' style='padding:8px 32px 36px;'>"
+                + "<a href='https://eye2win-metamind.onrender.com'"
+                + " style='display:inline-block;padding:14px 36px;"
+                + "background:linear-gradient(to right,#43e97b,#38f9d7);"
+                + "color:#0a0514;text-decoration:none;border-radius:10px;"
+                + "font-weight:bold;font-size:14px;'>Access the Platform &rarr;</a>"
+                + "</td></tr>"
+                + "<tr><td style='padding:18px 32px;text-align:center;"
+                + "border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.15);'>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:10px;'>"
+                + "&#169; " + year + " EyeTwin E-Sport Platform</p>"
+                + "</td></tr></table></td></tr></table></body></html>";
 
         new Thread(() -> {
             try {
-                EmailService.getInstance().sendHtml(user.getEmail(),
-                        "🎉 Your Coach application has been approved!", html);
+                EmailService.getInstance().sendHtml(
+                        user.getEmail(),
+                        "&#127881; Your Coach application has been approved!",
+                        html
+                );
             } catch (Exception e) {
                 System.err.println("[CoachApp] Approval email failed: " + e.getMessage());
             }
@@ -751,49 +852,55 @@ public class AdminCoachApplicationController {
     }
 
     private void sendRejectionEmail(User user, String comment) {
+        int year = java.time.LocalDate.now().getYear();
+        String name = user.getFullName() != null ? user.getFullName() : user.getUsername();
+
         String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>"
-            + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
-            + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
-            + "<tr><td align='center'>"
-            + "<table width='560' cellpadding='0' cellspacing='0' border='0'"
-            + " style='background:#0d0618;border-radius:18px;overflow:hidden;"
-            + "border:1px solid rgba(255,60,100,0.25);'>"
-            + "<tr><td height='5' style='background:linear-gradient(to right,#ff3c64,#c0132f);font-size:0;'>&nbsp;</td></tr>"
-            + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(255,60,100,0.20);'>"
-            + "<span style='font-size:20px;font-weight:900;color:white;'>EYE<span style='color:#ff3c64;'>TWIN</span></span>"
-            + "</td></tr>"
-            + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
-            + "<h1 style='margin:0 0 10px;color:white;font-size:22px;'>Application Update</h1>"
-            + "<p style='margin:0 0 24px;color:rgba(255,255,255,0.55);font-size:14px;line-height:1.7;'>"
-            + "Hello <strong style='color:#ff8fa3;'>" + (user.getFullName() != null ? user.getFullName() : user.getUsername()) + "</strong>,<br>"
-            + "After careful review, your Coach application has not been approved at this time."
-            + "</p></td></tr>"
-            + "<tr><td style='padding:0 32px 28px;'>"
-            + "<div style='background:rgba(255,60,100,0.08);border:1px solid rgba(255,60,100,0.30);border-radius:12px;padding:20px;'>"
-            + "<p style='margin:0 0 8px;color:rgba(255,255,255,0.50);font-size:12px;'>Reason from our team:</p>"
-            + "<p style='margin:0;color:rgba(255,255,255,0.80);font-size:13px;line-height:1.6;'>" + comment + "</p>"
-            + "</div></td></tr>"
-            + "<tr><td style='padding:0 32px 28px;'>"
-            + "<p style='margin:0;color:rgba(255,255,255,0.50);font-size:13px;line-height:1.7;text-align:center;'>"
-            + "You are welcome to reapply in the future with additional experience and certifications."
-            + "</p></td></tr>"
-            + "<tr><td align='center' style='padding:8px 32px 36px;'>"
-            + "<a href='https://eye2win-metamind.onrender.com'"
-            + " style='display:inline-block;padding:14px 36px;"
-            + "background:linear-gradient(to right,#ff3c64,#c0132f);"
-            + "color:white;text-decoration:none;border-radius:10px;"
-            + "font-weight:bold;font-size:14px;'>Visit Platform →</a>"
-            + "</td></tr>"
-            + "<tr><td style='padding:18px 32px;text-align:center;"
-            + "border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.15);'>"
-            + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:10px;'>"
-            + "© " + java.time.LocalDate.now().getYear() + " EyeTwin E-Sport Platform</p>"
-            + "</td></tr></table></td></tr></table></body></html>";
+                + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0'"
+                + " style='background:#0d0618;border-radius:18px;overflow:hidden;"
+                + "border:1px solid rgba(255,60,100,0.25);'>"
+                + "<tr><td height='5' style='background:linear-gradient(to right,#ff3c64,#c0132f);font-size:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(255,60,100,0.20);'>"
+                + "<span style='font-size:20px;font-weight:900;color:white;'>EYE<span style='color:#ff3c64;'>TWIN</span></span>"
+                + "</td></tr>"
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
+                + "<h1 style='margin:0 0 10px;color:white;font-size:22px;'>Application Update</h1>"
+                + "<p style='margin:0 0 24px;color:rgba(255,255,255,0.55);font-size:14px;line-height:1.7;'>"
+                + "Hello <strong style='color:#ff8fa3;'>" + name + "</strong>,<br>"
+                + "After careful review, your Coach application has not been approved at this time."
+                + "</p></td></tr>"
+                + "<tr><td style='padding:0 32px 28px;'>"
+                + "<div style='background:rgba(255,60,100,0.08);border:1px solid rgba(255,60,100,0.30);border-radius:12px;padding:20px;'>"
+                + "<p style='margin:0 0 8px;color:rgba(255,255,255,0.50);font-size:12px;'>Reason from our team:</p>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.80);font-size:13px;line-height:1.6;'>" + comment + "</p>"
+                + "</div></td></tr>"
+                + "<tr><td style='padding:0 32px 28px;'>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.50);font-size:13px;line-height:1.7;text-align:center;'>"
+                + "You are welcome to reapply in the future with additional experience and certifications."
+                + "</p></td></tr>"
+                + "<tr><td align='center' style='padding:8px 32px 36px;'>"
+                + "<a href='https://eye2win-metamind.onrender.com'"
+                + " style='display:inline-block;padding:14px 36px;"
+                + "background:linear-gradient(to right,#ff3c64,#c0132f);"
+                + "color:white;text-decoration:none;border-radius:10px;"
+                + "font-weight:bold;font-size:14px;'>Visit Platform &rarr;</a>"
+                + "</td></tr>"
+                + "<tr><td style='padding:18px 32px;text-align:center;"
+                + "border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.15);'>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:10px;'>"
+                + "&#169; " + year + " EyeTwin E-Sport Platform</p>"
+                + "</td></tr></table></td></tr></table></body></html>";
 
         new Thread(() -> {
             try {
-                EmailService.getInstance().sendHtml(user.getEmail(),
-                        "Your Coach application status update", html);
+                EmailService.getInstance().sendHtml(
+                        user.getEmail(),
+                        "Your Coach application status update",
+                        html
+                );
             } catch (Exception e) {
                 System.err.println("[CoachApp] Rejection email failed: " + e.getMessage());
             }
