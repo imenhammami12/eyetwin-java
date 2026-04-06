@@ -9,6 +9,7 @@ module org.example.eyetwinjava {
     requires java.prefs;
     requires opencv;
     requires jakarta.mail;
+    requires java.desktop;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

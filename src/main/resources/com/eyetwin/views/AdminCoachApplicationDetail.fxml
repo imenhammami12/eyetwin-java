@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminCoachApplicationController"
+            style="-fx-background-color: #0a0514;">
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+    <center>
+        <VBox style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color:transparent;-fx-background:transparent;">
+                <VBox spacing="16" style="-fx-padding:24;">
+
+                    <!-- Back -->
+                    <Button text="← Back to Applications" onAction="#goBackToList"
+                            style="-fx-background-color:rgba(255,255,255,0.05);
+                                   -fx-border-color:rgba(255,255,255,0.15);-fx-border-radius:8;
+                                   -fx-background-radius:8;-fx-text-fill:rgba(255,255,255,0.7);
+                                   -fx-padding:8 16;-fx-cursor:hand;"/>
+
+                    <HBox spacing="16" alignment="TOP_LEFT">
+
+                        <!-- LEFT — Applicant card -->
+                        <VBox spacing="14" prefWidth="290"
+                              style="-fx-background-color:rgba(255,255,255,0.02);
+                                     -fx-border-color:rgba(255,255,255,0.07);
+                                     -fx-border-radius:14;-fx-background-radius:14;
+                                     -fx-padding:24;-fx-alignment:CENTER;">
+
+                            <!-- Avatar -->
+                            <StackPane prefWidth="100" prefHeight="100" alignment="CENTER">
+                                <Circle radius="50"
+                                        fill="linear-gradient(from 0% 0% to 100% 100%,#667eea,#764ba2)"/>
+                                <Label fx:id="avatarInitialLabel" text="??"
+                                       style="-fx-font-size:32;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                            </StackPane>
+
+                            <!-- Name -->
+                            <Label fx:id="applicantNameLabel" text="—"
+                                   style="-fx-font-size:16;-fx-font-weight:bold;-fx-text-fill:white;
+                                          -fx-wrap-text:true;-fx-text-alignment:center;"/>
+                            <Label fx:id="applicantUsernameLabel" text="@—"
+                                   style="-fx-font-size:13;-fx-text-fill:rgba(255,255,255,0.5);"/>
+
+                            <!-- Status badge -->
+                            <Label fx:id="statusBadgeLabel" text="PENDING"
+                                   style="-fx-background-color:rgba(255,193,7,0.15);
+                                          -fx-border-color:rgba(255,193,7,0.40);
+                                          -fx-border-radius:8;-fx-background-radius:8;
+                                          -fx-text-fill:#ffd54f;-fx-font-size:11;
+                                          -fx-font-weight:bold;-fx-padding:5 14;"/>
+
+                            <!-- Bio -->
+                            <VBox fx:id="bioBox" spacing="4" visible="false" managed="false"
+                                  style="-fx-background-color:rgba(255,255,255,0.03);
+                                         -fx-border-radius:10;-fx-background-radius:10;-fx-padding:10;">
+                                <Label text="BIO"
+                                       style="-fx-text-fill:rgba(255,255,255,0.35);
+                                              -fx-font-size:9;-fx-font-family:monospace;"/>
+                                <Label fx:id="bioLabel" text="" wrapText="true"
+                                       style="-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:11;"/>
+                            </VBox>
+
+                            <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
+
+                            <!-- Mini stats -->
+                            <VBox spacing="8" fillWidth="true">
+                                <Label text="APPLICANT INFO"
+                                       style="-fx-font-size:9;-fx-text-fill:rgba(255,255,255,0.4);
+                                              -fx-font-family:monospace;"/>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Email :"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:11;"/>
+                                    <Label fx:id="emailLabel" text="—"
+                                           style="-fx-text-fill:#4facfe;-fx-font-size:11;"/>
+                                </HBox>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Applied :"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:11;"/>
+                                    <Label fx:id="submittedLabel" text="—"
+                                           style="-fx-text-fill:white;-fx-font-size:11;-fx-font-weight:bold;"/>
+                                </HBox>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Reviewed :"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:11;"/>
+                                    <Label fx:id="reviewedLabel" text="Not yet"
+                                           style="-fx-text-fill:rgba(255,255,255,0.55);-fx-font-size:11;"/>
+                                </HBox>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Member since :"
+                                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:11;"/>
+                                    <Label fx:id="memberSinceLabel" text="—"
+                                           style="-fx-text-fill:white;-fx-font-size:11;"/>
+                                </HBox>
+                            </VBox>
+
+                            <Separator style="-fx-background-color:rgba(255,255,255,0.08);"/>
+
+                            <!-- Contact buttons -->
+                            <VBox spacing="8" fillWidth="true">
+                                <Button fx:id="viewProfileBtn" text="👁  View Profile"
+                                        onAction="#handleViewProfile" maxWidth="Infinity"
+                                        style="-fx-background-color:linear-gradient(to right,#667eea,#764ba2);
+                                               -fx-text-fill:white;-fx-background-radius:8;
+                                               -fx-padding:10;-fx-cursor:hand;-fx-font-weight:bold;"/>
+                                <Button fx:id="contactBtn" text="✉  Send Email"
+                                        onAction="#handleContactEmail" maxWidth="Infinity"
+                                        style="-fx-background-color:rgba(255,255,255,0.05);
+                                               -fx-border-color:rgba(255,255,255,0.15);-fx-border-radius:8;
+                                               -fx-background-radius:8;-fx-text-fill:rgba(255,255,255,0.70);
+                                               -fx-padding:10;-fx-cursor:hand;"/>
+                            </VBox>
+
+                        </VBox>
+
+                        <!-- RIGHT — Application details -->
+                        <VBox spacing="14" HBox.hgrow="ALWAYS">
+
+                            <!-- Certifications -->
+                            <VBox spacing="0"
+                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                         -fx-border-color:rgba(255,255,255,0.07);
+                                         -fx-border-radius:14;-fx-background-radius:14;">
+                                <Label text="🏅  Certifications"
+                                       style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:14 16;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.07);"/>
+                                <Label fx:id="certificationsLabel" text="—" wrapText="true"
+                                       style="-fx-text-fill:rgba(255,255,255,0.80);-fx-font-size:13;
+                                              -fx-padding:16;-fx-line-spacing:4;"/>
+                            </VBox>
+
+                            <!-- Experience -->
+                            <VBox spacing="0"
+                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                         -fx-border-color:rgba(255,255,255,0.07);
+                                         -fx-border-radius:14;-fx-background-radius:14;">
+                                <Label text="💼  Experience"
+                                       style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:14 16;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.07);"/>
+                                <Label fx:id="experienceLabel" text="—" wrapText="true"
+                                       style="-fx-text-fill:rgba(255,255,255,0.80);-fx-font-size:13;
+                                              -fx-padding:16;-fx-line-spacing:4;"/>
+                            </VBox>
+
+                            <!-- CV + Documents -->
+                            <VBox fx:id="cvBox" spacing="0" visible="false" managed="false"
+                                  style="-fx-background-color:rgba(255,255,255,0.02);
+                                         -fx-border-color:rgba(255,255,255,0.07);
+                                         -fx-border-radius:14;-fx-background-radius:14;">
+                                <Label text="📄  CV / Resume"
+                                       style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:14 16;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.07);"/>
+                                <Label fx:id="cvFileLabel" text="—"
+                                       style="-fx-text-fill:#4facfe;-fx-font-size:13;-fx-padding:16;"/>
+                            </VBox>
+
+                            <!-- Review comment (if already reviewed) -->
+                            <VBox fx:id="reviewCommentBox" spacing="0" visible="false" managed="false"
+                                  style="-fx-border-radius:12;-fx-background-radius:12;-fx-padding:0;">
+                                <Label fx:id="reviewCommentTitleLabel" text="💬  Review Comment"
+                                       style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:14 16;"/>
+                                <Separator style="-fx-background-color:rgba(255,255,255,0.07);"/>
+                                <Label fx:id="reviewCommentLabel" text="" wrapText="true"
+                                       style="-fx-font-size:13;-fx-padding:16;-fx-line-spacing:4;"/>
+                            </VBox>
+
+                            <!-- APPROVE / REJECT forms (shown only when reviewable) -->
+                            <HBox fx:id="actionBox" spacing="14" visible="false" managed="false">
+
+                                <!-- Approve -->
+                                <VBox spacing="10" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:rgba(67,233,123,0.06);
+                                             -fx-border-color:rgba(67,233,123,0.30);
+                                             -fx-border-radius:12;-fx-background-radius:12;-fx-padding:18;">
+                                    <Label text="✓  Approve Application"
+                                           style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:#43e97b;"/>
+                                    <Label text="Comment (optional)"
+                                           style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.50);"/>
+                                    <TextArea fx:id="approveCommentField"
+                                              promptText="Congratulations on your application…"
+                                              prefRowCount="3" wrapText="true"
+                                              style="-fx-background-color:#160a22;
+                                                     -fx-border-color:rgba(67,233,123,0.30);
+                                                     -fx-border-radius:8;-fx-background-radius:8;
+                                                     -fx-text-fill:white;
+                                                     -fx-prompt-text-fill:rgba(255,255,255,0.28);
+                                                     -fx-padding:10;"/>
+                                    <Button text="✓  Approve This Application"
+                                            onAction="#handleApprove" maxWidth="Infinity"
+                                            style="-fx-background-color:linear-gradient(to right,#43e97b,#38f9d7);
+                                                   -fx-text-fill:#0a0514;-fx-background-radius:8;
+                                                   -fx-border-color:transparent;-fx-padding:11;
+                                                   -fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13;"/>
+                                    <Label text="✓ User will receive COACH role and a confirmation email"
+                                           wrapText="true"
+                                           style="-fx-text-fill:rgba(67,233,123,0.60);-fx-font-size:11;"/>
+                                </VBox>
+
+                                <!-- Reject -->
+                                <VBox spacing="10" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:rgba(255,60,100,0.06);
+                                             -fx-border-color:rgba(255,60,100,0.30);
+                                             -fx-border-radius:12;-fx-background-radius:12;-fx-padding:18;">
+                                    <Label text="✕  Reject Application"
+                                           style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:#ff6b7a;"/>
+                                    <HBox spacing="4" alignment="CENTER_LEFT">
+                                        <Label text="Rejection Reason"
+                                               style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.50);"/>
+                                        <Label text="*"
+                                               style="-fx-font-size:11;-fx-text-fill:#ff3c64;-fx-font-weight:bold;"/>
+                                    </HBox>
+                                    <TextArea fx:id="rejectCommentField"
+                                              promptText="Please specify the reason for rejection…"
+                                              prefRowCount="3" wrapText="true"
+                                              style="-fx-background-color:#160a22;
+                                                     -fx-border-color:rgba(255,60,100,0.30);
+                                                     -fx-border-radius:8;-fx-background-radius:8;
+                                                     -fx-text-fill:white;
+                                                     -fx-prompt-text-fill:rgba(255,255,255,0.28);
+                                                     -fx-padding:10;"/>
+                                    <Label fx:id="rejectErrLabel" text="" visible="false" managed="false"
+                                           style="-fx-text-fill:#ff6b7a;-fx-font-size:11;"/>
+                                    <Button text="✕  Reject This Application"
+                                            onAction="#handleReject" maxWidth="Infinity"
+                                            style="-fx-background-color:linear-gradient(to right,#ff3c64,#c0132f);
+                                                   -fx-text-fill:white;-fx-background-radius:8;
+                                                   -fx-border-color:transparent;-fx-padding:11;
+                                                   -fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13;"/>
+                                    <Label text="✉ User will be notified by email with your comment"
+                                           wrapText="true"
+                                           style="-fx-text-fill:rgba(255,107,122,0.60);-fx-font-size:11;"/>
+                                </VBox>
+                            </HBox>
+
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
