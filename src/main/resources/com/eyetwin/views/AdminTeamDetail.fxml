@@ -166,55 +166,31 @@
                             <!-- Active Members -->
                             <VBox spacing="0"
                                   style="-fx-background-color: rgba(255,255,255,0.02);
-                                         -fx-border-color: rgba(255,255,255,0.07);
-                                         -fx-border-radius: 14; -fx-background-radius: 14;">
+             -fx-border-color: rgba(255,255,255,0.07);
+             -fx-border-radius: 14; -fx-background-radius: 14;">
 
                                 <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 14 16;">
                                     <Label text="👥  Active Members"
                                            style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;"/>
                                     <Label fx:id="activeMembersBadge" text="0"
                                            style="-fx-background-color: rgba(67,233,123,0.25);
-                                                  -fx-border-color: rgba(67,233,123,0.50);
-                                                  -fx-border-radius: 10; -fx-background-radius: 10;
-                                                  -fx-text-fill: #43e97b; -fx-font-size: 10;
-                                                  -fx-font-weight: bold; -fx-padding: 2 8;"/>
+                      -fx-border-color: rgba(67,233,123,0.50);
+                      -fx-border-radius: 10; -fx-background-radius: 10;
+                      -fx-text-fill: #43e97b; -fx-font-size: 10;
+                      -fx-font-weight: bold; -fx-padding: 2 8;"/>
                                 </HBox>
 
                                 <Separator style="-fx-background-color: rgba(255,255,255,0.07);"/>
 
-                                <!-- Empty state -->
                                 <VBox fx:id="membersEmptyState" alignment="CENTER" spacing="8"
                                       style="-fx-padding: 36;">
-                                    <Label text="👥"
-                                           style="-fx-font-size: 36; -fx-opacity: 0.15;"/>
+                                    <Label text="👥" style="-fx-font-size: 36; -fx-opacity: 0.15;"/>
                                     <Label text="No active members"
-                                           style="-fx-text-fill: rgba(255,255,255,0.50);
-                                                  -fx-font-size: 14; -fx-font-weight: bold;"/>
-                                    <Label text="This team has no active members yet."
-                                           style="-fx-text-fill: rgba(255,255,255,0.30); -fx-font-size: 12;"/>
+                                           style="-fx-text-fill: rgba(255,255,255,0.50); -fx-font-size: 14; -fx-font-weight: bold;"/>
                                 </VBox>
 
-                                <!-- Members Table -->
-                                <TableView fx:id="membersTable" visible="false" managed="false"
-                                           prefHeight="280"
-                                           style="-fx-background-color: transparent;
-                                                  -fx-border-color: transparent;
-                                                  -fx-table-cell-border-color: transparent;
-                                                  -fx-control-inner-background: rgba(20,10,35,0.80);
-                                                  -fx-control-inner-background-alt: rgba(30,15,45,0.60);">
-                                    <columns>
-                                        <TableColumn fx:id="colMemberAvatar"   text="Photo"    prefWidth="70"/>
-                                        <TableColumn fx:id="colMemberUsername" text="Username" prefWidth="160"/>
-                                        <TableColumn fx:id="colMemberEmail"    text="Email"    prefWidth="200"/>
-                                        <TableColumn fx:id="colMemberRole"     text="Role"     prefWidth="130"/>
-                                        <TableColumn fx:id="colMemberJoined"   text="Joined"   prefWidth="120"/>
-                                        <TableColumn fx:id="colMemberStatus"   text="Status"   prefWidth="110"/>
-                                    </columns>
-                                    <placeholder>
-                                        <Label text="No members found"
-                                               style="-fx-text-fill: rgba(255,255,255,0.30); -fx-font-size: 13;"/>
-                                    </placeholder>
-                                </TableView>
+                                <!-- Remplace TableView par VBox dynamique -->
+                                <VBox fx:id="membersListBox" spacing="0" style="-fx-padding: 8;"/>
                             </VBox>
 
                             <!-- Pending Requests -->

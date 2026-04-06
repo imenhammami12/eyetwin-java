@@ -92,7 +92,7 @@ public class AdminTeamController {
     @FXML private TableColumn<TeamMembership, String>colMemberRole;
     @FXML private TableColumn<TeamMembership, String>colMemberJoined;
     @FXML private TableColumn<TeamMembership, String>colMemberStatus;
-
+    @FXML private VBox membersListBox;
     // ── DETAIL VIEW — Pending table ───────────────────────────────
     @FXML private Label                              pendingBadge;
     @FXML private VBox                               pendingEmptyState;
@@ -300,26 +300,84 @@ public class AdminTeamController {
         // Logo column
         if (colLogo != null) {
             colLogo.setCellFactory(col -> new TableCell<>() {
+                {
+                    setAlignment(Pos.CENTER);
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldT, newT) -> refresh(newT));
+                    });
+                }
+                private void refresh(Team t) {
+                    setGraphic(null);
+                    if (t == null) return;
+
+                    String initials = t.getName() != null && t.getName().length() >= 2
+                            ? t.getName().substring(0, 2).toUpperCase() : "??";
+
+                    // ── Essayer de charger le logo ───────────────────
+                    String logoPath = t.getLogo();
+                    if (logoPath != null && !logoPath.isBlank()) {
+                        try {
+                            String url = resolveLogoUrl(logoPath);
+                            if (url != null) {
+                                javafx.scene.image.Image img =
+                                        new javafx.scene.image.Image(url, 48, 48, true, true);
+                                if (!img.isError()) {
+                                    javafx.scene.image.ImageView iv =
+                                            new javafx.scene.image.ImageView(img);
+                                    iv.setFitWidth(48); iv.setFitHeight(48);
+                                    iv.setPreserveRatio(false);
+
+                                    // Clip arrondi
+                                    javafx.scene.shape.Rectangle clip =
+                                            new javafx.scene.shape.Rectangle(48, 48);
+                                    clip.setArcWidth(10); clip.setArcHeight(10);
+                                    iv.setClip(clip);
+
+                                    // Label initiales par-dessus
+                                    Label overlay = new Label(initials);
+                                    overlay.setStyle(
+                                            "-fx-text-fill:white;-fx-font-weight:bold;" +
+                                                    "-fx-font-size:13;" +
+                                                    "-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.9),8,0,0,1);");
+
+                                    // Overlay sombre
+                                    javafx.scene.layout.Region dark =
+                                            new javafx.scene.layout.Region();
+                                    dark.setStyle(
+                                            "-fx-background-color:rgba(0,0,0,0.35);" +
+                                                    "-fx-background-radius:10;");
+
+                                    StackPane pane = new StackPane(iv, dark, overlay);
+                                    pane.setMinSize(48, 48); pane.setMaxSize(48, 48);
+                                    pane.setStyle("-fx-background-radius:10;");
+
+                                    setGraphic(pane);
+                                    return;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    // ── Fallback initiales ───────────────────────────
+                    Label avatar = new Label(initials);
+                    avatar.setStyle(
+                            "-fx-background-color:linear-gradient(to bottom right,#667eea,#764ba2);" +
+                                    "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;" +
+                                    "-fx-min-width:48;-fx-min-height:48;-fx-max-width:48;-fx-max-height:48;" +
+                                    "-fx-background-radius:10;-fx-alignment:center;");
+                    setGraphic(avatar);
+                }
+
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) { setGraphic(null); return; }
                     TableRow<Team> row = getTableRow();
-                    if (row == null || row.getItem() == null) return;
-                    Team t = row.getItem();
-                    String initials = t.getName() != null && t.getName().length() >= 2
-                            ? t.getName().substring(0, 2).toUpperCase() : "??";
-                    Label avatar = new Label(initials);
-                    avatar.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom right,#667eea,#764ba2);"
-                        + "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;"
-                        + "-fx-min-width:40;-fx-min-height:40;-fx-max-width:40;-fx-max-height:40;"
-                        + "-fx-background-radius:10;-fx-alignment:center;");
-                    setGraphic(avatar);
-                    setAlignment(Pos.CENTER);
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
-
         // Name column
         if (colName != null) {
             colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
@@ -482,6 +540,44 @@ public class AdminTeamController {
         teamsTable.setPlaceholder(new Label("No teams found"));
     }
 
+    private String resolveLogoUrl(String logoPath) {
+        if (logoPath == null || logoPath.isBlank()) return null;
+        if (logoPath.startsWith("http://") || logoPath.startsWith("https://")
+                || logoPath.startsWith("file:") || logoPath.startsWith("jar:"))
+            return logoPath;
+
+        java.io.File absolute = new java.io.File(logoPath);
+        if (absolute.isAbsolute() && absolute.exists())
+            return absolute.toURI().toString();
+
+        String filename = new java.io.File(logoPath).getName();
+        String userDir  = System.getProperty("user.dir");
+        String[] candidates = {
+                logoPath, filename,
+                "uploads/" + filename,
+                "uploads/teams/" + filename,
+                "uploads/logos/" + filename,
+                "src/main/resources/" + logoPath,
+                "src/main/resources/uploads/" + filename,
+                "src/main/resources/uploads/teams/" + filename,
+                "target/classes/" + logoPath,
+                "target/classes/uploads/" + filename,
+        };
+        for (String c : candidates) {
+            java.io.File f = new java.io.File(userDir, c);
+            if (f.exists()) return f.toURI().toString();
+        }
+        String[] classpathCandidates = {
+                "/" + logoPath,
+                "/uploads/" + filename,
+                "/uploads/teams/" + filename,
+        };
+        for (String cp : classpathCandidates) {
+            var resource = getClass().getResource(cp);
+            if (resource != null) return resource.toExternalForm();
+        }
+        return null;
+    }
     private void applyRowStyle(TableRow<Team> row) {
         String bg = (row.getIndex() % 2 == 0)
                 ? "-fx-background-color:rgba(20,10,35,0.85);"
@@ -565,6 +661,7 @@ public class AdminTeamController {
                 ? team.getName().substring(0, 2).toUpperCase() : "??";
         setLabel(teamAvatarLabel, initials);
         setLabel(teamNameLabel,   team.getName());
+        loadTeamLogoDetail(team);
 
         // ── Status chip ───────────────────────────────────────
         if (teamStatusChip != null) {
@@ -633,34 +730,87 @@ public class AdminTeamController {
         loadDetailMembers(team);
     }
 
+
+    private void loadTeamLogoDetail(Team team) {
+        if (teamAvatarLabel == null) return;
+        javafx.scene.Node parent = teamAvatarLabel.getParent();
+        if (!(parent instanceof StackPane)) return;
+        StackPane pane = (StackPane) parent;
+
+        String logoPath = team.getLogo();
+        if (logoPath == null || logoPath.isBlank()) return;
+
+        new Thread(() -> {
+            try {
+                String url = resolveLogoUrl(logoPath);
+                if (url == null) return;
+
+                javafx.scene.image.Image img =
+                        new javafx.scene.image.Image(url, 110, 110, false, true);
+
+                if (img.isError()) return;
+
+                Platform.runLater(() -> {
+                    // ImageView avec clip circulaire
+                    javafx.scene.image.ImageView iv =
+                            new javafx.scene.image.ImageView(img);
+                    iv.setFitWidth(110);
+                    iv.setFitHeight(110);
+                    iv.setPreserveRatio(false);
+
+                    javafx.scene.shape.Circle clip =
+                            new javafx.scene.shape.Circle(55, 55, 55);
+                    iv.setClip(clip);
+
+                    // Overlay sombre léger
+                    javafx.scene.layout.Region overlay =
+                            new javafx.scene.layout.Region();
+                    overlay.setStyle(
+                            "-fx-background-color:rgba(0,0,0,0.20);" +
+                                    "-fx-background-radius:55;");
+                    overlay.setMinSize(110, 110);
+                    overlay.setMaxSize(110, 110);
+
+                    // Remplace le contenu du StackPane
+                    // garde le label des initiales par-dessus
+                    pane.getChildren().setAll(iv, overlay, teamAvatarLabel);
+                });
+            } catch (Exception e) {
+                System.err.println("[loadTeamLogoDetail] " + e.getMessage());
+            }
+        }, "LoadTeamLogo").start();
+    }
     private void loadDetailMembers(Team team) {
         new Thread(() -> {
             try {
                 List<TeamMembership> activeMembers  = teamService.getActiveMembers(team.getId());
                 List<TeamMembership> pendingMembers = teamService.getPendingRequests(team.getId());
                 Platform.runLater(() -> {
-                    // Active members
+
+                    // ── Active members ────────────────────────────
                     int ac = activeMembers.size();
                     setLabel(activeMembersBadge, String.valueOf(ac));
                     setLabel(activeMembersLabel, String.valueOf(ac));
                     showNode(membersEmptyState, ac == 0);
-                    if (membersTable != null) {
-                        if (ac > 0) {
-                            setupMembersTable();
-                            membersTable.setItems(FXCollections.observableArrayList(activeMembers));
-                            applySubTableTheme(membersTable);
-                        }
-                        showNode(membersTable, ac > 0);
+
+                    if (membersListBox != null) {
+                        membersListBox.getChildren().clear();
+                        activeMembers.forEach(m ->
+                                membersListBox.getChildren().add(buildMemberRow(m)));
+                        showNode(membersListBox, ac > 0);
                     }
-                    // Pending
+
+                    // ── Pending ───────────────────────────────────
                     int pc = pendingMembers.size();
                     setLabel(pendingBadge,  String.valueOf(pc));
                     setLabel(pendingLabel,  String.valueOf(pc));
                     showNode(pendingEmptyState, pc == 0);
+
                     if (pendingTable != null) {
                         if (pc > 0) {
                             setupPendingTable(team);
-                            pendingTable.setItems(FXCollections.observableArrayList(pendingMembers));
+                            pendingTable.setItems(
+                                    FXCollections.observableArrayList(pendingMembers));
                             applySubTableTheme(pendingTable);
                         }
                         showNode(pendingTable, pc > 0);
@@ -671,7 +821,98 @@ public class AdminTeamController {
             }
         }, "LoadMembers").start();
     }
+    private HBox buildMemberRow(TeamMembership m) {
+        HBox row = new HBox(12);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setStyle(
+                "-fx-background-color:rgba(20,10,35,0.85);" +
+                        "-fx-border-color:rgba(255,255,255,0.07);" +
+                        "-fx-border-width:0 0 1 0;" +
+                        "-fx-padding:12 16;");
 
+        // ── Avatar ────────────────────────────────────────
+        User u = m.getUser();
+        javafx.scene.Node avatar = buildDetailAvatar(u, m.getRole());
+
+        // ── Infos ─────────────────────────────────────────
+        String username = u != null ? "@" + u.getUsername() : "Unknown";
+        String email    = u != null ? u.getEmail()          : "—";
+
+        Label userLbl  = new Label(username);
+        userLbl.setStyle("-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;");
+
+        Label emailLbl = new Label(email);
+        emailLbl.setStyle("-fx-text-fill:#4facfe;-fx-font-size:11;");
+
+        VBox info = new VBox(3, userLbl, emailLbl);
+        HBox.setHgrow(info, Priority.ALWAYS);
+
+        // ── Role badge ────────────────────────────────────
+        MemberRole role = m.getRole();
+        boolean isOwner = role == MemberRole.OWNER;
+        Label roleBadge = new Label(isOwner ? "👑 " + role.name() : role != null ? role.name() : "MEMBER");
+        roleBadge.setStyle(
+                "-fx-background-color:" + (isOwner ? "rgba(251,191,36,0.15)" : "rgba(79,172,254,0.15)") + ";" +
+                        "-fx-border-color:"     + (isOwner ? "rgba(251,191,36,0.45)" : "rgba(79,172,254,0.45)") + ";" +
+                        "-fx-border-width:1;-fx-background-radius:8;-fx-border-radius:8;" +
+                        "-fx-text-fill:" + (isOwner ? "#fbbf24" : "#4facfe") + ";" +
+                        "-fx-font-size:11;-fx-font-weight:bold;-fx-padding:4 10;");
+
+        row.getChildren().addAll(avatar, info, roleBadge);
+
+        // Hover
+        row.setOnMouseEntered(e -> row.setStyle(
+                "-fx-background-color:rgba(255,255,255,0.07);" +
+                        "-fx-border-color:rgba(255,255,255,0.07);" +
+                        "-fx-border-width:0 0 1 0;" +
+                        "-fx-padding:12 16;-fx-cursor:hand;"));
+        row.setOnMouseExited(e -> row.setStyle(
+                "-fx-background-color:rgba(20,10,35,0.85);" +
+                        "-fx-border-color:rgba(255,255,255,0.07);" +
+                        "-fx-border-width:0 0 1 0;" +
+                        "-fx-padding:12 16;"));
+
+        return row;
+    }
+
+    private javafx.scene.Node buildDetailAvatar(User u, MemberRole role) {
+        // Essayer photo de profil
+        if (u != null) {
+            String photoFile = u.getProfilePicture();
+            if (photoFile != null && !photoFile.isBlank()) {
+                try {
+                    java.io.File file = new java.io.File(
+                            System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                    if (file.exists()) {
+                        javafx.scene.image.Image img =
+                                new javafx.scene.image.Image(file.toURI().toString(), 42, 42, true, true);
+                        if (!img.isError()) {
+                            javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                            iv.setFitWidth(42); iv.setFitHeight(42);
+                            javafx.scene.shape.Circle clip =
+                                    new javafx.scene.shape.Circle(21, 21, 21);
+                            iv.setClip(clip);
+                            StackPane pane = new StackPane(iv);
+                            pane.setMinSize(42, 42); pane.setMaxSize(42, 42);
+                            pane.setStyle(
+                                    "-fx-background-radius:21;" +
+                                            "-fx-border-radius:21;" +
+                                            "-fx-border-color:rgba(255,255,255,0.20);" +
+                                            "-fx-border-width:2;");
+                            return pane;
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+
+        // Fallback initiales
+        String initials = (u != null && u.getUsername() != null && !u.getUsername().isEmpty())
+                ? u.getUsername().substring(0, Math.min(2, u.getUsername().length())).toUpperCase()
+                : "??";
+        String gradient = getAvatarGradient(u);
+        return makeAvatarLabel(initials, gradient);
+    }
     // ─────────────────────────────────────────────────────────────
     //  MEMBERS TABLE
     // ─────────────────────────────────────────────────────────────
@@ -681,26 +922,67 @@ public class AdminTeamController {
         // Avatar
         if (colMemberAvatar != null) {
             colMemberAvatar.setCellFactory(col -> new TableCell<>() {
+                {
+                    setAlignment(Pos.CENTER);
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null)
+                            newRow.itemProperty().addListener((o, oldM, newM) -> refresh(newM));
+                    });
+                }
+                private void refresh(TeamMembership m) {
+                    setGraphic(null);
+                    if (m == null) return;
+                    User u = m.getUser();
+                    if (u == null) {
+                        setGraphic(makeAvatarLabel("?", "linear-gradient(to bottom right,#667eea,#764ba2)"));
+                        return;
+                    }
+
+                    // Essayer photo de profil
+                    String photoFile = u.getProfilePicture();
+                    if (photoFile != null && !photoFile.isBlank()) {
+                        try {
+                            java.io.File file = new java.io.File(
+                                    System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                            if (file.exists()) {
+                                javafx.scene.image.Image img =
+                                        new javafx.scene.image.Image(file.toURI().toString(), 36, 36, true, true);
+                                if (!img.isError()) {
+                                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                                    iv.setFitWidth(36); iv.setFitHeight(36);
+                                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(18, 18, 18);
+                                    iv.setClip(clip);
+                                    StackPane pane = new StackPane(iv);
+                                    pane.setMinSize(36, 36); pane.setMaxSize(36, 36);
+                                    pane.setStyle(
+                                            "-fx-background-radius:18;" +
+                                                    "-fx-border-radius:18;" +
+                                                    "-fx-border-color:rgba(255,255,255,0.20);" +
+                                                    "-fx-border-width:2;");
+                                    setGraphic(pane);
+                                    return;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    // Fallback initiales
+                    String initials = u.getUsername() != null && !u.getUsername().isEmpty()
+                            ? u.getUsername().substring(0, Math.min(2, u.getUsername().length())).toUpperCase()
+                            : "??";
+                    String gradient = getAvatarGradient(u);
+                    setGraphic(makeAvatarLabel(initials, gradient));
+                }
+
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) { setGraphic(null); return; }
                     TableRow<TeamMembership> row = getTableRow();
-                    if (row == null || row.getItem() == null) return;
-                    User u = row.getItem().getUser();
-                    String initials = (u != null && u.getUsername() != null && u.getUsername().length() >= 2)
-                            ? u.getUsername().substring(0, 2).toUpperCase() : "??";
-                    Label avatar = new Label(initials);
-                    avatar.setStyle(
-                        "-fx-background-color:linear-gradient(to bottom right,#667eea,#764ba2);"
-                        + "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:11;"
-                        + "-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;"
-                        + "-fx-background-radius:18;-fx-alignment:center;");
-                    setGraphic(avatar);
-                    setAlignment(Pos.CENTER);
+                    if (row != null && row.getItem() != null) refresh(row.getItem());
+                    else setGraphic(null);
                 }
             });
         }
-
         // Username
         if (colMemberUsername != null) {
             colMemberUsername.setCellValueFactory(d -> {
@@ -802,6 +1084,25 @@ public class AdminTeamController {
                 }
             });
         }
+    }
+
+    private Label makeAvatarLabel(String initials, String gradient) {
+        Label lbl = new Label(initials);
+        lbl.setStyle(
+                "-fx-background-color:" + gradient + ";" +
+                        "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;" +
+                        "-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;" +
+                        "-fx-background-radius:18;-fx-alignment:center;" +
+                        "-fx-border-color:rgba(255,255,255,0.15);-fx-border-width:2;-fx-border-radius:18;");
+        return lbl;
+    }
+
+    private String getAvatarGradient(User u) {
+        if (u == null) return "linear-gradient(to bottom right,#667eea,#764ba2)";
+        String roles = u.getRolesJson() != null ? u.getRolesJson() : "";
+        if (roles.contains("ROLE_ADMIN")) return "linear-gradient(to bottom right,#ff3c64,#ff1744)";
+        if (roles.contains("ROLE_COACH")) return "linear-gradient(to bottom right,#f093fb,#f5576c)";
+        return "linear-gradient(to bottom right,#667eea,#764ba2)";
     }
 
     // ─────────────────────────────────────────────────────────────
