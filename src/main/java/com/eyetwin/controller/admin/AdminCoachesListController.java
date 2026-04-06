@@ -87,16 +87,7 @@ public class AdminCoachesListController {
 
     private VBox buildCard(User coach) {
         // ── Avatar ──────────────────────────────────────
-        String initials = coach.getUsername() != null && coach.getUsername().length() >= 2
-                ? coach.getUsername().substring(0, 2).toUpperCase() : "??";
-        Label avatar = new Label(initials);
-        avatar.setStyle(
-                "-fx-background-color:linear-gradient(to bottom right,#667eea,#764ba2);"
-                        + "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:22;"
-                        + "-fx-min-width:72;-fx-min-height:72;-fx-max-width:72;-fx-max-height:72;"
-                        + "-fx-background-radius:36;-fx-alignment:center;");
-        StackPane avatarPane = new StackPane(avatar);
-        avatarPane.setAlignment(Pos.CENTER);
+        StackPane avatarPane = buildAvatarPane(coach, 72);
 
         // ── Name / username ──────────────────────────────
         Label nameLabel = new Label(coach.getFullName() != null ? coach.getFullName() : coach.getUsername());
@@ -359,6 +350,48 @@ public class AdminCoachesListController {
                 Platform.runLater(() -> showAlert("❌  Export failed: " + e.getMessage()));
             }
         }, "ExportExcel").start();
+    }
+
+
+    private StackPane buildAvatarPane(User u, double size) {
+        StackPane pane = new StackPane();
+        pane.setMinSize(size, size);
+        pane.setMaxSize(size, size);
+        pane.setAlignment(Pos.CENTER);
+
+        String photoFile = u.getProfilePicture();
+        if (photoFile != null && !photoFile.isBlank()) {
+            try {
+                java.io.File file = new java.io.File(
+                        System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                if (file.exists()) {
+                    javafx.scene.image.Image img =
+                            new javafx.scene.image.Image(file.toURI().toString(), size, size, true, true);
+                    if (!img.isError()) {
+                        javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                        iv.setFitWidth(size); iv.setFitHeight(size); iv.setPreserveRatio(false);
+                        iv.setClip(new javafx.scene.shape.Circle(size/2, size/2, size/2));
+                        pane.setStyle(
+                                "-fx-border-color:rgba(255,255,255,0.20);-fx-border-radius:" + (size/2) + ";" +
+                                        "-fx-border-width:2;-fx-background-radius:" + (size/2) + ";");
+                        pane.getChildren().add(iv);
+                        return pane;
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        // Fallback — initiales
+        double radius = size / 2;
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(radius);
+        circle.setFill(javafx.scene.paint.Paint.valueOf(
+                "linear-gradient(to bottom right,#667eea,#764ba2)"));
+        String initials = u.getUsername() != null && u.getUsername().length() >= 2
+                ? u.getUsername().substring(0, 2).toUpperCase() : "??";
+        Label lbl = new Label(initials);
+        lbl.setStyle("-fx-font-size:" + (int)(size * 0.3) + ";-fx-font-weight:bold;-fx-text-fill:white;");
+        pane.getChildren().addAll(circle, lbl);
+        return pane;
     }
 
     // ── Excel style helpers ──────────────────────────────────

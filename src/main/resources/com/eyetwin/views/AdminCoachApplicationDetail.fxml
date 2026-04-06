@@ -34,7 +34,7 @@
                                      -fx-padding:24;-fx-alignment:CENTER;">
 
                             <!-- Avatar -->
-                            <StackPane prefWidth="100" prefHeight="100" alignment="CENTER">
+                            <StackPane fx:id="avatarPane" prefWidth="100" prefHeight="100" alignment="CENTER">
                                 <Circle radius="50"
                                         fill="linear-gradient(from 0% 0% to 100% 100%,#667eea,#764ba2)"/>
                                 <Label fx:id="avatarInitialLabel" text="??"

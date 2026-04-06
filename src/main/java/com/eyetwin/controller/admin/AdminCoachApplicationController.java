@@ -100,6 +100,7 @@ public class AdminCoachApplicationController {
     @FXML private TextArea approveCommentField;
     @FXML private TextArea rejectCommentField;
     @FXML private Label    rejectErrLabel;
+    @FXML private StackPane avatarPane;
 
     // ── State ────────────────────────────────────────────────
     private ICoachApplicationService   appService;
@@ -374,32 +375,67 @@ public class AdminCoachApplicationController {
     // ─────────────────────────────────────────────────────
     //  TABLE SETUP
     // ─────────────────────────────────────────────────────
+
+
     private void setupTable() {
         if (applicationsTable == null) return;
 
         // Avatar
         if (colAvatar != null) {
             colAvatar.setCellFactory(col -> new TableCell<>() {
+                {
+                    setAlignment(Pos.CENTER);
+                    tableRowProperty().addListener((obs, oldRow, newRow) -> {
+                        if (newRow != null) newRow.itemProperty().addListener((o, oldApp, newApp) -> refreshAvatar(newApp));
+                    });
+                }
+                private void refreshAvatar(CoachApplication app) {
+                    setGraphic(null);
+                    if (app == null) return;
+                    User u = app.getUser();
+                    if (u == null) return;
+
+                    // Tenter de charger la photo de profil
+                    String photoFile = u.getProfilePicture();
+                    if (photoFile != null && !photoFile.isBlank()) {
+                        try {
+                            java.io.File file = new java.io.File(
+                                    System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                            if (file.exists()) {
+                                javafx.scene.image.Image img =
+                                        new javafx.scene.image.Image(file.toURI().toString(), 38, 38, true, true);
+                                if (!img.isError()) {
+                                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                                    iv.setFitWidth(38); iv.setFitHeight(38); iv.setPreserveRatio(false);
+                                    iv.setClip(new javafx.scene.shape.Circle(19, 19, 19));
+                                    StackPane pane = new StackPane(iv);
+                                    pane.setMinSize(38, 38); pane.setMaxSize(38, 38);
+                                    setGraphic(pane);
+                                    return;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    // Fallback — initiales
+                    String initials = u.getUsername() != null && u.getUsername().length() >= 2
+                            ? u.getUsername().substring(0, 2).toUpperCase() : "??";
+                    Label avatar = new Label(initials);
+                    avatar.setStyle(
+                            "-fx-background-color:linear-gradient(to bottom right,#667eea,#764ba2);"
+                                    + "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;"
+                                    + "-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;"
+                                    + "-fx-background-radius:19;-fx-alignment:center;");
+                    setGraphic(avatar);
+                }
                 @Override protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) { setGraphic(null); return; }
                     TableRow<CoachApplication> row = getTableRow();
-                    if (row == null || row.getItem() == null) return;
-                    User u = row.getItem().getUser();
-                    String initials = u != null && u.getUsername() != null && u.getUsername().length() >= 2
-                            ? u.getUsername().substring(0, 2).toUpperCase() : "??";
-                    Label avatar = new Label(initials);
-                    avatar.setStyle(
-                        "-fx-background-color:linear-gradient(to bottom right,#667eea,#764ba2);"
-                        + "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;"
-                        + "-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;"
-                        + "-fx-background-radius:19;-fx-alignment:center;");
-                    setGraphic(avatar);
-                    setAlignment(Pos.CENTER);
+                    if (row != null && row.getItem() != null) refreshAvatar(row.getItem());
                 }
             });
         }
-
         // Applicant name + username
         if (colApplicant != null) {
             colApplicant.setCellValueFactory(d -> {
@@ -577,6 +613,38 @@ public class AdminCoachApplicationController {
         navigateTo("AdminCoachApplicationDetail.fxml");
     }
 
+
+    private void loadDetailAvatar(User u) {
+        if (avatarPane == null || u == null) return;
+        String photoFile = u.getProfilePicture();
+        if (photoFile != null && !photoFile.isBlank()) {
+            try {
+                java.io.File file = new java.io.File(
+                        System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                if (file.exists()) {
+                    javafx.scene.image.Image img =
+                            new javafx.scene.image.Image(file.toURI().toString(), 100, 100, true, true);
+                    if (!img.isError()) {
+                        javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                        iv.setFitWidth(100); iv.setFitHeight(100); iv.setPreserveRatio(false);
+                        iv.setClip(new javafx.scene.shape.Circle(50, 50, 50));
+                        avatarPane.getChildren().setAll(iv);
+                        return;
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        // Fallback : garder le Circle + Label déjà dans le FXML
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(50);
+        circle.setFill(javafx.scene.paint.Color.web("#667eea"));
+        String initials = u.getUsername() != null && u.getUsername().length() >= 2
+                ? u.getUsername().substring(0, 2).toUpperCase() : "??";
+        Label lbl = new Label(initials);
+        lbl.setStyle("-fx-font-size:32;-fx-font-weight:bold;-fx-text-fill:white;");
+        avatarPane.getChildren().setAll(circle, lbl);
+    }
+
+
     // ═══════════════════════════════════════════════════════
     //  DETAIL VIEW
     // ═══════════════════════════════════════════════════════
@@ -604,9 +672,11 @@ public class AdminCoachApplicationController {
         // ── Avatar + name ──────────────────────────────────
         String initials = u != null && u.getUsername() != null && u.getUsername().length() >= 2
                 ? u.getUsername().substring(0, 2).toUpperCase() : "??";
-        setLabelText(avatarInitialLabel,      initials);
+        setLabelText(avatarInitialLabel, initials);
+        loadDetailAvatar(u);  // ← ajouter cette ligne ici
         setLabelText(applicantNameLabel,      u != null ? nvl(u.getFullName(), u.getUsername()) : "—");
         setLabelText(applicantUsernameLabel,  u != null ? "@" + u.getUsername() : "@—");
+
         setLabelText(emailLabel,              u != null ? u.getEmail() : "—");
         setLabelText(memberSinceLabel,        u != null && u.getCreatedAt() != null
                 ? u.getCreatedAt().toString().substring(0, 10) : "—");
