@@ -114,6 +114,8 @@ public class AdminUserController {
     @FXML private TableColumn<TeamMembership, String> colTeamStatus;
     @FXML private TableColumn<TeamMembership, String> colTeamJoined;
 
+    @FXML private StackPane avatarPane;
+
 
     @FXML private TextField        createFullNameField;
     @FXML private TextField        createUsernameField;
@@ -1117,6 +1119,7 @@ public class AdminUserController {
         String initials = !user.getUsername().isEmpty()
                 ? user.getUsername().substring(0, Math.min(2, user.getUsername().length())).toUpperCase() : "??";
         setLabel(avatarInitialLabel,  initials);
+        loadDetailAvatar(user);
         setLabel(fullNameHeaderLabel, nvl(user.getFullName(), user.getUsername()));
         setLabel(usernameHeaderLabel, "@" + user.getUsername());
         setLabel(roleChipLabel,       getRoleLabel(user));
@@ -1872,6 +1875,42 @@ public class AdminUserController {
         javafx.scene.Node[] candidates = {searchField,usersTable,avatarInitialLabel,fullNameHeaderLabel,createSubmitBtn,totalUsersLabel,prevPageBtn,nextPageBtn};
         for (javafx.scene.Node n : candidates) { if (n!=null&&n.getScene()!=null) return (Stage)n.getScene().getWindow(); }
         return null;
+    }
+
+    private void loadDetailAvatar(User u) {
+        if (avatarPane == null) return;
+
+        String photoFile = u.getProfilePicture();
+        if (photoFile != null && !photoFile.isBlank()) {
+            try {
+                java.io.File file = new java.io.File(
+                        System.getProperty("user.dir") + "/uploads/profiles/" + photoFile);
+                if (file.exists()) {
+                    javafx.scene.image.Image img =
+                            new javafx.scene.image.Image(file.toURI().toString(), 110, 110, true, true);
+                    if (!img.isError()) {
+                        javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                        iv.setFitWidth(110); iv.setFitHeight(110); iv.setPreserveRatio(false);
+                        javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(55, 55, 55);
+                        iv.setClip(clip);
+                        // Remplace le contenu du StackPane
+                        avatarPane.getChildren().setAll(iv);
+                        return;
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        // Fallback : cercle gradient + initiales (déjà dans le FXML, on ne touche à rien)
+        // Juste s'assurer que les initiales sont bien là
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(55);
+        circle.setFill(javafx.scene.paint.Color.web("#667eea"));
+        String initials = u.getUsername() != null && !u.getUsername().isEmpty()
+                ? u.getUsername().substring(0, Math.min(2, u.getUsername().length())).toUpperCase() : "??";
+        Label lbl = new Label(initials);
+        lbl.setStyle("-fx-font-size:36;-fx-font-weight:bold;-fx-text-fill:white;");
+        avatarPane.getChildren().setAll(circle, lbl);
+        if (avatarInitialLabel != null) avatarInitialLabel.setText(initials);
     }
 
     @FXML public void goToDashboard()         { navigateTo("Admin.fxml"); }
