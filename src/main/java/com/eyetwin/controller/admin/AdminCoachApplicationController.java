@@ -123,7 +123,7 @@ public class AdminCoachApplicationController {
         if (!SessionManager.isAdmin()) { navigateTo("AdminLogin.fxml"); return; }
         appService = new CoachApplicationServiceImpl();
 
-        if (adminSidebarController != null) adminSidebarController.setActivePage("coachApplications");
+        if (adminSidebarController != null) adminSidebarController.setActivePage("coachapps");
         if (adminTopbarController  != null) adminTopbarController.setTitle("Coach Applications");
 
         if (applicationsTable != null) initListView();
