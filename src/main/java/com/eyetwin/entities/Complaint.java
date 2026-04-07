@@ -15,16 +15,16 @@ public class Complaint {
     private ComplaintPriority priority;
     private ComplaintCategory category;
 
-    // Sentiment analysis (mirrors SentimentServiceComplaints)
-    private String  sentimentLabel;        // POSITIVE | NEUTRAL | NEGATIVE
-    private double  sentimentScore;        // 0.0 – 1.0
-    private String  sentimentSource;       // "api" | "keyword"
+    // Sentiment analysis
+    private String  sentimentLabel;
+    private Double  sentimentScore;          // ← Double (nullable), was double
+    private String  sentimentSource;
     private String  sentimentPrioritySuggestion;
 
     private User submittedBy;
     private User assignedTo;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;         // ← LocalDateTime throughout, no Timestamp
     private LocalDateTime updatedAt;
     private LocalDateTime resolvedAt;
 
@@ -48,7 +48,7 @@ public class Complaint {
         this.createdAt   = createdAt;
     }
 
-    // ─── Sentiment helpers (mirrors Symfony entity methods) ──────
+    // ─── Sentiment helpers ───────────────────────────────────────
     public boolean hasSentiment() {
         return sentimentLabel != null && !sentimentLabel.isBlank();
     }
@@ -71,7 +71,6 @@ public class Complaint {
         };
     }
 
-    /** Maps to Bootstrap badge class — reused as CSS hint in JavaFX */
     public String getSentimentBadgeClass() {
         if (sentimentLabel == null) return "secondary";
         return switch (sentimentLabel) {
@@ -81,7 +80,6 @@ public class Complaint {
         };
     }
 
-    /** Color string for JavaFX */
     public String getSentimentColor() {
         if (sentimentLabel == null) return "rgba(255,255,255,0.5)";
         return switch (sentimentLabel) {
@@ -126,8 +124,9 @@ public class Complaint {
     public String  getSentimentLabel()                       { return sentimentLabel; }
     public void    setSentimentLabel(String l)               { this.sentimentLabel = l; }
 
-    public double  getSentimentScore()                       { return sentimentScore; }
-    public void    setSentimentScore(double s)               { this.sentimentScore = s; }
+    /** Returns Double (nullable) — use != null before unboxing */
+    public Double  getSentimentScore()                       { return sentimentScore; }
+    public void    setSentimentScore(Double s)               { this.sentimentScore = s; }
 
     public String  getSentimentSource()                      { return sentimentSource; }
     public void    setSentimentSource(String s)              { this.sentimentSource = s; }

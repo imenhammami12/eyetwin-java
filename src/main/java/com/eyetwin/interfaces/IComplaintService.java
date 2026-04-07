@@ -30,7 +30,10 @@ public interface IComplaintService {
 
     // ── CRUD ──────────────────────────────────────────────────────
     Complaint getById(int id)                                         throws SQLException;
-    Complaint submit(Complaint complaint, int submittedByUserId)      throws SQLException;
+    Complaint submit(Complaint complaint, int submittedByUserId)
+            throws SQLException;
+    Complaint create(Complaint complaint) throws SQLException;
+
     void      delete(int complaintId)                                 throws SQLException;
 
     // ── Admin actions ─────────────────────────────────────────────

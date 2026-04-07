@@ -20,8 +20,20 @@ public enum ComplaintCategory {
         this.icon  = icon;
     }
 
-    public String getLabel() { return label; }
-    public String getIcon()  { return icon; }
+    // CORRIGER getLabel() dans ComplaintCategory.java :
+    public String getLabel() {
+        return switch (this) {
+            case TECHNICAL  -> "Technical Issue";   // était "Technical"
+            case ACCOUNT    -> "Account Problem";   // était "Account"
+            case TOURNAMENT -> "Tournament Issue";  // était "Tournament"
+            case TEAM       -> "Team Problem";      // était "Team"
+            case PAYMENT    -> "Payment Issue";     // était "Payment"
+            case CONTENT    -> "Content Violation"; // était "Content"
+            case HARASSMENT -> "Harassment";        // OK
+            case BUG        -> "Bug Report";        // était "Bug"
+            case OTHER      -> "Other";             // OK
+        };
+    }    public String getIcon()  { return icon; }
 
     /** Mirrors PHP getDescription() */
     public String getDescription() {

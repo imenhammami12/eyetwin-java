@@ -222,6 +222,19 @@ public class ComplaintServiceImpl implements IComplaintService {
         return repo.getStatistics();
     }
 
+
+    /**
+     * Mirrors the front-office submit — user already set on the complaint object.
+     * Called by ComplaintController (JavaFX front-office).
+     */
+    @Override
+    public Complaint create(Complaint complaint) throws SQLException {
+        if (complaint.getSubmittedBy() == null)
+            throw new IllegalArgumentException("submittedBy is required");
+
+        return submit(complaint, complaint.getSubmittedBy().getId());
+    }
+
     // ════════════════════════════════════════════════════════════
     //  PRIVATE HELPERS
     // ════════════════════════════════════════════════════════════

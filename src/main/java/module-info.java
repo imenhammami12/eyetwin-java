@@ -12,6 +12,8 @@ module org.example.eyetwinjava {
     requires java.desktop;
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
+    requires java.net.http;
+    requires org.json;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

@@ -217,7 +217,6 @@ public class NavbarController {
     }
 
     public void setActivePage(String page) {
-        // Reset tous les labels
         String inactive = "-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold; -fx-padding: 22 14 22 14; -fx-cursor: hand; -fx-border-color: transparent;";
         String active   = "-fx-text-fill: white; -fx-font-size:10; -fx-font-weight:bold; -fx-padding: 22 14 22 14; -fx-cursor: hand; -fx-border-color: transparent transparent #e8372a transparent; -fx-border-width: 0 0 2 0;";
 
@@ -233,7 +232,7 @@ public class NavbarController {
             case "tournois"  -> { if (navTournois  != null) navTournois.setStyle(active); }
             case "teams"     -> { if (navTeams     != null) navTeams.setStyle(active); }
             case "community" -> { if (navCommunity != null) navCommunity.setStyle(active); }
+            case "support"   -> {}
         }
     }
-
 }
