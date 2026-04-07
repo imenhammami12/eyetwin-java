@@ -14,6 +14,7 @@ module org.example.eyetwinjava {
     requires org.apache.poi.ooxml;
     requires java.net.http;
     requires org.json;
+    requires stripe.java;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
