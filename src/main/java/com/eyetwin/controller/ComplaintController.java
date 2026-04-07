@@ -713,17 +713,10 @@ public class ComplaintController {
     // ═══════════════════════════════════════════════════════════
 
     private void navigateTo(String fxml) {
-        URL url = resolveUrl(fxml);
-        if (url == null) return;
-        try {
-            Parent root  = FXMLLoader.load(url);
-            Stage  stage = resolveStage();
-            if (stage != null) stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
-        } catch (IOException e) {
-            System.err.println("[ComplaintController] Nav error: " + e.getMessage());
+        if (navbarController != null) {
+            navbarController.navigateTo(fxml);
         }
     }
-
     private URL resolveUrl(String fxml) {
         for (String p : new String[]{
                 "/com/eyetwin/views/" + fxml,

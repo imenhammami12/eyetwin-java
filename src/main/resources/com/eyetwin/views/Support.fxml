@@ -5,6 +5,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.ComplaintController"
+            stylesheets="@../styles/gaming.css"
             style="-fx-background-color: #080810;">
 
     <top>

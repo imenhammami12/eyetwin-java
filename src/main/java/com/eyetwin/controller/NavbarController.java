@@ -199,13 +199,20 @@ public class NavbarController {
             Parent root  = FXMLLoader.load(url);
             Stage  stage = resolveStage();
             if (stage == null) return;
-            stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
+
+            // ── Copier les stylesheets de la scène courante ──
+            Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
+            Scene currentScene = stage.getScene();
+            if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+                newScene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
+
+            stage.setScene(newScene);
         } catch (IOException e) {
             System.err.println("[NavbarController] ❌ Erreur chargement : " + fxml);
             e.printStackTrace();
         }
     }
-
     private Stage resolveStage() {
         for (javafx.scene.Node n : new javafx.scene.Node[]{
                 loggedInZone, guestZone, navProfileMenu, navNotifMenu
