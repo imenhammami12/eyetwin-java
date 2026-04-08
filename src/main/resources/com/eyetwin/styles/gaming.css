@@ -785,3 +785,22 @@ TextArea.input-gaming .scroll-pane .viewport {
     -fx-padding: 7 12 7 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 3);
 }
+.red-btn,
+.red-btn:hover,
+.red-btn:focused,
+.red-btn:pressed {
+    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d);
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+}
+Button.red-btn,
+Button.red-btn:hover,
+Button.red-btn:focused,
+Button.red-btn:pressed,
+Button.red-btn:armed {
+    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d) !important;
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
