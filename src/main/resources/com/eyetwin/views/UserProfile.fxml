@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.shape.Circle?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.scene.image.*?>
+        <?import javafx.geometry.*?>
+        <?import javafx.scene.shape.Circle?>
 
-<!--
-    UserProfile.fxml  (updated)
-    Controller: com.eyetwin.controller.UserProfileController
+        <!--
+            UserProfile.fxml  (updated)
+            Controller: com.eyetwin.controller.UserProfileController
 
-    Logic for coach application states:
-      • No application + not coach  → applyCoachBtn visible, applicationTrackingCard hidden
-      • PENDING application         → applyCoachBtn hidden/disabled, applicationTrackingCard visible (status=PENDING)
-      • APPROVED                    → coachCongratsBanner visible, applicationTrackingCard hidden, applyCoachBtn hidden
-      • REJECTED                    → applyCoachBtn visible (re-apply), applicationTrackingCard visible (status=REJECTED)
--->
+            Logic for coach application states:
+              • No application + not coach  → applyCoachBtn visible, applicationTrackingCard hidden
+              • PENDING application         → applyCoachBtn hidden/disabled, applicationTrackingCard visible (status=PENDING)
+              • APPROVED                    → coachCongratsBanner visible, applicationTrackingCard hidden, applyCoachBtn hidden
+              • REJECTED                    → applyCoachBtn visible (re-apply), applicationTrackingCard visible (status=REJECTED)
+        -->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.UserProfileController"
             stylesheets="@../styles/gaming.css"
@@ -33,19 +33,40 @@
             <VBox style="-fx-background-color: #06050f;">
 
                 <!-- ── PAGE HERO ── -->
-                <VBox style="-fx-padding: 36 80 28 80;
-                             -fx-border-color: rgba(255,255,255,0.05);
-                             -fx-border-width: 0 0 1 0;">
-                    <Label text="My Profile"
-                           style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                  -fx-font-size: 28; -fx-font-weight: bold;"/>
-                    <HBox alignment="CENTER_LEFT" spacing="6" style="-fx-padding: 4 0 0 0;">
-                        <Label text="Home" onMouseClicked="#goHome"
-                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
-                        <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
-                        <Label text="Profile" style="-fx-text-fill: #e8372a; -fx-font-size: 12;"/>
-                    </HBox>
-                </VBox>
+                <StackPane prefHeight="220" style="-fx-background-color: #06050f;">
+                    <ImageView fitWidth="1280" fitHeight="220"
+                               preserveRatio="false" smooth="true" opacity="0.45">
+                        <image><Image url="@../assets/img/breadcrumb1.png"/></image>
+                    </ImageView>
+                    <Region style="-fx-background-color: linear-gradient(to bottom,
+                   rgba(6,5,15,0.55) 0%,
+                   rgba(6,5,15,0.75) 70%,
+                   rgba(6,5,15,0.92) 100%);"/>
+                    <VBox alignment="CENTER_LEFT" spacing="12"
+                          style="-fx-padding: 32 80 0 80;">
+                        <HBox alignment="CENTER_LEFT" spacing="8"
+                              style="-fx-background-color: rgba(232,55,42,0.09);
+                     -fx-border-color: rgba(232,55,42,0.28);
+                     -fx-border-width:1; -fx-border-radius:3; -fx-background-radius:3;
+                     -fx-padding: 4 12 4 12; -fx-max-width:220;">
+                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                            <Label text="👤 Player Command Center"
+                                   style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                        </HBox>
+                        <Label text="My Profile"
+                               style="-fx-font-family: 'Arial Black'; -fx-font-size:36;
+                      -fx-font-weight:bold; -fx-text-fill: #e8372a;
+                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),28,0,0,0);"/>
+                        <Label text="Manage your identity, track your progress, dominate the leaderboard."
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="Home" onMouseClicked="#goHome"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
+                            <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
+                            <Label text="Profile" style="-fx-text-fill: #e8372a; -fx-font-size: 12;"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
 
                 <!-- ── FLASH BANNER (consumed from SessionManager) ── -->
                 <VBox fx:id="flashSuccessBanner" visible="false" managed="false"

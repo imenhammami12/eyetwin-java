@@ -27,24 +27,41 @@
             <VBox style="-fx-background-color: #06050f;">
 
                 <!-- Page hero -->
-                <VBox style="-fx-padding: 36 80 28 80;
-                             -fx-border-color: rgba(255,255,255,0.05);
-                             -fx-border-width: 0 0 1 0;">
-                    <Label text="Edit My Profile"
-                           style="-fx-text-fill: white; -fx-font-family: 'Arial Black';
-                                  -fx-font-size: 28; -fx-font-weight: bold;"/>
-                    <HBox alignment="CENTER_LEFT" spacing="6" style="-fx-padding: 4 0 0 0;">
-                        <Label text="Home" onMouseClicked="#goHome"
-                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
-                        <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
-                        <Label text="Profile" onMouseClicked="#goToProfile"
-                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
-                        <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
-                        <Label text="Edit"
-                               style="-fx-text-fill: #e8372a; -fx-font-size: 12;"/>
-                    </HBox>
-                </VBox>
-
+                <!-- Page hero -->
+                <StackPane prefHeight="220" style="-fx-background-color: #06050f;">
+                    <ImageView fitWidth="1280" fitHeight="220"
+                               preserveRatio="false" smooth="true" opacity="0.12">
+                        <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
+                    </ImageView>
+                    <Region style="-fx-background-color: rgba(6,5,15,0.92);"/>
+                    <VBox alignment="CENTER_LEFT" spacing="12"
+                          style="-fx-padding: 32 80 0 80;">
+                        <HBox alignment="CENTER_LEFT" spacing="8"
+                              style="-fx-background-color: rgba(232,55,42,0.09);
+                     -fx-border-color: rgba(232,55,42,0.28);
+                     -fx-border-width:1; -fx-border-radius:3; -fx-background-radius:3;
+                     -fx-padding: 4 12 4 12; -fx-max-width:220;">
+                            <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;"/>
+                            <Label text="✏ Profile Editor"
+                                   style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
+                        </HBox>
+                        <Label text="Edit My Profile"
+                               style="-fx-font-family: 'Arial Black'; -fx-font-size:36;
+                      -fx-font-weight:bold; -fx-text-fill: #e8372a;
+                      -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.5),28,0,0,0);"/>
+                        <Label text="Update your identity and make your mark on the arena."
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;"/>
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="Home" onMouseClicked="#goHome"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
+                            <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
+                            <Label text="Profile" onMouseClicked="#goToProfile"
+                                   style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 12; -fx-cursor: hand;"/>
+                            <Label text="›" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 12;"/>
+                            <Label text="Edit" style="-fx-text-fill: #e8372a; -fx-font-size: 12;"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
                 <!-- Flash messages -->
                 <VBox fx:id="flashSuccessBox" visible="false" managed="false"
                       style="-fx-padding: 16 80 0 80;">
