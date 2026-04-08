@@ -1,9 +1,6 @@
 package com.eyetwin.services;
 
-import com.eyetwin.entities.MemberRole;
-import com.eyetwin.entities.MembershipStatus;
-import com.eyetwin.entities.TeamMembership;
-import com.eyetwin.entities.User;
+import com.eyetwin.entities.*;
 import com.eyetwin.interfaces.IUserService;
 import com.eyetwin.tools.DatabaseConfig;
 import com.eyetwin.tools.SessionManager;
@@ -432,46 +429,77 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public List<TeamMembership> getTeamMemberships(int userId) {
-        String sql = "SELECT * FROM `team_membership` WHERE user_id = ?";
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                TeamMembership tm = new TeamMembership();
-                tm.setId(rs.getInt("id"));
-                tm.setTeamId(rs.getInt("team_id"));
-                tm.setUserId(rs.getInt("user_id"));
+        String sql = """
+        SELECT tm.id,
+               tm.team_id,
+               tm.user_id,
+               tm.role,
+               tm.status,
+               tm.invited_at,
+               tm.joined_at,
+               t.id          AS t_id,
+               t.name        AS t_name,
+               t.description AS t_desc,
+               t.logo        AS t_logo,
+               t.is_active   AS t_active,
+               t.max_members AS t_max,
+               t.owner_id    AS t_owner_id
+        FROM team_membership tm
+        INNER JOIN team t ON t.id = tm.team_id
+        WHERE tm.user_id = ?
+        ORDER BY tm.joined_at DESC
+        """;
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // ── TeamMembership ────────────────────────────
+                    TeamMembership m = new TeamMembership();
+                    m.setId(rs.getInt("id"));
+                    m.setTeamId(rs.getInt("team_id"));
+                    m.setUserId(rs.getInt("user_id"));
 
-                // MemberRole enum
-                String roleStr = rs.getString("role");
-                if (roleStr != null) {
-                    try { tm.setRole(MemberRole.valueOf(roleStr.toUpperCase())); }
-                    catch (IllegalArgumentException ignored) {}
+                    // ── Role (enum MemberRole) ────────────────────
+                    try {
+                        m.setRole(MemberRole.fromValue(rs.getString("role")));
+                    } catch (Exception e) {
+                        m.setRole(MemberRole.MEMBER);
+                    }
+
+                    // ── Status (enum MembershipStatus) ────────────
+                    try {
+                        m.setStatus(MembershipStatus.fromValue(rs.getString("status")));
+                    } catch (Exception e) {
+                        m.setStatus(MembershipStatus.INACTIVE);
+                    }
+
+                    // ── Dates ─────────────────────────────────────
+                    Timestamp invitedAt = rs.getTimestamp("invited_at");
+                    Timestamp joinedAt  = rs.getTimestamp("joined_at");
+                    if (invitedAt != null) m.setInvitedAt(invitedAt.toLocalDateTime());
+                    if (joinedAt  != null) m.setJoinedAt(joinedAt.toLocalDateTime());
+
+                    // ── Team (JOIN) — nom réel ─────────────────────
+                    Team team = new Team();
+                    team.setId(rs.getInt("t_id"));
+                    team.setName(rs.getString("t_name"));
+                    team.setDescription(rs.getString("t_desc"));
+                    team.setLogo(rs.getString("t_logo"));
+                    team.setActive(rs.getBoolean("t_active"));
+                    team.setMaxMembers(rs.getInt("t_max"));
+                    team.setOwnerId(rs.getInt("t_owner_id"));
+                    m.setTeam(team);
+
+                    list.add(m);
                 }
-
-                // MembershipStatus enum
-                String statusStr = rs.getString("status");
-                if (statusStr != null) {
-                    try { tm.setStatus(MembershipStatus.valueOf(statusStr.toUpperCase())); }
-                    catch (IllegalArgumentException ignored) {}
-                }
-
-                Timestamp invitedAt = rs.getTimestamp("invited_at");
-                if (invitedAt != null) tm.setInvitedAt(invitedAt.toLocalDateTime());
-
-                Timestamp joinedAt = rs.getTimestamp("joined_at");
-                if (joinedAt != null) tm.setJoinedAt(joinedAt.toLocalDateTime());
-
-                list.add(tm);
             }
-        } catch (SQLException e) {
-            System.err.println("❌ getTeamMemberships: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("[UserServiceImpl] getTeamMemberships: " + e.getMessage());
         }
         return list;
     }
-
     // ════════════════════════════════════════════════════════════
     //  MAPPING ResultSet → User
     // ════════════════════════════════════════════════════════════

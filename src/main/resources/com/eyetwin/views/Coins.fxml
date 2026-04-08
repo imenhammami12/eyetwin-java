@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+
+<!--
+  Coins.fxml — Redesign v3 — style home.fxml + coin image + animations CSS
+  Controller : com.eyetwin.controller.CoinsController
+-->
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.CoinsController"
+      style="-fx-background-color: #080810;"
+      spacing="0">
+
+    <!-- ══ NAVBAR ══ -->
+    <fx:include source="navbar.fxml" fx:id="navbar"/>
+
+    <!-- ══ CONTENU PRINCIPAL ══ -->
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                style="-fx-background-color: #080810; -fx-background: #080810;
+                       -fx-border-color: transparent;"
+                VBox.vgrow="ALWAYS">
+
+        <VBox spacing="0" style="-fx-background-color: #080810;">
+
+            <!-- ══════════════════════════════════════════════════
+                 HERO SECTION  (calqué sur home.fxml)
+            ══════════════════════════════════════════════════ -->
+            <StackPane prefHeight="420" style="-fx-background-color: #05040f;">
+
+                <!-- Image de fond -->
+                <ImageView fitWidth="1280" fitHeight="420"
+                           preserveRatio="false" smooth="true" opacity="0.18">
+                    <image><Image url="@../assets/img/latest_war_img_1.png"/></image>
+                </ImageView>
+
+                <!-- Dégradé bas -->
+                <Region style="-fx-background-color:
+                    linear-gradient(to bottom,
+                        rgba(5,4,15,0.20) 0%,
+                        rgba(5,4,15,0.70) 55%,
+                        rgba(5,4,15,1.00) 100%);"/>
+
+                <!-- Vignette radiale -->
+                <Region style="-fx-background-color:
+                    radial-gradient(center 50% 50%, radius 70%,
+                        transparent 20%, rgba(0,0,0,0.75) 100%);"/>
+
+                <!-- Contenu Hero -->
+                <VBox alignment="CENTER" spacing="0"
+                      style="-fx-padding: 0 80 40 80;">
+
+                    <!-- Eyelet badge -->
+                    <HBox alignment="CENTER" spacing="8"
+                          style="-fx-background-color: rgba(246,216,96,0.08);
+                                 -fx-border-color: rgba(246,216,96,0.28);
+                                 -fx-border-width:1; -fx-background-radius:3; -fx-border-radius:3;
+                                 -fx-padding: 5 16 5 16; -fx-max-width: 220;">
+                        <Label text="●"
+                               style="-fx-text-fill: #f6d860; -fx-font-size:8;
+                                      -fx-effect: dropshadow(gaussian,#f6d860,8,0,0,0);"/>
+                        <Label text="EYETWIN COIN STORE"
+                               style="-fx-text-fill: #f6d860; -fx-font-size:10; -fx-font-weight:bold;"/>
+                    </HBox>
+
+                    <Region style="-fx-pref-height: 20;"/>
+
+                    <!-- Titre avec image coin inline -->
+                    <HBox alignment="CENTER" spacing="18">
+                        <!-- Coin image grande -->
+                        <ImageView fitWidth="72" fitHeight="72" preserveRatio="true"
+                                   style="-fx-effect: dropshadow(gaussian,rgba(246,216,96,0.7),28,0.3,0,0);">
+                            <image><Image url="@../assets/img/coin.png"/></image>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT" spacing="0">
+                            <Label text="Power Up"
+                                   style="-fx-font-family: 'Arial Black'; -fx-font-size: 58;
+                                          -fx-font-weight: bold; -fx-text-fill: white;
+                                          -fx-effect: dropshadow(gaussian,rgba(255,255,255,0.08),16,0,0,0);"/>
+                            <Label text="Your Game"
+                                   style="-fx-font-family: 'Arial Black'; -fx-font-size: 58;
+                                          -fx-font-weight: bold; -fx-text-fill: #f6d860;
+                                          -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.6),36,0,0,0);"/>
+                        </VBox>
+                    </HBox>
+
+                    <Region style="-fx-pref-height: 14;"/>
+
+                    <Label text="Unlock coaching sessions, live streams and exclusive rewards."
+                           style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 14;"/>
+
+                    <Region style="-fx-pref-height: 28;"/>
+
+                    <!-- Balance pill — style card home -->
+                    <HBox alignment="CENTER" spacing="0">
+                        <HBox alignment="CENTER" spacing="14"
+                              style="-fx-background-color: rgba(8,8,20,0.82);
+                                     -fx-border-color: rgba(246,216,96,0.22);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 50; -fx-background-radius: 50;
+                                     -fx-padding: 12 32 12 32;
+                                     -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.18),20,0,0,0);">
+                            <ImageView fitWidth="26" fitHeight="26" preserveRatio="true">
+                                <image><Image url="@../assets/img/coin.png"/></image>
+                            </ImageView>
+                            <VBox alignment="CENTER_LEFT" spacing="1">
+                                <Label text="YOUR BALANCE"
+                                       style="-fx-font-size:9; -fx-font-weight:bold;
+                                              -fx-text-fill: rgba(246,216,96,0.45);
+                                              -fx-letter-spacing: 2;"/>
+                                <Label fx:id="balanceLabel" text="0 coins"
+                                       style="-fx-font-size: 26; -fx-font-weight: 900;
+                                              -fx-text-fill: #f6d860;"/>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+
+                </VBox>
+            </StackPane>
+
+            <!-- ══════════════════════════════════════════════════
+                 STATS BAR  (calqué sur home.fxml)
+            ══════════════════════════════════════════════════ -->
+            <HBox alignment="CENTER"
+                  style="-fx-background-color: rgba(0,0,0,0.5);
+                         -fx-border-color: rgba(246,216,96,0.10) transparent;
+                         -fx-border-width: 1 0;
+                         -fx-padding: 16 0 16 0;">
+                <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" spacing="6">
+                        <ImageView fitWidth="16" fitHeight="16" preserveRatio="true">
+                            <image><Image url="@../assets/img/coin.png"/></image>
+                        </ImageView>
+                        <Label text="INSTANT DELIVERY"
+                               style="-fx-text-fill: rgba(255,255,255,0.28);
+                                      -fx-font-size:9; -fx-font-weight:bold;"/>
+                    </HBox>
+                    <Label text="Coins added instantly after payment"
+                           style="-fx-text-fill: rgba(255,255,255,0.18); -fx-font-size:10;"/>
+                </VBox>
+                <Region style="-fx-background-color: rgba(246,216,96,0.15);
+                               -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="🔒  SSL SECURED"
+                           style="-fx-text-fill: rgba(255,255,255,0.28);
+                                  -fx-font-size:9; -fx-font-weight:bold;"/>
+                    <Label text="256-bit encryption"
+                           style="-fx-text-fill: rgba(255,255,255,0.18); -fx-font-size:10;"/>
+                </VBox>
+                <Region style="-fx-background-color: rgba(246,216,96,0.15);
+                               -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="VISA  ·  MC  ·  FLOUCI"
+                           style="-fx-text-fill: rgba(255,255,255,0.28);
+                                  -fx-font-size:9; -fx-font-weight:bold;"/>
+                    <Label text="Multiple payment methods"
+                           style="-fx-text-fill: rgba(255,255,255,0.18); -fx-font-size:10;"/>
+                </VBox>
+                <Region style="-fx-background-color: rgba(246,216,96,0.15);
+                               -fx-pref-width:1; -fx-pref-height:36; -fx-max-height:36;"/>
+                <VBox alignment="CENTER" spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="24 / 7  SUPPORT"
+                           style="-fx-text-fill: rgba(255,255,255,0.28);
+                                  -fx-font-size:9; -fx-font-weight:bold;"/>
+                    <Label text="We're always here to help"
+                           style="-fx-text-fill: rgba(255,255,255,0.18); -fx-font-size:10;"/>
+                </VBox>
+            </HBox>
+
+            <!-- ══════════════════════════════════════════════════
+                 FLASH MESSAGE
+            ══════════════════════════════════════════════════ -->
+            <VBox fx:id="flashBox" visible="false" managed="false"
+                  style="-fx-background-color: rgba(72,187,120,0.08);
+                         -fx-border-color: #48bb78;
+                         -fx-border-width: 0 0 0 3;
+                         -fx-background-radius: 8;
+                         -fx-padding: 14 20 14 20;
+                         -fx-margin: 32 80 0 80;">
+                <Label fx:id="flashLabel" text=""
+                       style="-fx-text-fill: #9ee6bc; -fx-font-size: 13;"/>
+            </VBox>
+
+            <!-- ══════════════════════════════════════════════════
+                 PACKAGES SECTION
+            ══════════════════════════════════════════════════ -->
+            <VBox style="-fx-background-color: #080810; -fx-padding: 56 64 56 64;">
+
+                <!-- Section header — style home -->
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 0 0 40 0;">
+                    <HBox alignment="CENTER" spacing="8"
+                          style="-fx-background-color: rgba(246,216,96,0.07);
+                                 -fx-border-color: rgba(246,216,96,0.22);
+                                 -fx-border-width:1; -fx-background-radius:3; -fx-border-radius:3;
+                                 -fx-padding: 4 14 4 14; -fx-max-width: 180;">
+                        <Label text="●"
+                               style="-fx-text-fill: #f6d860; -fx-font-size:7;"/>
+                        <Label text="COIN PACKAGES"
+                               style="-fx-text-fill: #f6d860; -fx-font-size:10; -fx-font-weight:bold;"/>
+                    </HBox>
+                    <Label text="Choose Your Pack"
+                           style="-fx-font-family: 'Arial Black'; -fx-font-size: 32;
+                                  -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Label text="More coins = better value. Pick the pack that suits your playstyle."
+                           style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 13;"/>
+                </VBox>
+
+                <!-- Cards container — généré par le controller -->
+                <HBox fx:id="packagesContainer" alignment="CENTER" spacing="16"/>
+
+            </VBox>
+
+
+
+            <!-- ══════════════════════════════════════════════════
+                 PURCHASE HISTORY
+            ══════════════════════════════════════════════════ -->
+            <VBox style="-fx-background-color: #080810; -fx-padding: 52 64 52 64;">
+
+                <VBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 0 0 28 0;">
+                    <Label text="Purchase History"
+                           style="-fx-font-family: 'Arial Black'; -fx-font-size: 22;
+                                  -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Label text="All your past coin purchases."
+                           style="-fx-text-fill: rgba(255,255,255,0.28); -fx-font-size: 12;"/>
+                    <!-- Séparateur rouge comme home -->
+                    <Region style="-fx-background-color: rgba(232,55,42,0.35);
+                                   -fx-pref-height:2; -fx-max-width:60;"/>
+                </VBox>
+
+                <VBox fx:id="historyContainer" spacing="8"/>
+
+            </VBox>
+
+            <!-- ══════════════════════════════════════════════════
+                 CTA BOTTOM  (calqué sur home.fxml ctaBottomGuest)
+            ══════════════════════════════════════════════════ -->
+            <VBox alignment="CENTER" spacing="20"
+                  style="-fx-background-color: #05040f;
+                         -fx-border-color: rgba(246,216,96,0.08) transparent transparent transparent;
+                         -fx-border-width: 1 0 0 0;
+                         -fx-padding: 72 64 72 64;">
+                <HBox alignment="CENTER" spacing="10">
+                    <ImageView fitWidth="34" fitHeight="34" preserveRatio="true"
+                               style="-fx-effect: dropshadow(gaussian,rgba(246,216,96,0.5),18,0.3,0,0);">
+                        <image><Image url="@../assets/img/coin.png"/></image>
+                    </ImageView>
+                    <Label text="Ready to Level Up?"
+                           style="-fx-font-family: 'Arial Black'; -fx-font-size:30;
+                                  -fx-font-weight:bold; -fx-text-fill: white;"/>
+                </HBox>
+                <Label text="Get more coins and unlock everything EyeTwin has to offer."
+                       style="-fx-text-fill: rgba(255,255,255,0.32); -fx-font-size:13;"/>
+                <HBox alignment="CENTER" spacing="14">
+                    <Button text="⚡  Buy Coins Now"
+                            style="-fx-background-color: linear-gradient(135deg,#c8a010,#f6d860,#f6ad55);
+                                   -fx-text-fill: #1a1a2e; -fx-font-weight:bold; -fx-font-size:13;
+                                   -fx-background-radius:9; -fx-padding: 14 30 14 30;
+                                   -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.45),18,0,0,4);"/>
+                    <Button text="← Back to Profile" onAction="#goToProfile"
+                            style="-fx-background-color: rgba(255,255,255,0.04);
+                                   -fx-text-fill: rgba(255,255,255,0.5); -fx-font-weight:bold;
+                                   -fx-font-size:13; -fx-background-radius:9;
+                                   -fx-border-color: rgba(255,255,255,0.12);
+                                   -fx-border-width:1; -fx-border-radius:9;
+                                   -fx-padding: 14 30 14 30; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ══ FOOTER ══ (identique à home) -->
+            <HBox alignment="CENTER_LEFT"
+                  style="-fx-background-color: #0d0c1a;
+                         -fx-border-color: rgba(246,216,96,0.12) transparent transparent transparent;
+                         -fx-border-width: 1 0 0 0;
+                         -fx-padding: 18 40 18 40;">
+                <Label text="EYETWIN"
+                       style="-fx-text-fill: #f6d860; -fx-font-weight:bold;
+                              -fx-font-size:12; -fx-font-family:'Arial Black';"/>
+                <Label text="  ·  Coin Store — Secure Payments"
+                       style="-fx-text-fill: rgba(255,255,255,0.25); -fx-font-size:11;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox spacing="10">
+                    <Label text="VISA"
+                           style="-fx-background-color: rgba(255,255,255,0.04);
+                                  -fx-border-color: rgba(246,216,96,0.12);
+                                  -fx-border-radius:8; -fx-background-radius:8;
+                                  -fx-padding: 6 10 6 10;
+                                  -fx-text-fill: rgba(255,255,255,0.32);
+                                  -fx-font-size:10; -fx-font-weight:bold;"/>
+                    <Label text="MC"
+                           style="-fx-background-color: rgba(255,255,255,0.04);
+                                  -fx-border-color: rgba(246,216,96,0.12);
+                                  -fx-border-radius:8; -fx-background-radius:8;
+                                  -fx-padding: 6 10 6 10;
+                                  -fx-text-fill: rgba(255,255,255,0.32);
+                                  -fx-font-size:10; -fx-font-weight:bold;"/>
+                    <Label text="FLOUCI"
+                           style="-fx-background-color: rgba(255,255,255,0.04);
+                                  -fx-border-color: rgba(246,216,96,0.12);
+                                  -fx-border-radius:8; -fx-background-radius:8;
+                                  -fx-padding: 6 10 6 10;
+                                  -fx-text-fill: rgba(255,255,255,0.32);
+                                  -fx-font-size:10; -fx-font-weight:bold;"/>
+                </HBox>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>
