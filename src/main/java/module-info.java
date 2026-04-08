@@ -9,6 +9,12 @@ module org.example.eyetwinjava {
     requires java.prefs;
     requires opencv;
     requires jakarta.mail;
+    requires java.desktop;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires java.net.http;
+    requires org.json;
+    requires stripe.java;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

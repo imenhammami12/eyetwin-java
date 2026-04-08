@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminCoachApplicationController"
+            style="-fx-background-color: #0a0514;">
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+    <center>
+        <VBox style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox spacing="16" style="-fx-padding: 24;">
+
+                    <!-- ═══ KPI CARDS ═══ -->
+                    <HBox spacing="14">
+                        <!-- Total -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.92);
+                                     -fx-border-color:rgba(102,126,234,0.30);-fx-border-width:1;
+                                     -fx-border-radius:12;-fx-background-radius:12;-fx-padding:20;
+                                     -fx-effect:dropshadow(gaussian,rgba(102,126,234,0.15),20,0,0,4);
+                                     -fx-cursor:hand;">
+                            <Label text="◈ ALL REQUESTS"
+                                   style="-fx-font-size:9;-fx-text-fill:rgba(255,255,255,0.35);-fx-font-family:monospace;"/>
+                            <Label fx:id="totalLabel" text="0"
+                                   style="-fx-font-size:44;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                            <Label text="Total"
+                                   style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-weight:600;-fx-padding:0 0 4 0;"/>
+                            <ProgressBar fx:id="progressTotal" progress="1.0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-purple"/>
+                        </VBox>
+                        <!-- Pending -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.92);
+                                     -fx-border-color:rgba(255,167,81,0.30);-fx-border-width:1;
+                                     -fx-border-radius:12;-fx-background-radius:12;-fx-padding:20;
+                                     -fx-effect:dropshadow(gaussian,rgba(255,167,81,0.15),20,0,0,4);
+                                     -fx-cursor:hand;">
+                            <Label text="⏳ AWAITING REVIEW"
+                                   style="-fx-font-size:9;-fx-text-fill:rgba(255,167,81,0.75);-fx-font-family:monospace;"/>
+                            <Label fx:id="pendingLabel" text="0"
+                                   style="-fx-font-size:44;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                            <Label text="Pending"
+                                   style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-weight:600;-fx-padding:0 0 4 0;"/>
+                            <ProgressBar fx:id="progressPending" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-orange"/>
+                        </VBox>
+                        <!-- Approved -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.92);
+                                     -fx-border-color:rgba(67,233,123,0.30);-fx-border-width:1;
+                                     -fx-border-radius:12;-fx-background-radius:12;-fx-padding:20;
+                                     -fx-effect:dropshadow(gaussian,rgba(67,233,123,0.15),20,0,0,4);
+                                     -fx-cursor:hand;">
+                            <Label text="✓ VALIDATED"
+                                   style="-fx-font-size:9;-fx-text-fill:rgba(67,233,123,0.75);-fx-font-family:monospace;"/>
+                            <Label fx:id="approvedLabel" text="0"
+                                   style="-fx-font-size:44;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                            <Label text="Approved"
+                                   style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-weight:600;-fx-padding:0 0 4 0;"/>
+                            <ProgressBar fx:id="progressApproved" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-green"/>
+                        </VBox>
+                        <!-- Rejected -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.92);
+                                     -fx-border-color:rgba(255,107,107,0.30);-fx-border-width:1;
+                                     -fx-border-radius:12;-fx-background-radius:12;-fx-padding:20;
+                                     -fx-effect:dropshadow(gaussian,rgba(255,107,107,0.15),20,0,0,4);
+                                     -fx-cursor:hand;">
+                            <Label text="✕ DECLINED"
+                                   style="-fx-font-size:9;-fx-text-fill:rgba(255,107,107,0.75);-fx-font-family:monospace;"/>
+                            <Label fx:id="rejectedLabel" text="0"
+                                   style="-fx-font-size:44;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                            <Label text="Rejected"
+                                   style="-fx-font-size:11;-fx-text-fill:rgba(255,255,255,0.5);-fx-font-weight:600;-fx-padding:0 0 4 0;"/>
+                            <ProgressBar fx:id="progressRejected" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-red"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ═══ MINI STATS ROW ═══ -->
+                    <HBox spacing="12">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.85);
+                                     -fx-border-color:rgba(56,249,215,0.22);-fx-border-width:1;
+                                     -fx-border-radius:10;-fx-background-radius:10;-fx-padding:14;-fx-cursor:hand;">
+                            <Label text="Approval Rate"
+                                   style="-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.4);-fx-font-weight:600;-fx-padding:0 0 2 0;"/>
+                            <Label fx:id="approvalRateLabel" text="0%"
+                                   style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#38f9d7;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.85);
+                                     -fx-border-color:rgba(255,167,81,0.22);-fx-border-width:1;
+                                     -fx-border-radius:10;-fx-background-radius:10;-fx-padding:14;-fx-cursor:hand;">
+                            <Label text="Awaiting Decision"
+                                   style="-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.4);-fx-font-weight:600;-fx-padding:0 0 2 0;"/>
+                            <Label fx:id="awaitingLabel" text="0"
+                                   style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#ffa751;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.85);
+                                     -fx-border-color:rgba(102,126,234,0.22);-fx-border-width:1;
+                                     -fx-border-radius:10;-fx-background-radius:10;-fx-padding:14;-fx-cursor:hand;">
+                            <Label text="Active Coaches"
+                                   style="-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.4);-fx-font-weight:600;-fx-padding:0 0 2 0;"/>
+                            <Label fx:id="coachCountLabel" text="0"
+                                   style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#a5b4fc;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(10,5,20,0.85);
+                                     -fx-border-color:rgba(255,107,107,0.22);-fx-border-width:1;
+                                     -fx-border-radius:10;-fx-background-radius:10;-fx-padding:14;-fx-cursor:hand;">
+                            <Label text="Rejection Rate"
+                                   style="-fx-font-size:10;-fx-text-fill:rgba(255,255,255,0.4);-fx-font-weight:600;-fx-padding:0 0 2 0;"/>
+                            <Label fx:id="rejectionRateLabel" text="0%"
+                                   style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#ff6b6b;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ═══ FILTERS ═══ -->
+                    <VBox spacing="12"
+                          style="-fx-background-color:rgba(255,255,255,0.02);
+                                 -fx-border-color:rgba(255,255,255,0.07);-fx-border-width:1;
+                                 -fx-border-radius:12;-fx-background-radius:12;-fx-padding:16;">
+                        <Label text="🔍  Filters &amp; Search"
+                               style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <TextField fx:id="searchField"
+                                       promptText="Name, username, email, certifications…"
+                                       prefWidth="280"
+                                       style="-fx-background-color:rgba(30,15,45,0.95);
+                                              -fx-text-fill:white;
+                                              -fx-prompt-text-fill:rgba(255,255,255,0.35);
+                                              -fx-border-color:rgba(255,60,100,0.30);
+                                              -fx-border-radius:10;-fx-background-radius:10;
+                                              -fx-padding:10 14;"/>
+                            <ComboBox fx:id="statusFilterCombo" prefWidth="160"
+                                      style="-fx-background-color:rgba(30,15,45,0.95);
+                                             -fx-border-color:rgba(255,60,100,0.30);
+                                             -fx-border-radius:10;-fx-background-radius:10;"/>
+                            <ComboBox fx:id="sortCombo" prefWidth="175"
+                                      style="-fx-background-color:rgba(30,15,45,0.95);
+                                             -fx-border-color:rgba(255,60,100,0.30);
+                                             -fx-border-radius:10;-fx-background-radius:10;"/>
+                            <Button text="🔍  Filter" onAction="#handleFilter"
+                                    style="-fx-background-color:linear-gradient(to right,#ff3c64,#c0132f);
+                                           -fx-text-fill:white;-fx-background-radius:8;
+                                           -fx-border-color:transparent;-fx-padding:9 18;
+                                           -fx-cursor:hand;-fx-font-weight:bold;
+                                           -fx-effect:dropshadow(gaussian,rgba(255,60,100,0.45),14,0,0,4);"/>
+                            <Button text="✕  Clear" onAction="#handleClearFilters"
+                                    style="-fx-background-color:rgba(255,255,255,0.05);
+                                           -fx-border-color:rgba(255,255,255,0.15);
+                                           -fx-border-radius:8;-fx-background-radius:8;
+                                           -fx-text-fill:rgba(255,255,255,0.65);
+                                           -fx-padding:9 12;-fx-cursor:hand;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="⚡  View Coaches" onAction="#goToCoachesList"
+                                    style="-fx-background-color:linear-gradient(to right,#4a2d8f,#6a3fbf);
+                                           -fx-text-fill:white;-fx-background-radius:8;
+                                           -fx-border-color:transparent;-fx-padding:9 18;
+                                           -fx-cursor:hand;-fx-font-weight:bold;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ═══ RESULT COUNT ═══ -->
+                    <HBox alignment="CENTER_LEFT">
+                        <Label fx:id="resultCountLabel" text="—"
+                               style="-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:12;"/>
+                    </HBox>
+
+                    <!-- ═══ TABLE ═══ -->
+                    <VBox style="-fx-background-color:rgba(255,255,255,0.02);
+                                 -fx-border-color:rgba(255,255,255,0.07);-fx-border-width:1;
+                                 -fx-border-radius:12;-fx-background-radius:12;">
+                        <Label text="📋  Applications List"
+                               style="-fx-font-size:13;-fx-font-weight:bold;-fx-text-fill:white;-fx-padding:14 16;"/>
+                        <TableView fx:id="applicationsTable" VBox.vgrow="ALWAYS" prefHeight="480"
+                                   style="-fx-background-color:transparent;-fx-border-color:transparent;
+                                          -fx-table-cell-border-color:transparent;">
+                            <columns>
+                                <TableColumn fx:id="colAvatar"     text="Photo"     prefWidth="70"/>
+                                <TableColumn fx:id="colApplicant"  text="Applicant" prefWidth="190"/>
+                                <TableColumn fx:id="colEmail"      text="Email"     prefWidth="210"/>
+                                <TableColumn fx:id="colSubmitted"  text="Submitted" prefWidth="130"/>
+                                <TableColumn fx:id="colStatus"     text="Status"    prefWidth="120"/>
+                                <TableColumn fx:id="colReviewed"   text="Reviewed"  prefWidth="130"/>
+                                <TableColumn fx:id="colActions"    text="Actions"   prefWidth="130"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- ═══ PAGINATION ═══ -->
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label fx:id="paginationInfoLabel" text=""
+                               style="-fx-text-fill:rgba(255,255,255,0.4);-fx-font-size:12;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="prevPageBtn" text="← Prev" onAction="#handlePrevPage"
+                                style="-fx-background-color:rgba(255,255,255,0.05);
+                                       -fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:8;
+                                       -fx-background-radius:8;-fx-text-fill:rgba(255,255,255,0.65);
+                                       -fx-padding:8 16;-fx-cursor:hand;-fx-font-size:13;"/>
+                        <Label fx:id="pageNumberLabel" text="Page 1 / 1"
+                               style="-fx-text-fill:white;-fx-font-size:12;-fx-font-weight:bold;"/>
+                        <Button fx:id="nextPageBtn" text="Next →" onAction="#handleNextPage"
+                                style="-fx-background-color:rgba(255,255,255,0.05);
+                                       -fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:8;
+                                       -fx-background-radius:8;-fx-text-fill:rgba(255,255,255,0.65);
+                                       -fx-padding:8 16;-fx-cursor:hand;-fx-font-size:13;"/>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

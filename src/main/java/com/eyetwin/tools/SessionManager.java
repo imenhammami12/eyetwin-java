@@ -1,5 +1,7 @@
 package com.eyetwin.tools;
 
+import com.eyetwin.entities.Complaint;
+import com.eyetwin.entities.Team;
 import com.eyetwin.entities.User;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,8 @@ public class SessionManager {
 
     private static final IUserService userService = new UserServiceImpl();
     private static User selectedUser = null;
+    private static Team selectedTeam = null;
+    private static Complaint selectedComplaint = null;
 
     // ─────────────────────────────────────────────────────────
     //  État de session
@@ -305,6 +309,18 @@ public class SessionManager {
         selectedUser = null;
     }
 
+
+    public static void setSelectedTeam(Team team)  { selectedTeam = team; }
+    public static Team getSelectedTeam()           { return selectedTeam; }
+    public static void clearSelectedTeam()         { selectedTeam = null; }
+
+
+
+
+    public static void    setSelectedComplaint(Complaint c) { selectedComplaint = c; }
+    public static Complaint getSelectedComplaint()          { return selectedComplaint; }
+    public static void    clearSelectedComplaint()          { selectedComplaint = null; }
+
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
     // ─────────────────────────────────────────────────────────
@@ -316,7 +332,9 @@ public class SessionManager {
         twoFactorCompleted  = false;
         pendingFlashType    = null;
         pendingFlashMessage = null;
- selectedUser = null;
+        selectedUser = null;
+        selectedTeam = null;
+        selectedComplaint = null;
 
         openSecurityTab = false;
         pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email

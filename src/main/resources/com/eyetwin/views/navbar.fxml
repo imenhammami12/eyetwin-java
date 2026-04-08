@@ -79,15 +79,16 @@
           visible="false" managed="false">
 
         <!-- Coins pill -->
-        <HBox fx:id="coinsBadge" alignment="CENTER" spacing="6"
+        <HBox fx:id="coinsBadge" alignment="CENTER" spacing="5"
               onMouseClicked="#goToCoins"
-              style="-fx-background-color: linear-gradient(90deg,#f6d860,#f6ad55);
-                     -fx-background-radius: 20; -fx-padding: 5 13 5 13;
-                     -fx-cursor: hand;
-                     -fx-effect: dropshadow(gaussian,rgba(246,216,96,0.3),10,0,0,0);">
-            <Label text="🪙" style="-fx-font-size: 11;"/>
+              style="-fx-background-color: transparent;
+             -fx-padding: 5 12 5 12;
+             -fx-cursor: hand;">
+            <ImageView fitWidth="42" fitHeight="32" preserveRatio="true" pickOnBounds="true">
+                <image><Image url="@../assets/img/coin.png"/></image>
+            </ImageView>
             <Label fx:id="coinsNavLabel" text="0"
-                   style="-fx-font-weight: bold; -fx-font-size: 11; -fx-text-fill: #1a1a2e;"/>
+                   style="-fx-font-weight: bold; -fx-font-size: 11; -fx-text-fill: #f6d860;"/>
         </HBox>
 
         <!-- Notifications -->

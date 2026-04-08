@@ -82,6 +82,10 @@ public class NavbarController {
             profileStatsItem.setText(
                     "🪙 " + user.getCoinBalance() + " coins   |   ⚡ Rank: —   |   🏆 Wins: —"
             );
+        if (coinsBadge != null) {
+            coinsBadge.setVisible(true);
+            coinsBadge.setManaged(true);
+        }
 
         boolean isAdmin = SessionManager.isAdmin();
         if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
@@ -199,13 +203,20 @@ public class NavbarController {
             Parent root  = FXMLLoader.load(url);
             Stage  stage = resolveStage();
             if (stage == null) return;
-            stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
+
+            // ── Copier les stylesheets de la scène courante ──
+            Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
+            Scene currentScene = stage.getScene();
+            if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+                newScene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
+
+            stage.setScene(newScene);
         } catch (IOException e) {
             System.err.println("[NavbarController] ❌ Erreur chargement : " + fxml);
             e.printStackTrace();
         }
     }
-
     private Stage resolveStage() {
         for (javafx.scene.Node n : new javafx.scene.Node[]{
                 loggedInZone, guestZone, navProfileMenu, navNotifMenu
@@ -217,7 +228,6 @@ public class NavbarController {
     }
 
     public void setActivePage(String page) {
-        // Reset tous les labels
         String inactive = "-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold; -fx-padding: 22 14 22 14; -fx-cursor: hand; -fx-border-color: transparent;";
         String active   = "-fx-text-fill: white; -fx-font-size:10; -fx-font-weight:bold; -fx-padding: 22 14 22 14; -fx-cursor: hand; -fx-border-color: transparent transparent #e8372a transparent; -fx-border-width: 0 0 2 0;";
 
@@ -233,7 +243,7 @@ public class NavbarController {
             case "tournois"  -> { if (navTournois  != null) navTournois.setStyle(active); }
             case "teams"     -> { if (navTeams     != null) navTeams.setStyle(active); }
             case "community" -> { if (navCommunity != null) navCommunity.setStyle(active); }
+            case "support"   -> {}
         }
     }
-
 }

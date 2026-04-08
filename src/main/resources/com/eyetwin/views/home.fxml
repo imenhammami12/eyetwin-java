@@ -91,20 +91,20 @@
                         <!-- CTA LOGGED IN -->
                         <HBox fx:id="heroCTAUser" spacing="14" alignment="CENTER_LEFT"
                               visible="false" managed="false">
-                            <Button text="⬆  Upload a Video" onAction="#goToVideos"
-                                    style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
-                                           -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:13;
-                                           -fx-background-radius:9; -fx-padding: 14 28 14 28;
-                                           -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.55),22,0,0,5);"/>
+                            <Button fx:id="uploadVideoBtn"
+                                    text="⬆  Upload a Video"
+                                    onAction="#goToVideos"
+                                    styleClass="btn-fire"/>
                             <Button text="● Watch Live"
                                     style="-fx-background-color: rgba(255,255,255,0.04);
-                                           -fx-text-fill: rgba(255,255,255,0.6); -fx-font-weight:bold;
-                                           -fx-font-size:13; -fx-background-radius:9;
-                                           -fx-border-color: rgba(255,255,255,0.12);
-                                           -fx-border-width:1; -fx-border-radius:9;
-                                           -fx-padding: 14 28 14 28; -fx-cursor: hand;"/>
+                   -fx-text-fill: rgba(255,255,255,0.6); -fx-font-weight:bold;
+                   -fx-font-size:13; -fx-background-radius:9;
+                   -fx-border-color: rgba(255,255,255,0.12);
+                   -fx-border-width:1; -fx-border-radius:9;
+                   -fx-padding: 14 28 14 28; -fx-cursor: hand;"/>
                         </HBox>
+
+
                     </VBox>
                 </StackPane>
 
@@ -263,13 +263,11 @@
                             <Label text="The biggest eSport event of the year is coming. Compete for glory, prestige, and exclusive rewards."
                                    style="-fx-text-fill: rgba(255,255,255,0.48); -fx-font-size:13;
                                           -fx-wrap-text:true; -fx-max-width:500;"/>
-                            <Button fx:id="eventRegisterBtn" text="🏆  Register Now"
+                            <!-- EVENT SECTION -->
+                            <Button fx:id="eventRegisterBtn"
+                                    text="🏆  Register Now"
                                     onAction="#goToRegister"
-                                    style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
-                                           -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:13;
-                                           -fx-background-radius:9; -fx-padding: 13 26 13 26;
-                                           -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.55),18,0,0,5);"/>
+                                    styleClass="btn-fire"/>
                         </VBox>
                         <VBox spacing="14" alignment="CENTER">
                             <VBox alignment="CENTER" spacing="5"
