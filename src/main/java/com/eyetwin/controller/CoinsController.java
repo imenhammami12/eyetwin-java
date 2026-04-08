@@ -1,11 +1,9 @@
 package com.eyetwin.controller;
 
-import com.eyetwin.entities.CheckoutResult;
-import com.eyetwin.entities.CoinPackage;
-import com.eyetwin.entities.CoinPurchase;
-import com.eyetwin.entities.User;
+import com.eyetwin.entities.*;
 import com.eyetwin.interfaces.ICoinService;
 import com.eyetwin.services.CoinServiceImpl;
+import com.eyetwin.services.FlouciService;
 import com.eyetwin.services.StripePaymentChecker;
 import com.eyetwin.services.StripeService;
 import com.eyetwin.tools.SessionManager;
@@ -14,364 +12,505 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * Contrôleur JavaFX pour la vue Coins.fxml
- * Miroir de CoinController.php + coins/index.html.twig (Symfony)
- *
- * Fonctionnalités :
- *  - Afficher le solde actuel
- *  - Afficher les 4 packages disponibles
- *  - Simuler un achat (demo / intégration future avec Stripe API)
- *  - Afficher l'historique des achats
- *  - Flash messages (succès / erreur)
- */
+import javafx.animation.*;
+import javafx.util.Duration;
+
 public class CoinsController {
 
     // ── FXML ──────────────────────────────────────────────────
-    @FXML private Label    balanceLabel;
-    @FXML private HBox     packagesContainer;
-    @FXML private VBox     historyContainer;
-    @FXML private Label    flashLabel;
-    @FXML private VBox     flashBox;
+    @FXML private Label  balanceLabel;
+    @FXML private HBox   packagesContainer;
+    @FXML private VBox   historyContainer;
+    @FXML private Label  flashLabel;
+    @FXML private VBox   flashBox;
 
-    // ── Service ───────────────────────────────────────────────
-    private final ICoinService coinService = new CoinServiceImpl();
-    private final StripeService stripeService = new StripeService();
+    @FXML private ImageView heroCoinsImage;   // grand coin dans le hero
+    @FXML private VBox      heroContent;      // VBox du contenu hero pour fade-in
 
+    // ── Services ──────────────────────────────────────────────
+    private final ICoinService         coinService    = new CoinServiceImpl();
+    private final StripeService        stripeService  = new StripeService();
     private final StripePaymentChecker paymentChecker = new StripePaymentChecker();
+    private final FlouciService        flouciService  = new FlouciService();
 
     // ══════════════════════════════════════════════════════════
     //  INITIALIZE
     // ══════════════════════════════════════════════════════════
-
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();
-        if (user == null) {
-            navigateTo("login.fxml");
-            return;
-        }
+        if (user == null) { navigateTo("login.fxml"); return; }
 
-        // Flash message venant d'une autre page (ex: après achat)
         String[] flash = SessionManager.consumeFlash();
         if (flash != null) showFlash(flash[0], flash[1]);
 
         refreshBalance(user);
         buildPackageCards(user);
         loadHistory(user);
+        animateUI();
     }
 
-    // ══════════════════════════════════════════════════════════
-    //  SOLDE
-    // ══════════════════════════════════════════════════════════
+    private void animateUI() {
+        // 1. Fade-in + slide-up du hero content
+        if (heroContent != null) {
+            heroContent.setOpacity(0);
+            heroContent.setTranslateY(24);
+            FadeTransition fade = new FadeTransition(Duration.millis(650), heroContent);
+            fade.setFromValue(0); fade.setToValue(1);
+            TranslateTransition slide = new TranslateTransition(Duration.millis(650), heroContent);
+            slide.setFromY(24); slide.setToY(0);
+            slide.setInterpolator(Interpolator.EASE_OUT);
+            new ParallelTransition(fade, slide).play();
+        }
 
-    private void refreshBalance(User user) {
+        // 2. Rotation lente du coin hero
+        if (heroCoinsImage != null) {
+            RotateTransition rot = new RotateTransition(Duration.seconds(12), heroCoinsImage);
+            rot.setByAngle(360);
+            rot.setCycleCount(Animation.INDEFINITE);
+            rot.setInterpolator(Interpolator.LINEAR);
+            rot.play();
+        }
+
+        // 3. Pulse doré sur le balanceLabel
         if (balanceLabel != null) {
-            balanceLabel.setText("🪙 " + user.getCoinBalance() + " coins");
+            ScaleTransition pulse = new ScaleTransition(Duration.seconds(2.2), balanceLabel);
+            pulse.setFromX(1.0); pulse.setToX(1.03);
+            pulse.setFromY(1.0); pulse.setToY(1.03);
+            pulse.setAutoReverse(true);
+            pulse.setCycleCount(Animation.INDEFINITE);
+            pulse.setInterpolator(Interpolator.EASE_BOTH);
+            pulse.play();
+        }
+
+        // 4. Fade-in décalé des cards packages
+        if (packagesContainer != null) {
+            int delay = 0;
+            for (javafx.scene.Node card : packagesContainer.getChildren()) {
+                card.setOpacity(0);
+                card.setTranslateY(20);
+                FadeTransition f = new FadeTransition(Duration.millis(500), card);
+                f.setFromValue(0); f.setToValue(1);
+                f.setDelay(Duration.millis(120 + delay));
+                TranslateTransition t = new TranslateTransition(Duration.millis(500), card);
+                t.setFromY(20); t.setToY(0);
+                t.setDelay(Duration.millis(120 + delay));
+                t.setInterpolator(Interpolator.EASE_OUT);
+                new ParallelTransition(f, t).play();
+                delay += 80;
+            }
         }
     }
 
-    // ══════════════════════════════════════════════════════════
-    //  PACKAGES — construction dynamique des cartes
-    // ══════════════════════════════════════════════════════════
 
-    /**
-     * Construit les cartes de packages de façon programmatique
-     * (miroir du bloc Twig {% for coins, package in packages %})
-     */
+
+    // ══════════════════════════════════════════════════════════
+    //  BALANCE
+    // ══════════════════════════════════════════════════════════
+    private void refreshBalance(User user) {
+        if (balanceLabel != null)
+            balanceLabel.setText(user.getCoinBalance() + "  coins");
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  PACKAGE CARDS
+    // ══════════════════════════════════════════════════════════
     private void buildPackageCards(User user) {
         if (packagesContainer == null) return;
         packagesContainer.getChildren().clear();
-
-        List<CoinPackage> packages = coinService.getAvailablePackages();
-
-        for (CoinPackage pkg : packages) {
-            VBox card = createPackageCard(pkg, user);
-            packagesContainer.getChildren().add(card);
-        }
+        for (CoinPackage pkg : coinService.getAvailablePackages())
+            packagesContainer.getChildren().add(createPackageCard(pkg, user));
     }
 
+    /**
+     * Crée une carte de package propre, sans emoji, avec bonne lisibilité.
+     * Couleurs : texte #c0c0e0 minimum sur fond sombre, titres en blanc.
+     */
     private VBox createPackageCard(CoinPackage pkg, User user) {
-        VBox card = new VBox(10);
-        card.setAlignment(Pos.CENTER);
-        card.setPrefWidth(180);
-        card.setPadding(new Insets(20));
+        boolean pop = pkg.isPopular();
 
-        // Bordure populaire
-        if (pkg.isPopular()) {
+        VBox card = new VBox(0);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setPrefWidth(188);
+        card.setMinHeight(290);
+
+        // Glow violet sur la carte populaire
+        if (pop) {
+            DropShadow glow = new DropShadow();
+            glow.setColor(Color.web("#5248c8", 0.5));
+            glow.setRadius(32);
+            card.setEffect(glow);
             card.setStyle("""
-                    -fx-background-color: linear-gradient(135deg, #1a1a2e, #1e1e3a);
-                    -fx-background-radius: 12;
-                    -fx-border-color: #667eea;
-                    -fx-border-width: 2;
-                    -fx-border-radius: 12;
+                    -fx-background-color: #0d0d22;
+                    -fx-background-radius: 14;
+                    -fx-border-color: #5248c8;
+                    -fx-border-width: 1.5;
+                    -fx-border-radius: 14;
                     """);
         } else {
             card.setStyle("""
-                    -fx-background-color: rgba(255,255,255,0.04);
-                    -fx-background-radius: 12;
-                    -fx-border-color: rgba(255,255,255,0.08);
+                    -fx-background-color: #0e0e1e;
+                    -fx-background-radius: 14;
+                    -fx-border-color: #1c1c38;
                     -fx-border-width: 1;
-                    -fx-border-radius: 12;
+                    -fx-border-radius: 14;
                     """);
         }
 
-        // Badge "MOST POPULAR"
-        if (pkg.isPopular()) {
-            Label badge = new Label("⭐ MOST POPULAR");
+        // ── Zone haute : coins ─────────────────────────────────
+        VBox topZone = new VBox(4);
+        topZone.setAlignment(Pos.CENTER);
+        topZone.setPadding(new Insets(pop ? 22 : 20, 16, 16, 16));
+        topZone.setStyle(pop
+                ? "-fx-background-color: #121230; -fx-background-radius: 12 12 0 0;"
+                : "-fx-background-color: transparent; -fx-background-radius: 12 12 0 0;");
+
+        // Badge "MOST POPULAR" (texte uniquement, pas d'emoji)
+        if (pop) {
+            Label badge = new Label("MOST POPULAR");
             badge.setStyle("""
-                    -fx-background-color: linear-gradient(90deg,#667eea,#764ba2);
-                    -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold;
-                    -fx-background-radius: 20; -fx-padding: 3 10 3 10;
+                    -fx-font-size: 9;
+                    -fx-font-weight: bold;
+                    -fx-text-fill: #a090ff;
+                    -fx-letter-spacing: 2;
+                    -fx-background-color: #1e1a50;
+                    -fx-background-radius: 20;
+                    -fx-padding: 4 12 4 12;
                     """);
-            card.getChildren().add(badge);
+            topZone.getChildren().add(badge);
         }
 
-        // Icône + nombre de coins
-        Label coinsIcon = new Label("🪙");
-        coinsIcon.setStyle("-fx-font-size: 32;");
+        // Nombre de coins — grand, lisible, doré
+        Label coinsNum = new Label(String.valueOf(pkg.getCoins()));
+        coinsNum.setStyle(
+                "-fx-font-size: " + (pop ? "50" : "42") + ";" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-text-fill: #f0c040;"
+        );
 
-        Label coinsCount = new Label(String.valueOf(pkg.getCoins()));
-        coinsCount.setStyle("-fx-font-size: 36; -fx-font-weight: 900; -fx-text-fill: white;");
-
+        // Label "COINS"
         Label coinsWord = new Label("COINS");
-        coinsWord.setStyle("-fx-font-size: 12; -fx-text-fill: #f6d860; -fx-font-weight: bold;");
+        coinsWord.setStyle("""
+                -fx-font-size: 10;
+                -fx-font-weight: bold;
+                -fx-text-fill: #8a7828;
+                -fx-letter-spacing: 3;
+                """);
+
+        topZone.getChildren().addAll(coinsNum, coinsWord);
+
+        // ── Séparateur ─────────────────────────────────────────
+        Region sep = new Region();
+        sep.setPrefHeight(1);
+        sep.setMaxWidth(Double.MAX_VALUE);
+        sep.setStyle("-fx-background-color: " + (pop ? "#20204a" : "#141428") + ";");
+
+        // ── Zone basse : prix + bouton ─────────────────────────
+        VBox bottomZone = new VBox(6);
+        bottomZone.setAlignment(Pos.CENTER);
+        bottomZone.setPadding(new Insets(16, 16, 20, 16));
 
         // Nom du pack
-        Label packLabel = new Label(pkg.getLabel());
-        packLabel.setStyle("-fx-font-size: 13; -fx-text-fill: #c0c0d0; -fx-font-weight: 600;");
+        Label packName = new Label(pkg.getLabel());
+        packName.setStyle("""
+                -fx-font-size: 12;
+                -fx-text-fill: #6060a0;
+                -fx-font-weight: 600;
+                """);
 
-        // Prix
-        Label priceLabel = new Label(String.format("%.2f €", pkg.getPriceInEuros()));
-        priceLabel.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: white;");
+        // Prix — blanc, grand, lisible
+        Label price = new Label(String.format("%.2f EUR", pkg.getPriceInEuros()));
+        price.setStyle("""
+                -fx-font-size: 22;
+                -fx-font-weight: 800;
+                -fx-text-fill: #e8e8ff;
+                """);
 
         // Coût par coin
-        Label perCoin = new Label(String.format("≈ %.1f cts/coin", pkg.getCentPerCoin()));
-        perCoin.setStyle("-fx-font-size: 11; -fx-text-fill: #888;");
+        Label perCoin = new Label(String.format("%.1f cts / coin", pkg.getCentPerCoin()));
+        perCoin.setStyle("""
+                -fx-font-size: 11;
+                -fx-text-fill: #383870;
+                """);
+
+        Region spacer = new Region();
+        spacer.setPrefHeight(8);
 
         // Bouton Buy
-        Button buyBtn = new Button(pkg.isPopular() ? "⚡ Buy Now" : "🛒 Buy Now");
-        buyBtn.setPrefWidth(140);
-        if (pkg.isPopular()) {
-            buyBtn.setStyle("""
-                    -fx-background-color: linear-gradient(135deg,#667eea,#764ba2);
-                    -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;
-                    -fx-background-radius: 20; -fx-padding: 10 20 10 20; -fx-cursor: hand;
-                    """);
+        Button buyBtn = new Button(pop ? "BUY NOW" : "Buy Now");
+        buyBtn.setPrefWidth(150);
+        buyBtn.setPrefHeight(36);
+        buyBtn.setCursor(Cursor.HAND);
+
+        String btnStyleBase, btnStyleHover;
+        if (pop) {
+            btnStyleBase = """
+                    -fx-background-color: #5248c8;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-font-size: 12;
+                    -fx-letter-spacing: 1;
+                    -fx-background-radius: 8;
+                    -fx-border-color: transparent;
+                    """;
+            btnStyleHover = """
+                    -fx-background-color: #6258e0;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-font-size: 12;
+                    -fx-letter-spacing: 1;
+                    -fx-background-radius: 8;
+                    -fx-border-color: transparent;
+                    """;
         } else {
-            buyBtn.setStyle("""
+            btnStyleBase = """
                     -fx-background-color: transparent;
-                    -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;
-                    -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 20;
-                    -fx-background-radius: 20; -fx-padding: 10 20 10 20; -fx-cursor: hand;
-                    """);
+                    -fx-text-fill: #7070b0;
+                    -fx-font-size: 12;
+                    -fx-font-weight: 600;
+                    -fx-border-color: #252550;
+                    -fx-border-width: 1;
+                    -fx-border-radius: 8;
+                    -fx-background-radius: 8;
+                    """;
+            btnStyleHover = """
+                    -fx-background-color: #12122e;
+                    -fx-text-fill: #a0a0e0;
+                    -fx-font-size: 12;
+                    -fx-font-weight: 600;
+                    -fx-border-color: #3a3a70;
+                    -fx-border-width: 1;
+                    -fx-border-radius: 8;
+                    -fx-background-radius: 8;
+                    """;
         }
 
-        final int coinsToBy = pkg.getCoins();
+        buyBtn.setStyle(btnStyleBase);
+        buyBtn.setOnMouseEntered(e -> buyBtn.setStyle(btnStyleHover));
+        buyBtn.setOnMouseExited(e  -> buyBtn.setStyle(btnStyleBase));
         buyBtn.setOnAction(e -> handleBuyPackage(user, pkg));
 
-        card.getChildren().addAll(coinsIcon, coinsCount, coinsWord, packLabel, priceLabel, perCoin, buyBtn);
+        bottomZone.getChildren().addAll(packName, price, perCoin, spacer, buyBtn);
+        card.getChildren().addAll(topZone, sep, bottomZone);
+
+        card.setOnMouseEntered(e -> {
+            ScaleTransition s = new ScaleTransition(Duration.millis(150), card);
+            s.setToX(1.035); s.setToY(1.035);
+            s.play();
+        });
+        card.setOnMouseExited(e -> {
+            ScaleTransition s = new ScaleTransition(Duration.millis(150), card);
+            s.setToX(1.0); s.setToY(1.0);
+            s.play();
+        });
+
         return card;
     }
 
     // ══════════════════════════════════════════════════════════
-    //  ACHAT — miroir de checkout() + success() Symfony
+    //  ACHAT
     // ══════════════════════════════════════════════════════════
-
-    /**
-     * Simule l'achat d'un package.
-     * En production : ouvrir un navigateur vers l'URL Stripe checkout.
-     *
-     * Pour une app desktop, deux approches possibles :
-     *   1. Ouvrir l'URL Stripe dans le navigateur par défaut
-     *      → java.awt.Desktop.getDesktop().browse(new URI(stripeCheckoutUrl))
-     *   2. Appeler l'API REST Symfony /coins/checkout/{coins} en HTTP
-     *      et récupérer l'URL de redirection.
-     *
-     * Ici on simule une confirmation directe (mode démo).
-     */
-
-
     private void handleBuyPackage(User user, CoinPackage pkg) {
+        ChoiceDialog<PaymentMethod> dialog = new ChoiceDialog<>(
+                PaymentMethod.STRIPE, PaymentMethod.values());
+        dialog.setTitle("Payment Method");
+        dialog.setHeaderText("Choose your payment method");
+        dialog.setContentText("Method:");
+
+        Optional<PaymentMethod> chosen = dialog.showAndWait();
+        if (chosen.isEmpty()) return;
+
+        PaymentMethod method = chosen.get();
+        String currency = method == PaymentMethod.STRIPE ? "EUR" : "TND";
+        double price    = method == PaymentMethod.STRIPE
+                ? pkg.getPriceInEuros() : pkg.getPriceInCents() / 100.0;
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Purchase");
         confirm.setHeaderText(pkg.getLabel() + " — " + pkg.getCoins() + " coins");
         confirm.setContentText(String.format(
-                "You will be redirected to Stripe to pay %.2f €.\n\nContinue?",
-                pkg.getPriceInEuros()));
+                "Method: %s\nAmount: %.2f %s\n\nContinue?",
+                method.getLabel(), price, currency));
 
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    CheckoutResult checkout = stripeService.createCheckoutSession(user, pkg);
-
-                    // Ouvrir le navigateur
-                    stripeService.openCheckoutInBrowser(checkout.url);
-
-                    showFlash("info", "🌐 Complete payment in your browser. Waiting for confirmation...");
-
-                    // ✅ Démarrer le polling en arrière-plan
-                    startPaymentPolling(user, pkg, checkout.sessionId);
-
-                } catch (Exception e) {
-                    showFlash("error", "❌ Stripe error: " + e.getMessage());
-                }
+        confirm.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK) return;
+            try {
+                if (method == PaymentMethod.STRIPE) handleStripePayment(user, pkg);
+                else                                handleFlouciPayment(user, pkg);
+            } catch (Exception ex) {
+                showFlash("error", "Payment error: " + ex.getMessage());
             }
         });
     }
 
-    /**
-     * Poll Stripe toutes les 3 secondes pendant 5 minutes max.
-     * Dès que le paiement est confirmé → crédite les coins + refresh UI.
-     */
-    private void startPaymentPolling(User user, CoinPackage pkg, String sessionId) {
-        Thread pollThread = new Thread(() -> {
-            int  maxAttempts = 100; // 100 × 3s = 5 minutes
-            int  attempts    = 0;
+    // ── Stripe ────────────────────────────────────────────────
+    private void handleStripePayment(User user, CoinPackage pkg) throws Exception {
+        CheckoutResult c = stripeService.createCheckoutSession(user, pkg);
+        stripeService.openCheckoutInBrowser(c.url);
+        showFlash("info", "Stripe checkout opened. Waiting for payment...");
+        startPolling(user, pkg, c.sessionId, false);
+    }
 
-            while (attempts < maxAttempts) {
-                try {
-                    Thread.sleep(3000); // attendre 3 secondes
-                    attempts++;
+    // ── Flouci ────────────────────────────────────────────────
+    private void handleFlouciPayment(User user, CoinPackage pkg) throws Exception {
+        CheckoutResult c = flouciService.createPaymentSession(user.getId(), pkg);
+        flouciService.openPaymentInBrowser(c.url);
+        showFlash("info", "Flouci page opened. Waiting for payment...");
+        startPolling(user, pkg, c.sessionId, true);
+    }
 
-                    System.out.println("[Polling] Vérification paiement — tentative " + attempts);
+    // ── Polling unifié ────────────────────────────────────────
+    private void startPolling(User user, CoinPackage pkg, String sessionId, boolean isFlouci) {
+        Thread t = new Thread(() -> {
+            for (int i = 0; i < 100; i++) {
+                try { Thread.sleep(3000); } catch (InterruptedException e) { return; }
 
-                    if (paymentChecker.isSessionPaid(sessionId)) {
-                        // ✅ Paiement confirmé !
-                        if (!coinService.isPurchaseAlreadyProcessed(sessionId)) {
-                            coinService.recordPurchase(
-                                    user, pkg.getCoins(),
-                                    pkg.getPriceInEuros(), sessionId
-                            );
-                        }
+                boolean paid = isFlouci
+                        ? flouciService.isPaymentCompleted(sessionId)
+                        : paymentChecker.isSessionPaid(sessionId);
 
-                        // Mettre à jour l'UI sur le JavaFX thread
-                        Platform.runLater(() -> {
-                            refreshBalance(user);
-                            loadHistory(user);
-                            showFlash("success",
-                                    "🎉 " + pkg.getCoins() + " EyeTwin Coins added to your account!");
-                        });
-
-                        return; // Arrêter le polling
-                    }
-
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                if (paid) {
+                    if (!coinService.isPurchaseAlreadyProcessed(sessionId))
+                        coinService.recordPurchase(user, pkg.getCoins(),
+                                pkg.getPriceInEuros(), sessionId);
+                    Platform.runLater(() -> {
+                        refreshBalance(user);
+                        loadHistory(user);
+                        showFlash("success",
+                                pkg.getCoins() + " coins added to your account!");
+                    });
                     return;
-                } catch (Exception e) {
-                    System.err.println("[Polling] Erreur : " + e.getMessage());
                 }
             }
-
-            // Timeout — paiement pas détecté
             Platform.runLater(() ->
-                    showFlash("warning", "⏱ Payment not detected. Check your balance later.")
-            );
+                    showFlash("warning", "Payment not detected. Check your balance later."));
         });
-
-        pollThread.setDaemon(true); // s'arrête avec l'app
-        pollThread.start();
+        t.setDaemon(true);
+        t.start();
     }
 
-
     // ══════════════════════════════════════════════════════════
-    //  HISTORIQUE DES ACHATS
+    //  HISTORIQUE
     // ══════════════════════════════════════════════════════════
-
     private void loadHistory(User user) {
         if (historyContainer == null) return;
         historyContainer.getChildren().clear();
 
         List<CoinPurchase> history = coinService.getPurchaseHistory(user);
-
         if (history.isEmpty()) {
             Label empty = new Label("No purchases yet.");
-            empty.setStyle("-fx-text-fill: #888; -fx-font-size: 13;");
+            empty.setStyle("-fx-text-fill: #404070; -fx-font-size: 13; -fx-padding: 8 0 0 0;");
             historyContainer.getChildren().add(empty);
             return;
         }
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm");
 
-        for (CoinPurchase purchase : history) {
-            HBox row = new HBox(15);
+        for (CoinPurchase p : history) {
+            HBox row = new HBox(0);
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setPadding(new Insets(10));
+            row.setPrefHeight(50);
             row.setStyle("""
-                    -fx-background-color: rgba(255,255,255,0.04);
-                    -fx-background-radius: 8;
-                    -fx-border-color: rgba(255,255,255,0.06);
-                    -fx-border-radius: 8;
+                    -fx-background-color: #0b0b1c;
+                    -fx-background-radius: 10;
+                    -fx-border-color: #141430;
+                    -fx-border-width: 1;
+                    -fx-border-radius: 10;
                     """);
 
-            Label coins = new Label("🪙 +" + purchase.getCoinsAmount());
-            coins.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #f6d860;");
-            coins.setPrefWidth(100);
+            // Bande colorée gauche (status indicator)
+            boolean completed = "completed".equalsIgnoreCase(p.getStatus());
+            Rectangle strip = new Rectangle(4, 50);
+            strip.setFill(Color.web(completed ? "#3a8a60" : "#8a6820"));
+            strip.setArcWidth(8);
+            strip.setArcHeight(8);
 
-            Label price = new Label(purchase.getPricePaid() + " €");
-            price.setStyle("-fx-font-size: 13; -fx-text-fill: white;");
-            price.setPrefWidth(80);
+            // Contenu intérieur
+            HBox inner = new HBox(16);
+            inner.setAlignment(Pos.CENTER_LEFT);
+            inner.setPadding(new Insets(0, 20, 0, 18));
+            HBox.setHgrow(inner, Priority.ALWAYS);
 
-            String statusColor = "completed".equals(purchase.getStatus()) ? "#48bb78" : "#fc8181";
-            Label status = new Label(purchase.getStatus().toUpperCase());
-            status.setStyle("-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: " + statusColor + ";");
-            status.setPrefWidth(90);
+            // Montant coins — lisible, doré
+            Label coins = new Label("+" + p.getCoinsAmount() + " coins");
+            coins.setStyle("""
+                    -fx-font-size: 14;
+                    -fx-font-weight: 700;
+                    -fx-text-fill: #d4a820;
+                    """);
+            coins.setPrefWidth(130);
 
-            Label date = new Label(purchase.getCompletedAt() != null
-                    ? fmt.format(purchase.getCompletedAt()) : "—");
-            date.setStyle("-fx-font-size: 11; -fx-text-fill: #888;");
+            // Prix — blanc
+            Label price = new Label(p.getPricePaid() + " EUR");
+            price.setStyle("-fx-font-size: 13; -fx-text-fill: #c0c0e0;");
+            price.setPrefWidth(90);
 
-            row.getChildren().addAll(coins, price, status, date);
+            // Statut badge
+            String bgColor   = completed ? "rgba(40,120,70,0.20)"  : "rgba(140,90,20,0.20)";
+            String textColor = completed ? "#50c090"               : "#c09040";
+            Label status = new Label(p.getStatus().toUpperCase());
+            status.setStyle(
+                    "-fx-font-size: 10; -fx-font-weight: bold; -fx-letter-spacing: 1;" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-background-color: " + bgColor + ";" +
+                            "-fx-background-radius: 20; -fx-padding: 5 14 5 14;"
+            );
+            status.setPrefWidth(110);
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            // Date
+            Label date = new Label(p.getCompletedAt() != null
+                    ? fmt.format(p.getCompletedAt()) : "--");
+            date.setStyle("-fx-font-size: 11; -fx-text-fill: #383870;");
+
+            inner.getChildren().addAll(coins, price, status, spacer, date);
+            row.getChildren().addAll(strip, inner);
             historyContainer.getChildren().add(row);
         }
     }
 
     // ══════════════════════════════════════════════════════════
-    //  FLASH MESSAGES  (miroir de addFlash() Symfony)
+    //  FLASH MESSAGES
     // ══════════════════════════════════════════════════════════
-
-    /**
-     * Affiche un message flash dans la vue.
-     * Types : "success" | "info" | "warning" | "error"
-     */
     private void showFlash(String type, String message) {
         if (flashLabel == null) return;
 
-        String bg = switch (type) {
-            case "success" -> "rgba(72,187,120,0.15)";
-            case "warning" -> "rgba(237,137,54,0.15)";
-            case "error"   -> "rgba(245,101,101,0.15)";
-            default        -> "rgba(102,126,234,0.15)";
-        };
-        String border = switch (type) {
-            case "success" -> "#48bb78";
-            case "warning" -> "#ed8936";
-            case "error"   -> "#f56565";
-            default        -> "#667eea";
-        };
+        String bg, border, textColor;
+        switch (type) {
+            case "success" -> { bg = "rgba(40,120,70,0.12)";  border = "#3a8a60"; textColor = "#70d0a0"; }
+            case "warning" -> { bg = "rgba(160,100,20,0.12)"; border = "#9a6a20"; textColor = "#d09040"; }
+            case "error"   -> { bg = "rgba(160,40,40,0.12)";  border = "#9a3030"; textColor = "#e07070"; }
+            default        -> { bg = "rgba(60,50,180,0.12)";  border = "#4040c0"; textColor = "#9090e0"; }
+        }
 
         flashLabel.setText(message);
+        flashLabel.setStyle("-fx-text-fill: " + textColor + "; -fx-font-size: 13;");
 
         if (flashBox != null) {
             flashBox.setStyle(String.format("""
                     -fx-background-color: %s;
                     -fx-border-color: %s;
-                    -fx-border-width: 0 0 0 4;
-                    -fx-background-radius: 8; -fx-padding: 12 16 12 16;
+                    -fx-border-width: 0 0 0 3;
+                    -fx-background-radius: 8;
+                    -fx-padding: 14 20 14 20;
                     """, bg, border));
             flashBox.setVisible(true);
             flashBox.setManaged(true);
@@ -379,41 +518,14 @@ public class CoinsController {
     }
 
     public void hideFlash() {
-        if (flashBox != null) {
-            flashBox.setVisible(false);
-            flashBox.setManaged(false);
-        }
-    }
-
-    // ══════════════════════════════════════════════════════════
-    //  NAVBAR — mise à jour des coins
-    // ══════════════════════════════════════════════════════════
-
-    private void updateNavbarCoins(User user) {
-        // La navbar est un composant inclus — on cherche son contrôleur
-        // via le SceneGraph si disponible
-        if (balanceLabel == null) return;
-        Scene scene = balanceLabel.getScene();
-        if (scene == null) return;
-        // Le NavbarController met à jour coinsNavLabel depuis son initialize()
-        // Pour forcer une mise à jour : on peut dispatcher un event ou
-        // recharger la page. Ici on met juste à jour le SessionManager.
-        System.out.println("[CoinsController] Navbar coins → " + user.getCoinBalance());
+        if (flashBox != null) { flashBox.setVisible(false); flashBox.setManaged(false); }
     }
 
     // ══════════════════════════════════════════════════════════
     //  NAVIGATION
     // ══════════════════════════════════════════════════════════
-
-    @FXML
-    public void goToProfile() {
-        navigateTo("UserProfile.fxml");
-    }
-
-    @FXML
-    public void goBack() {
-        navigateTo("home.fxml");
-    }
+    @FXML public void goToProfile() { navigateTo("UserProfile.fxml"); }
+    @FXML public void goBack()      { navigateTo("home.fxml"); }
 
     private void navigateTo(String fxml) {
         String[] paths = {
@@ -422,28 +534,19 @@ public class CoinsController {
                 "/com/eyetwin/"       + fxml
         };
         java.net.URL url = null;
-        for (String path : paths) {
-            url = getClass().getResource(path);
-            if (url != null) break;
-        }
-        if (url == null) {
-            System.err.println("[CoinsController] ❌ FXML introuvable : " + fxml);
-            return;
-        }
+        for (String p : paths) { url = getClass().getResource(p); if (url != null) break; }
+        if (url == null) { System.err.println("[CoinsController] FXML not found: " + fxml); return; }
         try {
             Parent root  = FXMLLoader.load(url);
             Stage  stage = (Stage) (balanceLabel != null
-                    ? balanceLabel.getScene().getWindow()
-                    : null);
+                    ? balanceLabel.getScene().getWindow() : null);
             if (stage == null) return;
-
             Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
             Scene current  = stage.getScene();
             if (current != null) newScene.getStylesheets().addAll(current.getStylesheets());
             stage.setScene(newScene);
-
         } catch (IOException e) {
-            System.err.println("[CoinsController] ❌ Erreur chargement : " + fxml);
+            System.err.println("[CoinsController] Load error: " + fxml);
             e.printStackTrace();
         }
     }

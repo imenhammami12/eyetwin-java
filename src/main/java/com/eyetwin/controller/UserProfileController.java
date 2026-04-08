@@ -59,12 +59,6 @@ public class UserProfileController {
     //  FXML FIELDS
     // ══════════════════════════════════════════════════════════════════════
 
-    // ── NAVBAR ──
-    @FXML protected Label            navUsername;
-    @FXML protected Label            navAvatarInitial;
-    @FXML protected Label            coinsNavLabel;
-    @FXML protected MenuItem         profileAdminItem;
-    @FXML protected SeparatorMenuItem profileAdminSep;
 
     // ── UserProfile — base ──
     @FXML protected ImageView  profileImageView;
@@ -159,7 +153,6 @@ public class UserProfileController {
         User user = SessionManager.getCurrentUser();
         if (user == null) { navigateTo("login.fxml"); return; }
 
-        fillNavbar(user);
 
         // Détection de la vue active via les fx:id
         if (usernameLabel  != null) initProfileView(user);
@@ -167,23 +160,6 @@ public class UserProfileController {
         if (emailField     != null) initEditProfileView(user);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  NAVBAR
-    // ══════════════════════════════════════════════════════════════════════
-
-    private void fillNavbar(User user) {
-        if (navUsername != null)
-            navUsername.setText(user.getUsername() != null
-                    ? user.getUsername().toUpperCase() : "PLAYER");
-        if (navAvatarInitial != null && user.getUsername() != null && !user.getUsername().isEmpty())
-            navAvatarInitial.setText(String.valueOf(user.getUsername().charAt(0)).toUpperCase());
-        if (coinsNavLabel != null)
-            coinsNavLabel.setText(String.valueOf(user.getCoinBalance()));
-
-        boolean isAdmin = hasRole(user, "ROLE_ADMIN") || hasRole(user, "ROLE_SUPER_ADMIN");
-        if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
-        if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
-    }
 
     // ══════════════════════════════════════════════════════════════════════
     //  VIEW : UserProfile
@@ -694,7 +670,7 @@ public class UserProfileController {
 
     protected Stage resolveStage() {
         javafx.scene.Node[] candidates = {
-                usernameLabel, emailField, statTeamsCount, navUsername, saveBtn
+                usernameLabel, emailField, statTeamsCount, saveBtn
         };
         for (javafx.scene.Node n : candidates)
             if (n != null && n.getScene() != null) return (Stage) n.getScene().getWindow();

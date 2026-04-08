@@ -82,6 +82,10 @@ public class NavbarController {
             profileStatsItem.setText(
                     "🪙 " + user.getCoinBalance() + " coins   |   ⚡ Rank: —   |   🏆 Wins: —"
             );
+        if (coinsBadge != null) {
+            coinsBadge.setVisible(true);
+            coinsBadge.setManaged(true);
+        }
 
         boolean isAdmin = SessionManager.isAdmin();
         if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
