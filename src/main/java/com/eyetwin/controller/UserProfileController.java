@@ -83,6 +83,8 @@ public class UserProfileController {
     @FXML protected Label      lastLoginLabel;
     @FXML protected Label      coinsInfoLabel;
 
+    @FXML private NavbarController navbarController;
+
     // ── Flash banners ──
     @FXML protected VBox  flashSuccessBanner;
     @FXML protected Label flashSuccessText;
@@ -153,7 +155,9 @@ public class UserProfileController {
         User user = SessionManager.getCurrentUser();
         if (user == null) { navigateTo("login.fxml"); return; }
 
-
+        if (navbarController != null) {
+            navbarController.setActivePage("profile");
+        }
         // Détection de la vue active via les fx:id
         if (usernameLabel  != null) initProfileView(user);
         if (statTeamsCount != null) initStatisticsView(user);
@@ -425,9 +429,11 @@ public class UserProfileController {
         if (user.getCreatedAt() != null)
             setText(previewMemberSince, "Member since " + user.getCreatedAt().getYear());
 
-        if (bioField != null && bioCharCounter != null) {
-            updateBioCounter();
-            bioField.textProperty().addListener((obs, o, n) -> updateBioCounter());
+        if (bioField != null) {
+            Platform.runLater(() -> {
+                bioField.lookup(".content").setStyle(
+                        "-fx-background-color: #0d0c1a;");
+            });
         }
 
         // ✅ teamService au lieu de teamDAO

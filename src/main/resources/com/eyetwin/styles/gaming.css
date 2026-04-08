@@ -377,31 +377,32 @@
 }
 
 /* ── TextArea fix (white background bug) ── */
+
 TextArea.input-gaming {
     -fx-control-inner-background: #0d0c1a;
     -fx-background-color: rgba(255,255,255,0.03);
     -fx-text-fill: rgba(255,255,255,0.93);
     -fx-prompt-text-fill: rgba(255,255,255,0.35);
+    -fx-border-color: rgba(255,255,255,0.1);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
 }
 TextArea.input-gaming .content {
     -fx-background-color: #0d0c1a;
+}
+TextArea.input-gaming .scroll-pane,
+TextArea.input-gaming .scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 TextArea.input-gaming:focused {
     -fx-control-inner-background: #100f1e;
     -fx-background-color: rgba(232,55,42,0.04);
     -fx-border-color: rgba(232,55,42,0.55);
-    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.15), 8, 0, 0, 0);
 }
 TextArea.input-gaming:focused .content {
     -fx-background-color: #100f1e;
 }
-TextArea.input-gaming .scroll-pane {
-    -fx-background-color: transparent;
-}
-TextArea.input-gaming .scroll-pane .viewport {
-    -fx-background-color: transparent;
-}
-
 /* ══════════════════════════════════════════════════════
    GLASS CARD
 ══════════════════════════════════════════════════════ */
