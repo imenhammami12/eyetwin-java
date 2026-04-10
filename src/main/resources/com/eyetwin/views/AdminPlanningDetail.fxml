@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminPlanningDetailController"
+            styleClass="admin-planning-root"
+            stylesheets="@../styles/admin-planning.css"
+            prefWidth="1280" prefHeight="800">
+
+    <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
+    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="page-scroll">
+            <content>
+                <VBox styleClass="page-content" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Region prefWidth="3" prefHeight="18" style="-fx-background-color:#ff3c64; -fx-background-radius:2;"/>
+                        <Label text="Session Details" styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Back to List" onAction="#handleBackToList" styleClass="outline-btn"/>
+                    </HBox>
+
+                    <HBox spacing="16">
+
+                        <!-- Left card -->
+                        <VBox styleClass="glass-card" spacing="12" prefWidth="360" maxWidth="360">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <ImageView fx:id="coverImage" fitWidth="84" fitHeight="84" preserveRatio="true"
+                                           style="-fx-background-radius: 42; -fx-border-radius: 42;"/>
+                                <VBox spacing="4">
+                                    <Label fx:id="typeLabel" text="FPS" styleClass="profile-title"/>
+                                    <Label fx:id="levelLabel" text="Beginner" styleClass="profile-subtitle"/>
+                                    <Label fx:id="partnerBadge" text="Partners Needed" visible="false" managed="false"
+                                           style="-fx-background-color: rgba(34,197,94,0.18); -fx-text-fill:#86efac; -fx-padding: 4 10; -fx-background-radius: 999; -fx-font-weight: 800; -fx-font-size: 11;"/>
+                                </VBox>
+                            </HBox>
+
+                            <Region prefHeight="6"/>
+
+                            <Button text="Training Sessions" onAction="#handleTrainingSessions" styleClass="primary-btn" prefHeight="38" maxWidth="1.7976931348623157E308"/>
+                            <Button text="Edit Session" onAction="#handleEdit" styleClass="outline-btn" prefHeight="38" maxWidth="1.7976931348623157E308"/>
+                            <Button text="Delete Session" onAction="#handleDelete" styleClass="danger-btn" prefHeight="38" maxWidth="1.7976931348623157E308"/>
+                        </VBox>
+
+                        <!-- Right card -->
+                        <VBox styleClass="glass-card" spacing="10" HBox.hgrow="ALWAYS">
+                            <Label text="Session Information" styleClass="section-title"/>
+
+                            <GridPane hgap="14" vgap="10" style="-fx-padding: 8;">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="18"/>
+                                    <ColumnConstraints percentWidth="82"/>
+                                </columnConstraints>
+
+                                <Label text="Description" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <Label fx:id="descValue" wrapText="true" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                                <Label text="Date" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <Label fx:id="dateValue" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                <Label text="Time" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <Label fx:id="timeValue" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                <Label text="Location" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                <Label fx:id="locValue" wrapText="true" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                            </GridPane>
+                        </VBox>
+
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+

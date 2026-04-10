@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminPlanningSessionsController"
+            styleClass="admin-planning-root"
+            stylesheets="@../styles/admin-planning.css"
+            prefWidth="1280" prefHeight="800">
+
+    <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
+    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="page-scroll">
+            <content>
+                <VBox styleClass="page-content" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Region prefWidth="3" prefHeight="18" style="-fx-background-color:#ff3c64; -fx-background-radius:2;"/>
+                        <Label text="Training Sessions" styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Back to List" onAction="#handleBackToPlanning" styleClass="outline-btn"/>
+                    </HBox>
+
+                    <!-- Planning Details card -->
+                    <VBox styleClass="glass-card" spacing="12">
+                        <Label text="Planning Details" styleClass="section-title"/>
+                        <HBox spacing="14" alignment="CENTER_LEFT">
+                            <ImageView fx:id="planningImage" fitWidth="140" fitHeight="90" preserveRatio="true"/>
+
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label fx:id="planningDesc" text="—" style="-fx-text-fill:white; -fx-font-weight:800; -fx-font-size:16;"/>
+                                <HBox spacing="10">
+                                    <Label text="Type" styleClass="form-label"/>
+                                    <Label fx:id="planningType" text="—" style="-fx-text-fill:#93c5fd; -fx-font-weight:800;"/>
+                                    <Region prefWidth="18"/>
+                                    <Label text="Level" styleClass="form-label"/>
+                                    <Label fx:id="planningLevel" text="—" style="-fx-text-fill:#a5b4fc; -fx-font-weight:800;"/>
+                                </HBox>
+                            </VBox>
+
+                            <VBox spacing="6" alignment="CENTER_LEFT">
+                                <Label text="Date" styleClass="form-label"/>
+                                <Label fx:id="planningDate" text="—" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;"/>
+                            </VBox>
+
+                            <VBox spacing="6" alignment="CENTER_LEFT">
+                                <Label text="Location" styleClass="form-label"/>
+                                <Label fx:id="planningLocation" text="—" wrapText="true" maxWidth="320" style="-fx-text-fill:#e2e8f0; -fx-font-weight:700;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Participants -->
+                    <HBox alignment="TOP_CENTER">
+                        <VBox styleClass="glass-card" spacing="10" maxWidth="1120" prefWidth="1120">
+                            <Label fx:id="participantsTitle" text="Registered Participants (0)" styleClass="section-title"/>
+                            <TableView fx:id="sessionsTable" styleClass="planning-table" prefHeight="420">
+                                <columns>
+                                    <TableColumn fx:id="colParticipant" text="PARTICIPANT" prefWidth="260"/>
+                                    <TableColumn fx:id="colEmail" text="EMAIL" prefWidth="300"/>
+                                    <TableColumn fx:id="colJoinedAt" text="JOINED AT" prefWidth="180"/>
+                                    <TableColumn fx:id="colStatus" text="STATUS" prefWidth="140"/>
+                                    <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="160"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+
