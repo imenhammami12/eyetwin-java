@@ -1,5 +1,7 @@
 package com.eyetwin.tools;
 
+import com.eyetwin.entities.Planning;
+import com.eyetwin.entities.TrainingSession;
 import com.eyetwin.entities.User;
 
 import java.time.LocalDateTime;
@@ -23,6 +25,12 @@ import com.eyetwin.services.UserServiceImpl;
  */
 public class SessionManager {
     private static final IUserService userService = new UserServiceImpl();
+<<<<<<< Updated upstream
+=======
+    private static User selectedUser = null;
+    private static Planning selectedPlanning = null;
+    private static TrainingSession selectedTrainingSession = null;
+>>>>>>> Stashed changes
 
     // ─────────────────────────────────────────────────────────
     //  État de session
@@ -255,6 +263,45 @@ public class SessionManager {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    public static void setSelectedUser(User user) {
+        selectedUser = user;
+    }
+
+    public static User getSelectedUser() {
+        return selectedUser;
+    }
+
+    public static void clearSelectedUser() {
+        selectedUser = null;
+    }
+
+    public static void setSelectedPlanning(Planning planning) {
+        selectedPlanning = planning;
+    }
+
+    public static Planning getSelectedPlanning() {
+        return selectedPlanning;
+    }
+
+    public static void clearSelectedPlanning() {
+        selectedPlanning = null;
+    }
+
+    public static void setSelectedTrainingSession(TrainingSession session) {
+        selectedTrainingSession = session;
+    }
+
+    public static TrainingSession getSelectedTrainingSession() {
+        return selectedTrainingSession;
+    }
+
+    public static void clearSelectedTrainingSession() {
+        selectedTrainingSession = null;
+    }
+
+>>>>>>> Stashed changes
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
     // ─────────────────────────────────────────────────────────
@@ -266,6 +313,15 @@ public class SessionManager {
         twoFactorCompleted = false;
         pendingFlashType   = null;
         pendingFlashMessage = null;
+<<<<<<< Updated upstream
+=======
+ selectedUser = null;
+        selectedPlanning = null;
+        selectedTrainingSession = null;
+
+        openSecurityTab = false;
+        pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email
+>>>>>>> Stashed changes
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }

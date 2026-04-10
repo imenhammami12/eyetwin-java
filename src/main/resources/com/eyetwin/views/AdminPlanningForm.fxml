@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminPlanningFormController"
+            styleClass="admin-planning-root"
+            stylesheets="@../styles/admin-planning.css"
+            prefWidth="1280" prefHeight="800">
+
+    <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
+    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="page-scroll">
+            <content>
+                <VBox styleClass="page-content" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Region prefWidth="3" prefHeight="18" style="-fx-background-color:#ff3c64; -fx-background-radius:2;"/>
+                        <Label fx:id="pageTitleLabel" text="Create New Session" styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Back to List" onAction="#handleBackToList" styleClass="outline-btn"/>
+                    </HBox>
+
+                    <!-- Centered form like Symfony -->
+                    <HBox alignment="TOP_CENTER">
+                        <VBox styleClass="form-card" maxWidth="860" prefWidth="860">
+                            <HBox styleClass="form-header" alignment="CENTER_LEFT" spacing="10">
+                                <Label text="+" style="-fx-text-fill:white; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                                <Label text="Session Details" styleClass="form-header-title"/>
+                            </HBox>
+
+                            <VBox styleClass="form-content" spacing="14">
+
+                            <!-- Upload -->
+                            <VBox spacing="6" styleClass="upload-row">
+                                <StackPane fx:id="uploadPane" prefHeight="150"
+                                           style="-fx-background-color: rgba(15,23,42,0.85); -fx-border-color: rgba(148,163,184,0.45); -fx-border-style: dashed; -fx-border-width: 2; -fx-border-radius: 12; -fx-background-radius: 12;">
+                                    <VBox alignment="CENTER" spacing="8">
+                                        <Label text="⇪" style="-fx-text-fill:#60a5fa; -fx-font-size: 42;"/>
+                                        <Label fx:id="uploadHintLabel" text="Click to upload cover image&#10;(JPG, PNG, WEBP - Max 2MB)" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-weight: 700; -fx-alignment:center;"/>
+                                    </VBox>
+                                    <ImageView fx:id="coverPreview" fitHeight="148" preserveRatio="true" smooth="true" pickOnBounds="true"/>
+                                </StackPane>
+                                <Label fx:id="selectedImageLabel" text="" styleClass="muted-label"/>
+                            </VBox>
+
+                            <!-- Row 1: type + level -->
+                            <GridPane hgap="14" vgap="10">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50"/>
+                                    <ColumnConstraints percentWidth="50"/>
+                                </columnConstraints>
+
+                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="GAME TYPE *" styleClass="form-label"/>
+                                    <ComboBox fx:id="typeCombo" promptText="Select type"/>
+                                </VBox>
+
+                                <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="SKILL LEVEL *" styleClass="form-label"/>
+                                    <ComboBox fx:id="levelCombo" promptText="Select level"/>
+                                </VBox>
+
+                                <!-- Row 2: location -->
+                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                    <Label text="LOCATION MODE *" styleClass="form-label"/>
+                                    <HBox spacing="18" alignment="CENTER_LEFT" styleClass="toggle-row">
+                                        <RadioButton fx:id="onlineRadio" text="Online"/>
+                                        <RadioButton fx:id="onSiteRadio" text="On Site"/>
+                                    </HBox>
+                                </VBox>
+
+                                <!-- Location details (no map for now) -->
+                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                    <Label text="LOCATION DETAILS *" styleClass="form-label"/>
+                                    <TextField fx:id="locationDetailsField" promptText="Enter address (On Site)"/>
+                                    <Label text="Map is temporarily disabled. Enter address manually when On Site is selected."
+                                           styleClass="muted-label"/>
+                                </VBox>
+
+                                <!-- Row 3: date + time -->
+                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <Label text="DATE *" styleClass="form-label"/>
+                                    <DatePicker fx:id="datePicker" promptText="dd/MM/yyyy"/>
+                                </VBox>
+
+                                <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <Label text="TIME *" styleClass="form-label"/>
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <TextField fx:id="timeField" editable="false" promptText="--:-- --" HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="timePickerBtn" text="🕒" onAction="#handlePickTime" styleClass="outline-btn"
+                                                style="-fx-padding: 6 10; -fx-font-size: 12;"/>
+                                    </HBox>
+                                </VBox>
+
+                                <!-- Row 4: description -->
+                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
+                                    <Label text="DESCRIPTION *" styleClass="form-label"/>
+                                    <TextArea fx:id="descriptionArea" promptText="Session details, goals, prerequisites..." prefRowCount="4"/>
+                                </VBox>
+                            </GridPane>
+
+                            <!-- Need partner -->
+                            <VBox spacing="8" styleClass="toggle-row">
+                                <CheckBox fx:id="needPartnerCheck" text="Looking for partners?"/>
+                                <Label text="Enable this if you need other players to join." styleClass="muted-label"/>
+                            </VBox>
+
+                            <!-- Actions -->
+                            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="form-actions">
+                                <Button fx:id="saveBtn" text="Create Session" onAction="#handleSave" styleClass="success-btn" prefWidth="170"/>
+                                <Button text="Cancel" onAction="#handleCancel" styleClass="outline-btn" prefWidth="130"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="errorLabel" text="" style="-fx-text-fill:#fb7185; -fx-font-weight:700;"/>
+                            </HBox>
+
+                            </VBox>
+                        </VBox>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+
