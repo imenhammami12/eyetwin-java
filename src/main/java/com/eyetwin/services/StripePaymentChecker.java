@@ -1,23 +1,18 @@
 package com.eyetwin.services;
 
-import com.eyetwin.tools.StripeConfig;
+import com.eyetwin.config.ConfigLoader;
 import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 
 public class StripePaymentChecker {
 
     static {
-        Stripe.apiKey = StripeConfig.getSecretKey();
+        Stripe.apiKey = ConfigLoader.get("STRIPE_SECRET_KEY");
     }
 
-    /**
-     * Interroge Stripe pour savoir si la session a été payée.
-     * Retourne true si payment_status == "paid"
-     */
     public boolean isSessionPaid(String sessionId) {
         try {
-            Session session = Session.retrieve(sessionId);
-            return "paid".equals(session.getPaymentStatus());
+            return "paid".equals(Session.retrieve(sessionId).getPaymentStatus());
         } catch (Exception e) {
             System.err.println("[StripeChecker] Erreur : " + e.getMessage());
             return false;
@@ -26,8 +21,7 @@ public class StripePaymentChecker {
 
     public String getSessionStatus(String sessionId) {
         try {
-            Session session = Session.retrieve(sessionId);
-            return session.getPaymentStatus(); // "paid" | "unpaid" | "no_payment_required"
+            return Session.retrieve(sessionId).getPaymentStatus();
         } catch (Exception e) {
             return "error";
         }

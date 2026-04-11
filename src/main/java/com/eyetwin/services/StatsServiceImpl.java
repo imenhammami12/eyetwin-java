@@ -9,12 +9,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * StatsServiceImpl — implémentation de IStatsService.
- * Fusionne l'ancien StatsDAO (accès SQL) + logique métier.
- */public class StatsServiceImpl implements IStatsService {
+public class StatsServiceImpl implements IStatsService {
 
-    // ── Existants ──
+    // ── Helper centralisé ────────────────────────────────────────────────────
+    private Connection getConnection() {
+        return DatabaseConfig.getInstance().getCnx();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  Existants
+    // ════════════════════════════════════════════════════════════
+
     @Override public int countPlayers() {
         return count("SELECT COUNT(*) FROM `user` WHERE roles_json NOT LIKE '%ROLE_ADMIN%'");
     }
@@ -28,7 +33,10 @@ import java.util.List;
         return count("SELECT COUNT(*) FROM `tournoi`");
     }
 
-    // ── User Stats ──
+    // ════════════════════════════════════════════════════════════
+    //  User Stats
+    // ════════════════════════════════════════════════════════════
+
     @Override public int getTotalUsers() {
         return count("SELECT COUNT(*) FROM `user`");
     }
@@ -45,10 +53,7 @@ import java.util.List;
         return count("SELECT COUNT(*) FROM `user` WHERE roles_json LIKE '%ROLE_ADMIN%'");
     }
     @Override public int getRegularUsers() {
-        int total   = getTotalUsers();
-        int coaches = countCoaches();
-        int admins  = getTotalAdmins();
-        return total - coaches - admins;
+        return getTotalUsers() - countCoaches() - getTotalAdmins();
     }
     @Override public int getUsersToday() {
         return count("SELECT COUNT(*) FROM `user` WHERE DATE(created_at) = CURDATE()");
@@ -75,8 +80,7 @@ import java.util.List;
         return Math.round(((thisMonth - lastMonth) * 100.0 / lastMonth) * 10.0) / 10.0;
     }
     @Override public double getAvgUsersPerDay() {
-        int last30 = getUsersLast30Days();
-        return Math.round((last30 / 30.0) * 10.0) / 10.0;
+        return Math.round((getUsersLast30Days() / 30.0) * 10.0) / 10.0;
     }
     @Override public double getActiveUsersPercentage() {
         int total = getTotalUsers();
@@ -84,7 +88,10 @@ import java.util.List;
         return Math.round((getActiveUsers() * 100.0 / total) * 10.0) / 10.0;
     }
 
-    // ── Team Stats ──
+    // ════════════════════════════════════════════════════════════
+    //  Team Stats
+    // ════════════════════════════════════════════════════════════
+
     @Override public int getTotalTeams() {
         return count("SELECT COUNT(*) FROM `team`");
     }
@@ -129,7 +136,10 @@ import java.util.List;
         return Math.round((getActiveTeams() * 100.0 / total) * 10.0) / 10.0;
     }
 
-    // ── Application Stats ──
+    // ════════════════════════════════════════════════════════════
+    //  Application Stats
+    // ════════════════════════════════════════════════════════════
+
     @Override public int getTotalApplications() {
         return count("SELECT COUNT(*) FROM `coach_application`");
     }
@@ -157,20 +167,10 @@ import java.util.List;
         return Math.round((getApprovedApplications() * 100.0 / total) * 10.0) / 10.0;
     }
 
-    // ── Helper ──
-    private int count(String sql) {
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) {
-            System.err.println("❌ StatsServiceImpl: " + e.getMessage());
-        }
-        return 0;
-    }
+    // ════════════════════════════════════════════════════════════
+    //  Charts
+    // ════════════════════════════════════════════════════════════
 
-
-    // Dans StatsServiceImpl — implémentation
     @Override
     public List<Integer> getUsersLast7DaysChart() {
         return getLast7DaysData("SELECT COUNT(*) FROM `user` WHERE DATE(created_at) = ?");
@@ -189,22 +189,37 @@ import java.util.List;
     @Override
     public List<String> getLast7DaysLabels() {
         List<String> labels = new ArrayList<>();
-        for (int i = 6; i >= 0; i--) {
-            LocalDate d = LocalDate.now().minusDays(i);
-            labels.add(d.format(DateTimeFormatter.ofPattern("dd/MM")));
-        }
+        for (int i = 6; i >= 0; i--)
+            labels.add(LocalDate.now().minusDays(i)
+                    .format(DateTimeFormatter.ofPattern("dd/MM")));
         return labels;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  Helpers privés
+    // ════════════════════════════════════════════════════════════
+
+    private int count(String sql) {
+        try {
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("❌ StatsServiceImpl: " + e.getMessage());
+        }
+        return 0;
     }
 
     private List<Integer> getLast7DaysData(String sql) {
         List<Integer> data = new ArrayList<>();
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try {
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
             for (int i = 6; i >= 0; i--) {
                 stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now().minusDays(i)));
-                try (ResultSet rs = stmt.executeQuery()) {
-                    data.add(rs.next() ? rs.getInt(1) : 0);
-                }
+                ResultSet rs = stmt.executeQuery();
+                data.add(rs.next() ? rs.getInt(1) : 0);
             }
         } catch (SQLException e) {
             System.err.println("❌ getLast7DaysData: " + e.getMessage());

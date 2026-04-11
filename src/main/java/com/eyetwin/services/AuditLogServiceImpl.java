@@ -12,6 +12,11 @@ import java.util.List;
 
 public class AuditLogServiceImpl implements IAuditLogService {
 
+    // ── Helper centralisé (singleton, comme PlanningServiceImpl) ────────────
+    private Connection getConnection() {
+        return DatabaseConfig.getInstance().getCnx();
+    }
+
     // ════════════════════════════════════════════════════════════
     //  FIND ALL
     // ════════════════════════════════════════════════════════════
@@ -24,8 +29,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
             ORDER BY al.created_at DESC
             """;
         List<AuditLog> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         }
@@ -78,8 +82,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
         sql.append(" ORDER BY al.").append(field).append(" ").append(order);
 
         List<AuditLog> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) list.add(mapRow(rs));
@@ -99,8 +102,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
             LEFT JOIN user u ON u.id = al.user_id
             WHERE al.id = ?
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return mapRow(rs);
@@ -114,8 +116,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
     // ════════════════════════════════════════════════════════════
     @Override
     public int countAll() throws SQLException {
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM audit_log");
+        try (PreparedStatement ps = getConnection().prepareStatement("SELECT COUNT(*) FROM audit_log");
              ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
         }
@@ -124,8 +125,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
     @Override
     public int countSince(LocalDateTime since) throws SQLException {
         String sql = "SELECT COUNT(*) FROM audit_log WHERE created_at >= ?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(since));
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
@@ -148,8 +148,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
 
     private List<String> queryDistinct(String sql) throws SQLException {
         List<String> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 String v = rs.getString(1);
@@ -168,8 +167,7 @@ public class AuditLogServiceImpl implements IAuditLogService {
             INSERT INTO audit_log (user_id, action, entity_type, entity_id, details, ip_address, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (entry.getUser() != null) ps.setInt(1, entry.getUser().getId());
             else                         ps.setNull(1, Types.INTEGER);
             ps.setString(2, entry.getAction());
