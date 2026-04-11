@@ -17,11 +17,7 @@ module org.example.eyetwinjava {
     requires org.json;
     requires stripe.java;
 
-    requires opencv;
-    requires jakarta.mail;
-    requires java.net.http;
     requires jdk.httpserver;
-    requires org.json;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

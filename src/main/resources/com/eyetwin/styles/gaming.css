@@ -805,3 +805,218 @@ Button.red-btn:armed {
     -fx-border-color: transparent;
     -fx-border-width: 0;
 }
+
+/* ══════════════════════════════════════════════════════
+   FRONTEND PLANNING CARDS (Symfony-like)
+══════════════════════════════════════════════════════ */
+.fe-planning-card {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.2, 0, 10);
+    -fx-cursor: hand;
+}
+.fe-planning-card:hover {
+    -fx-border-color: rgba(232,55,42,0.35);
+}
+.fe-card-body {
+    -fx-padding: 14;
+}
+.fe-card-header {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+.fe-card-cover {
+    -fx-opacity: 1.0;
+}
+.fe-pill {
+    -fx-background-color: rgba(0,0,0,0.45);
+    -fx-text-fill: white;
+    -fx-padding: 6 12;
+    -fx-background-radius: 999;
+    -fx-font-weight: 900;
+    -fx-font-size: 11;
+}
+.fe-date-badge {
+    -fx-background-color: rgba(99,102,241,0.85);
+    -fx-background-radius: 12;
+    -fx-padding: 8 10;
+    -fx-alignment: center;
+}
+.fe-date-day {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 18;
+}
+.fe-date-mon {
+    -fx-text-fill: rgba(255,255,255,0.9);
+    -fx-font-weight: 800;
+    -fx-font-size: 10;
+}
+.fe-level-badge {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: rgba(255,255,255,0.75);
+    -fx-font-size: 11;
+    -fx-font-weight: 800;
+    -fx-padding: 6 10;
+}
+.fe-card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: 900;
+}
+.fe-card-meta {
+    -fx-alignment: center-left;
+}
+.fe-meta {
+    -fx-text-fill: rgba(163,190,255,0.95);
+    -fx-font-size: 12;
+    -fx-font-weight: 800;
+}
+.fe-rate-label {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 11;
+    -fx-font-weight: 800;
+}
+.fe-star-on {
+    -fx-text-fill: #f6d860;
+    -fx-font-size: 18;
+}
+.fe-star-off {
+    -fx-text-fill: rgba(246,216,96,0.35);
+    -fx-font-size: 18;
+}
+.fe-fab {
+    -fx-background-color: rgba(99,102,241,0.22);
+    -fx-border-color: rgba(99,102,241,0.55);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-min-width: 54;
+    -fx-min-height: 54;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.35), 18, 0.2, 0, 6);
+}
+.fe-fab:hover {
+    -fx-background-color: rgba(99,102,241,0.30);
+    -fx-border-color: rgba(99,102,241,0.75);
+}
+
+/* ══════════════════════════════════════════════════════
+   CHATBOT (Groq) — frontend planning page
+══════════════════════════════════════════════════════ */
+.fe-chat-bubble2 {
+    -fx-background-color: rgba(232,55,42,0.22);
+    -fx-border-color: rgba(232,55,42,0.55);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-min-width: 64;
+    -fx-min-height: 64;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.35), 18, 0.2, 0, 6);
+    -fx-background-insets: 0;
+}
+.fe-chat-bubble2:hover {
+    -fx-background-color: rgba(232,55,42,0.30);
+    -fx-border-color: rgba(232,55,42,0.85);
+}
+.fe-chat-bubble2 .text {
+    -fx-font-weight: 900;
+}
+.fe-chat-window2 {
+    -fx-background-color: rgba(8,8,16,0.96);
+    -fx-border-color: rgba(232,55,42,0.22);
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+    -fx-pref-width: 380;
+    -fx-max-width: 380;
+    -fx-pref-height: 560;
+    -fx-max-height: 560;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 28, 0.2, 0, 12);
+}
+.fe-chat-header2 {
+    -fx-background-color: linear-gradient(to bottom, rgba(232,55,42,0.95), rgba(176,43,32,0.92));
+    -fx-padding: 14 16 14 16;
+    -fx-background-radius: 18 18 0 0;
+}
+.fe-chat-title2 {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 18;
+}
+.fe-chat-robot2 {
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+}
+.fe-chat-close2 {
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-cursor: hand;
+}
+.fe-chat-close2:hover {
+    -fx-background-color: rgba(255,255,255,0.22);
+}
+.fe-chat-scroll2 {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 0 0 1 0;
+}
+.fe-chat-scroll2 > .viewport {
+    -fx-background-color: transparent;
+}
+.fe-chat-actions2 {
+    -fx-padding: 12 14 8 14;
+    -fx-background-color: rgba(255,255,255,0.02);
+}
+.fe-chat-chip2 {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: rgba(255,255,255,0.88);
+    -fx-font-weight: 900;
+    -fx-padding: 10 14;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+.fe-chat-chip2:hover {
+    -fx-background-color: rgba(232,55,42,0.10);
+    -fx-border-color: rgba(232,55,42,0.28);
+}
+.fe-chat-inputRow2 {
+    -fx-padding: 12 14 14 14;
+}
+.fe-chat-input2 {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: rgba(255,255,255,0.92);
+    -fx-prompt-text-fill: rgba(255,255,255,0.35);
+    -fx-padding: 12 16;
+    -fx-font-weight: 800;
+}
+.fe-chat-input2:focused {
+    -fx-border-color: rgba(232,55,42,0.55);
+}
+.fe-chat-send2 {
+    -fx-background-color: rgba(232,55,42,0.85);
+    -fx-border-color: rgba(232,55,42,0.95);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-min-width: 46;
+    -fx-min-height: 46;
+    -fx-cursor: hand;
+}
+.fe-chat-send2:hover {
+    -fx-background-color: rgba(232,55,42,0.95);
+}
