@@ -7,7 +7,7 @@ import com.stripe.model.checkout.Session;
 public class StripePaymentChecker {
 
     static {
-        Stripe.apiKey = ConfigLoader.get("STRIPE_SECRET_KEY");
+        Stripe.apiKey = ConfigLoader.get("stripe.secret.key");
     }
 
     public boolean isSessionPaid(String sessionId) {
