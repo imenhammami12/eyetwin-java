@@ -8,14 +8,12 @@ module org.example.eyetwinjava {
     requires jdk.jsobject;
     requires bcrypt;
     requires java.prefs;
-<<<<<<< Updated upstream
-=======
+
     requires opencv;
     requires jakarta.mail;
     requires java.net.http;
     requires jdk.httpserver;
     requires org.json;
->>>>>>> Stashed changes
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

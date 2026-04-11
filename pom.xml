@@ -52,8 +52,7 @@
       <version>0.10.2</version>
     </dependency>
 
-<<<<<<< Updated upstream
-=======
+
     <dependency>
       <groupId>org.openpnp</groupId>
       <artifactId>opencv</artifactId>
@@ -66,7 +65,6 @@
       <version>20251224</version>
     </dependency>
 
->>>>>>> Stashed changes
   </dependencies>
   <build>
     <plugins>
