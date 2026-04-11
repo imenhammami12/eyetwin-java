@@ -5,68 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.edit.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/PlanningController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminDialogs.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminPlanningController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminPlanningDetailController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminPlanningFormController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminPlanningSessionsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminReviewsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminTrainingSessionDetailController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminTrainingSessionEditController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Planning.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/PlanningLevel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/PlanningType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Review.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/TrainingSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/IPlanningService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/IReviewService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/ITrainingSessionService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/AiCoachService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/ChatbotService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/GroqConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/PlanningServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/ReviewServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentAnalysisService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TrainingSessionServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/TileProxyServer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/img/ai_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/img/ai_icon_red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/img/brain_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/img/coach_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/img/history_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/images/layers-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/images/layers.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/images/marker-icon-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/images/marker-icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/images/marker-shadow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/leaflet.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/leaflet/leaflet.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/styles/admin-planning.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminPlanning.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminPlanningDetail.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminPlanningForm.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminPlanningSessions.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminReviews.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminTrainingSessionDetail.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminTrainingSessionEdit.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Planning.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/uploads/plannings/planning-0b16403a-f969-4bc9-8342-09ef1fcf296f.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/uploads/plannings/planning-20c7a9c8-05cc-4f8f-a3dd-8c964742aef8.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/uploads/plannings/planning-89c1fdce-fb82-4ba8-b21c-38d6819cf933.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/uploads/plannings/planning-a56d59bd-15a0-4b26-a665-bf216303c769.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/TwoFactorVerifyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/TwoFactorVerifyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/UserProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/UserProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/GroqConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/GroqConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentAnalysisService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/styles/gaming.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/styles/gaming.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +48,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging integration/planning-main",
+    "git-widget-placeholder": "integration/planning-main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/yousfi islem/Downloads/eyetwin-java",
     "project.structure.last.edited": "Project",
