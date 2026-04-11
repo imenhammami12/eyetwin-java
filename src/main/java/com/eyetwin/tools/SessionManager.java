@@ -2,6 +2,8 @@ package com.eyetwin.tools;
 
 import com.eyetwin.entities.Complaint;
 import com.eyetwin.entities.Team;
+import com.eyetwin.entities.Planning;
+import com.eyetwin.entities.TrainingSession;
 import com.eyetwin.entities.User;
 
 import java.time.LocalDateTime;
@@ -33,6 +35,8 @@ public class SessionManager {
 
     private static final IUserService userService = new UserServiceImpl();
     private static User selectedUser = null;
+    private static Planning selectedPlanning = null;
+    private static TrainingSession selectedTrainingSession = null;
     private static Team selectedTeam = null;
     private static Complaint selectedComplaint = null;
 
@@ -297,17 +301,6 @@ public class SessionManager {
         }
     }
 
-    public static void setSelectedUser(User user) {
-        selectedUser = user;
-    }
-
-    public static User getSelectedUser() {
-        return selectedUser;
-    }
-
-    public static void clearSelectedUser() {
-        selectedUser = null;
-    }
 
 
     public static void setSelectedTeam(Team team)  { selectedTeam = team; }
@@ -320,6 +313,43 @@ public class SessionManager {
     public static void    setSelectedComplaint(Complaint c) { selectedComplaint = c; }
     public static Complaint getSelectedComplaint()          { return selectedComplaint; }
     public static void    clearSelectedComplaint()          { selectedComplaint = null; }
+
+
+    public static void setSelectedUser(User user) {
+        selectedUser = user;
+    }
+
+    public static User getSelectedUser() {
+        return selectedUser;
+    }
+
+    public static void clearSelectedUser() {
+        selectedUser = null;
+    }
+
+    public static void setSelectedPlanning(Planning planning) {
+        selectedPlanning = planning;
+    }
+
+    public static Planning getSelectedPlanning() {
+        return selectedPlanning;
+    }
+
+    public static void clearSelectedPlanning() {
+        selectedPlanning = null;
+    }
+
+    public static void setSelectedTrainingSession(TrainingSession session) {
+        selectedTrainingSession = session;
+    }
+
+    public static TrainingSession getSelectedTrainingSession() {
+        return selectedTrainingSession;
+    }
+
+    public static void clearSelectedTrainingSession() {
+        selectedTrainingSession = null;
+    }
 
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
@@ -335,6 +365,13 @@ public class SessionManager {
         selectedUser = null;
         selectedTeam = null;
         selectedComplaint = null;
+
+        openSecurityTab = false;
+        pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email
+
+        selectedUser = null;
+        selectedPlanning = null;
+        selectedTrainingSession = null;
 
         openSecurityTab = false;
         pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email

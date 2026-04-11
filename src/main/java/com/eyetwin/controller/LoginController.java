@@ -213,7 +213,7 @@ public class LoginController {
     // ─────────────────────────────────────────────
     private void navigateAfterLogin(User user) {
         if (user.isAdmin()) {
-            MainApp.navigateTo("/com/eyetwin/views/dashboard.fxml", "Dashboard");
+            MainApp.navigateTo("/com/eyetwin/views/Admin.fxml", "Admin");
         } else {
             MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
         }
