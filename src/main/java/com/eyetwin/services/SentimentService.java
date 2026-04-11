@@ -1,5 +1,6 @@
 package com.eyetwin.services;
 
+import com.eyetwin.config.ConfigLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,11 +22,10 @@ public class SentimentService {
     private final String apiKey;
     private final HttpClient httpClient;
 
+    // Une seule ligne à changer — le constructeur sans argument :
     public SentimentService() {
-        this(System.getenv("HUGGINGFACE_API_KEY") != null
-                ? System.getenv("HUGGINGFACE_API_KEY") : "");
+        this(ConfigLoader.get("HF_API_KEY")); // ✅ au lieu de System.getenv(...)
     }
-
     public SentimentService(String apiKey) {
         this.apiKey = apiKey != null ? apiKey : "";
         this.httpClient = HttpClient.newBuilder()

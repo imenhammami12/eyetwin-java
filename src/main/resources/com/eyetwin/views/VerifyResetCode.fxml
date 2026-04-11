@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.eyetwin.controller.VerifyResetCodeController"
+           prefWidth="1280" prefHeight="800"
+           style="-fx-background-color: #080810;">
+
+    <!-- BACKGROUND -->
+    <ImageView fitWidth="1280" fitHeight="800" preserveRatio="false" smooth="true">
+        <image><Image url="@../assets/img/bg6.png"/></image>
+    </ImageView>
+    <Region style="-fx-background-color: rgba(0,0,0,0.58);"/>
+
+    <!-- LAYOUT -->
+    <VBox alignment="TOP_CENTER" prefWidth="1280" prefHeight="800">
+
+        <!-- NAVBAR -->
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              prefHeight="52" minHeight="52" maxHeight="52"
+              style="-fx-background-color: rgba(6,6,14,0.97);
+                     -fx-border-color: rgba(220,20,60,0.18);
+                     -fx-border-width: 0 0 1 0;
+                     -fx-padding: 0 30 0 30;">
+            <ImageView fitHeight="32" preserveRatio="true">
+                <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
+            </ImageView>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- CONTENT -->
+        <StackPane VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER" maxWidth="860" maxHeight="640"
+                  style="-fx-background-color: #111;
+                         -fx-background-radius: 14;
+                         -fx-border-radius: 14;
+                         -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.75),44,0,0,12);">
+
+                <!-- LEFT IMAGE -->
+                <StackPane prefWidth="375" prefHeight="580"
+                           style="-fx-background-color: #0a0a0a;
+                                  -fx-background-radius: 14 0 0 14;">
+                    <ImageView fitWidth="375" fitHeight="580"
+                               preserveRatio="false" smooth="true">
+                        <image><Image url="@../assets/img/gaming-characters.png"/></image>
+                    </ImageView>
+                    <Region style="-fx-background-color:
+                        linear-gradient(to right,rgba(100,0,0,0.2),rgba(0,0,0,0.52));
+                        -fx-background-radius: 14 0 0 14;"/>
+                    <VBox alignment="BOTTOM_LEFT" style="-fx-padding: 28;">
+                        <Label text="CHECK YOUR"
+                               style="-fx-font-family:'Arial Black'; -fx-font-size:20;
+                                      -fx-text-fill:white; -fx-font-weight:bold;"/>
+                        <Label text="MESSAGES"
+                               style="-fx-font-family:'Arial Black'; -fx-font-size:20;
+                                      -fx-text-fill:#dc143c; -fx-font-weight:bold;"/>
+                        <Label text="Paste the code you received below."
+                               style="-fx-text-fill:#555; -fx-font-size:11; -fx-padding:4 0 0 0;"/>
+                    </VBox>
+                </StackPane>
+
+                <!-- RIGHT FORM -->
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                      prefWidth="485" prefHeight="580" spacing="0"
+                      style="-fx-background-color: #090909;
+                             -fx-background-radius: 0 14 14 0;
+                             -fx-padding: 28 36 28 36;">
+
+                    <!-- ICON + TITLE -->
+                    <VBox alignment="CENTER" spacing="5" style="-fx-padding: 0 0 18 0;">
+                        <Label text="🛡️"
+                               style="-fx-font-size: 38;"/>
+                        <Label text="ENTER YOUR CODE"
+                               style="-fx-font-family:'Arial Black'; -fx-font-size:14;
+                                      -fx-font-weight:bold; -fx-text-fill:white;
+                                      -fx-effect: dropshadow(gaussian,rgba(220,20,60,0.4),10,0,0,2);"/>
+                        <Label text="A VERIFICATION CODE HAS BEEN SENT TO"
+                               style="-fx-text-fill: #3a3a3a; -fx-font-size: 9; -fx-font-weight:bold;"/>
+                    </VBox>
+
+                    <!-- EMAIL DISPLAY BADGE -->
+                    <HBox alignment="CENTER" style="-fx-padding: 0 0 16 0;">
+                        <Label fx:id="emailDisplayLabel" text="your@email.com"
+                               style="-fx-background-color: rgba(220,20,60,0.08);
+                                      -fx-border-color: rgba(220,20,60,0.25); -fx-border-width:1;
+                                      -fx-border-radius: 50; -fx-background-radius: 50;
+                                      -fx-text-fill: #dc143c; -fx-font-size: 13; -fx-font-weight:bold;
+                                      -fx-padding: 8 18 8 18;"/>
+                    </HBox>
+
+                    <!-- CHANNEL HINT -->
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 14 0;">
+                        <Region style="-fx-background-color: rgba(90,103,216,0.6);
+                                       -fx-min-width:3; -fx-pref-width:3; -fx-min-height:36; -fx-background-radius:2;"/>
+                        <VBox spacing="2">
+                            <Label text="ℹ  Where to find your code:"
+                                   style="-fx-text-fill: #5a67d8; -fx-font-size: 11; -fx-font-weight:bold;"/>
+                            <Label fx:id="channelHintLabel" text="Check your email inbox"
+                                   style="-fx-text-fill: #8a9090; -fx-font-size: 12;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- CODE FIELD LABEL -->
+                    <Label text="VERIFICATION CODE"
+                           style="-fx-text-fill: #555; -fx-font-size: 9; -fx-font-weight:bold;
+                                  -fx-padding: 0 0 5 0;"/>
+
+                    <!-- CODE INPUT -->
+                    <TextField fx:id="codeField"
+                               promptText="Paste your reset code here"
+                               prefHeight="44" prefWidth="413"
+                               style="-fx-background-color: rgba(255,255,255,0.05);
+                                      -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 2;
+                                      -fx-border-radius: 10; -fx-background-radius: 10;
+                                      -fx-text-fill: #e0e0e0; -fx-prompt-text-fill: rgba(255,255,255,0.25);
+                                      -fx-font-size: 11; -fx-font-family:'Courier New';
+                                      -fx-padding: 10 14 10 14;"/>
+
+                    <!-- COUNTDOWN -->
+                    <HBox alignment="CENTER" spacing="6" style="-fx-padding: 10 0 10 0;">
+                        <Label text="⏱" style="-fx-text-fill:#6a7080; -fx-font-size:12;"/>
+                        <Label text="Code expires in"
+                               style="-fx-text-fill:#6a7080; -fx-font-size:12;"/>
+                        <Label fx:id="countdownLabel" text="10:00"
+                               style="-fx-text-fill: #d29922; -fx-font-size:14;
+                                      -fx-font-family:'Courier New'; -fx-font-weight:bold;"/>
+                    </HBox>
+
+                    <!-- ERROR -->
+                    <Label fx:id="errorLabel" text="" prefWidth="413" wrapText="true"
+                           style="-fx-text-fill: #f85149; -fx-font-size: 11;
+                                  -fx-padding: 0 0 8 0;"/>
+
+                    <!-- SPINNER -->
+                    <ProgressIndicator fx:id="loadingSpinner" prefWidth="28" prefHeight="28"
+                                       style="-fx-progress-color: #dc143c;"
+                                       visible="false"/>
+
+                    <!-- VERIFY BUTTON -->
+                    <Button fx:id="verifyButton" text="✓  VERIFY CODE"
+                            onAction="#handleVerify"
+                            prefWidth="413" prefHeight="42"
+                            style="-fx-background-color: linear-gradient(to right,#b00020,#e8112d);
+                                   -fx-text-fill: white; -fx-font-weight: bold;
+                                   -fx-font-size: 13; -fx-background-radius: 6; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian,rgba(192,18,48,0.5),14,0,0,3);"/>
+
+                    <!-- SEPARATOR -->
+                    <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10 0 8 0;">
+                        <Region HBox.hgrow="ALWAYS"
+                                style="-fx-background-color: #1a1a1a; -fx-pref-height: 1;"/>
+                        <Label text="OR" style="-fx-text-fill: #282828; -fx-font-size: 10;"/>
+                        <Region HBox.hgrow="ALWAYS"
+                                style="-fx-background-color: #1a1a1a; -fx-pref-height: 1;"/>
+                    </HBox>
+
+                    <!-- RESEND / BACK -->
+                    <VBox alignment="CENTER" spacing="5">
+                        <Label text="DIDN'T RECEIVE THE CODE?"
+                               style="-fx-text-fill: #3a3a3a; -fx-font-size: 9; -fx-font-weight:bold;"/>
+                        <Button text="[ ↺  SEND NEW CODE ]" onAction="#goBackToForgot"
+                                prefWidth="413" prefHeight="38"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #8b0000;
+                                       -fx-border-color: #3a0000; -fx-border-width: 1.5;
+                                       -fx-border-radius: 5; -fx-background-radius: 5;
+                                       -fx-font-weight: bold; -fx-font-size: 12; -fx-cursor: hand;"/>
+                    </VBox>
+
+                </VBox>
+            </HBox>
+        </StackPane>
+    </VBox>
+</StackPane>

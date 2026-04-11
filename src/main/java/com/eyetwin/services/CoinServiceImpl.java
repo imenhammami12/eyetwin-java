@@ -155,7 +155,7 @@ public class CoinServiceImpl implements ICoinService {
      */
     private void updateBalanceInDb(int userId, int newBalance) {
         String sql = "UPDATE user SET coin_balance = ? WHERE id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
+        try (Connection conn = DatabaseConfig.getInstance().getCnx();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, newBalance);
             ps.setInt(2, userId);

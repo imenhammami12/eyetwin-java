@@ -5,17 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/config/ConfigLoader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ForgotPasswordController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ResetPasswordController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/VerifyResetCodeController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/PasswordResetService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ResetPassword.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/VerifyResetCode.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/forgot-password.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/AuditLogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/AuditLogServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/CoachApplicationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/CoachApplicationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/CoinServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/CoinServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/GroqConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/GroqConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/PlanningServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/PlanningServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/RememberMeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/RememberMeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/ReviewServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentAnalysisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentAnalysisService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/styles/gaming.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/styles/gaming.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/SentimentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StatsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StatsServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripePaymentChecker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripePaymentChecker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TeamServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TeamServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TrainingSessionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TrainingSessionServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/DatabaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/DatabaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/stripe.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/stripe.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -48,9 +76,9 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "integration/planning-main",
+    "git-widget-placeholder": "gestion-user",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/yousfi islem/Downloads/eyetwin-java",
+    "last_opened_file_path": "C:/Users/LENOVO/Desktop/eyetwin-java/src/main/resources/com/eyetwin/views",
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
@@ -58,6 +86,11 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\LENOVO\Desktop\eyetwin-java\src\main\resources\com\eyetwin\views" />
+      <recent name="C:\Users\LENOVO\Desktop\eyetwin-java\src\main\java\com\eyetwin\controller" />
+      <recent name="C:\Users\LENOVO\Desktop\eyetwin-java\src\main\java\com\eyetwin\services" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\yousfi islem\Downloads\eyetwin-java\eyetwin-java\src\main\java\com\eyetwin\tools" />
     </key>

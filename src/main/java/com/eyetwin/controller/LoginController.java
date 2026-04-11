@@ -8,7 +8,7 @@ import com.eyetwin.services.AuthService;
 import com.eyetwin.services.GamingCaptchaService;
 import com.eyetwin.services.TwoFactorServiceImpl;
 import com.eyetwin.services.UserServiceImpl;
-import com.eyetwin.tools.RememberMeService;
+import com.eyetwin.services.RememberMeService;
 import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
