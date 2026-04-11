@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminPlanningController"
+            styleClass="admin-planning-root"
+            stylesheets="@../styles/admin-planning.css"
+            prefWidth="1280" prefHeight="800">
+
+    <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
+    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="page-scroll">
+            <content>
+                <VBox styleClass="page-content" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Region prefWidth="3" prefHeight="18" style="-fx-background-color:#ff3c64; -fx-background-radius:2;"/>
+                        <Label text="Planning Management" styleClass="card-title"/>
+                    </HBox>
+
+                    <!-- Filters row -->
+                    <VBox styleClass="glass-card" spacing="12">
+                        <GridPane hgap="14" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="32"/>
+                                <ColumnConstraints percentWidth="22"/>
+                                <ColumnConstraints percentWidth="22"/>
+                                <ColumnConstraints percentWidth="24"/>
+                            </columnConstraints>
+
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="SEARCH" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10; -fx-font-weight: 700;"/>
+                                <TextField fx:id="searchField" promptText="Description, location..." styleClass="filter-input"/>
+                            </VBox>
+
+                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="TYPE" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10; -fx-font-weight: 700;"/>
+                                <ComboBox fx:id="typeCombo" promptText="All Types"/>
+                            </VBox>
+
+                            <VBox spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                <Label text="LEVEL" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10; -fx-font-weight: 700;"/>
+                                <ComboBox fx:id="levelCombo" promptText="All Levels"/>
+                            </VBox>
+
+                            <VBox spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                <Label text="SORT BY" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10; -fx-font-weight: 700;"/>
+                                <ComboBox fx:id="sortCombo"/>
+                            </VBox>
+
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="ORDER" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10; -fx-font-weight: 700;"/>
+                                <ComboBox fx:id="orderCombo"/>
+                            </VBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3">
+                                <Button text="Filter" onAction="#handleApplyFilters" styleClass="primary-btn" prefWidth="120"/>
+                                <Button text="Reset" onAction="#handleResetFilters" styleClass="outline-btn" prefWidth="110"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </GridPane>
+                    </VBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label fx:id="foundLabel" text="Found 0 plannings" styleClass="results-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="View Reviews" onAction="#handleViewReviews" styleClass="outline-btn" prefWidth="140"/>
+                        <Button text="Add Planning" onAction="#handleAddPlanning" styleClass="success-btn" prefWidth="150"/>
+                    </HBox>
+
+                    <!-- Table -->
+                    <HBox alignment="TOP_CENTER">
+                        <VBox styleClass="glass-card" spacing="10" maxWidth="1120" prefWidth="1120">
+                            <Label text="Planning List" styleClass="section-title"/>
+                            <TableView fx:id="planningTable" styleClass="planning-table" prefHeight="520">
+                                <columns>
+                                    <TableColumn fx:id="colImage" text="IMAGE" prefWidth="90"/>
+                                    <TableColumn fx:id="colActivity" text="ACTIVITY" prefWidth="140"/>
+                                    <TableColumn fx:id="colDescription" text="DESCRIPTION" prefWidth="220"/>
+                                    <TableColumn fx:id="colDateTime" text="DATE &amp; TIME" prefWidth="140"/>
+                                    <TableColumn fx:id="colLocation" text="LOCATION" prefWidth="260"/>
+                                    <TableColumn fx:id="colNeedPartner" text="NEED PARTNER" prefWidth="120"/>
+                                    <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="190"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+

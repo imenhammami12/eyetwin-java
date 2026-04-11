@@ -3,6 +3,7 @@ module org.example.eyetwinjava {
     requires javafx.fxml;
     requires java.sql;
     requires jbcrypt;
+    requires javafx.graphics;
     requires javafx.web;
     requires jdk.jsobject;
     requires bcrypt;
@@ -15,6 +16,8 @@ module org.example.eyetwinjava {
     requires java.net.http;
     requires org.json;
     requires stripe.java;
+
+    requires jdk.httpserver;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

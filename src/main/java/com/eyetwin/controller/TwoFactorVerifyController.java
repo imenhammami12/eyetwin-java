@@ -197,9 +197,9 @@ public class TwoFactorVerifyController {
 
     private void navigateAfterLogin(User user) {
         try {
-            String fxml = user.isAdmin() ? "dashboard.fxml" : "home.fxml";
+            String fxml = user.isAdmin() ? "Admin.fxml" : "home.fxml";
             MainApp.navigateTo("/com/eyetwin/views/" + fxml,
-                    user.isAdmin() ? "Dashboard" : "Home");
+                    user.isAdmin() ? "Admin" : "Home");
         } catch (Exception e) {
             // Fallback si MainApp.navigateTo non disponible
             navigateTo("home.fxml");

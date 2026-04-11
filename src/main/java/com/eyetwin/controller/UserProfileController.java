@@ -578,7 +578,7 @@ public class UserProfileController {
     @FXML public void goToGuides()      { MainApp.navigateTo(VIEWS + "Guides.fxml",    "Guides"); }
     @FXML public void goToCoins()       { MainApp.navigateTo(VIEWS + "Coins.fxml",     "Coins"); }
     @FXML public void goToSupport()     { MainApp.navigateTo(VIEWS + "Support.fxml",   "Support"); }
-    @FXML public void goToAdmin()       { MainApp.navigateTo(VIEWS + "dashboard.fxml", "Admin"); }
+    @FXML public void goToAdmin()       { MainApp.navigateTo(VIEWS + "Admin.fxml", "Admin"); }
     @FXML public void goTo2FA()         { navigateTo("TwoFactorSettings.fxml"); }
     @FXML public void handleLogout() {
         SessionManager.logout();
