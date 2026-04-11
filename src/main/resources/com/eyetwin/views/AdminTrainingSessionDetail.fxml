@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminTrainingSessionDetailController"
+            styleClass="admin-planning-root"
+            stylesheets="@../styles/admin-planning.css"
+            prefWidth="1280" prefHeight="800">
+
+    <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
+    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="page-scroll">
+            <content>
+                <VBox styleClass="page-content" spacing="14">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Region prefWidth="3" prefHeight="18" style="-fx-background-color:#ff3c64; -fx-background-radius:2;"/>
+                        <Label text="Training Session Details" styleClass="card-title"/>
+                    </HBox>
+
+                    <HBox spacing="16" alignment="TOP_LEFT">
+
+                        <!-- Left -->
+                        <VBox styleClass="glass-card" spacing="12" HBox.hgrow="ALWAYS">
+                            <Label text="Session Information" styleClass="section-title"/>
+
+                            <VBox spacing="10" style="-fx-padding: 6;">
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label fx:id="idLabel" text="#—" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;"/>
+                                </HBox>
+
+                                <VBox style="-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 12; -fx-padding: 18;" spacing="10" alignment="CENTER">
+                                    <Label fx:id="avatarLabel" text="U" style="-fx-background-color: rgba(99,102,241,0.25); -fx-text-fill:white; -fx-font-weight:900; -fx-alignment:center; -fx-min-width:54; -fx-min-height:54; -fx-background-radius: 999; -fx-font-size: 22;"/>
+                                    <Label fx:id="usernameLabel" text="—" style="-fx-text-fill:#e2e8f0; -fx-font-weight:900; -fx-font-size: 14;"/>
+                                    <Label fx:id="emailLabel" text="—" style="-fx-text-fill: rgba(226,232,240,0.7); -fx-font-weight:800;"/>
+                                    <Label fx:id="joinedAtLabel" text="—" style="-fx-text-fill: rgba(226,232,240,0.7); -fx-font-weight:800;"/>
+                                    <Label fx:id="statusBadge" text="—"
+                                           style="-fx-background-color: rgba(234,179,8,0.18); -fx-text-fill:#fde68a; -fx-padding: 4 10; -fx-background-radius: 999; -fx-font-weight: 900; -fx-font-size: 11;"/>
+                                </VBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Right -->
+                        <VBox spacing="16" prefWidth="360" maxWidth="360">
+                            <VBox styleClass="glass-card" spacing="12">
+                                <Label text="Actions" styleClass="section-title"/>
+                                <Button text="Edit Session" onAction="#handleEdit" styleClass="outline-btn" prefHeight="38" maxWidth="1.7976931348623157E308"/>
+                                <Button text="Back to Sessions" onAction="#handleBack" styleClass="outline-btn" prefHeight="38" maxWidth="1.7976931348623157E308"/>
+                            </VBox>
+
+                            <VBox styleClass="glass-card" spacing="10">
+                                <Label text="Planning Details" styleClass="section-title"/>
+
+                                <GridPane hgap="14" vgap="10" style="-fx-padding: 8;">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="28"/>
+                                        <ColumnConstraints percentWidth="72"/>
+                                    </columnConstraints>
+
+                                    <Label text="Type" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                    <Label fx:id="pType" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                                    <Label text="Level" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                    <Label fx:id="pLevel" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                    <Label text="Description" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                    <Label fx:id="pDesc" wrapText="true" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                    <Label text="Date" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                    <Label fx:id="pDate" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                                    <Label text="Time" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                    <Label fx:id="pTime" style="-fx-text-fill:#e2e8f0; -fx-font-weight:800;" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                                    <Label text="Location" styleClass="form-label" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                                    <Label fx:id="pLoc" wrapText="true" style="-fx-text-fill:#e2e8f0;" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                                </GridPane>
+                            </VBox>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
+

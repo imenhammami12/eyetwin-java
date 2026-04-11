@@ -1,7 +1,9 @@
 package com.eyetwin.tools;
 
 import com.eyetwin.entities.Complaint;
+import com.eyetwin.entities.Planning;
 import com.eyetwin.entities.Team;
+import com.eyetwin.entities.TrainingSession;
 import com.eyetwin.entities.User;
 
 import java.time.LocalDateTime;
@@ -29,12 +31,8 @@ import com.eyetwin.services.UserServiceImpl;
  *   - AdminFaceVerifyController → getPendingFaceEmail() → vérifie la face → clearPendingFaceEmail()
  */
 public class SessionManager {
-    private static boolean openSecurityTab = false;
 
     private static final IUserService userService = new UserServiceImpl();
-    private static User selectedUser = null;
-    private static Team selectedTeam = null;
-    private static Complaint selectedComplaint = null;
 
     // ─────────────────────────────────────────────────────────
     //  État de session
@@ -42,16 +40,26 @@ public class SessionManager {
     private static User    currentUser        = null;
     private static User    pending2FAUser     = null;
     private static boolean twoFactorCompleted = false;
-    private static String  pendingFaceEmail   = null; // ← PATCH : Face Login Admin
+    private static String  pendingFaceEmail   = null;
+    private static boolean openSecurityTab    = false;
 
     // ─────────────────────────────────────────────────────────
-    //  Flash messages (miroir de addFlash() Symfony)
+    //  Flash messages
     // ─────────────────────────────────────────────────────────
     private static String pendingFlashType    = null;
     private static String pendingFlashMessage = null;
 
     // Nœud Preferences pour les appareils de confiance
     private static final String PREFS_NODE = "eyetwin/trusted";
+
+    // ─────────────────────────────────────────────────────────
+    //  Entités sélectionnées (toutes les branches)
+    // ─────────────────────────────────────────────────────────
+    private static User            selectedUser            = null;
+    private static Team            selectedTeam            = null;
+    private static Complaint       selectedComplaint       = null;
+    private static Planning        selectedPlanning        = null;
+    private static TrainingSession selectedTrainingSession = null;
 
     // ─────────────────────────────────────────────────────────
     //  Session de base
@@ -64,16 +72,6 @@ public class SessionManager {
         return currentUser != null
                 && currentUser.getRolesJson() != null
                 && currentUser.getRolesJson().contains("ROLE_SUPER_ADMIN");
-    }
-
-    public static void setOpenSecurityTab(boolean value) {
-        openSecurityTab = value;
-    }
-
-    public static boolean consumeOpenSecurityTab() {
-        boolean val = openSecurityTab;
-        openSecurityTab = false;
-        return val;
     }
 
     public static boolean isAdmin() {
@@ -101,41 +99,27 @@ public class SessionManager {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  Flash Messages
-    //  Miroir de $this->addFlash() / $this->getFlashes() Symfony
+    //  Security Tab
     // ─────────────────────────────────────────────────────────
+    public static void setOpenSecurityTab(boolean value) {
+        openSecurityTab = value;
+    }
 
-    /**
-     * Stocke un message flash à afficher sur la prochaine vue.
-     * Appelé AVANT navigateTo() — miroir de addFlash() Symfony.
-     *
-     * Types standards : "success" | "info" | "warning" | "error"
-     *
-     * Exemple :
-     *   SessionManager.setPendingFlash("success", "Application submitted!");
-     *   navigateTo("UserProfile.fxml");
-     */
+    public static boolean consumeOpenSecurityTab() {
+        boolean val = openSecurityTab;
+        openSecurityTab = false;
+        return val;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Flash Messages
+    // ─────────────────────────────────────────────────────────
     public static void setPendingFlash(String type, String message) {
         pendingFlashType    = type;
         pendingFlashMessage = message;
         System.out.println("[SessionManager] Flash set — [" + type + "] " + message);
     }
 
-    /**
-     * Consomme le flash (lecture unique + effacement automatique).
-     * Appelez dans initialize() de la vue cible.
-     *
-     * Exemple dans UserProfileController#initialize() :
-     *
-     *   String[] flash = SessionManager.consumeFlash();
-     *   if (flash != null) {
-     *       // flash[0] = type  ("success" | "info" | "warning" | "error")
-     *       // flash[1] = message
-     *       showFlashBanner(flash[0], flash[1]);
-     *   }
-     *
-     * @return String[2] { type, message } ou null si aucun flash en attente
-     */
     public static String[] consumeFlash() {
         if (pendingFlashType == null) return null;
         String[] result = { pendingFlashType, pendingFlashMessage };
@@ -145,35 +129,18 @@ public class SessionManager {
         return result;
     }
 
-    /**
-     * Vérifie si un flash est en attente sans le consommer.
-     */
     public static boolean hasPendingFlash() {
         return pendingFlashType != null;
     }
 
-    /**
-     * Efface le flash en attente sans le lire.
-     */
     public static void clearFlash() {
         pendingFlashType    = null;
         pendingFlashMessage = null;
     }
 
     // ─────────────────────────────────────────────────────────
-    //  FACE LOGIN — email en attente de vérification faciale
-    //  Miroir de la redirection Symfony vers /admin/face-verify
-    //
-    //  Usage :
-    //    1. AdminLoginController détecte que l'user a une face
-    //       → SessionManager.setPendingFaceEmail(email);
-    //       → navigateTo("AdminFaceVerify.fxml");
-    //    2. AdminFaceVerifyController récupère l'email
-    //       → String email = SessionManager.getPendingFaceEmail();
-    //       → [vérifie la face]
-    //       → SessionManager.clearPendingFaceEmail();
+    //  Face Login
     // ─────────────────────────────────────────────────────────
-
     public static void setPendingFaceEmail(String email) {
         pendingFaceEmail = email;
         System.out.println("[SessionManager] Face email set — " + email);
@@ -189,7 +156,7 @@ public class SessionManager {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  2FA — Étape 1 : Mettre l'utilisateur en attente
+    //  2FA — Étape 1
     // ─────────────────────────────────────────────────────────
     public static void setPending2FAUser(User user) {
         pending2FAUser     = user;
@@ -202,7 +169,7 @@ public class SessionManager {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  2FA — Étape 2 : Compléter la connexion
+    //  2FA — Étape 2
     // ─────────────────────────────────────────────────────────
     public static void completeTwoFactorLogin(User user, boolean trustDevice) {
         pending2FAUser     = null;
@@ -223,13 +190,8 @@ public class SessionManager {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  TRUSTED DEVICE — Persistance via java.util.prefs
+    //  Trusted Device
     // ─────────────────────────────────────────────────────────
-
-    /**
-     * Vérifie si l'appareil est de confiance pour cet utilisateur.
-     * Appelé dans LoginController AVANT d'afficher la page 2FA.
-     */
     public static boolean isTrustedDevice(int userId) {
         try {
             Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
@@ -249,9 +211,6 @@ public class SessionManager {
         }
     }
 
-    /**
-     * Enregistre l'appareil comme de confiance pour 30 jours.
-     */
     private static void saveTrustedDevice(int userId) {
         try {
             Preferences prefs  = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
@@ -265,9 +224,6 @@ public class SessionManager {
         }
     }
 
-    /**
-     * Révoque la confiance de l'appareil pour un utilisateur.
-     */
     public static void revokeTrustedDevice(int userId) {
         try {
             Preferences prefs = Preferences.userRoot().node(PREFS_NODE + "/" + userId);
@@ -280,7 +236,7 @@ public class SessionManager {
     }
 
     // ─────────────────────────────────────────────────────────
-    //  Refresh — recharger depuis la DB
+    //  Refresh
     // ─────────────────────────────────────────────────────────
     public static void refresh() {
         User current = getCurrentUser();
@@ -297,29 +253,28 @@ public class SessionManager {
         }
     }
 
-    public static void setSelectedUser(User user) {
-        selectedUser = user;
-    }
-
-    public static User getSelectedUser() {
-        return selectedUser;
-    }
-
-    public static void clearSelectedUser() {
-        selectedUser = null;
-    }
-
+    // ─────────────────────────────────────────────────────────
+    //  Selected Entities
+    // ─────────────────────────────────────────────────────────
+    public static void setSelectedUser(User user)  { selectedUser = user; }
+    public static User getSelectedUser()           { return selectedUser; }
+    public static void clearSelectedUser()         { selectedUser = null; }
 
     public static void setSelectedTeam(Team team)  { selectedTeam = team; }
     public static Team getSelectedTeam()           { return selectedTeam; }
     public static void clearSelectedTeam()         { selectedTeam = null; }
 
-
-
-
     public static void    setSelectedComplaint(Complaint c) { selectedComplaint = c; }
     public static Complaint getSelectedComplaint()          { return selectedComplaint; }
     public static void    clearSelectedComplaint()          { selectedComplaint = null; }
+
+    public static void setSelectedPlanning(Planning planning) { selectedPlanning = planning; }
+    public static Planning getSelectedPlanning()              { return selectedPlanning; }
+    public static void clearSelectedPlanning()                { selectedPlanning = null; }
+
+    public static void setSelectedTrainingSession(TrainingSession session) { selectedTrainingSession = session; }
+    public static TrainingSession getSelectedTrainingSession()             { return selectedTrainingSession; }
+    public static void clearSelectedTrainingSession()                      { selectedTrainingSession = null; }
 
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
@@ -327,17 +282,18 @@ public class SessionManager {
     public static void logout() {
         System.out.println("👋 Déconnexion : "
                 + (currentUser != null ? currentUser.getEmail() : "?"));
-        currentUser         = null;
-        pending2FAUser      = null;
-        twoFactorCompleted  = false;
-        pendingFlashType    = null;
-        pendingFlashMessage = null;
-        selectedUser = null;
-        selectedTeam = null;
-        selectedComplaint = null;
-
-        openSecurityTab = false;
-        pendingFaceEmail    = null; // ← PATCH : on efface aussi le face email
+        currentUser            = null;
+        pending2FAUser         = null;
+        twoFactorCompleted     = false;
+        pendingFlashType       = null;
+        pendingFlashMessage    = null;
+        pendingFaceEmail       = null;
+        openSecurityTab        = false;
+        selectedUser           = null;
+        selectedTeam           = null;
+        selectedComplaint      = null;
+        selectedPlanning       = null;
+        selectedTrainingSession = null;
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }
