@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════
+   coins-animations.css  —  Animations pour la page Coins
+   À ajouter dans gaming.css ou charger dans CoinsController
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Fade-in slide-up au chargement ── */
+@keyframes fadeSlideUp {
+    from { opacity: 0; translate: 0 28px; }
+    to   { opacity: 1; translate: 0 0;    }
+}
+
+/* ── Pulse doré pour la balance ── */
+@keyframes goldPulse {
+    0%   { -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.18), 20, 0, 0, 0); }
+    50%  { -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.50), 32, 0, 0, 0); }
+    100% { -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.18), 20, 0, 0, 0); }
+}
+
+/* ── Shine scan sur les cards ── */
+@keyframes shimmer {
+    0%   { -fx-background-position: -200% 0; }
+    100% { -fx-background-position:  200% 0; }
+}
+
+/* ─── Hero coin image : rotation lente ─── */
+.coin-hero-image {
+    -fx-rotate: 0;
+    transition: -fx-rotate 8s linear infinite;
+}
+
+/* ─── Balance label pulse ─── */
+#balanceLabel {
+    animation: goldPulse 2.8s ease-in-out infinite;
+}
+
+/* ─── Package card hover ─── */
+.pack-card {
+    transition: -fx-scale-x 0.18s ease,
+                -fx-scale-y 0.18s ease,
+                -fx-effect   0.18s ease;
+}
+.pack-card:hover {
+    -fx-scale-x: 1.035;
+    -fx-scale-y: 1.035;
+    -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.30), 28, 0, 0, 6);
+    -fx-cursor: hand;
+}
+
+/* ─── Card populaire hover plus fort ─── */
+.pack-card-popular:hover {
+    -fx-scale-x: 1.04;
+    -fx-scale-y: 1.04;
+    -fx-effect: dropshadow(gaussian, rgba(82,72,200,0.55), 36, 0, 0, 8);
+}
+
+/* ─── Feature cards ─── */
+.spend-card {
+    transition: -fx-border-color 0.2s ease,
+                -fx-background-color 0.2s ease;
+}
+.spend-card:hover {
+    -fx-border-color: rgba(246,216,96,0.35);
+    -fx-background-color: rgba(246,216,96,0.07);
+    -fx-cursor: hand;
+}
+
+/* ─── History rows ─── */
+.history-row {
+    transition: -fx-background-color 0.15s ease;
+}
+.history-row:hover {
+    -fx-background-color: #0f0f22;
+    -fx-cursor: default;
+}
+
+/* ─── CTA button gold ─── */
+.btn-gold {
+    transition: -fx-effect 0.18s ease, -fx-scale-x 0.12s ease, -fx-scale-y 0.12s ease;
+}
+.btn-gold:hover {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(246,216,96,0.65), 24, 0, 0, 4);
+}
+.btn-gold:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* ─── Stats bar items ─── */
+.stats-item:hover > .Label {
+    -fx-text-fill: rgba(255,255,255,0.55);
+}

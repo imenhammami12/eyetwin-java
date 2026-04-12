@@ -59,12 +59,6 @@ public class UserProfileController {
     //  FXML FIELDS
     // ══════════════════════════════════════════════════════════════════════
 
-    // ── NAVBAR ──
-    @FXML protected Label            navUsername;
-    @FXML protected Label            navAvatarInitial;
-    @FXML protected Label            coinsNavLabel;
-    @FXML protected MenuItem         profileAdminItem;
-    @FXML protected SeparatorMenuItem profileAdminSep;
 
     // ── UserProfile — base ──
     @FXML protected ImageView  profileImageView;
@@ -88,6 +82,8 @@ public class UserProfileController {
     @FXML protected Label      memberSinceLabel;
     @FXML protected Label      lastLoginLabel;
     @FXML protected Label      coinsInfoLabel;
+
+    @FXML private NavbarController navbarController;
 
     // ── Flash banners ──
     @FXML protected VBox  flashSuccessBanner;
@@ -159,31 +155,15 @@ public class UserProfileController {
         User user = SessionManager.getCurrentUser();
         if (user == null) { navigateTo("login.fxml"); return; }
 
-        fillNavbar(user);
-
+        if (navbarController != null) {
+            navbarController.setActivePage("profile");
+        }
         // Détection de la vue active via les fx:id
         if (usernameLabel  != null) initProfileView(user);
         if (statTeamsCount != null) initStatisticsView(user);
         if (emailField     != null) initEditProfileView(user);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  NAVBAR
-    // ══════════════════════════════════════════════════════════════════════
-
-    private void fillNavbar(User user) {
-        if (navUsername != null)
-            navUsername.setText(user.getUsername() != null
-                    ? user.getUsername().toUpperCase() : "PLAYER");
-        if (navAvatarInitial != null && user.getUsername() != null && !user.getUsername().isEmpty())
-            navAvatarInitial.setText(String.valueOf(user.getUsername().charAt(0)).toUpperCase());
-        if (coinsNavLabel != null)
-            coinsNavLabel.setText(String.valueOf(user.getCoinBalance()));
-
-        boolean isAdmin = hasRole(user, "ROLE_ADMIN") || hasRole(user, "ROLE_SUPER_ADMIN");
-        if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
-        if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
-    }
 
     // ══════════════════════════════════════════════════════════════════════
     //  VIEW : UserProfile
@@ -449,9 +429,11 @@ public class UserProfileController {
         if (user.getCreatedAt() != null)
             setText(previewMemberSince, "Member since " + user.getCreatedAt().getYear());
 
-        if (bioField != null && bioCharCounter != null) {
-            updateBioCounter();
-            bioField.textProperty().addListener((obs, o, n) -> updateBioCounter());
+        if (bioField != null) {
+            Platform.runLater(() -> {
+                bioField.lookup(".content").setStyle(
+                        "-fx-background-color: #0d0c1a;");
+            });
         }
 
         // ✅ teamService au lieu de teamDAO
@@ -596,7 +578,7 @@ public class UserProfileController {
     @FXML public void goToGuides()      { MainApp.navigateTo(VIEWS + "Guides.fxml",    "Guides"); }
     @FXML public void goToCoins()       { MainApp.navigateTo(VIEWS + "Coins.fxml",     "Coins"); }
     @FXML public void goToSupport()     { MainApp.navigateTo(VIEWS + "Support.fxml",   "Support"); }
-    @FXML public void goToAdmin()       { MainApp.navigateTo(VIEWS + "dashboard.fxml", "Admin"); }
+    @FXML public void goToAdmin()       { MainApp.navigateTo(VIEWS + "Admin.fxml", "Admin"); }
     @FXML public void goTo2FA()         { navigateTo("TwoFactorSettings.fxml"); }
     @FXML public void handleLogout() {
         SessionManager.logout();
@@ -694,7 +676,7 @@ public class UserProfileController {
 
     protected Stage resolveStage() {
         javafx.scene.Node[] candidates = {
-                usernameLabel, emailField, statTeamsCount, navUsername, saveBtn
+                usernameLabel, emailField, statTeamsCount, saveBtn
         };
         for (javafx.scene.Node n : candidates)
             if (n != null && n.getScene() != null) return (Stage) n.getScene().getWindow();

@@ -8,7 +8,7 @@ import com.eyetwin.services.AuthService;
 import com.eyetwin.services.GamingCaptchaService;
 import com.eyetwin.services.TwoFactorServiceImpl;
 import com.eyetwin.services.UserServiceImpl;
-import com.eyetwin.tools.RememberMeService;
+import com.eyetwin.services.RememberMeService;
 import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -213,7 +213,7 @@ public class LoginController {
     // ─────────────────────────────────────────────
     private void navigateAfterLogin(User user) {
         if (user.isAdmin()) {
-            MainApp.navigateTo("/com/eyetwin/views/dashboard.fxml", "Dashboard");
+            MainApp.navigateTo("/com/eyetwin/views/Admin.fxml", "Admin");
         } else {
             MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
         }
