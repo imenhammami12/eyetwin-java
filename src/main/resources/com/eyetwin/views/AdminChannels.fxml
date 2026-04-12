@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminChannelsController"
+            style="-fx-background-color: #0d0618;">
+
+    <left>
+        <fx:include fx:id="adminSidebar" source="AdminSidebar.fxml"/>
+    </left>
+
+    <top>
+        <fx:include fx:id="adminTopbar" source="AdminTopbar.fxml"/>
+    </top>
+
+    <center>
+        <VBox spacing="18" style="-fx-padding: 22; -fx-background-color: #0d0618;">
+            <children>
+
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Channels Management"
+                               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Button text="+ New Channel"
+                                onAction="#handleCreateChannel"
+                                style="-fx-background-color: linear-gradient(to right, #31e7b6, #55f5c3);
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 10;
+                                       -fx-padding: 10 18 10 18;" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="12"
+                      style="-fx-background-color: rgba(255,255,255,0.03);
+                             -fx-border-color: rgba(255,255,255,0.06);
+                             -fx-border-radius: 14;
+                             -fx-background-radius: 14;
+                             -fx-padding: 18;">
+                    <children>
+                        <Label text="Filters &amp; Search"
+                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                        <HBox spacing="14">
+                            <children>
+                                <TextField fx:id="tfSearch"
+                                           promptText="Name, game, createdBy..."
+                                           HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: rgba(255,255,255,0.05);
+                                                  -fx-text-fill: white;
+                                                  -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                                  -fx-background-radius: 10;" />
+
+                                <ComboBox fx:id="cbStatus" prefWidth="180"
+                                          style="-fx-background-color: rgba(255,255,255,0.05);
+                                                 -fx-text-fill: white;
+                                                 -fx-background-radius: 10;" />
+
+                                <ComboBox fx:id="cbType" prefWidth="180"
+                                          style="-fx-background-color: rgba(255,255,255,0.05);
+                                                 -fx-text-fill: white;
+                                                 -fx-background-radius: 10;" />
+
+                                <Button text="Filter"
+                                        onAction="#handleFilter"
+                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff4b2b);
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-padding: 10 24 10 24;" />
+
+                                <Button text="Clear"
+                                        onAction="#handleClear"
+                                        style="-fx-background-color: rgba(255,255,255,0.06);
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-padding: 10 18 10 18;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <Label fx:id="lblFound"
+                       text="Found 0 channels"
+                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13px;" />
+
+                <VBox spacing="0"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: rgba(255,255,255,0.03);
+                             -fx-border-color: rgba(255,255,255,0.06);
+                             -fx-border-radius: 14;
+                             -fx-background-radius: 14;">
+                    <children>
+                        <Label text="Channels List"
+                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 18 12 18;" />
+
+                        <GridPane hgap="10"
+                                  style="-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 12 18 12 18;">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="6" />
+                                <ColumnConstraints percentWidth="18" />
+                                <ColumnConstraints percentWidth="14" />
+                                <ColumnConstraints percentWidth="12" />
+                                <ColumnConstraints percentWidth="14" />
+                                <ColumnConstraints percentWidth="10" />
+                                <ColumnConstraints percentWidth="14" />
+                                <ColumnConstraints percentWidth="12" />
+                            </columnConstraints>
+
+                            <children>
+                                <Label text="#" GridPane.columnIndex="0" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="NAME" GridPane.columnIndex="1" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="GAME" GridPane.columnIndex="2" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="TYPE" GridPane.columnIndex="3" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="STATUS" GridPane.columnIndex="4" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="ACTIVE" GridPane.columnIndex="5" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="CREATED BY" GridPane.columnIndex="6" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                <Label text="ACTIONS" GridPane.columnIndex="7" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                            </children>
+                        </GridPane>
+
+                        <ScrollPane fitToWidth="true"
+                                    VBox.vgrow="ALWAYS"
+                                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                            <content>
+                                <VBox fx:id="rowsContainer" spacing="8" style="-fx-padding: 12;" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>
