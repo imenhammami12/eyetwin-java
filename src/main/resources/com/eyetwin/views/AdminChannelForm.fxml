@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.admin.AdminChannelFormController"
+      spacing="14"
+      prefWidth="620"
+      prefHeight="470"
+      style="-fx-background-color: linear-gradient(to bottom right, #090f22, #12081a);
+             -fx-padding: 28;
+             -fx-border-color: rgba(255,70,70,0.24);
+             -fx-border-radius: 18;
+             -fx-background-radius: 18;">
+
+    <children>
+        <Label fx:id="lblTitle"
+               text="Channel Form"
+               style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+
+        <HBox spacing="12">
+            <children>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Name" style="-fx-text-fill: white;" />
+                        <TextField fx:id="tfName"
+                                   style="-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-background-radius: 10;" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Game" style="-fx-text-fill: white;" />
+                        <TextField fx:id="tfGame"
+                                   style="-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-background-radius: 10;" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <VBox spacing="6">
+            <children>
+                <Label text="Description" style="-fx-text-fill: white;" />
+                <TextArea fx:id="taDescription"
+                          prefRowCount="6"
+                          wrapText="true"
+                          style="-fx-control-inner-background: #14192b;
+                                 -fx-background-color: #14192b;
+                                 -fx-text-fill: white;
+                                 -fx-background-radius: 10;
+                                 -fx-border-radius: 10;
+                                 -fx-border-color: rgba(255,255,255,0.08);" />
+            </children>
+        </VBox>
+
+        <HBox spacing="12">
+            <children>
+                <VBox spacing="6">
+                    <children>
+                        <Label text="Type" style="-fx-text-fill: white;" />
+                        <ComboBox fx:id="cbType" prefWidth="180"
+                                  style="-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-background-radius: 10;" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="6">
+                    <children>
+                        <Label text="Active" style="-fx-text-fill: white;" />
+                        <CheckBox fx:id="chkActive" text="Channel is active"
+                                  style="-fx-text-fill: white;" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <Label fx:id="lblError"
+               text=""
+               wrapText="true"
+               style="-fx-text-fill: #ff7b7b; -fx-font-size: 12px;" />
+
+        <Pane VBox.vgrow="ALWAYS" />
+
+        <HBox spacing="10">
+            <children>
+                <Button fx:id="btnSave"
+                        text="Save"
+                        onAction="#handleSave"
+                        style="-fx-background-color: linear-gradient(to right, #31e7b6, #55f5c3);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 12 22 12 22;" />
+
+                <Button text="Cancel"
+                        onAction="#handleCancel"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 12 22 12 22;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

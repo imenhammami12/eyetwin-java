@@ -5,32 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChannelFormController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChatController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ConfirmDialogController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/MessageActionDialogController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/MiniConfirmDialogController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/Channel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/Message.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/IChannelService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/IMessageService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/ChannelServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/MessageServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/CommunityValidator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Community.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/CommunityChannelForm.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/CommunityChat.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ConfirmDialog.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/MessageActionDialog.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/MiniConfirmDialog.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminChannelDetailController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminChannelDetailsDialogController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminChannelFormController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminChannelsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/AdminConfirmDialogController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/RejectReasonDialogController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminChannelDetail.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminChannelDetailsDialog.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminChannelForm.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminChannels.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/AdminConfirmDialog.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/RejectReasonDialog.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/tools/SessionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/navbar.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/navbar.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.admin.AdminConfirmDialogController"
+      spacing="14"
+      prefWidth="420"
+      prefHeight="210"
+      style="-fx-background-color: linear-gradient(to bottom right, #090f22, #12081a);
+             -fx-padding: 24;
+             -fx-border-color: rgba(255,70,70,0.24);
+             -fx-border-radius: 18;
+             -fx-background-radius: 18;">
+
+    <children>
+        <Label fx:id="lblTitle"
+               text="Confirm"
+               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <Label fx:id="lblMessage"
+               text="Are you sure?"
+               wrapText="true"
+               style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+
+        <Pane VBox.vgrow="ALWAYS" />
+
+        <HBox spacing="10">
+            <children>
+                <Button fx:id="btnConfirm"
+                        text="Confirm"
+                        onAction="#handleConfirm"
+                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff4b2b);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10 20 10 20;" />
+
+                <Button text="Cancel"
+                        onAction="#handleCancel"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10 20 10 20;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
