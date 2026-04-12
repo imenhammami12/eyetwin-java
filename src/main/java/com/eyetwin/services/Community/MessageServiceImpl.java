@@ -1,0 +1,282 @@
+package com.eyetwin.services.Community;
+
+import com.eyetwin.entities.Community.Channel;
+import com.eyetwin.entities.Community.Message;
+import com.eyetwin.entities.User;
+import com.eyetwin.interfaces.Community.IMessageService;
+import com.eyetwin.tools.DatabaseConfig;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MessageServiceImpl implements IMessageService {
+
+    private Connection getConnection() {
+        return DatabaseConfig.getInstance().getCnx();
+    }
+
+    @Override
+    public List<Message> findByChannel(int channelId) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+
+        String sql = """
+            SELECT * FROM message
+            WHERE channel_id = ?
+            ORDER BY sent_at ASC, id ASC
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            messages.add(mapMessage(rs));
+        }
+        return messages;
+    }
+
+    @Override
+    public List<Message> findAdminMessages(String search, String status) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT m.*
+            FROM message m
+            INNER JOIN channel c ON c.id = m.channel_id
+            WHERE 1=1
+            """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND (m.content LIKE ? OR m.sender_name LIKE ? OR m.sender_email LIKE ? OR c.name LIKE ?)");
+            String pattern = "%" + search.trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status.trim())) {
+            if ("deleted".equalsIgnoreCase(status.trim())) {
+                sql.append(" AND m.is_deleted = 1");
+            } else if ("active".equalsIgnoreCase(status.trim())) {
+                sql.append(" AND m.is_deleted = 0");
+            }
+        }
+
+        sql.append(" ORDER BY m.sent_at DESC, m.id DESC");
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql.toString());
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            messages.add(mapMessage(rs));
+        }
+        return messages;
+    }
+
+    @Override
+    public Message findById(int id) throws SQLException {
+        String sql = "SELECT * FROM message WHERE id = ?";
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return mapMessage(rs);
+        }
+        return null;
+    }
+
+    @Override
+    public void sendMessage(int channelId, String content, User player) throws SQLException {
+        Channel channel = findChannelById(channelId);
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel not found.");
+        }
+
+        if (!Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) || !channel.isActive()) {
+            throw new IllegalStateException("You cannot send a message to an unavailable channel.");
+        }
+
+        String cleanContent = (content == null) ? "" : content.trim();
+        if (cleanContent.isEmpty()) {
+            throw new IllegalArgumentException("Message content cannot be empty.");
+        }
+
+        String sql = """
+            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, cleanContent);
+        ps.setTimestamp(2, now);
+        ps.setTimestamp(3, now);
+        ps.setBoolean(4, false);
+        ps.setString(5, player.getUsername());
+        ps.setString(6, player.getEmail());
+        ps.setInt(7, channelId);
+        ps.executeUpdate();
+    }
+
+    @Override
+    public void updateOwnMessage(int messageId, String newContent, User player) throws SQLException {
+        Message existing = findById(messageId);
+        if (existing == null) {
+            throw new IllegalArgumentException("Message not found.");
+        }
+
+        if (!player.getEmail().equalsIgnoreCase(existing.getSenderEmail())) {
+            throw new SecurityException("You can only edit your own messages.");
+        }
+
+        if (existing.isDeleted()) {
+            throw new IllegalStateException("Deleted messages cannot be edited.");
+        }
+
+        String cleanContent = (newContent == null) ? "" : newContent.trim();
+        if (cleanContent.isEmpty()) {
+            throw new IllegalArgumentException("Message content cannot be empty.");
+        }
+
+        String sql = """
+            UPDATE message
+            SET content = ?, edited_at = ?
+            WHERE id = ?
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, cleanContent);
+        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+        ps.setInt(3, messageId);
+        ps.executeUpdate();
+    }
+
+    @Override
+    public void softDeleteOwnMessage(int messageId, User player) throws SQLException {
+        Message existing = findById(messageId);
+        if (existing == null) {
+            throw new IllegalArgumentException("Message not found.");
+        }
+
+        if (!player.getEmail().equalsIgnoreCase(existing.getSenderEmail())) {
+            throw new SecurityException("You can only delete your own messages.");
+        }
+
+        String sql = """
+            UPDATE message
+            SET is_deleted = ?, edited_at = ?
+            WHERE id = ?
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setBoolean(1, true);
+        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+        ps.setInt(3, messageId);
+        ps.executeUpdate();
+    }
+
+    @Override
+    public void adminDeleteMessage(int messageId, User admin) throws SQLException {
+        if (!isAdmin(admin)) {
+            throw new SecurityException("Only admin can delete messages here.");
+        }
+
+        String sql = """
+            UPDATE message
+            SET is_deleted = ?, edited_at = ?
+            WHERE id = ?
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setBoolean(1, true);
+        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+        ps.setInt(3, messageId);
+        ps.executeUpdate();
+    }
+
+    @Override
+    public void adminRestoreMessage(int messageId, User admin) throws SQLException {
+        if (!isAdmin(admin)) {
+            throw new SecurityException("Only admin can restore messages.");
+        }
+
+        String sql = """
+            UPDATE message
+            SET is_deleted = ?, edited_at = ?
+            WHERE id = ?
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setBoolean(1, false);
+        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+        ps.setInt(3, messageId);
+        ps.executeUpdate();
+    }
+
+    private boolean isAdmin(User user) {
+        if (user == null || user.getRolesJson() == null) {
+            return false;
+        }
+
+        String roles = user.getRolesJson();
+        return roles.contains("ROLE_ADMIN") || roles.contains("ROLE_SUPER_ADMIN");
+    }
+
+    private Channel findChannelById(int id) throws SQLException {
+        String sql = "SELECT * FROM channel WHERE id = ?";
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Channel channel = new Channel();
+            channel.setId(rs.getInt("id"));
+            channel.setName(rs.getString("name"));
+            channel.setDescription(rs.getString("description"));
+            channel.setGame(rs.getString("game"));
+            channel.setType(rs.getString("type"));
+            channel.setStatus(rs.getString("status"));
+            channel.setActive(rs.getBoolean("is_active"));
+            channel.setImageUrl(rs.getString("image_url"));
+            channel.setCreatedAt(rs.getTimestamp("created_at"));
+            channel.setCreatedBy(rs.getString("created_by"));
+            channel.setApprovedBy(rs.getString("approved_by"));
+            channel.setApprovedAt(rs.getTimestamp("approved_at"));
+            channel.setRejectionReason(rs.getString("rejection_reason"));
+            return channel;
+        }
+        return null;
+    }
+
+    private Message mapMessage(ResultSet rs) throws SQLException {
+        Message message = new Message();
+        message.setId(rs.getInt("id"));
+        message.setContent(rs.getString("content"));
+        message.setSentAt(rs.getTimestamp("sent_at"));
+        message.setEditedAt(rs.getTimestamp("edited_at"));
+        message.setDeleted(rs.getBoolean("is_deleted"));
+        message.setSenderName(rs.getString("sender_name"));
+        message.setSenderEmail(rs.getString("sender_email"));
+        message.setChannelId(rs.getInt("channel_id"));
+        return message;
+    }
+}

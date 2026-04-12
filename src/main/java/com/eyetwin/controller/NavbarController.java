@@ -246,4 +246,18 @@ public class NavbarController {
             case "support"   -> {}
         }
     }
+
+    @FXML
+    private void goToCommunity() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) navHome.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

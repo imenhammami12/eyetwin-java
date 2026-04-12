@@ -297,4 +297,22 @@ public class SessionManager {
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }
+
+    public static boolean isPlainPlayer() {
+        if (currentUser == null || currentUser.getRolesJson() == null) return false;
+        String roles = currentUser.getRolesJson();
+
+        return roles.contains("ROLE_USER")
+                && !roles.contains("ROLE_COACH")
+                && !roles.contains("ROLE_ADMIN")
+                && !roles.contains("ROLE_SUPER_ADMIN");
+    }
+
+    public static boolean canManageCommunityChannels() {
+        return isAdmin() || isPlainPlayer();
+    }
+
+    public static boolean canWriteCommunityMessages() {
+        return isPlainPlayer();
+    }
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.CommunityController"
+            fx:id="rootContainer"
+            style="-fx-background-color: #080810;">
+
+    <top>
+        <fx:include source="navbar.fxml" />
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: #080810;
+                           -fx-background: #080810;
+                           -fx-border-color: transparent;">
+            <content>
+                <VBox spacing="0" style="-fx-background-color: #080810;">
+
+                    <StackPane prefHeight="220" style="-fx-background-color: #080810;">
+                        <Region style="-fx-background-color: rgba(8,8,16,0.96);" />
+
+                        <VBox alignment="CENTER_LEFT" spacing="12"
+                              style="-fx-padding: 30 36 0 36;">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8"
+                                      style="-fx-background-color: rgba(232,55,42,0.09);
+                                             -fx-border-color: rgba(232,55,42,0.28);
+                                             -fx-border-width:1;
+                                             -fx-border-radius:3;
+                                             -fx-background-radius:3;
+                                             -fx-padding: 4 12 4 12;
+                                             -fx-max-width:230;">
+                                    <children>
+                                        <Label text="●"
+                                               style="-fx-text-fill: #3dff8a; -fx-font-size:8;" />
+                                        <Label text="💬 Community Channels"
+                                               style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;" />
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="TOP_LEFT">
+                                    <children>
+                                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="lblPageTitle"
+                                                       text="Channels"
+                                                       style="-fx-font-family: 'Arial Black';
+                                                              -fx-font-size: 38;
+                                                              -fx-font-weight: bold;
+                                                              -fx-text-fill: #e8372a;
+                                                              -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.50), 28, 0, 0, 0);" />
+
+                                                <Label text="Join the community, create your own channel, and connect with other players."
+                                                       style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;" />
+                                            </children>
+                                        </VBox>
+
+                                        <Pane HBox.hgrow="ALWAYS" />
+
+                                        <Button fx:id="btnNewChannel"
+                                                text="⚡  New Channel"
+                                                onAction="#handleShowCreateForm"
+                                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                                                       -fx-text-fill: white;
+                                                       -fx-font-weight: bold;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 22 12 22;
+                                                       -fx-cursor: hand;" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </StackPane>
+
+                    <Region style="-fx-background-color: rgba(232,55,42,0.16);
+                                   -fx-pref-height: 1;
+                                   -fx-max-height: 1;" />
+
+                    <VBox style="-fx-background-color: #080810; -fx-padding: 28 36 54 36;">
+                        <children>
+                            <FlowPane fx:id="channelsContainer"
+                                      hgap="18"
+                                      vgap="18"
+                                      prefWrapLength="1120">
+                                <padding>
+                                    <Insets top="4" right="0" bottom="0" left="0"/>
+                                </padding>
+                            </FlowPane>
+                        </children>
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
