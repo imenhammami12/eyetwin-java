@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminAuditLogController"
+            style="-fx-background-color: #0a0514;">
+
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+
+    <center>
+        <VBox style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox spacing="16" style="-fx-padding: 24;">
+
+                    <!-- Back -->
+                    <Button text="← Back to Audit Logs" onAction="#goBackToList"
+                            style="-fx-background-color: rgba(255,255,255,0.05);
+                                   -fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8;
+                                   -fx-background-radius: 8; -fx-text-fill: rgba(255,255,255,0.7);
+                                   -fx-padding: 8 16; -fx-cursor: hand;"/>
+
+                    <HBox spacing="16" alignment="TOP_LEFT">
+
+                        <!-- LEFT card — identity -->
+                        <VBox spacing="14" prefWidth="310"
+                              style="-fx-background-color: rgba(255,255,255,0.02);
+                                     -fx-border-color: rgba(255,255,255,0.07);
+                                     -fx-border-radius: 14; -fx-background-radius: 14;
+                                     -fx-padding: 24; -fx-alignment: CENTER;">
+
+                            <!-- Icon avatar -->
+                            <StackPane prefWidth="90" prefHeight="90" alignment="CENTER">
+                                <Circle radius="45"
+                                        fill="linear-gradient(from 0% 0% to 100% 100%, #667eea, #764ba2)"/>
+                                <Label fx:id="detailActionIcon" text="📋"
+                                       style="-fx-font-size: 30;"/>
+                            </StackPane>
+
+                            <!-- Log ID badge -->
+                            <Label fx:id="detailIdLabel" text="#—"
+                                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+                            <!-- Action badge -->
+                            <HBox alignment="CENTER">
+                                <Label fx:id="detailActionBadge" text="ACTION"
+                                       style="-fx-background-color: rgba(79,172,254,0.15);
+                                              -fx-border-color: rgba(79,172,254,0.3);
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-text-fill: #4facfe; -fx-font-size: 12;
+                                              -fx-font-weight: bold; -fx-padding: 5 14;"/>
+                            </HBox>
+
+                            <Separator style="-fx-background-color: rgba(255,255,255,0.08);"/>
+
+                            <!-- Meta info rows -->
+                            <VBox spacing="10" fillWidth="true">
+                                <Label text="INFORMATION"
+                                       style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.4);
+                                              -fx-font-family: monospace;"/>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="User :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailUserLabel" text="—"
+                                           style="-fx-text-fill: #43e97b; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Email :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailEmailLabel" text="—"
+                                           style="-fx-text-fill: #4facfe; -fx-font-size: 12;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Entity :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailEntityLabel" text="—"
+                                           style="-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Entity ID :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailEntityIdLabel" text="—"
+                                           style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="IP Address :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailIpLabel" text="—"
+                                           style="-fx-text-fill: #fbbf24; -fx-font-size: 12;
+                                                  -fx-font-family: monospace;"/>
+                                </HBox>
+                            </VBox>
+
+                            <Separator style="-fx-background-color: rgba(255,255,255,0.08);"/>
+
+                            <!-- Timeline -->
+                            <VBox spacing="10" fillWidth="true">
+                                <Label text="TIMELINE"
+                                       style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.4);
+                                              -fx-font-family: monospace;"/>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Date :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailDateLabel" text="—"
+                                           style="-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Time :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailTimeLabel" text="—"
+                                           style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Day :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailDayLabel" text="—"
+                                           style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="Elapsed :"
+                                           style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12;"/>
+                                    <Label fx:id="detailElapsedLabel" text="—"
+                                           style="-fx-text-fill: #a78bfa; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- RIGHT — Details panel -->
+                        <VBox spacing="14" HBox.hgrow="ALWAYS">
+
+                            <!-- Details card -->
+                            <VBox spacing="0"
+                                  style="-fx-background-color: rgba(255,255,255,0.02);
+                                         -fx-border-color: rgba(255,255,255,0.07);
+                                         -fx-border-radius: 14; -fx-background-radius: 14;">
+                                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 14 16;">
+                                    <Label text="📝  Event Details"
+                                           style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                </HBox>
+                                <Separator style="-fx-background-color: rgba(255,255,255,0.07);"/>
+                                <VBox style="-fx-padding: 16;">
+                                    <TextArea fx:id="detailDetailsArea"
+                                              editable="false" wrapText="true"
+                                              prefRowCount="12"
+                                              style="-fx-background-color: rgba(30,15,45,0.95);
+                                                     -fx-text-fill: rgba(255,255,255,0.85);
+                                                     -fx-border-color: rgba(255,60,100,0.20);
+                                                     -fx-border-radius: 8; -fx-background-radius: 8;
+                                                     -fx-font-family: monospace; -fx-font-size: 12;
+                                                     -fx-padding: 14;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Summary card -->
+                            <VBox spacing="0"
+                                  style="-fx-background-color: rgba(255,255,255,0.02);
+                                         -fx-border-color: rgba(255,255,255,0.07);
+                                         -fx-border-radius: 14; -fx-background-radius: 14;">
+                                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 14 16;">
+                                    <Label text="🔍  Summary"
+                                           style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                </HBox>
+                                <Separator style="-fx-background-color: rgba(255,255,255,0.07);"/>
+                                <HBox spacing="0" style="-fx-padding: 16;" fillHeight="true">
+
+                                    <VBox spacing="4" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                        <Label text="ACTION"
+                                               style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                                      -fx-font-family: monospace;"/>
+                                        <Label fx:id="summaryActionLabel" text="—"
+                                               style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: white;
+                                                      -fx-wrap-text: true; -fx-text-alignment: center;"/>
+                                    </VBox>
+
+                                    <Region style="-fx-background-color: rgba(255,255,255,0.06);
+                                                   -fx-pref-width: 1; -fx-max-width: 1;"/>
+
+                                    <VBox spacing="4" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                        <Label text="ENTITY"
+                                               style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                                      -fx-font-family: monospace;"/>
+                                        <Label fx:id="summaryEntityLabel" text="—"
+                                               style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                    </VBox>
+
+                                    <Region style="-fx-background-color: rgba(255,255,255,0.06);
+                                                   -fx-pref-width: 1; -fx-max-width: 1;"/>
+
+                                    <VBox spacing="4" alignment="CENTER" HBox.hgrow="ALWAYS">
+                                        <Label text="PERFORMED BY"
+                                               style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                                      -fx-font-family: monospace;"/>
+                                        <Label fx:id="summaryUserLabel" text="—"
+                                               style="-fx-font-size: 18; -fx-font-weight: bold;
+                                                      -fx-text-fill: #43e97b;"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

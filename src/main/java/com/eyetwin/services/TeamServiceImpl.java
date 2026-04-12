@@ -12,15 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * TeamServiceImpl — implémentation de ITeamService.
- *
- * Fusionne l'ancien TeamDAO (accès SQL) + TeamService (logique métier).
- * Gère aussi l'upload de logo (uploads/teams/).
- */
 public class TeamServiceImpl implements ITeamService {
 
     private static final String UPLOAD_DIR = "uploads/teams/";
+
+    // ── Helper centralisé ────────────────────────────────────────────────────
+    private Connection getConnection() {
+        return DatabaseConfig.getInstance().getCnx();
+    }
 
     // ════════════════════════════════════════════════════════════
     //  INDEX / LISTING
@@ -42,21 +41,19 @@ public class TeamServiceImpl implements ITeamService {
             ORDER BY t.created_at DESC
             """;
         List<Team> teams = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Team t = mapTeam(rs);
-                    User owner = new User();
-                    owner.setId(t.getOwnerId());
-                    owner.setUsername(rs.getString("owner_username"));
-                    t.setOwner(owner);
-                    t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
-                    teams.add(t);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, userId);
+        ps.setInt(2, userId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Team t = mapTeam(rs);
+            User owner = new User();
+            owner.setId(t.getOwnerId());
+            owner.setUsername(rs.getString("owner_username"));
+            t.setOwner(owner);
+            t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
+            teams.add(t);
         }
         return teams;
     }
@@ -69,18 +66,17 @@ public class TeamServiceImpl implements ITeamService {
             WHERE t.is_active = 1 ORDER BY t.created_at DESC
             """;
         List<Team> teams = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Team t = mapTeam(rs);
-                User owner = new User();
-                owner.setId(t.getOwnerId());
-                owner.setUsername(rs.getString("owner_username"));
-                t.setOwner(owner);
-                t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
-                teams.add(t);
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Team t = mapTeam(rs);
+            User owner = new User();
+            owner.setId(t.getOwnerId());
+            owner.setUsername(rs.getString("owner_username"));
+            t.setOwner(owner);
+            t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
+            teams.add(t);
         }
         return teams;
     }
@@ -96,22 +92,20 @@ public class TeamServiceImpl implements ITeamService {
             ORDER BY tm.invited_at DESC
             """;
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    TeamMembership m = mapMembership(rs);
-                    Team t = new Team();
-                    t.setId(m.getTeamId());
-                    t.setName(rs.getString("team_name"));
-                    User owner = new User();
-                    owner.setUsername(rs.getString("owner_username"));
-                    t.setOwner(owner);
-                    m.setTeam(t);
-                    list.add(m);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            TeamMembership m = mapMembership(rs);
+            Team t = new Team();
+            t.setId(m.getTeamId());
+            t.setName(rs.getString("team_name"));
+            User owner = new User();
+            owner.setUsername(rs.getString("owner_username"));
+            t.setOwner(owner);
+            m.setTeam(t);
+            list.add(m);
         }
         return list;
     }
@@ -127,22 +121,20 @@ public class TeamServiceImpl implements ITeamService {
             ORDER BY tm.invited_at DESC
             """;
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    TeamMembership m = mapMembership(rs);
-                    Team t = new Team();
-                    t.setId(m.getTeamId());
-                    t.setName(rs.getString("team_name"));
-                    User owner = new User();
-                    owner.setUsername(rs.getString("owner_username"));
-                    t.setOwner(owner);
-                    m.setTeam(t);
-                    list.add(m);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            TeamMembership m = mapMembership(rs);
+            Team t = new Team();
+            t.setId(m.getTeamId());
+            t.setName(rs.getString("team_name"));
+            User owner = new User();
+            owner.setUsername(rs.getString("owner_username"));
+            t.setOwner(owner);
+            m.setTeam(t);
+            list.add(m);
         }
         return list;
     }
@@ -154,9 +146,8 @@ public class TeamServiceImpl implements ITeamService {
     @Override
     public Team createTeam(Team team, int ownerId, byte[] logoBytes, String logoExt)
             throws SQLException, IOException {
-        if (logoBytes != null && logoBytes.length > 0 && logoExt != null) {
+        if (logoBytes != null && logoBytes.length > 0 && logoExt != null)
             team.setLogo(saveLogo(logoBytes, logoExt));
-        }
         team.setOwnerId(ownerId);
         team.setActive(true);
         insertTeam(team);
@@ -168,7 +159,6 @@ public class TeamServiceImpl implements ITeamService {
         ownerMembership.setStatus(MembershipStatus.ACTIVE);
         ownerMembership.accept();
         insertMembership(ownerMembership);
-
         return team;
     }
 
@@ -192,7 +182,6 @@ public class TeamServiceImpl implements ITeamService {
         if (existing == null) throw new IllegalArgumentException("Team not found");
         if (existing.getOwnerId() != currentUserId)
             throw new SecurityException("You are not authorized to edit this team");
-
         if (logoBytes != null && logoBytes.length > 0 && logoExt != null) {
             if (existing.getLogo() != null) deleteLogo(existing.getLogo());
             team.setLogo(saveLogo(logoBytes, logoExt));
@@ -241,20 +230,18 @@ public class TeamServiceImpl implements ITeamService {
             ORDER BY tm.role = 'OWNER' DESC, tm.joined_at ASC
             """;
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    TeamMembership m = mapMembership(rs);
-                    User u = new User();
-                    u.setId(m.getUserId());
-                    u.setUsername(rs.getString("username"));
-                    u.setEmail(rs.getString("email"));
-                    m.setUser(u);
-                    list.add(m);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            TeamMembership m = mapMembership(rs);
+            User u = new User();
+            u.setId(m.getUserId());
+            u.setUsername(rs.getString("username"));
+            u.setEmail(rs.getString("email"));
+            m.setUser(u);
+            list.add(m);
         }
         return list;
     }
@@ -268,20 +255,18 @@ public class TeamServiceImpl implements ITeamService {
             ORDER BY tm.invited_at ASC
             """;
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    TeamMembership m = mapMembership(rs);
-                    User u = new User();
-                    u.setId(m.getUserId());
-                    u.setUsername(rs.getString("username"));
-                    u.setEmail(rs.getString("email"));
-                    m.setUser(u);
-                    list.add(m);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            TeamMembership m = mapMembership(rs);
+            User u = new User();
+            u.setId(m.getUserId());
+            u.setUsername(rs.getString("username"));
+            u.setEmail(rs.getString("email"));
+            m.setUser(u);
+            list.add(m);
         }
         return list;
     }
@@ -289,38 +274,32 @@ public class TeamServiceImpl implements ITeamService {
     @Override
     public int countActiveMembers(int teamId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE team_id = ? AND status = 'ACTIVE'";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() ? rs.getInt(1) : 0;
     }
 
     @Override
     public int countPendingRequests(int teamId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE team_id = ? AND status = 'PENDING'";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() ? rs.getInt(1) : 0;
     }
 
     @Override
     public boolean hasPendingRequest(int teamId, int userId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE team_id=? AND user_id=? AND status='PENDING'";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            ps.setInt(2, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ps.setInt(2, userId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() && rs.getInt(1) > 0;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -470,61 +449,55 @@ public class TeamServiceImpl implements ITeamService {
             throw new IllegalArgumentException("Query too short");
         String sql = "SELECT id, username, email FROM user WHERE (username LIKE ? OR email LIKE ?) LIMIT 10";
         List<User> users = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            String like = "%" + query + "%";
-            ps.setString(1, like);
-            ps.setString(2, like);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    User u = new User();
-                    u.setId(rs.getInt("id"));
-                    u.setUsername(rs.getString("username"));
-                    u.setEmail(rs.getString("email"));
-                    users.add(u);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        String like = "%" + query + "%";
+        ps.setString(1, like);
+        ps.setString(2, like);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            User u = new User();
+            u.setId(rs.getInt("id"));
+            u.setUsername(rs.getString("username"));
+            u.setEmail(rs.getString("email"));
+            users.add(u);
         }
         return users;
     }
 
     // ════════════════════════════════════════════════════════════
-    //  COMPTEURS (pour UserProfile)
+    //  COMPTEURS
     // ════════════════════════════════════════════════════════════
 
     @Override
     public int countOwnedTeams(int userId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team WHERE owner_id = ?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() ? rs.getInt(1) : 0;
     }
 
     @Override
     public int countMemberTeams(int userId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM team_membership WHERE user_id = ? AND status = 'ACTIVE'";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() ? rs.getInt(1) : 0;
     }
 
     @Override
     public int countUnreadNotifications(int userId) {
         String sql = "SELECT COUNT(*) FROM notification WHERE user_id = ? AND is_read = 0";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try {
+            Connection c = getConnection();
+            PreparedStatement ps = c.prepareStatement(sql);
             ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
             System.err.println("[TeamService] countUnreadNotifications: " + e.getMessage());
             return 0;
@@ -532,7 +505,7 @@ public class TeamServiceImpl implements ITeamService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  MÉTHODES SQL PRIVÉES (ex-DAO)
+    //  MÉTHODES SQL PRIVÉES
     // ════════════════════════════════════════════════════════════
 
     private int insertTeam(Team team) throws SQLException {
@@ -540,53 +513,55 @@ public class TeamServiceImpl implements ITeamService {
             INSERT INTO team (name, description, logo, created_at, max_members, is_active, owner_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, team.getName());
-            ps.setString(2, team.getDescription());
-            ps.setString(3, team.getLogo());
-            ps.setTimestamp(4, Timestamp.valueOf(
-                    team.getCreatedAt() != null ? team.getCreatedAt() : LocalDateTime.now()));
-            ps.setInt(5, team.getMaxMembers());
-            ps.setBoolean(6, team.isActive());
-            ps.setInt(7, team.getOwnerId());
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) { int id = rs.getInt(1); team.setId(id); return id; }
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, team.getName());
+        ps.setString(2, team.getDescription());
+        ps.setString(3, team.getLogo());
+        ps.setTimestamp(4, Timestamp.valueOf(
+                team.getCreatedAt() != null ? team.getCreatedAt() : LocalDateTime.now()));
+        ps.setInt(5, team.getMaxMembers());
+        ps.setBoolean(6, team.isActive());
+        ps.setInt(7, team.getOwnerId());
+        ps.executeUpdate();
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()) { int id = rs.getInt(1); team.setId(id); return id; }
         return -1;
     }
 
     private void updateTeamInDb(Team team) throws SQLException {
         String sql = "UPDATE team SET name=?, description=?, logo=?, max_members=?, is_active=? WHERE id=?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, team.getName());
-            ps.setString(2, team.getDescription());
-            ps.setString(3, team.getLogo());
-            ps.setInt(4, team.getMaxMembers());
-            ps.setBoolean(5, team.isActive());
-            ps.setInt(6, team.getId());
-            ps.executeUpdate();
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, team.getName());
+        ps.setString(2, team.getDescription());
+        ps.setString(3, team.getLogo());
+        ps.setInt(4, team.getMaxMembers());
+        ps.setBoolean(5, team.isActive());
+        ps.setInt(6, team.getId());
+        ps.executeUpdate();
     }
 
     private void deleteTeamCascade(int teamId) throws SQLException {
-        try (Connection c = DatabaseConfig.getConnection()) {
-            c.setAutoCommit(false);
-            try {
-                try (PreparedStatement ps = c.prepareStatement(
-                        "DELETE FROM team_membership WHERE team_id = ?")) {
-                    ps.setInt(1, teamId); ps.executeUpdate();
-                }
-                try (PreparedStatement ps = c.prepareStatement(
-                        "DELETE FROM team WHERE id = ?")) {
-                    ps.setInt(1, teamId); ps.executeUpdate();
-                }
-                c.commit();
-            } catch (SQLException e) { c.rollback(); throw e; }
-            finally { c.setAutoCommit(true); }
+        Connection c = getConnection();
+        c.setAutoCommit(false);
+        try {
+            PreparedStatement ps1 = c.prepareStatement(
+                    "DELETE FROM team_membership WHERE team_id = ?");
+            ps1.setInt(1, teamId);
+            ps1.executeUpdate();
+
+            PreparedStatement ps2 = c.prepareStatement(
+                    "DELETE FROM team WHERE id = ?");
+            ps2.setInt(1, teamId);
+            ps2.executeUpdate();
+
+            c.commit();
+        } catch (SQLException e) {
+            c.rollback();
+            throw e;
+        } finally {
+            c.setAutoCommit(true);
         }
     }
 
@@ -595,20 +570,18 @@ public class TeamServiceImpl implements ITeamService {
             SELECT t.*, u.username AS owner_username, u.email AS owner_email
             FROM team t INNER JOIN user u ON u.id = t.owner_id WHERE t.id = ?
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Team team = mapTeam(rs);
-                    User owner = new User();
-                    owner.setId(team.getOwnerId());
-                    owner.setUsername(rs.getString("owner_username"));
-                    owner.setEmail(rs.getString("owner_email"));
-                    team.setOwner(owner);
-                    return team;
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Team team = mapTeam(rs);
+            User owner = new User();
+            owner.setId(team.getOwnerId());
+            owner.setUsername(rs.getString("owner_username"));
+            owner.setEmail(rs.getString("owner_email"));
+            team.setOwner(owner);
+            return team;
         }
         return null;
     }
@@ -620,20 +593,18 @@ public class TeamServiceImpl implements ITeamService {
             WHERE t.owner_id = ? ORDER BY t.created_at DESC
             """;
         List<Team> teams = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, ownerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Team t = mapTeam(rs);
-                    User owner = new User();
-                    owner.setId(t.getOwnerId());
-                    owner.setUsername(rs.getString("owner_username"));
-                    t.setOwner(owner);
-                    t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
-                    teams.add(t);
-                }
-            }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, ownerId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Team t = mapTeam(rs);
+            User owner = new User();
+            owner.setId(t.getOwnerId());
+            owner.setUsername(rs.getString("owner_username"));
+            t.setOwner(owner);
+            t.setTeamMemberships(findMembershipsByTeamId(t.getId()));
+            teams.add(t);
         }
         return teams;
     }
@@ -643,64 +614,56 @@ public class TeamServiceImpl implements ITeamService {
             INSERT INTO team_membership (team_id, user_id, role, status, invited_at, joined_at)
             VALUES (?, ?, ?, ?, ?, ?)
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, m.getTeamId());
-            ps.setInt(2, m.getUserId());
-            ps.setString(3, m.getRole().name());
-            ps.setString(4, m.getStatus().name());
-            ps.setTimestamp(5, m.getInvitedAt() != null ? Timestamp.valueOf(m.getInvitedAt()) : null);
-            ps.setTimestamp(6, m.getJoinedAt()  != null ? Timestamp.valueOf(m.getJoinedAt())  : null);
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) { int id = rs.getInt(1); m.setId(id); return id; }
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, m.getTeamId());
+        ps.setInt(2, m.getUserId());
+        ps.setString(3, m.getRole().name());
+        ps.setString(4, m.getStatus().name());
+        ps.setTimestamp(5, m.getInvitedAt() != null ? Timestamp.valueOf(m.getInvitedAt()) : null);
+        ps.setTimestamp(6, m.getJoinedAt()  != null ? Timestamp.valueOf(m.getJoinedAt())  : null);
+        ps.executeUpdate();
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()) { int id = rs.getInt(1); m.setId(id); return id; }
         return -1;
     }
 
     private void updateMembership(TeamMembership m) throws SQLException {
         String sql = "UPDATE team_membership SET status=?, joined_at=? WHERE id=?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, m.getStatus().name());
-            ps.setTimestamp(2, m.getJoinedAt() != null ? Timestamp.valueOf(m.getJoinedAt()) : null);
-            ps.setInt(3, m.getId());
-            ps.executeUpdate();
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, m.getStatus().name());
+        ps.setTimestamp(2, m.getJoinedAt() != null ? Timestamp.valueOf(m.getJoinedAt()) : null);
+        ps.setInt(3, m.getId());
+        ps.executeUpdate();
     }
 
     private void deleteMembership(int membershipId) throws SQLException {
         String sql = "DELETE FROM team_membership WHERE id = ?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, membershipId);
-            ps.executeUpdate();
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, membershipId);
+        ps.executeUpdate();
     }
 
     private TeamMembership findMembershipById(int id) throws SQLException {
         String sql = "SELECT * FROM team_membership WHERE id = ?";
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return mapMembership(rs);
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return mapMembership(rs);
         return null;
     }
 
     private List<TeamMembership> findMembershipsByTeamId(int teamId) throws SQLException {
         String sql = "SELECT * FROM team_membership WHERE team_id = ?";
         List<TeamMembership> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapMembership(rs));
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) list.add(mapMembership(rs));
         return list;
     }
 
@@ -709,13 +672,12 @@ public class TeamServiceImpl implements ITeamService {
             SELECT COUNT(*) FROM team_membership
             WHERE team_id = ? AND user_id = ? AND status IN ('ACTIVE','INVITED','PENDING')
             """;
-        try (Connection c = DatabaseConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, teamId); ps.setInt(2, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
-            }
-        }
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, teamId);
+        ps.setInt(2, userId);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() && rs.getInt(1) > 0;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -736,7 +698,7 @@ public class TeamServiceImpl implements ITeamService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  MAPPING ResultSet → Entités
+    //  MAPPING
     // ════════════════════════════════════════════════════════════
 
     private Team mapTeam(ResultSet rs) throws SQLException {
