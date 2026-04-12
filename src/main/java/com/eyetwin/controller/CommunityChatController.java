@@ -1,0 +1,484 @@
+package com.eyetwin.controller;
+
+import com.eyetwin.entities.Community.Channel;
+import com.eyetwin.entities.Community.Message;
+import com.eyetwin.entities.User;
+import com.eyetwin.services.Community.MessageServiceImpl;
+import com.eyetwin.tools.CommunityValidator;
+import com.eyetwin.tools.SessionManager;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+public class CommunityChatController {
+
+    @FXML private Label lblChannelName;
+    @FXML private Label lblChannelDescription;
+    @FXML private Label lblChannelStatus;
+    @FXML private VBox messagesContainer;
+    @FXML private TextArea taNewMessage;
+    @FXML private Button btnSend;
+    @FXML private VBox composerBox;
+    @FXML private Label lblComposerInfo;
+
+    private final MessageServiceImpl messageService = new MessageServiceImpl();
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private Channel channel;
+    private Integer editingMessageId = null;
+    private Integer actionMenuMessageId = null;
+    private Integer deleteConfirmMessageId = null;
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+        refreshHeader();
+        refreshComposerVisibility();
+        loadMessages();
+    }
+
+    @FXML
+    public void initialize() {
+        refreshHeader();
+        refreshComposerVisibility();
+    }
+
+    private void refreshHeader() {
+        if (channel == null) return;
+
+        if (lblChannelName != null) {
+            lblChannelName.setText(channel.getName());
+        }
+
+        if (lblChannelDescription != null) {
+            String desc = (channel.getDescription() == null || channel.getDescription().isBlank())
+                    ? "No description."
+                    : channel.getDescription();
+            lblChannelDescription.setText(desc);
+        }
+
+        if (lblChannelStatus != null) {
+            lblChannelStatus.setText(channel.getStatus().toUpperCase());
+
+            String style = switch (channel.getStatus().toLowerCase()) {
+                case "approved" ->
+                        "-fx-text-fill:#00e676; -fx-border-color:rgba(0,230,118,0.35); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:6 14 6 14; -fx-font-size:11; -fx-font-weight:bold;";
+                case "pending" ->
+                        "-fx-text-fill:#f6d860; -fx-border-color:rgba(246,216,96,0.35); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:6 14 6 14; -fx-font-size:11; -fx-font-weight:bold;";
+                case "rejected" ->
+                        "-fx-text-fill:#ff4d3d; -fx-border-color:rgba(232,55,42,0.35); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:6 14 6 14; -fx-font-size:11; -fx-font-weight:bold;";
+                default ->
+                        "-fx-text-fill:white; -fx-border-color:rgba(255,255,255,0.25); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:6 14 6 14; -fx-font-size:11; -fx-font-weight:bold;";
+            };
+
+            lblChannelStatus.setStyle(style);
+        }
+    }
+
+    private void refreshComposerVisibility() {
+        boolean canWrite = SessionManager.canWriteCommunityMessages();
+
+        if (composerBox != null) {
+            composerBox.setVisible(canWrite);
+            composerBox.setManaged(canWrite);
+        }
+
+        if (lblComposerInfo != null) {
+            if (SessionManager.getCurrentUser() == null) {
+                lblComposerInfo.setText("Sign in as a player to send messages.");
+            } else if (!SessionManager.canWriteCommunityMessages()) {
+                lblComposerInfo.setText("Only a plain player can write messages here.");
+            } else {
+                lblComposerInfo.setText("");
+            }
+
+            boolean showInfo = !canWrite;
+            lblComposerInfo.setVisible(showInfo);
+            lblComposerInfo.setManaged(showInfo);
+        }
+    }
+
+    private void loadMessages() {
+        if (channel == null || messagesContainer == null) return;
+
+        messagesContainer.getChildren().clear();
+
+        try {
+            List<Message> messages = messageService.findByChannel(channel.getId());
+
+            if (messages.isEmpty()) {
+                VBox emptyBox = new VBox(8);
+                emptyBox.setPadding(new Insets(18));
+                emptyBox.setStyle(
+                        "-fx-background-color: rgba(255,255,255,0.02);" +
+                                "-fx-border-color: rgba(255,255,255,0.06);" +
+                                "-fx-border-radius: 12;" +
+                                "-fx-background-radius: 12;"
+                );
+
+                Label title = new Label("No messages yet");
+                title.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+                Label subtitle = new Label("Be the first to start the discussion.");
+                subtitle.setStyle("-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12px;");
+
+                emptyBox.getChildren().addAll(title, subtitle);
+                messagesContainer.getChildren().add(emptyBox);
+                return;
+            }
+
+            for (Message message : messages) {
+                messagesContainer.getChildren().add(buildMessageRow(message));
+            }
+
+        } catch (SQLException e) {
+            showError("Failed to load messages: " + e.getMessage());
+        }
+    }
+
+    private HBox buildMessageRow(Message message) {
+        User currentUser = SessionManager.getCurrentUser();
+        boolean isMine = currentUser != null
+                && message.getSenderEmail() != null
+                && message.getSenderEmail().equalsIgnoreCase(currentUser.getEmail());
+
+        HBox row = new HBox();
+        row.setPadding(new Insets(4, 0, 4, 0));
+        row.setAlignment(isMine ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+
+        VBox wrapper = new VBox(6);
+        wrapper.setAlignment(isMine ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+        wrapper.setMaxWidth(560);
+
+        VBox bubble = new VBox(8);
+        bubble.setMaxWidth(540);
+        bubble.setPadding(new Insets(14));
+        bubble.setStyle(
+                isMine
+                        ? "-fx-background-color: rgba(232,55,42,0.12);" +
+                        "-fx-border-color: rgba(232,55,42,0.26);" +
+                        "-fx-border-radius: 14;" +
+                        "-fx-background-radius: 14;"
+                        : "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.07);" +
+                        "-fx-border-radius: 14;" +
+                        "-fx-background-radius: 14;"
+        );
+
+        HBox top = new HBox();
+        top.setAlignment(Pos.CENTER_LEFT);
+
+        Label sender = new Label(message.getSenderName() == null ? "Unknown" : message.getSenderName());
+        sender.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label date = new Label(formatTimestamp(message.getSentAt()));
+        date.setStyle("-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 10px;");
+
+        top.getChildren().addAll(sender, spacer, date);
+
+        if (isMine && !message.isDeleted() && SessionManager.canWriteCommunityMessages()) {
+            Button btnMenu = new Button("⋮");
+            btnMenu.setStyle(
+                    "-fx-background-color: transparent;" +
+                            "-fx-text-fill: rgba(255,255,255,0.70);" +
+                            "-fx-font-size: 15px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-padding: 0 0 0 8;"
+            );
+            btnMenu.setOnAction(e -> {
+                if (actionMenuMessageId != null && actionMenuMessageId.equals(message.getId())) {
+                    actionMenuMessageId = null;
+                } else {
+                    actionMenuMessageId = message.getId();
+                    deleteConfirmMessageId = null;
+                }
+                loadMessages();
+            });
+            top.getChildren().add(btnMenu);
+        }
+
+        bubble.getChildren().add(top);
+
+        if (editingMessageId != null && editingMessageId == message.getId()) {
+            bubble.getChildren().add(buildInlineEditBox(message));
+        } else {
+            Label content = new Label(message.getDisplayContent());
+            content.setWrapText(true);
+
+            if (message.isDeleted()) {
+                content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
+            } else {
+                content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+            }
+
+            bubble.getChildren().add(content);
+        }
+
+        wrapper.getChildren().add(bubble);
+
+        if (isMine && !message.isDeleted() && actionMenuMessageId != null && actionMenuMessageId == message.getId()) {
+            wrapper.getChildren().add(buildMessageActionMenu(message, isMine));
+        }
+
+        if (isMine && !message.isDeleted() && deleteConfirmMessageId != null && deleteConfirmMessageId == message.getId()) {
+            wrapper.getChildren().add(buildInlineDeleteConfirm(message, isMine));
+        }
+
+        row.getChildren().add(wrapper);
+        return row;
+    }
+
+    private VBox buildInlineEditBox(Message message) {
+        VBox box = new VBox(8);
+
+        TextArea editArea = new TextArea(message.getContent());
+        editArea.setWrapText(true);
+        editArea.setPrefRowCount(3);
+        editArea.setStyle(
+                "-fx-control-inner-background: #14192b;" +
+                        "-fx-background-color: #14192b;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-prompt-text-fill: #9CA3AF;" +
+                        "-fx-highlight-fill: rgba(232,55,42,0.35);" +
+                        "-fx-highlight-text-fill: white;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-border-color: rgba(255,255,255,0.08);"
+        );
+
+        Label error = new Label();
+        error.setStyle("-fx-text-fill: #ff7b7b; -fx-font-size: 11px;");
+        error.setVisible(false);
+        error.setManaged(false);
+
+        HBox actions = new HBox(8);
+
+        Button btnSave = new Button("Save");
+        btnSave.setStyle(
+                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-cursor: hand;"
+        );
+
+        Button btnCancel = new Button("Cancel");
+        btnCancel.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.08);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-cursor: hand;"
+        );
+
+        btnSave.setOnAction(e -> {
+            try {
+                String validation = CommunityValidator.validateMessageContent(editArea.getText());
+                if (validation != null) {
+                    error.setText(validation);
+                    error.setVisible(true);
+                    error.setManaged(true);
+                    return;
+                }
+
+                messageService.updateOwnMessage(message.getId(), editArea.getText(), SessionManager.getCurrentUser());
+                editingMessageId = null;
+                actionMenuMessageId = null;
+                deleteConfirmMessageId = null;
+                loadMessages();
+
+            } catch (Exception ex) {
+                error.setText(ex.getMessage());
+                error.setVisible(true);
+                error.setManaged(true);
+            }
+        });
+
+        btnCancel.setOnAction(e -> {
+            editingMessageId = null;
+            loadMessages();
+        });
+
+        actions.getChildren().addAll(btnSave, btnCancel);
+        box.getChildren().addAll(editArea, error, actions);
+        return box;
+    }
+
+    private VBox buildMessageActionMenu(Message message, boolean isMine) {
+        VBox menu = new VBox(6);
+        menu.setPadding(new Insets(8));
+        menu.setMaxWidth(170);
+        menu.setStyle(
+                "-fx-background-color: #141821;" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        Button editBtn = new Button("✏ Edit");
+        editBtn.setMaxWidth(Double.MAX_VALUE);
+        editBtn.setAlignment(Pos.CENTER_LEFT);
+        editBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 8 10 8 10;" +
+                        "-fx-cursor: hand;"
+        );
+        editBtn.setOnAction(e -> {
+            editingMessageId = message.getId();
+            actionMenuMessageId = null;
+            deleteConfirmMessageId = null;
+            loadMessages();
+        });
+
+        Button deleteBtn = new Button("🗑 Delete");
+        deleteBtn.setMaxWidth(Double.MAX_VALUE);
+        deleteBtn.setAlignment(Pos.CENTER_LEFT);
+        deleteBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: #ff6b6b;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 8 10 8 10;" +
+                        "-fx-cursor: hand;"
+        );
+        deleteBtn.setOnAction(e -> {
+            actionMenuMessageId = null;
+            deleteConfirmMessageId = message.getId();
+            loadMessages();
+        });
+
+        menu.getChildren().addAll(editBtn, deleteBtn);
+        return menu;
+    }
+
+    private VBox buildInlineDeleteConfirm(Message message, boolean isMine) {
+        VBox confirmBox = new VBox(8);
+        confirmBox.setPadding(new Insets(10));
+        confirmBox.setMaxWidth(240);
+        confirmBox.setStyle(
+                "-fx-background-color: #141821;" +
+                        "-fx-border-color: rgba(232,55,42,0.20);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        Label text = new Label("Delete this message?");
+        text.setWrapText(true);
+        text.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+        HBox actions = new HBox(8);
+
+        Button deleteBtn = new Button("Delete");
+        deleteBtn.setStyle(
+                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 8 14 8 14;" +
+                        "-fx-cursor: hand;"
+        );
+        deleteBtn.setOnAction(e -> {
+            try {
+                messageService.softDeleteOwnMessage(message.getId(), SessionManager.getCurrentUser());
+                deleteConfirmMessageId = null;
+                actionMenuMessageId = null;
+                editingMessageId = null;
+                loadMessages();
+            } catch (Exception ex) {
+                showError("Failed to delete message: " + ex.getMessage());
+            }
+        });
+
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.08);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 8 14 8 14;" +
+                        "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnAction(e -> {
+            deleteConfirmMessageId = null;
+            loadMessages();
+        });
+
+        actions.getChildren().addAll(deleteBtn, cancelBtn);
+        confirmBox.getChildren().addAll(text, actions);
+        return confirmBox;
+    }
+
+    @FXML
+    private void handleSendMessage() {
+        if (channel == null) return;
+
+        try {
+            if (!SessionManager.canWriteCommunityMessages()) {
+                showError("Only a plain player can send messages.");
+                return;
+            }
+
+            String validation = CommunityValidator.validateMessageContent(taNewMessage.getText());
+            if (validation != null) {
+                showError(validation);
+                return;
+            }
+
+            messageService.sendMessage(channel.getId(), taNewMessage.getText(), SessionManager.getCurrentUser());
+            taNewMessage.clear();
+            editingMessageId = null;
+            actionMenuMessageId = null;
+            deleteConfirmMessageId = null;
+            loadMessages();
+
+        } catch (Exception e) {
+            showError("Failed to send message: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) lblChannelName.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            showError("Failed to go back: " + e.getMessage());
+        }
+    }
+
+    private String formatTimestamp(Timestamp timestamp) {
+        if (timestamp == null) return "";
+        return DATE_FMT.format(timestamp.toLocalDateTime());
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+}

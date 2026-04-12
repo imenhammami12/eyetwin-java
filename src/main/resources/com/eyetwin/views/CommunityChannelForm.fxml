@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.CommunityChannelFormController"
+      spacing="16"
+      prefWidth="760"
+      prefHeight="560"
+      style="-fx-background-color: linear-gradient(to bottom right, #090f22, #12081a);
+             -fx-padding: 34;
+             -fx-border-color: rgba(255,70,70,0.24);
+             -fx-border-radius: 22;
+             -fx-background-radius: 22;">
+
+    <children>
+        <Label text="Create a Channel"
+               style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+
+        <HBox spacing="16">
+            <children>
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Name" style="-fx-text-fill: white; -fx-font-size: 16px;" />
+                        <TextField fx:id="tfName"
+                                   promptText="channel name"
+                                   style="-fx-background-color: rgba(255,255,255,0.08);
+                                          -fx-text-fill: white;
+                                          -fx-prompt-text-fill: #9CA3AF;
+                                          -fx-background-radius: 12;
+                                          -fx-border-radius: 12;
+                                          -fx-padding: 14;" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Game" style="-fx-text-fill: white; -fx-font-size: 16px;" />
+                        <TextField fx:id="tfGame"
+                                   promptText="Valorant, LoL..."
+                                   style="-fx-background-color: rgba(255,255,255,0.08);
+                                          -fx-text-fill: white;
+                                          -fx-prompt-text-fill: #9CA3AF;
+                                          -fx-background-radius: 12;
+                                          -fx-border-radius: 12;
+                                          -fx-padding: 14;" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <VBox spacing="8">
+            <children>
+                <Label text="Description" style="-fx-text-fill: white; -fx-font-size: 16px;" />
+                <TextArea fx:id="taDescription"
+                          promptText="Describe your channel..."
+                          prefRowCount="7"
+                          wrapText="true"
+                          style="-fx-control-inner-background: #14192b;
+                                 -fx-background-color: #14192b;
+                                 -fx-text-fill: white;
+                                 -fx-prompt-text-fill: #9CA3AF;
+                                 -fx-highlight-fill: rgba(232,55,42,0.35);
+                                 -fx-highlight-text-fill: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-radius: 12;
+                                 -fx-border-color: rgba(255,255,255,0.08);" />
+            </children>
+        </VBox>
+
+        <VBox spacing="8">
+            <children>
+                <Label text="Type" style="-fx-text-fill: white; -fx-font-size: 16px;" />
+                <ComboBox fx:id="cbType"
+                          prefWidth="260"
+                          style="-fx-background-color: rgba(255,255,255,0.08);
+                                 -fx-text-fill: white;
+                                 -fx-background-radius: 12;
+                                 -fx-border-radius: 12;" />
+            </children>
+        </VBox>
+
+        <Label fx:id="lblFormError"
+               textFill="#ff7b7b"
+               wrapText="true"
+               style="-fx-font-size: 13px;" />
+
+        <Pane VBox.vgrow="ALWAYS" />
+
+        <HBox spacing="14">
+            <children>
+                <Button text="Create"
+                        onAction="#handleCreate"
+                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 15px;
+                               -fx-background-radius: 12;
+                               -fx-padding: 14 28 14 28;
+                               -fx-cursor: hand;" />
+
+                <Button text="Cancel"
+                        onAction="#handleCancel"
+                        style="-fx-background-color: rgba(255,255,255,0.10);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 15px;
+                               -fx-background-radius: 12;
+                               -fx-padding: 14 28 14 28;
+                               -fx-cursor: hand;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
