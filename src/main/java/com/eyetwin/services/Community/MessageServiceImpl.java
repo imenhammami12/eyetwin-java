@@ -5,6 +5,7 @@ import com.eyetwin.entities.Community.Message;
 import com.eyetwin.entities.User;
 import com.eyetwin.interfaces.Community.IMessageService;
 import com.eyetwin.tools.DatabaseConfig;
+import com.eyetwin.entities.Community.AdminChannelMessageStat;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -89,6 +90,111 @@ public class MessageServiceImpl implements IMessageService {
         while (rs.next()) {
             messages.add(mapMessage(rs));
         }
+        return messages;
+    }
+
+    @Override
+    public List<AdminChannelMessageStat> findAdminChannelStats(String search) throws SQLException {
+        List<AdminChannelMessageStat> items = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT
+            c.id AS channel_id,
+            c.name AS channel_name,
+            c.game,
+            c.type,
+            COUNT(m.id) AS total_messages,
+            SUM(CASE WHEN m.is_deleted = 1 THEN 1 ELSE 0 END) AS deleted_messages
+        FROM channel c
+        LEFT JOIN message m ON m.channel_id = c.id
+        WHERE 1=1
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND (c.name LIKE ? OR c.game LIKE ?)");
+            String pattern = "%" + search.trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        sql.append("""
+        GROUP BY c.id, c.name, c.game, c.type
+        HAVING COUNT(m.id) > 0
+        ORDER BY total_messages DESC, c.name ASC
+        """);
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql.toString());
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            AdminChannelMessageStat item = new AdminChannelMessageStat();
+            item.setChannelId(rs.getInt("channel_id"));
+            item.setChannelName(rs.getString("channel_name"));
+            item.setGame(rs.getString("game"));
+            item.setType(rs.getString("type"));
+            item.setTotalMessages(rs.getInt("total_messages"));
+            item.setDeletedMessages(rs.getInt("deleted_messages"));
+            items.add(item);
+        }
+
+        return items;
+    }
+
+    @Override
+    public List<Message> findAdminMessagesByChannel(int channelId, String search, String status, String sort) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT m.*, c.name AS channel_name
+        FROM message m
+        INNER JOIN channel c ON c.id = m.channel_id
+        WHERE m.channel_id = ?
+        """);
+
+        List<Object> params = new ArrayList<>();
+        params.add(channelId);
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND (m.content LIKE ? OR m.sender_name LIKE ? OR m.sender_email LIKE ?)");
+            String pattern = "%" + search.trim() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+
+        if (status != null && !status.trim().isEmpty() && !"all".equalsIgnoreCase(status.trim())) {
+            if ("deleted".equalsIgnoreCase(status.trim())) {
+                sql.append(" AND m.is_deleted = 1");
+            } else if ("active".equalsIgnoreCase(status.trim())) {
+                sql.append(" AND m.is_deleted = 0");
+            }
+        }
+
+        if ("oldest".equalsIgnoreCase(sort)) {
+            sql.append(" ORDER BY m.sent_at ASC, m.id ASC");
+        } else {
+            sql.append(" ORDER BY m.sent_at DESC, m.id DESC");
+        }
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql.toString());
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            messages.add(mapMessage(rs));
+        }
+
         return messages;
     }
 
