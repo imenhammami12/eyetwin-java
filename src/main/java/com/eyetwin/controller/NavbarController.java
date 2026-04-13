@@ -13,8 +13,28 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
-public class NavbarController {
+import com.eyetwin.entities.Community.AppNotification;
+import com.eyetwin.services.Community.NotificationServiceImpl;
 
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+
+import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
+
+
+public class NavbarController {
+    private final NotificationServiceImpl notificationService = new NotificationServiceImpl();
+    private static final SimpleDateFormat NOTIF_DATE_FMT = new SimpleDateFormat("dd/MM HH:mm");
+
+    private static final String NAVBAR_POPUP_CSS = "/com/eyetwin/assets/css/navbar-popups.css";
     // ── Zones ──
     @FXML private HBox loggedInZone;
     @FXML private HBox guestZone;
@@ -57,6 +77,11 @@ public class NavbarController {
         User user = SessionManager.getCurrentUser();
         if (user != null) setupLoggedIn(user);
         else              setupGuest();
+
+        Platform.runLater(() -> {
+            attachNavbarCssToScene();
+            styleStaticMenuItems();
+        });
     }
 
     // ════════════════════════════════════════════
@@ -91,7 +116,7 @@ public class NavbarController {
         if (profileAdminItem != null) profileAdminItem.setVisible(isAdmin);
         if (profileAdminSep  != null) profileAdminSep.setVisible(isAdmin);
 
-        updateNotifBadge(0);
+        loadNotifications(user);
         show(navUploaderMenu);
         show(navHighlights);
     }
@@ -130,10 +155,21 @@ public class NavbarController {
     }
 
     private void handleNotifAction(String action) {
-        if      (action.contains("team"))    goToTeams();
-        else if (action.contains("profile")) goToProfile();
-        else if (action.contains("tournoi")) goToTournois();
-        else if (action.contains("support")) goToSupport();
+        if (action == null || action.isBlank()) return;
+
+        String v = action.toLowerCase();
+
+        if (v.contains("team")) {
+            goToTeams();
+        } else if (v.contains("profile")) {
+            goToProfile();
+        } else if (v.contains("tournoi")) {
+            goToTournois();
+        } else if (v.contains("support")) {
+            goToSupport();
+        } else if (v.contains("channel") || v.contains("community")) {
+            goToCommunity();
+        }
     }
 
     // ════════════════════════════════════════════
@@ -245,5 +281,305 @@ public class NavbarController {
             case "community" -> { if (navCommunity != null) navCommunity.setStyle(active); }
             case "support"   -> {}
         }
+    }
+
+    @FXML
+    private void goToCommunity() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) navHome.getScene().getWindow();
+            Scene currentScene = stage.getScene();
+            Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
+
+            if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+                newScene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
+
+            stage.setScene(newScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadNotifications(User user) {
+        if (user == null || navNotifMenu == null) return;
+
+        try {
+            // keep only fixed items first
+            navNotifMenu.getItems().clear();
+
+            if (notifHeaderItem == null) {
+                notifHeaderItem = new MenuItem("Notifications");
+                notifHeaderItem.setDisable(true);
+            }
+            if (notifEmptyItem == null) {
+                notifEmptyItem = new MenuItem("No notifications");
+                notifEmptyItem.setDisable(true);
+            }
+
+            navNotifMenu.getItems().add(notifHeaderItem);
+
+            List<AppNotification> notifications = notificationService.findByUser(user.getId());
+            int unreadCount = notificationService.countUnreadByUser(user.getId());
+
+            if (notifications.isEmpty()) {
+                navNotifMenu.getItems().add(notifEmptyItem);
+            } else {
+                CustomMenuItem deleteAllItem = buildDeleteAllMenuItem();
+                navNotifMenu.getItems().add(deleteAllItem);
+                navNotifMenu.getItems().add(new SeparatorMenuItem());
+
+                for (AppNotification notif : notifications) {
+                    navNotifMenu.getItems().add(buildNotificationMenuItem(notif));
+                }
+            }
+
+//           navNotifMenu.getItems().add(new SeparatorMenuItem());
+//
+//            MenuItem markInfo = new MenuItem("Recent notifications");
+//            markInfo.setDisable(true);
+//            navNotifMenu.getItems().add(markInfo);
+
+            updateNotifBadge(unreadCount);
+
+        } catch (SQLException e) {
+            System.err.println("[NavbarController] Failed to load notifications: " + e.getMessage());
+            updateNotifBadge(0);
+        }
+    }
+
+    private String formatNotifText(AppNotification notif) {
+        String date = notif.getCreatedAt() == null ? "" : "  •  " + NOTIF_DATE_FMT.format(notif.getCreatedAt());
+        String prefix = notif.isRead() ? "" : "• ";
+        return prefix + notif.getMessage() + date;
+    }
+
+    private void handleNotificationClick(AppNotification notif) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null || notif == null) return;
+
+        try {
+            if (!notif.isRead()) {
+                notificationService.markAsRead(notif.getId(), user.getId());
+            }
+        } catch (SQLException e) {
+            System.err.println("[NavbarController] Failed to mark notification as read: " + e.getMessage());
+        }
+
+        // reload badge/menu after click
+        loadNotifications(user);
+
+        // basic navigation
+        if (notif.getType() != null) {
+            switch (notif.getType()) {
+                case AppNotification.CHANNEL_APPROVED, AppNotification.CHANNEL_REJECTED -> goToCommunity();
+                default -> handleNotifAction(notif.getLink());
+            }
+        } else {
+            handleNotifAction(notif.getLink());
+        }
+    }
+
+    private void attachNavbarCssToScene() {
+        Stage stage = resolveStage();
+        if (stage == null || stage.getScene() == null) return;
+
+        String css = getClass().getResource(NAVBAR_POPUP_CSS).toExternalForm();
+        if (!stage.getScene().getStylesheets().contains(css)) {
+            stage.getScene().getStylesheets().add(css);
+        }
+    }
+
+    private void styleStaticMenuItems() {
+        if (notifHeaderItem != null) {
+            notifHeaderItem.getStyleClass().add("notif-header-item");
+        }
+
+        if (profileHeaderItem != null) {
+            profileHeaderItem.getStyleClass().add("profile-header-item");
+        }
+
+        if (profileStatsItem != null) {
+            profileStatsItem.getStyleClass().add("profile-stats-item");
+        }
+
+        if (profileAdminItem != null) {
+            profileAdminItem.getStyleClass().add("admin-item");
+        }
+
+        // logout item is not fx:id in your current file, so we leave it unless you want to add one later
+    }
+
+    private CustomMenuItem buildNotificationMenuItem(AppNotification notif) {
+        HBox root = new HBox(8);
+        root.setPrefWidth(250);
+        root.setMinWidth(250);
+        root.setMaxWidth(250);
+        root.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        root.setStyle("-fx-background-color: transparent; -fx-padding: 6 8 6 8;");
+
+        Label dot = new Label(notif.isRead() ? " " : "•");
+        dot.setStyle(
+                notif.isRead()
+                        ? "-fx-text-fill: transparent; -fx-font-size: 12px;"
+                        : "-fx-text-fill: #ff5b57; -fx-font-size: 12px; -fx-font-weight: bold;"
+        );
+
+        VBox textBox = new VBox(4);
+        textBox.setPrefWidth(185);
+        textBox.setMinWidth(185);
+        textBox.setMaxWidth(185);
+
+        Label message = new Label(shortenNotif(notif.getMessage(), 95));
+        message.setWrapText(true);
+        message.setPrefWidth(185);
+        message.setMinWidth(185);
+        message.setMaxWidth(185);
+        message.setStyle(
+                "-fx-text-fill: " + (notif.isRead() ? "rgba(255,255,255,0.78)" : "white") + ";" +
+                        "-fx-font-size: 12px;" +
+                        (notif.isRead() ? "" : "-fx-font-weight: bold;")
+        );
+
+        Label date = new Label(
+                notif.getCreatedAt() == null ? "" : NOTIF_DATE_FMT.format(notif.getCreatedAt())
+        );
+        date.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 10px;");
+
+        textBox.getChildren().addAll(message, date);
+
+        Button btnDelete = new Button("✕");
+        btnDelete.setFocusTraversable(false);
+        btnDelete.setMinSize(24, 24);
+        btnDelete.setPrefSize(24, 24);
+        btnDelete.setMaxSize(24, 24);
+        btnDelete.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(251,113,133,0.40);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #fb7185;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-family: 'Arial';" +
+                        "-fx-cursor: hand;" +
+                        "-fx-padding: 0;" +
+                        "-fx-alignment: center;"
+        );
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        root.getChildren().addAll(dot, textBox, spacer, btnDelete);
+
+        CustomMenuItem item = new CustomMenuItem(root, false);
+        item.setHideOnClick(false);
+
+        btnDelete.setOnAction(e -> {
+            e.consume();
+            deleteSingleNotification(notif, item);
+        });
+
+        root.setOnMouseClicked(e -> {
+            if (e.getTarget() == btnDelete) return;
+            handleNotificationClick(notif);
+            e.consume();
+        });
+
+        return item;
+    }
+
+    private void deleteSingleNotification(AppNotification notif, CustomMenuItem item) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null || notif == null) return;
+
+        try {
+            notificationService.deleteNotification(notif.getId(), user.getId());
+
+            if (navNotifMenu != null && item != null) {
+                navNotifMenu.getItems().remove(item);
+            }
+
+            updateNotifBadge(Math.max(0, notificationService.countUnreadByUser(user.getId())));
+
+            if (navNotifMenu != null) {
+                boolean hasRealNotifications = navNotifMenu.getItems().stream()
+                        .anyMatch(menuItem -> menuItem instanceof CustomMenuItem);
+
+                if (!hasRealNotifications) {
+                    navNotifMenu.getItems().clear();
+
+                    if (notifHeaderItem != null) {
+                        navNotifMenu.getItems().add(notifHeaderItem);
+                    }
+
+                    if (notifEmptyItem != null) {
+                        navNotifMenu.getItems().add(notifEmptyItem);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[NavbarController] Failed to delete notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private CustomMenuItem buildDeleteAllMenuItem() {
+        HBox box = new HBox();
+        box.setPrefWidth(250);
+        box.setMinWidth(250);
+        box.setMaxWidth(250);
+        box.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        box.setStyle("-fx-padding: 2 8 6 8;");
+
+        Button btnDeleteAll = new Button("Delete all");
+        btnDeleteAll.setFocusTraversable(false);
+        btnDeleteAll.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(251,113,133,0.35);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #fb7185;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-padding: 5 10 5 10;"
+        );
+
+        btnDeleteAll.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            e.consume();
+            deleteAllNotifications();
+        });
+
+        box.getChildren().add(btnDeleteAll);
+
+        CustomMenuItem item = new CustomMenuItem(box, false);
+        item.setHideOnClick(false);
+        return item;
+    }
+
+    private void deleteAllNotifications() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+
+        try {
+            notificationService.deleteAllNotifications(user.getId());
+            loadNotifications(user);
+        } catch (SQLException e) {
+            System.err.println("[NavbarController] Failed to delete all notifications: " + e.getMessage());
+        }
+    }
+
+    private String shortenNotif(String text, int max) {
+        if (text == null) return "";
+        String clean = text.replaceAll("\\s+", " ").trim();
+        if (clean.length() <= max) return clean;
+        return clean.substring(0, max - 1) + "…";
     }
 }

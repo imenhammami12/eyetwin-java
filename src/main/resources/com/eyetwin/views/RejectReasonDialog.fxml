@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.admin.RejectReasonDialogController"
+      spacing="12"
+      prefWidth="420"
+      prefHeight="240"
+      style="-fx-background-color: linear-gradient(to bottom right, #090f22, #12081a);
+             -fx-padding: 22;
+             -fx-border-color: rgba(255,70,70,0.24);
+             -fx-border-radius: 16;
+             -fx-background-radius: 16;">
+
+    <children>
+        <Label text="Reject Channel"
+               style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+
+        <Label text="Reason"
+               style="-fx-text-fill: white;" />
+
+        <TextArea fx:id="taReason"
+                  promptText="Write the rejection reason..."
+                  prefRowCount="5"
+                  wrapText="true"
+                  style="-fx-control-inner-background: #14192b;
+                         -fx-background-color: #14192b;
+                         -fx-text-fill: white;
+                         -fx-background-radius: 10;
+                         -fx-border-radius: 10;
+                         -fx-border-color: rgba(255,255,255,0.08);" />
+
+        <Label fx:id="lblError"
+               text=""
+               style="-fx-text-fill: #ff7b7b; -fx-font-size: 12px;" />
+
+        <HBox spacing="10">
+            <children>
+                <Button text="Reject"
+                        onAction="#handleConfirm"
+                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff4b2b);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10 20 10 20;" />
+
+                <Button text="Cancel"
+                        onAction="#handleCancel"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10 20 10 20;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
