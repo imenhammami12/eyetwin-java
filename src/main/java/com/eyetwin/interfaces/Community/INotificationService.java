@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface INotificationService {
+
     void createChannelApprovedNotification(Channel channel, int targetUserId) throws SQLException;
     void createChannelRejectedNotification(Channel channel, int targetUserId, String reason) throws SQLException;
 
