@@ -13,7 +13,16 @@ import java.util.List;
 public class MessageServiceImpl implements IMessageService {
 
     private Connection getConnection() {
-        return DatabaseConfig.getInstance().getCnx();
+        Connection c = DatabaseConfig.getInstance().getCnx();
+        try {
+            System.out.println("DB URL = " + c.getMetaData().getURL());
+            System.out.println("DB USER = " + c.getMetaData().getUserName());
+            System.out.println("AUTO COMMIT = " + c.getAutoCommit());
+            System.out.println("CATALOG = " + c.getCatalog());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return c;
     }
 
     @Override
@@ -42,7 +51,7 @@ public class MessageServiceImpl implements IMessageService {
         List<Message> messages = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder("""
-            SELECT m.*
+            SELECT m.* , c.name AS channel_name
             FROM message m
             INNER JOIN channel c ON c.id = m.channel_id
             WHERE 1=1
@@ -139,11 +148,11 @@ public class MessageServiceImpl implements IMessageService {
             throw new IllegalArgumentException("Message not found.");
         }
 
-        if (!player.getEmail().equalsIgnoreCase(existing.getSenderEmail())) {
+        if (!player.getEmail().equalsIgnoreCase(existing.getSender_email())) {
             throw new SecurityException("You can only edit your own messages.");
         }
 
-        if (existing.isDeleted()) {
+        if (existing.isIs_deleted()) {
             throw new IllegalStateException("Deleted messages cannot be edited.");
         }
 
@@ -173,7 +182,7 @@ public class MessageServiceImpl implements IMessageService {
             throw new IllegalArgumentException("Message not found.");
         }
 
-        if (!player.getEmail().equalsIgnoreCase(existing.getSenderEmail())) {
+        if (!player.getEmail().equalsIgnoreCase(existing.getSender_email())) {
             throw new SecurityException("You can only delete your own messages.");
         }
 
@@ -273,10 +282,17 @@ public class MessageServiceImpl implements IMessageService {
         message.setContent(rs.getString("content"));
         message.setSentAt(rs.getTimestamp("sent_at"));
         message.setEditedAt(rs.getTimestamp("edited_at"));
-        message.setDeleted(rs.getBoolean("is_deleted"));
-        message.setSenderName(rs.getString("sender_name"));
-        message.setSenderEmail(rs.getString("sender_email"));
-        message.setChannelId(rs.getInt("channel_id"));
+        message.setIs_deleted(rs.getBoolean("is_deleted"));
+        message.setSender_name(rs.getString("sender_name"));
+        message.setSender_email(rs.getString("sender_email"));
+        message.setChannel_id(rs.getInt("channel_id"));
+
+        try {
+            message.setChannelName(rs.getString("channel_name"));
+        } catch (SQLException ignored) {
+            message.setChannelName(null);
+        }
+
         return message;
     }
 }

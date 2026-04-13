@@ -5,18 +5,19 @@ import java.sql.Timestamp;
 public class Message {
     private int id;
     private String content;
-    private String senderName;
-    private String senderEmail;
+    private String sender_name;
+    private String sender_email;
     private Timestamp sentAt;
     private Timestamp editedAt;
-    private boolean deleted;
-    private int channelId;
+    private boolean is_deleted;
+    private int channel_id;
+    private String channelName;
 
     public Message() {
     }
 
     public String getDisplayContent() {
-        return deleted ? "this message is deleted." : content;
+        return is_deleted ? "this message is deleted." : content;
     }
 
     public int getId() {
@@ -35,20 +36,20 @@ public class Message {
         this.content = content;
     }
 
-    public String getSenderName() {
-        return senderName;
+    public String getSender_name() {
+        return sender_name;
     }
 
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
+    public void setSender_name(String sender_name) {
+        this.sender_name = sender_name;
     }
 
-    public String getSenderEmail() {
-        return senderEmail;
+    public String getSender_email() {
+        return sender_email;
     }
 
-    public void setSenderEmail(String senderEmail) {
-        this.senderEmail = senderEmail;
+    public void setSender_email(String sender_email) {
+        this.sender_email = sender_email;
     }
 
     public Timestamp getSentAt() {
@@ -67,23 +68,27 @@ public class Message {
         this.editedAt = editedAt;
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    public boolean isIs_deleted() {
+        return is_deleted;
     }
 
     public boolean getDeleted() {
-        return deleted;
+        return is_deleted;
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    public void setIs_deleted(boolean is_deleted) {
+        this.is_deleted = is_deleted;
     }
 
-    public int getChannelId() {
-        return channelId;
+    public int getChannel_id() {
+        return channel_id;
     }
 
-    public void setChannelId(int channelId) {
-        this.channelId = channelId;
+    public void setChannel_id(int channel_id) {
+        this.channel_id = channel_id;
     }
+
+    public String getChannelName() {return channelName;}
+
+    public void setChannelName(String channelName) {this.channelName = channelName;}
 }

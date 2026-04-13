@@ -30,6 +30,7 @@ public class AdminChannelsController {
     @FXML private ComboBox<String> cbType;
     @FXML private VBox rowsContainer;
     @FXML private Label lblFound;
+    @FXML private ScrollPane tableScrollPane;
 
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
 
@@ -137,7 +138,14 @@ public class AdminChannelsController {
         );
 
         row.getColumnConstraints().addAll(
-                col(6), col(18), col(14), col(12), col(14), col(10), col(14), col(12)
+                fixedCol(70),
+                fixedCol(220),
+                fixedCol(160),
+                fixedCol(130),
+                fixedCol(150),
+                fixedCol(110),
+                fixedCol(220),
+                fixedCol(260)
         );
 
         Label id = text(String.valueOf(channel.getId()));
@@ -188,15 +196,19 @@ public class AdminChannelsController {
         return row;
     }
 
-    private ColumnConstraints col(double percent) {
+    private ColumnConstraints fixedCol(double width) {
         ColumnConstraints c = new ColumnConstraints();
-        c.setPercentWidth(percent);
+        c.setMinWidth(width);
+        c.setPrefWidth(width);
+        c.setMaxWidth(width);
+        c.setHgrow(Priority.NEVER);
         return c;
     }
 
     private Label text(String value) {
         Label l = new Label(value == null ? "-" : value);
         l.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+        l.setWrapText(false);
         return l;
     }
 
