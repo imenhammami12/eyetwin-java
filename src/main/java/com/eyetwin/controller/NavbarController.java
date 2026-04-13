@@ -451,7 +451,7 @@ public class NavbarController {
 
         textBox.getChildren().addAll(message, date);
 
-        Button btnDelete = new Button("🗑");
+        Button btnDelete = new Button("✕");
         btnDelete.setFocusTraversable(false);
         btnDelete.setMinSize(24, 24);
         btnDelete.setPrefSize(24, 24);
@@ -471,41 +471,61 @@ public class NavbarController {
                         "-fx-alignment: center;"
         );
 
-        btnDelete.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            e.consume();
-            deleteSingleNotification(notif);
-        });
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         root.getChildren().addAll(dot, textBox, spacer, btnDelete);
 
-        root.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            Object target = e.getTarget();
+        CustomMenuItem item = new CustomMenuItem(root, false);
+        item.setHideOnClick(false);
 
-            if (target instanceof Button) {
-                return;
-            }
+        btnDelete.setOnAction(e -> {
+            e.consume();
+            deleteSingleNotification(notif, item);
+        });
 
+        root.setOnMouseClicked(e -> {
+            if (e.getTarget() == btnDelete) return;
             handleNotificationClick(notif);
             e.consume();
         });
 
-        CustomMenuItem item = new CustomMenuItem(root, false);
-        item.setHideOnClick(true);
-        //item.setOnAction(e -> handleNotificationClick(notif));
         return item;
     }
-    private void deleteSingleNotification(AppNotification notif) {
+
+    private void deleteSingleNotification(AppNotification notif, CustomMenuItem item) {
         User user = SessionManager.getCurrentUser();
         if (user == null || notif == null) return;
 
         try {
             notificationService.deleteNotification(notif.getId(), user.getId());
-            loadNotifications(user);
+
+            if (navNotifMenu != null && item != null) {
+                navNotifMenu.getItems().remove(item);
+            }
+
+            updateNotifBadge(Math.max(0, notificationService.countUnreadByUser(user.getId())));
+
+            if (navNotifMenu != null) {
+                boolean hasRealNotifications = navNotifMenu.getItems().stream()
+                        .anyMatch(menuItem -> menuItem instanceof CustomMenuItem);
+
+                if (!hasRealNotifications) {
+                    navNotifMenu.getItems().clear();
+
+                    if (notifHeaderItem != null) {
+                        navNotifMenu.getItems().add(notifHeaderItem);
+                    }
+
+                    if (notifEmptyItem != null) {
+                        navNotifMenu.getItems().add(notifEmptyItem);
+                    }
+                }
+            }
+
         } catch (SQLException e) {
             System.err.println("[NavbarController] Failed to delete notification: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

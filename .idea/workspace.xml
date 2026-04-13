@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/assets/css/navbar-popups.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/navbar.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/navbar.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -160,7 +160,7 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
-    public void deleteAllNotifications(int userId) throws SQLException {
+    public void deleteAllNotifications(int userId ) throws SQLException {
         String sql = "DELETE FROM notification WHERE user_id = ?";
 
         Connection c = getConnection();
