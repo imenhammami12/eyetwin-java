@@ -11,124 +11,304 @@
         <fx:include fx:id="adminSidebar" source="AdminSidebar.fxml"/>
     </left>
 
-    <top>
-        <fx:include fx:id="adminTopbar" source="AdminTopbar.fxml"/>
-    </top>
-
     <center>
-        <VBox spacing="18" style="-fx-padding: 22; -fx-background-color: #0d0618;">
+        <VBox style="-fx-background-color: #0d0618;">
             <children>
+                <fx:include fx:id="adminTopbar" source="AdminTopbar.fxml"/>
 
-                <HBox alignment="CENTER_LEFT">
+                <VBox spacing="18" style="-fx-padding: 22;" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label text="Messages Management"
-                               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
-                    </children>
-                </HBox>
 
-                <VBox spacing="12"
-                      style="-fx-background-color: rgba(255,255,255,0.03);
-                             -fx-border-color: rgba(255,255,255,0.06);
-                             -fx-border-radius: 14;
-                             -fx-background-radius: 14;
-                             -fx-padding: 18;">
-                    <children>
-                        <Label text="Filters &amp; Search"
-                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
-
-                        <HBox spacing="14">
+                        <!-- page title -->
+                        <HBox alignment="CENTER_LEFT">
                             <children>
-                                <TextField fx:id="tfSearch"
-                                           promptText="Content, sender, email, channel..."
-                                           HBox.hgrow="ALWAYS"
-                                           style="-fx-background-color: rgba(255,255,255,0.05);
-                                                  -fx-text-fill: white;
-                                                  -fx-prompt-text-fill: rgba(255,255,255,0.35);
-                                                  -fx-background-radius: 10;" />
-
-                                <ComboBox fx:id="cbStatus" prefWidth="180"
-                                          style="-fx-background-color: rgba(255,255,255,0.05);
-                                                 -fx-text-fill: white;
-                                                 -fx-background-radius: 10;" />
-
-                                <Button text="Filter"
-                                        onAction="#handleFilter"
-                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff4b2b);
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 10;
-                                               -fx-padding: 10 24 10 24;" />
-
-                                <Button text="Clear"
-                                        onAction="#handleClear"
-                                        style="-fx-background-color: rgba(255,255,255,0.06);
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 10;
-                                               -fx-padding: 10 18 10 18;" />
+                                <Label text="Messages Management"
+                                       style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
                             </children>
                         </HBox>
-                    </children>
-                </VBox>
 
-                <Label fx:id="lblFound"
-                       text="Found 0 messages"
-                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13px;" />
+                        <!-- top controls -->
+                        <VBox spacing="12"
+                              style="-fx-background-color: rgba(255,255,255,0.03);
+                                     -fx-border-color: rgba(255,255,255,0.06);
+                                     -fx-border-radius: 14;
+                                     -fx-background-radius: 14;
+                                     -fx-padding: 18;">
+                            <children>
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <children>
+                                        <TextField fx:id="tfSearch"
+                                                   promptText="Search channels, senders, messages..."
+                                                   HBox.hgrow="ALWAYS"
+                                                   style="-fx-background-color: rgba(30,15,45,0.95);
+                                                          -fx-text-fill: white;
+                                                          -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                                          -fx-border-color: rgba(255,60,100,0.30);
+                                                          -fx-border-radius: 10;
+                                                          -fx-background-radius: 10;
+                                                          -fx-padding: 10 14;" />
 
-                <VBox spacing="0"
-                      VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: rgba(255,255,255,0.03);
-                             -fx-border-color: rgba(255,255,255,0.06);
-                             -fx-border-radius: 14;
-                             -fx-background-radius: 14;">
-                    <children>
-                        <Label text="Messages List"
-                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 18 12 18;" />
+                                        <ComboBox fx:id="cbStatus" prefWidth="150"
+                                                  style="-fx-background-color: rgba(30,15,45,0.95);
+                                                         -fx-border-color: rgba(255,60,100,0.30);
+                                                         -fx-border-radius: 10;
+                                                         -fx-background-radius: 10;" />
 
-                        <ScrollPane fx:id="tableScrollPane"
-                                    fitToWidth="false"
-                                    fitToHeight="true"
-                                    hbarPolicy="AS_NEEDED"
-                                    vbarPolicy="AS_NEEDED"
-                                    pannable="true"
-                                    VBox.vgrow="ALWAYS"
-                                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-                            <content>
-                                <VBox spacing="8" style="-fx-padding: 0 0 12 0;">
+                                        <ComboBox fx:id="cbSort" prefWidth="140"
+                                                  style="-fx-background-color: rgba(30,15,45,0.95);
+                                                         -fx-border-color: rgba(255,60,100,0.30);
+                                                         -fx-border-radius: 10;
+                                                         -fx-background-radius: 10;" />
+
+                                        <Button text="Apply"
+                                                onAction="#handleFilter"
+                                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+                                                       -fx-text-fill: white;
+                                                       -fx-font-weight: bold;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 10 18;" />
+
+                                        <Button text="Clear"
+                                                onAction="#handleClear"
+                                                style="-fx-background-color: rgba(255,255,255,0.05);
+                                                       -fx-border-color: rgba(255,255,255,0.14);
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-text-fill: rgba(255,255,255,0.75);
+                                                       -fx-padding: 10 16;" />
+                                    </children>
+                                </HBox>
+
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label text="View:"
+                                               style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                        <ToggleButton fx:id="btnConversationView"
+                                                      text="Conversation View"
+                                                      onAction="#showConversationView"
+                                                      style="-fx-background-color: rgba(255,255,255,0.05);
+                                                             -fx-text-fill: white;
+                                                             -fx-background-radius: 10;
+                                                             -fx-border-radius: 10;
+                                                             -fx-padding: 8 16;" />
+
+                                        <ToggleButton fx:id="btnTableView"
+                                                      text="Table View"
+                                                      onAction="#showTableView"
+                                                      style="-fx-background-color: rgba(255,255,255,0.05);
+                                                             -fx-text-fill: white;
+                                                             -fx-background-radius: 10;
+                                                             -fx-border-radius: 10;
+                                                             -fx-padding: 8 16;" />
+
+                                        <Region HBox.hgrow="ALWAYS"/>
+
+                                        <Label fx:id="lblFound"
+                                               text="Found 0 messages"
+                                               style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13px;" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- stacked modes -->
+                        <StackPane VBox.vgrow="ALWAYS">
+                            <children>
+
+                                <!-- CONVERSATION MODE -->
+                                <HBox fx:id="conversationModeRoot" spacing="16" VBox.vgrow="ALWAYS">
                                     <children>
 
-                                        <GridPane hgap="10"
-                                                  style="-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 12 18 12 18;">
-                                            <columnConstraints>
-                                                <ColumnConstraints prefWidth="70" />
-                                                <ColumnConstraints prefWidth="320" />
-                                                <ColumnConstraints prefWidth="180" />
-                                                <ColumnConstraints prefWidth="220" />
-                                                <ColumnConstraints prefWidth="170" />
-                                                <ColumnConstraints prefWidth="110" />
-                                                <ColumnConstraints prefWidth="150" />
-                                            </columnConstraints>
-
+                                        <!-- channels sidebar -->
+                                        <VBox prefWidth="280" spacing="10"
+                                              style="-fx-background-color: rgba(255,255,255,0.03);
+                                                     -fx-border-color: rgba(255,255,255,0.06);
+                                                     -fx-border-radius: 14;
+                                                     -fx-background-radius: 14;
+                                                     -fx-padding: 14;">
                                             <children>
-                                                <Label text="#" GridPane.columnIndex="0" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="CONTENT" GridPane.columnIndex="1" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="SENDER" GridPane.columnIndex="2" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="CHANNEL" GridPane.columnIndex="3" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="SENT AT" GridPane.columnIndex="4" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="STATUS" GridPane.columnIndex="5" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                                <Label text="ACTIONS" GridPane.columnIndex="6" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="Channels"
+                                                       style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                                                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                                            style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                                                    <content>
+                                                        <VBox fx:id="channelsContainer" spacing="10" style="-fx-padding: 2;" />
+                                                    </content>
+                                                </ScrollPane>
                                             </children>
-                                        </GridPane>
+                                        </VBox>
 
-                                        <VBox fx:id="rowsContainer" spacing="8" style="-fx-padding: 12 12 0 12;" />
+                                        <!-- conversation -->
+                                        <VBox spacing="12" HBox.hgrow="ALWAYS"
+                                              style="-fx-background-color: rgba(255,255,255,0.03);
+                                                     -fx-border-color: rgba(255,255,255,0.06);
+                                                     -fx-border-radius: 14;
+                                                     -fx-background-radius: 14;
+                                                     -fx-padding: 16;">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label fx:id="lblSelectedChannelTitle"
+                                                               text="Select a channel"
+                                                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                                                    </children>
+                                                </HBox>
 
+                                                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                                            style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                                                    <content>
+                                                        <VBox fx:id="conversationContainer" spacing="12" style="-fx-padding: 4 2 8 2;" />
+                                                    </content>
+                                                </ScrollPane>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- inspector -->
+                                        <VBox prefWidth="300" spacing="12"
+                                              style="-fx-background-color: rgba(255,255,255,0.03);
+                                                     -fx-border-color: rgba(255,255,255,0.06);
+                                                     -fx-border-radius: 14;
+                                                     -fx-background-radius: 14;
+                                                     -fx-padding: 16;">
+                                            <children>
+                                                <Label text="Message Details"
+                                                       style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                                                <Label fx:id="lblInspectorSender"
+                                                       text="Sender: -"
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: white; -fx-font-size: 13px;" />
+
+                                                <Label fx:id="lblInspectorEmail"
+                                                       text="Email: -"
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;" />
+
+                                                <Label fx:id="lblInspectorChannel"
+                                                       text="Channel: -"
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;" />
+
+                                                <Label fx:id="lblInspectorSentAt"
+                                                       text="Sent at: -"
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;" />
+
+                                                <Label fx:id="lblInspectorEditedAt"
+                                                       text="Edited at: -"
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;" />
+
+                                                <Label fx:id="lblInspectorStatus"
+                                                       text="Status: -"
+                                                       style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                                <Separator />
+
+                                                <Label text="Content"
+                                                       style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                                                <Label fx:id="lblInspectorContent"
+                                                       text="Select a message to inspect it."
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.85);
+                                                              -fx-background-color: rgba(255,255,255,0.03);
+                                                              -fx-border-color: rgba(255,255,255,0.06);
+                                                              -fx-border-radius: 10;
+                                                              -fx-background-radius: 10;
+                                                              -fx-padding: 12;" />
+
+                                                <Region VBox.vgrow="ALWAYS"/>
+
+                                                <HBox spacing="10">
+                                                    <children>
+                                                        <Button fx:id="btnInspectorDelete"
+                                                                text="Delete"
+                                                                onAction="#handleInspectorDelete"
+                                                                disable="true"
+                                                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+                                                                       -fx-text-fill: white;
+                                                                       -fx-font-weight: bold;
+                                                                       -fx-background-radius: 10;
+                                                                       -fx-padding: 10 18;" />
+
+                                                        <Button fx:id="btnInspectorRestore"
+                                                                text="Restore"
+                                                                onAction="#handleInspectorRestore"
+                                                                disable="true"
+                                                                style="-fx-background-color: rgba(67,233,123,0.15);
+                                                                       -fx-border-color: rgba(67,233,123,0.35);
+                                                                       -fx-border-radius: 10;
+                                                                       -fx-background-radius: 10;
+                                                                       -fx-text-fill: #43e97b;
+                                                                       -fx-font-weight: bold;
+                                                                       -fx-padding: 10 18;" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- TABLE MODE -->
+                                <VBox fx:id="tableModeRoot" spacing="0" visible="false" managed="false"
+                                      style="-fx-background-color: rgba(255,255,255,0.03);
+                                             -fx-border-color: rgba(255,255,255,0.06);
+                                             -fx-border-radius: 14;
+                                             -fx-background-radius: 14;">
+                                    <children>
+                                        <Label text="Messages Table"
+                                               style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 18 12 18;" />
+
+                                        <ScrollPane fx:id="tableScrollPane"
+                                                    fitToWidth="false"
+                                                    fitToHeight="true"
+                                                    hbarPolicy="AS_NEEDED"
+                                                    vbarPolicy="AS_NEEDED"
+                                                    pannable="true"
+                                                    VBox.vgrow="ALWAYS"
+                                                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                                            <content>
+                                                <VBox spacing="8" style="-fx-padding: 0 0 12 0;">
+                                                    <children>
+                                                        <GridPane hgap="10"
+                                                                  style="-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 12 18 12 18;">
+                                                            <columnConstraints>
+                                                                <ColumnConstraints prefWidth="70" />
+                                                                <ColumnConstraints prefWidth="320" />
+                                                                <ColumnConstraints prefWidth="180" />
+                                                                <ColumnConstraints prefWidth="220" />
+                                                                <ColumnConstraints prefWidth="170" />
+                                                                <ColumnConstraints prefWidth="110" />
+                                                                <ColumnConstraints prefWidth="150" />
+                                                            </columnConstraints>
+
+                                                            <children>
+                                                                <Label text="#" GridPane.columnIndex="0" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="CONTENT" GridPane.columnIndex="1" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="SENDER" GridPane.columnIndex="2" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="CHANNEL" GridPane.columnIndex="3" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="SENT AT" GridPane.columnIndex="4" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="STATUS" GridPane.columnIndex="5" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                                <Label text="ACTIONS" GridPane.columnIndex="6" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                            </children>
+                                                        </GridPane>
+
+                                                        <VBox fx:id="rowsContainer" spacing="8" style="-fx-padding: 12 12 0 12;" />
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
                                     </children>
                                 </VBox>
-                            </content>
-                        </ScrollPane>
+
+                            </children>
+                        </StackPane>
+
                     </children>
                 </VBox>
-
             </children>
         </VBox>
     </center>

@@ -1,6 +1,7 @@
 package com.eyetwin.interfaces.Community;
 import com.eyetwin.entities.Community.Message;
 import com.eyetwin.entities.User;
+import  com.eyetwin.entities.Community.AdminChannelMessageStat;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.List;
 public interface IMessageService {
     List<Message> findByChannel(int channelId) throws SQLException;
     List<Message> findAdminMessages(String search, String status) throws SQLException;
+    List<AdminChannelMessageStat> findAdminChannelStats(String search) throws SQLException;
+    List<Message> findAdminMessagesByChannel(int channelId, String search, String status, String sort) throws SQLException;
     Message findById(int id) throws SQLException;
 
     void sendMessage(int channelId, String content, User player) throws SQLException;
@@ -16,4 +19,5 @@ public interface IMessageService {
 
     void adminDeleteMessage(int messageId, User admin) throws SQLException;
     void adminRestoreMessage(int messageId, User admin) throws SQLException;
+
 }
