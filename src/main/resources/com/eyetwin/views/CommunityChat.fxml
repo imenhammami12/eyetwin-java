@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.CommunityChatController"
+            style="-fx-background-color: #080810;">
+
+    <top>
+        <VBox spacing="0" style="-fx-background-color: #080810;">
+            <children>
+                <fx:include source="navbar.fxml" />
+
+                <StackPane prefHeight="170" style="-fx-background-color: #080810;">
+                    <Region style="-fx-background-color: rgba(8,8,16,0.96);" />
+
+                    <VBox alignment="CENTER_LEFT" spacing="10"
+                          style="-fx-padding: 26 36 0 36;">
+                        <children>
+                            <HBox alignment="CENTER_LEFT" spacing="8"
+                                  style="-fx-background-color: rgba(232,55,42,0.09);
+                                         -fx-border-color: rgba(232,55,42,0.28);
+                                         -fx-border-width:1;
+                                         -fx-border-radius:3;
+                                         -fx-background-radius:3;
+                                         -fx-padding: 4 12 4 12;
+                                         -fx-max-width:220;">
+                                <children>
+                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;" />
+                                    <Label text="💬 Channel Chat"
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;" />
+                                </children>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT">
+                                <children>
+                                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label fx:id="lblChannelName"
+                                                   text="Channel Name"
+                                                   style="-fx-font-family: 'Arial Black';
+                                                          -fx-font-size: 30;
+                                                          -fx-font-weight: bold;
+                                                          -fx-text-fill: #e8372a;
+                                                          -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.50), 24, 0, 0, 0);" />
+
+                                            <Label fx:id="lblChannelDescription"
+                                                   text="Channel description"
+                                                   wrapText="true"
+                                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;" />
+                                        </children>
+                                    </VBox>
+
+                                    <Pane HBox.hgrow="ALWAYS" />
+
+                                    <VBox alignment="CENTER_RIGHT" spacing="10">
+                                        <children>
+                                            <Label fx:id="lblChannelStatus" text="APPROVED" />
+                                            <Button text="← Back to Channels"
+                                                    onAction="#handleBack"
+                                                    style="-fx-background-color: rgba(255,255,255,0.06);
+                                                           -fx-border-color: rgba(255,255,255,0.12);
+                                                           -fx-border-radius: 9;
+                                                           -fx-background-radius: 9;
+                                                           -fx-text-fill: white;
+                                                           -fx-font-weight: bold;
+                                                           -fx-padding: 10 18 10 18;
+                                                           -fx-cursor: hand;" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </StackPane>
+
+                <Region style="-fx-background-color: rgba(232,55,42,0.16);
+                               -fx-pref-height: 1;
+                               -fx-max-height: 1;" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
+            <children>
+                <ScrollPane fitToWidth="true"
+                            VBox.vgrow="ALWAYS"
+                            style="-fx-background-color: transparent;
+                                   -fx-background: transparent;
+                                   -fx-border-color: transparent;">
+                    <content>
+                        <VBox fx:id="messagesContainer"
+                              spacing="10"
+                              style="-fx-background-color: transparent;">
+                            <padding>
+                                <Insets top="4" right="0" bottom="8" left="0"/>
+                            </padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
+                <Label fx:id="lblComposerInfo"
+                       text=""
+                       wrapText="true"
+                       visible="false"
+                       managed="false"
+                       style="-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 12px;" />
+
+                <VBox fx:id="composerBox"
+                      spacing="10"
+                      style="-fx-background-color: rgba(6,5,16,0.88);
+                             -fx-border-color: rgba(255,255,255,0.065);
+                             -fx-border-radius: 14;
+                             -fx-background-radius: 14;
+                             -fx-padding: 16;">
+                    <children>
+                        <TextArea fx:id="taNewMessage"
+                                  promptText="Type your message here..."
+                                  prefRowCount="3"
+                                  wrapText="true"
+                                  style="-fx-control-inner-background: #14192b;
+                                         -fx-background-color: #14192b;
+                                         -fx-text-fill: white;
+                                         -fx-prompt-text-fill: #9CA3AF;
+                                         -fx-highlight-fill: rgba(232,55,42,0.35);
+                                         -fx-highlight-text-fill: white;
+                                         -fx-background-radius: 12;
+                                         -fx-border-radius: 12;
+                                         -fx-border-color: rgba(255,255,255,0.08);" />
+
+                        <HBox alignment="CENTER_RIGHT">
+                            <children>
+                                <Button fx:id="btnSend"
+                                        text="Send"
+                                        onAction="#handleSendMessage"
+                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-padding: 10 22 10 22;
+                                               -fx-cursor: hand;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>
