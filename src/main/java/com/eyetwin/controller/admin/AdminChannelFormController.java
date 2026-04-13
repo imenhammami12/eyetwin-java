@@ -18,6 +18,7 @@ public class AdminChannelFormController {
     @FXML private ComboBox<String> cbType;
     @FXML private CheckBox chkActive;
     @FXML private Label lblError;
+    @FXML private Button btnSave;
 
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
 
@@ -41,6 +42,7 @@ public class AdminChannelFormController {
         this.onSaved = onSaved;
         this.editingChannel = channel;
         lblTitle.setText("Edit Channel");
+        btnSave.setText("Update Channel"); //////////////////////////
 
         tfName.setText(channel.getName());
         tfGame.setText(channel.getGame());

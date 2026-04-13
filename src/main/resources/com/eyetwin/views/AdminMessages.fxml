@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.eyetwin.controller.admin.AdminChannelsController"
+            fx:controller="com.eyetwin.controller.admin.AdminMessagesController"
             style="-fx-background-color: #0d0618;">
 
     <left>
@@ -22,16 +21,8 @@
 
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <Label text="Channels Management"
+                        <Label text="Messages Management"
                                style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
-                        <Pane HBox.hgrow="ALWAYS" />
-                        <Button text="+ New Channel"
-                                onAction="#handleCreateChannel"
-                                style="-fx-background-color: linear-gradient(to right, #31e7b6, #55f5c3);
-                                       -fx-text-fill: white;
-                                       -fx-font-weight: bold;
-                                       -fx-background-radius: 10;
-                                       -fx-padding: 10 18 10 18;" />
                     </children>
                 </HBox>
 
@@ -48,7 +39,7 @@
                         <HBox spacing="14">
                             <children>
                                 <TextField fx:id="tfSearch"
-                                           promptText="Name, game, createdBy..."
+                                           promptText="Content, sender, email, channel..."
                                            HBox.hgrow="ALWAYS"
                                            style="-fx-background-color: rgba(255,255,255,0.05);
                                                   -fx-text-fill: white;
@@ -56,11 +47,6 @@
                                                   -fx-background-radius: 10;" />
 
                                 <ComboBox fx:id="cbStatus" prefWidth="180"
-                                          style="-fx-background-color: rgba(255,255,255,0.05);
-                                                 -fx-text-fill: white;
-                                                 -fx-background-radius: 10;" />
-
-                                <ComboBox fx:id="cbType" prefWidth="180"
                                           style="-fx-background-color: rgba(255,255,255,0.05);
                                                  -fx-text-fill: white;
                                                  -fx-background-radius: 10;" />
@@ -86,7 +72,7 @@
                 </VBox>
 
                 <Label fx:id="lblFound"
-                       text="Found 0 channels"
+                       text="Found 0 messages"
                        style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13px;" />
 
                 <VBox spacing="0"
@@ -96,7 +82,7 @@
                              -fx-border-radius: 14;
                              -fx-background-radius: 14;">
                     <children>
-                        <Label text="Channels List"
+                        <Label text="Messages List"
                                style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 18 12 18;" />
 
                         <ScrollPane fx:id="tableScrollPane"
@@ -109,35 +95,34 @@
                                     style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
                             <content>
                                 <VBox spacing="8" style="-fx-padding: 0 0 12 0;">
+                                    <children>
 
-                                    <GridPane fx:id="headerRow"
-                                              hgap="10"
-                                              style="-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 12 18 12 18;">
-                                        <columnConstraints>
-                                            <ColumnConstraints prefWidth="70" />
-                                            <ColumnConstraints prefWidth="220" />
-                                            <ColumnConstraints prefWidth="160" />
-                                            <ColumnConstraints prefWidth="130" />
-                                            <ColumnConstraints prefWidth="150" />
-                                            <ColumnConstraints prefWidth="110" />
-                                            <ColumnConstraints prefWidth="220" />
-                                            <ColumnConstraints prefWidth="260" />
-                                        </columnConstraints>
+                                        <GridPane hgap="10"
+                                                  style="-fx-background-color: rgba(255,255,255,0.05); -fx-padding: 12 18 12 18;">
+                                            <columnConstraints>
+                                                <ColumnConstraints prefWidth="70" />
+                                                <ColumnConstraints prefWidth="320" />
+                                                <ColumnConstraints prefWidth="180" />
+                                                <ColumnConstraints prefWidth="220" />
+                                                <ColumnConstraints prefWidth="170" />
+                                                <ColumnConstraints prefWidth="110" />
+                                                <ColumnConstraints prefWidth="150" />
+                                            </columnConstraints>
 
-                                        <children>
-                                            <Label text="#" GridPane.columnIndex="0" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="NAME" GridPane.columnIndex="1" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="GAME" GridPane.columnIndex="2" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="TYPE" GridPane.columnIndex="3" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="STATUS" GridPane.columnIndex="4" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="ACTIVE" GridPane.columnIndex="5" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="CREATED BY" GridPane.columnIndex="6" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                            <Label text="ACTIONS" GridPane.columnIndex="7" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-                                        </children>
-                                    </GridPane>
+                                            <children>
+                                                <Label text="#" GridPane.columnIndex="0" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="CONTENT" GridPane.columnIndex="1" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="SENDER" GridPane.columnIndex="2" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="CHANNEL" GridPane.columnIndex="3" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="SENT AT" GridPane.columnIndex="4" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="STATUS" GridPane.columnIndex="5" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                                <Label text="ACTIONS" GridPane.columnIndex="6" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                                            </children>
+                                        </GridPane>
 
-                                    <VBox fx:id="rowsContainer" spacing="8" style="-fx-padding: 12 12 0 12;" />
+                                        <VBox fx:id="rowsContainer" spacing="8" style="-fx-padding: 12 12 0 12;" />
 
+                                    </children>
                                 </VBox>
                             </content>
                         </ScrollPane>

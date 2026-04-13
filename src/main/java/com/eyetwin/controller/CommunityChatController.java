@@ -150,8 +150,8 @@ public class CommunityChatController {
     private HBox buildMessageRow(Message message) {
         User currentUser = SessionManager.getCurrentUser();
         boolean isMine = currentUser != null
-                && message.getSenderEmail() != null
-                && message.getSenderEmail().equalsIgnoreCase(currentUser.getEmail());
+                && message.getSender_email() != null
+                && message.getSender_email().equalsIgnoreCase(currentUser.getEmail());
 
         HBox row = new HBox();
         row.setPadding(new Insets(4, 0, 4, 0));
@@ -179,7 +179,7 @@ public class CommunityChatController {
         HBox top = new HBox();
         top.setAlignment(Pos.CENTER_LEFT);
 
-        Label sender = new Label(message.getSenderName() == null ? "Unknown" : message.getSenderName());
+        Label sender = new Label(message.getSender_name() == null ? "Unknown" : message.getSender_name());
         sender.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
 
         Region spacer = new Region();
@@ -190,7 +190,7 @@ public class CommunityChatController {
 
         top.getChildren().addAll(sender, spacer, date);
 
-        if (isMine && !message.isDeleted() && SessionManager.canWriteCommunityMessages()) {
+        if (isMine && !message.isIs_deleted() && SessionManager.canWriteCommunityMessages()) {
             Button btnMenu = new Button("⋮");
             btnMenu.setStyle(
                     "-fx-background-color: transparent;" +
@@ -220,7 +220,7 @@ public class CommunityChatController {
             Label content = new Label(message.getDisplayContent());
             content.setWrapText(true);
 
-            if (message.isDeleted()) {
+            if (message.isIs_deleted()) {
                 content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
             } else {
                 content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
@@ -231,11 +231,11 @@ public class CommunityChatController {
 
         wrapper.getChildren().add(bubble);
 
-        if (isMine && !message.isDeleted() && actionMenuMessageId != null && actionMenuMessageId == message.getId()) {
+        if (isMine && !message.isIs_deleted() && actionMenuMessageId != null && actionMenuMessageId == message.getId()) {
             wrapper.getChildren().add(buildMessageActionMenu(message, isMine));
         }
 
-        if (isMine && !message.isDeleted() && deleteConfirmMessageId != null && deleteConfirmMessageId == message.getId()) {
+        if (isMine && !message.isIs_deleted() && deleteConfirmMessageId != null && deleteConfirmMessageId == message.getId()) {
             wrapper.getChildren().add(buildInlineDeleteConfirm(message, isMine));
         }
 
