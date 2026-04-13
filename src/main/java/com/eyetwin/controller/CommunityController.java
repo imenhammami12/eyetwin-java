@@ -158,7 +158,7 @@ public class CommunityController {
 
         actions.getChildren().add(openButton);
 
-        //User currentUser = SessionManager.getCurrentUser();
+        /*/User currentUser = SessionManager.getCurrentUser();
         boolean isOwner = currentUser != null
                 && channel.getCreatedBy() != null
                 && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
@@ -177,6 +177,43 @@ public class CommunityController {
             );
             deleteButton.setOnAction(e -> handleDeleteOwnPendingChannel(channel));
             actions.getChildren().add(deleteButton);
+        }*/
+
+        boolean isOwner = currentUser != null
+                && channel.getCreatedBy() != null
+                && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
+
+        if (isOwner) {
+            Button editButton = new Button("Edit");
+            editButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.06);" +
+                            "-fx-border-color: rgba(255,255,255,0.10);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 9;" +
+                            "-fx-border-radius: 9;" +
+                            "-fx-padding: 8 16 8 16;" +
+                            "-fx-cursor: hand;"
+            );
+            editButton.setOnAction(e -> handleEditOwnChannel(channel));
+
+            Button deleteButton = new Button(
+                    Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus()) ? "Undo" : "Delete"
+            );
+            deleteButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.06);" +
+                            "-fx-border-color: rgba(255,255,255,0.10);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 9;" +
+                            "-fx-border-radius: 9;" +
+                            "-fx-padding: 8 16 8 16;" +
+                            "-fx-cursor: hand;"
+            );
+            deleteButton.setOnAction(e -> handleDeleteOwnChannel(channel));
+
+            actions.getChildren().add(editButton);
+            actions.getChildren().add(deleteButton);
         }
 
         if (channel.getRejectionReason() != null && !channel.getRejectionReason().isBlank()) {
@@ -189,6 +226,27 @@ public class CommunityController {
         }
 
         return card;
+    }
+
+    private void handleEditOwnChannel(Channel channel) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/CommunityChannelForm.fxml"));
+            Parent root = loader.load();
+
+            CommunityChannelFormController controller = loader.getController();
+            controller.setModeEdit(channel, this::loadChannels);
+
+            Stage popup = new Stage();
+            popup.setTitle("Edit Channel");
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.initOwner((Stage) channelsContainer.getScene().getWindow());
+            popup.setScene(new Scene(root));
+            popup.setResizable(false);
+            popup.showAndWait();
+
+        } catch (IOException e) {
+            showError("Failed to open edit channel popup: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -213,23 +271,61 @@ public class CommunityController {
         }
     }
 
-    private void handleDeleteOwnPendingChannel(Channel channel) {
+//    private void handleDeleteOwnPendingChannel(Channel channel) {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/ConfirmDialog.fxml"));
+//            Parent root = loader.load();
+//
+//            ConfirmDialogController controller = loader.getController();
+//            controller.setData("Undo Channel", "Do you want to delete this pending channel request?");
+//
+//            Stage popup = new Stage();
+//            popup.setTitle("Undo Channel");
+//            popup.initModality(Modality.APPLICATION_MODAL);
+//            popup.initOwner((Stage) channelsContainer.getScene().getWindow());
+//            popup.setScene(new Scene(root));
+//            popup.setResizable(false);
+//
+//            controller.setStage(popup);
+//
+//            popup.showAndWait();
+//
+//            if (controller.isConfirmed()) {
+//                User currentUser = SessionManager.getCurrentUser();
+//                channelService.deleteByOwner(channel.getId(), currentUser);
+//                loadChannels();
+//            }
+//
+//        } catch (Exception e) {
+//            showError("Failed to delete channel: " + e.getMessage());
+//        }
+//    }
+
+    private void handleDeleteOwnChannel(Channel channel) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/ConfirmDialog.fxml"));
             Parent root = loader.load();
 
             ConfirmDialogController controller = loader.getController();
-            controller.setData("Undo Channel", "Do you want to delete this pending channel request?");
+
+            String title = Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus())
+                    ? "Undo Channel"
+                    : "Delete Channel";
+
+            String message = Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus())
+                    ? "Do you want to delete this pending channel request?"
+                    : "Do you want to delete this channel?";
+
+            controller.setData(title, message);
 
             Stage popup = new Stage();
-            popup.setTitle("Undo Channel");
+            popup.setTitle(title);
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.initOwner((Stage) channelsContainer.getScene().getWindow());
             popup.setScene(new Scene(root));
             popup.setResizable(false);
 
             controller.setStage(popup);
-
             popup.showAndWait();
 
             if (controller.isConfirmed()) {
