@@ -10,6 +10,7 @@ public class AppNotification {
     private Timestamp createdAt;
     private String link;
     private int userId;
+    private boolean isReadDb;
 
     public static final String CHANNEL_APPROVED = "CHANNEL_APPROVED";
     public static final String CHANNEL_REJECTED = "CHANNEL_REJECTED";
