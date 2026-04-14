@@ -33,7 +33,9 @@ public class CommunityController {
 
     @FXML private FlowPane approvedChannelsContainer;
     @FXML private FlowPane pendingChannelsContainer;
+    @FXML private FlowPane rejectedChannelsContainer;
     @FXML private VBox pendingSectionBox;
+    @FXML private VBox rejectedSectionBox;
 
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
 
@@ -83,21 +85,67 @@ public class CommunityController {
 //        }
 //    }
 
+//    private void loadChannels() {
+//        approvedChannelsContainer.getChildren().clear();
+//        pendingChannelsContainer.getChildren().clear();
+//
+//        try {
+//            User currentUser = SessionManager.getCurrentUser();
+//
+//            List<Channel> approvedChannels = channelService.findApprovedCommunityChannels(currentUser);
+//            List<Channel> myPendingChannels = channelService.findOwnPendingChannels(currentUser);
+//
+//            // Stats
+//            setLabel(lblVisibleChannelsCount, String.valueOf(approvedChannels.size()));
+//            setLabel(lblPublicChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PUBLIC)));
+//            setLabel(lblPrivateChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PRIVATE)));
+//            setLabel(lblMyPendingChannelsCount, String.valueOf(myPendingChannels.size()));
+//
+//            // Approved section
+//            if (approvedChannels.isEmpty()) {
+//                approvedChannelsContainer.getChildren().add(buildEmptyStateCard(
+//                        "No approved channels yet",
+//                        "Approved channels will appear here once they become available."
+//                ));
+//            } else {
+//                for (Channel channel : approvedChannels) {
+//                    approvedChannelsContainer.getChildren().add(buildChannelCard(channel, false));
+//                }
+//            }
+//
+//            // Pending section visible only for owner
+//            boolean hasPending = !myPendingChannels.isEmpty();
+//            pendingSectionBox.setVisible(hasPending);
+//            pendingSectionBox.setManaged(hasPending);
+//
+//            if (hasPending) {
+//                for (Channel channel : myPendingChannels) {
+//                    pendingChannelsContainer.getChildren().add(buildChannelCard(channel, true));
+//                }
+//            }
+//
+//        } catch (SQLException e) {
+//            showError("Failed to load channels: " + e.getMessage());
+//        }
+//    }
+
     private void loadChannels() {
         approvedChannelsContainer.getChildren().clear();
         pendingChannelsContainer.getChildren().clear();
+        rejectedChannelsContainer.getChildren().clear();
 
         try {
             User currentUser = SessionManager.getCurrentUser();
 
             List<Channel> approvedChannels = channelService.findApprovedCommunityChannels(currentUser);
             List<Channel> myPendingChannels = channelService.findOwnPendingChannels(currentUser);
+            List<Channel> myRejectedChannels = channelService.findOwnRejectedChannels(currentUser);
 
             // Stats
             setLabel(lblVisibleChannelsCount, String.valueOf(approvedChannels.size()));
             setLabel(lblPublicChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PUBLIC)));
             setLabel(lblPrivateChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PRIVATE)));
-            setLabel(lblMyPendingChannelsCount, String.valueOf(myPendingChannels.size()));
+            setLabel(lblMyPendingChannelsCount, String.valueOf(myPendingChannels.size() + myRejectedChannels.size()));
 
             // Approved section
             if (approvedChannels.isEmpty()) {
@@ -107,18 +155,29 @@ public class CommunityController {
                 ));
             } else {
                 for (Channel channel : approvedChannels) {
-                    approvedChannelsContainer.getChildren().add(buildChannelCard(channel, false));
+                    approvedChannelsContainer.getChildren().add(buildChannelCard(channel, "approved"));
                 }
             }
 
-            // Pending section visible only for owner
+            // Pending section
             boolean hasPending = !myPendingChannels.isEmpty();
             pendingSectionBox.setVisible(hasPending);
             pendingSectionBox.setManaged(hasPending);
 
             if (hasPending) {
                 for (Channel channel : myPendingChannels) {
-                    pendingChannelsContainer.getChildren().add(buildChannelCard(channel, true));
+                    pendingChannelsContainer.getChildren().add(buildChannelCard(channel, "pending"));
+                }
+            }
+
+            // Rejected section
+            boolean hasRejected = !myRejectedChannels.isEmpty();
+            rejectedSectionBox.setVisible(hasRejected);
+            rejectedSectionBox.setManaged(hasRejected);
+
+            if (hasRejected) {
+                for (Channel channel : myRejectedChannels) {
+                    rejectedChannelsContainer.getChildren().add(buildChannelCard(channel, "rejected"));
                 }
             }
 
@@ -127,21 +186,30 @@ public class CommunityController {
         }
     }
 
-    private VBox buildChannelCard(Channel channel, boolean pendingCard) {
+    private VBox buildChannelCard(Channel channel, String sectionType) {
         VBox card = new VBox(10);
         card.setPrefWidth(250);
         card.setMinHeight(210);
         card.setPadding(new Insets(18));
 
-        String cardStyle = pendingCard
-                ? "-fx-background-color: linear-gradient(to bottom, rgba(28,20,10,0.96), rgba(15,10,18,0.96));" +
-                "-fx-border-color: rgba(246,216,96,0.28);" +
-                "-fx-border-radius:16;" +
-                "-fx-background-radius:16;"
-                : "-fx-background-color: linear-gradient(to bottom, rgba(18,10,18,0.96), rgba(8,8,16,0.96));" +
-                "-fx-border-color: rgba(255,255,255,0.09);" +
-                "-fx-border-radius:16;" +
-                "-fx-background-radius:16;";
+        String cardStyle;
+        switch (sectionType.toLowerCase()) {
+            case "pending" -> cardStyle =
+                    "-fx-background-color: linear-gradient(to bottom, rgba(28,20,10,0.96), rgba(15,10,18,0.96));" +
+                            "-fx-border-color: rgba(246,216,96,0.28);" +
+                            "-fx-border-radius:16;" +
+                            "-fx-background-radius:16;";
+            case "rejected" -> cardStyle =
+                    "-fx-background-color: linear-gradient(to bottom, rgba(30,10,10,0.96), rgba(18,8,12,0.96));" +
+                            "-fx-border-color: rgba(232,55,42,0.32);" +
+                            "-fx-border-radius:16;" +
+                            "-fx-background-radius:16;";
+            default -> cardStyle =
+                    "-fx-background-color: linear-gradient(to bottom, rgba(18,10,18,0.96), rgba(8,8,16,0.96));" +
+                            "-fx-border-color: rgba(255,255,255,0.09);" +
+                            "-fx-border-radius:16;" +
+                            "-fx-background-radius:16;";
+        }
 
         card.setStyle(cardStyle);
 

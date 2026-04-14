@@ -496,6 +496,35 @@ public class ChannelServiceImpl implements IChannelService {
         return channels;
     }
 
+    public List<Channel> findOwnRejectedChannels(User currentUser) throws SQLException {
+        List<Channel> channels = new ArrayList<>();
+
+        if (currentUser == null || currentUser.getEmail() == null || currentUser.getEmail().isBlank()) {
+            return channels;
+        }
+
+        String sql = """
+            SELECT * FROM channel
+            WHERE created_by = ? AND status = ?
+            ORDER BY created_at DESC
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, currentUser.getEmail());
+        ps.setString(2, Channel.STATUS_REJECTED);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            channels.add(mapChannel(rs));
+        }
+        return channels;
+    }
+
+    public int countOwnRejectedChannels(User currentUser) throws SQLException {
+        return findOwnRejectedChannels(currentUser).size();
+    }
+
     public int countApprovedVisibleChannels(User currentUser) throws SQLException {
         return findApprovedCommunityChannels(currentUser).size();
     }
