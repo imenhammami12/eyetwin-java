@@ -8,6 +8,7 @@ import com.eyetwin.tools.DatabaseConfig;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChannelServiceImpl implements IChannelService {
 
@@ -433,5 +434,93 @@ public class ChannelServiceImpl implements IChannelService {
         channel.setApprovedAt(rs.getTimestamp("approved_at"));
         channel.setRejectionReason(rs.getString("rejection_reason"));
         return channel;
+    }
+
+    public List<Channel> findApprovedCommunityChannels(User currentUser) throws SQLException {
+        List<Channel> channels = new ArrayList<>();
+        String sql;
+
+        if (currentUser == null) {
+            sql = """
+                SELECT * FROM channel
+                WHERE status = ? AND is_active = 1 AND type = ?
+                ORDER BY created_at DESC
+                """;
+        } else {
+            sql = """
+                SELECT * FROM channel
+                WHERE status = ? AND is_active = 1
+                ORDER BY created_at DESC
+                """;
+        }
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+
+        if (currentUser == null) {
+            ps.setString(1, Channel.STATUS_APPROVED);
+            ps.setString(2, Channel.TYPE_PUBLIC);
+        } else {
+            ps.setString(1, Channel.STATUS_APPROVED);
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            channels.add(mapChannel(rs));
+        }
+        return channels;
+    }
+
+    public List<Channel> findOwnPendingChannels(User currentUser) throws SQLException {
+        List<Channel> channels = new ArrayList<>();
+
+        if (currentUser == null || currentUser.getEmail() == null || currentUser.getEmail().isBlank()) {
+            return channels;
+        }
+
+        String sql = """
+            SELECT * FROM channel
+            WHERE created_by = ? AND status = ?
+            ORDER BY created_at DESC
+            """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, currentUser.getEmail());
+        ps.setString(2, Channel.STATUS_PENDING);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            channels.add(mapChannel(rs));
+        }
+        return channels;
+    }
+
+    public int countApprovedVisibleChannels(User currentUser) throws SQLException {
+        return findApprovedCommunityChannels(currentUser).size();
+    }
+
+    public int countApprovedPublicChannels(User currentUser) throws SQLException {
+        int count = 0;
+        for (Channel channel : findApprovedCommunityChannels(currentUser)) {
+            if (Channel.TYPE_PUBLIC.equalsIgnoreCase(channel.getType())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int countApprovedPrivateChannels(User currentUser) throws SQLException {
+        int count = 0;
+        for (Channel channel : findApprovedCommunityChannels(currentUser)) {
+            if (Channel.TYPE_PRIVATE.equalsIgnoreCase(channel.getType())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int countOwnPendingChannels(User currentUser) throws SQLException {
+        return findOwnPendingChannels(currentUser).size();
     }
 }

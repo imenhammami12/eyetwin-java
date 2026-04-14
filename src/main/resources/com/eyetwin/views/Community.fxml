@@ -83,16 +83,135 @@
                                    -fx-pref-height: 1;
                                    -fx-max-height: 1;" />
 
-                    <VBox style="-fx-background-color: #080810; -fx-padding: 28 36 54 36;">
+                    <VBox spacing="22" style="-fx-background-color: #080810; -fx-padding: 28 36 54 36;">
                         <children>
-                            <FlowPane fx:id="channelsContainer"
+
+                            <!-- Stats Row -->
+                            <HBox spacing="16">
+                                <VBox HBox.hgrow="ALWAYS"
+                                      spacing="6"
+                                      style="-fx-background-color: rgba(255,255,255,0.045);
+                                             -fx-border-color: rgba(255,120,120,0.14);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;
+                                             -fx-padding: 18 20 18 20;">
+                                    <Label fx:id="lblVisibleChannelsCount"
+                                           text="0"
+                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                                    <Label text="Visible Channels"
+                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                </VBox>
+
+                                <VBox HBox.hgrow="ALWAYS"
+                                      spacing="6"
+                                      style="-fx-background-color: rgba(255,255,255,0.045);
+                                             -fx-border-color: rgba(79,172,254,0.16);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;
+                                             -fx-padding: 18 20 18 20;">
+                                    <Label fx:id="lblPublicChannelsCount"
+                                           text="0"
+                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                                    <Label text="Public Channels"
+                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                </VBox>
+
+                                <VBox HBox.hgrow="ALWAYS"
+                                      spacing="6"
+                                      style="-fx-background-color: rgba(255,255,255,0.045);
+                                             -fx-border-color: rgba(182,123,255,0.16);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;
+                                             -fx-padding: 18 20 18 20;">
+                                    <Label fx:id="lblPrivateChannelsCount"
+                                           text="0"
+                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                                    <Label text="Private Channels"
+                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                </VBox>
+
+                                <VBox HBox.hgrow="ALWAYS"
+                                      spacing="6"
+                                      style="-fx-background-color: rgba(255,255,255,0.045);
+                                             -fx-border-color: rgba(246,216,96,0.18);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;
+                                             -fx-padding: 18 20 18 20;">
+                                    <Label fx:id="lblMyPendingChannelsCount"
+                                           text="0"
+                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                                    <Label text="My Pending Channels"
+                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Discover Channels -->
+                            <VBox spacing="0"
+                                  style="-fx-background-color: rgba(255,255,255,0.02);
+                                         -fx-border-color: rgba(255,255,255,0.08);
+                                         -fx-border-radius: 18;
+                                         -fx-background-radius: 18;">
+                                <children>
+                                    <HBox alignment="CENTER_LEFT"
+                                          spacing="14"
+                                          style="-fx-padding: 20 22 20 22;">
+                                        <children>
+                                            <StackPane style="-fx-background-color: rgba(232,55,42,0.12);
+                                                              -fx-border-color: rgba(232,55,42,0.22);
+                                                              -fx-border-radius: 14;
+                                                              -fx-background-radius: 14;
+                                                              -fx-min-width: 44;
+                                                              -fx-min-height: 44;
+                                                              -fx-max-width: 44;
+                                                              -fx-max-height: 44;">
+                                                <Label text="💬" style="-fx-font-size: 18;"/>
+                                            </StackPane>
+
+                                            <VBox spacing="4">
+                                                <Label text="Discover Channels"
+                                                       style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+                                                <Label text="Browse approved community channels and open the ones available to you."
+                                                       style="-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 12;"/>
+                                            </VBox>
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+
+                            <!-- Approved channels -->
+                            <FlowPane fx:id="approvedChannelsContainer"
                                       hgap="18"
                                       vgap="18"
                                       prefWrapLength="1120">
                                 <padding>
-                                    <Insets top="4" right="0" bottom="0" left="0"/>
+                                    <Insets top="0" right="0" bottom="0" left="0"/>
                                 </padding>
                             </FlowPane>
+
+                            <!-- Pending section -->
+                            <VBox fx:id="pendingSectionBox"
+                                  spacing="14"
+                                  visible="false"
+                                  managed="false">
+                                <children>
+                                    <VBox spacing="4">
+                                        <Label text="My Pending Channels"
+                                               style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+                                        <Label text="These are your channel requests waiting for admin approval."
+                                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 12;"/>
+                                    </VBox>
+
+                                    <FlowPane fx:id="pendingChannelsContainer"
+                                              hgap="18"
+                                              vgap="18"
+                                              prefWrapLength="1120">
+                                        <padding>
+                                            <Insets top="0" right="0" bottom="0" left="0"/>
+                                        </padding>
+                                    </FlowPane>
+                                </children>
+                            </VBox>
+
                         </children>
                     </VBox>
 
