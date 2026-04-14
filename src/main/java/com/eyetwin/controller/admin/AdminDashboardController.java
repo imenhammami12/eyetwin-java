@@ -219,6 +219,7 @@ public class AdminDashboardController {
                 List<Integer> usersChart = s.getUsersLast7DaysChart();
                 List<Integer> teamsChart = s.getTeamsLast7DaysChart();
                 List<Integer> appsChart  = s.getAppsLast7DaysChart();
+                List<Integer> channelsChart = s.getChannelsLast7DaysChart();
 
                 // Monthly comparison
                 int usersThisMonth = s.getUsersThisMonth();
@@ -226,6 +227,7 @@ public class AdminDashboardController {
                 int teamsLastMonth = s.getTeamsLastMonth();
                 int appsThisMonth  = s.getApplicationsLast30Days();
                 int appsLastMonth  = rejectedApps + approvedApps;
+                int channelsLastMonth = s.getChannelsLastMonth();
 
                 Platform.runLater(() -> {
                     // KPI
@@ -301,7 +303,7 @@ public class AdminDashboardController {
                     setLabel(adminsCountLabel,    String.valueOf(admins));
 
                     // ══ LINE CHART ══
-                    setupLineChart(labels, usersChart, teamsChart, appsChart);
+                    setupLineChart(labels, usersChart, teamsChart, appsChart, channelsChart);
 
                     // ══ PIE CHART ══
                     setupPieChart(regularUsers, coaches, admins);
@@ -309,7 +311,8 @@ public class AdminDashboardController {
                     // ══ BAR CHART ══
                     setupBarChart(usersThisMonth, usersLastMonth,
                             teamsThisMonth, teamsLastMonth,
-                            appsLast7, appsLastMonth);
+                            appsLast7, appsLastMonth,
+                            channelsThisMonth, channelsLastMonth);
                 });
 
             } catch (Exception e) {
@@ -322,12 +325,24 @@ public class AdminDashboardController {
     private void setupLineChart(List<String> labels,
                                 List<Integer> users,
                                 List<Integer> teams,
-                                List<Integer> apps) {
+                                List<Integer> apps,
+                                List<Integer> channels) {
         if (activityLineChart == null) return;
-
-        activityLineChart.setAnimated(true);
+        activityLineChart.setAnimated(false);
         activityLineChart.setCreateSymbols(true);
         activityLineChart.setLegendVisible(true);
+
+        if (lineChartXAxis != null) {
+            lineChartXAxis.setTickLabelRotation(-35);
+            lineChartXAxis.setTickLabelGap(10);
+            lineChartXAxis.setAnimated(false);
+        }
+
+        if (lineChartYAxis != null) {
+            lineChartYAxis.setForceZeroInRange(false);
+            lineChartYAxis.setMinorTickVisible(false);
+            lineChartYAxis.setAnimated(false);
+        }
 
         URL cssUrl = getClass().getResource("/com/eyetwin/css/chart.css");
         if (cssUrl != null)
@@ -339,15 +354,18 @@ public class AdminDashboardController {
         teamSeries.setName("Teams");
         XYChart.Series<String, Number> appSeries  = new XYChart.Series<>();
         appSeries.setName("Applications");
+        XYChart.Series<String, Number> channelSeries = new XYChart.Series<>();
+        channelSeries.setName("Channels");
 
         for (int i = 0; i < labels.size(); i++) {
             userSeries.getData().add(new XYChart.Data<>(labels.get(i), users.get(i)));
             teamSeries.getData().add(new XYChart.Data<>(labels.get(i), teams.get(i)));
             appSeries.getData().add(new XYChart.Data<>(labels.get(i),  apps.get(i)));
+            channelSeries.getData().add(new XYChart.Data<>(labels.get(i), channels.get(i)));
         }
 
         activityLineChart.getData().clear();
-        activityLineChart.getData().addAll(userSeries, teamSeries, appSeries);
+        activityLineChart.getData().addAll(userSeries, teamSeries, appSeries, channelSeries);
 
         activityLineChart.lookupAll(".chart-series-line").forEach(n ->
                 n.setStyle("-fx-stroke-width: 2.5;"));
@@ -374,11 +392,27 @@ public class AdminDashboardController {
 
     private void setupBarChart(int usersThis, int usersLast,
                                int teamsThis, int teamsLast,
-                               int appsThis,  int appsLast) {
+                               int appsThis,  int appsLast,
+                               int channelsThis, int channelsLast) {
         if (monthlyBarChart == null) return;
-        monthlyBarChart.setAnimated(true);
+
+        monthlyBarChart.setAnimated(false);
         monthlyBarChart.setLegendVisible(true);
+        monthlyBarChart.setCategoryGap(24);
+        monthlyBarChart.setBarGap(6);
         monthlyBarChart.getData().clear();
+
+        if (monthlyBarChart.getXAxis() instanceof CategoryAxis xAxis) {
+            xAxis.setTickLabelRotation(-20);
+            xAxis.setTickLabelGap(10);
+            xAxis.setAnimated(false);
+        }
+
+        if (monthlyBarChart.getYAxis() instanceof NumberAxis yAxis) {
+            yAxis.setForceZeroInRange(true);
+            yAxis.setMinorTickVisible(false);
+            yAxis.setAnimated(false);
+        }
 
         XYChart.Series<String, Number> thisMonth = new XYChart.Series<>();
         thisMonth.setName("This Month");
@@ -388,10 +422,12 @@ public class AdminDashboardController {
         thisMonth.getData().add(new XYChart.Data<>("Users", usersThis));
         thisMonth.getData().add(new XYChart.Data<>("Teams", teamsThis));
         thisMonth.getData().add(new XYChart.Data<>("Apps",  appsThis));
+        thisMonth.getData().add(new XYChart.Data<>("Channels", channelsThis));
 
         lastMonth.getData().add(new XYChart.Data<>("Users", usersLast));
         lastMonth.getData().add(new XYChart.Data<>("Teams", teamsLast));
         lastMonth.getData().add(new XYChart.Data<>("Apps",  appsLast));
+        lastMonth.getData().add(new XYChart.Data<>("Channels", channelsLast));
 
         monthlyBarChart.getData().addAll(thisMonth, lastMonth);
     }

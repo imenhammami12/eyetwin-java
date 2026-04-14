@@ -62,12 +62,13 @@ public interface IStatsService {
     int getChannelsThisMonth();
     int getChannelsLastMonth();
     double getChannelGrowthRate();
-    List<Integer> getChannelsLast7DaysChart();
+
 
     // Dans IStatsService — ajoute ces méthodes
     List<Integer> getUsersLast7DaysChart();   // 1 valeur par jour
     List<Integer> getTeamsLast7DaysChart();
     List<Integer> getAppsLast7DaysChart();
+    List<Integer> getChannelsLast7DaysChart();
     List<String>  getLast7DaysLabels();
 
 }
