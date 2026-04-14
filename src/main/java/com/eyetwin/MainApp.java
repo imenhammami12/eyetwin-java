@@ -18,7 +18,7 @@ public class MainApp extends Application {
         stage.setMinWidth(900);
         stage.setMinHeight(600);
         stage.setResizable(true);
-        navigateTo("/com/eyetwin/views/home.fxml", "Home");
+        navigateTo("/com/eyetwin/views/login.fxml", "Login");
     }
 
     public static void navigateTo(String fxmlPath, String title) {

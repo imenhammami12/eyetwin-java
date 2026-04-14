@@ -47,7 +47,7 @@
                     <ImageView fitWidth="400" fitHeight="720"
                                preserveRatio="false" smooth="true">
                         <image>
-                            <Image url="@../assets/img/gaming-characters.png"/>
+                            <Image url="@../assets/img/gaming-characters-Photoroom.png"/>
                         </image>
                     </ImageView>
                     <Region style="-fx-background-color:

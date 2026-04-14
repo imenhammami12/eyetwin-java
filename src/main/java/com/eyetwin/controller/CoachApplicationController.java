@@ -104,6 +104,24 @@ public class CoachApplicationController {
 
         wireCounter(certificationsField, certCounter, MIN_CERT_LEN);
         wireCounter(experienceField,     expCounter,  MIN_EXP_LEN);
+        Platform.runLater(() -> {
+            styleTextArea(certificationsField);
+            styleTextArea(experienceField);
+        });
+    }
+    private void styleTextArea(TextArea area) {
+        if (area == null) return;
+        area.applyCss();
+        area.layout();
+        javafx.scene.Node content = area.lookup(".content");
+        if (content != null) {
+            content.setStyle("-fx-background-color: rgba(255,255,255,0.03);");
+        }
+        // Also style the scroll-pane viewport
+        javafx.scene.Node viewport = area.lookup(".scroll-pane");
+        if (viewport != null) {
+            viewport.setStyle("-fx-background-color: transparent;");
+        }
     }
 
     // ─────────────────────────────────────────────────────────
