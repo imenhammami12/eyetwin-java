@@ -168,6 +168,62 @@ public class StatsServiceImpl implements IStatsService {
     }
 
     // ════════════════════════════════════════════════════════════
+    //  Channel Stats
+    // ════════════════════════════════════════════════════════════
+
+    @Override public int getTotalChannels() {
+        return count("SELECT COUNT(*) FROM `channel`");
+    }
+
+    @Override public int getApprovedChannels() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE status = 'approved'");
+    }
+
+    @Override public int getPendingChannels() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE status = 'pending'");
+    }
+
+    @Override public int getRejectedChannels() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE status = 'rejected'");
+    }
+
+    @Override public int getPublicChannels() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE type = 'public'");
+    }
+
+    @Override public int getPrivateChannels() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE type = 'private'");
+    }
+
+    @Override public int getChannelsToday() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE DATE(created_at) = CURDATE()");
+    }
+
+    @Override public int getChannelsLast7Days() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE created_at >= NOW() - INTERVAL 7 DAY");
+    }
+
+    @Override public int getChannelsThisMonth() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())");
+    }
+
+    @Override public int getChannelsLastMonth() {
+        return count("SELECT COUNT(*) FROM `channel` WHERE MONTH(created_at)=MONTH(NOW()-INTERVAL 1 MONTH) AND YEAR(created_at)=YEAR(NOW()-INTERVAL 1 MONTH)");
+    }
+
+    @Override public double getChannelGrowthRate() {
+        int thisMonth = getChannelsThisMonth();
+        int lastMonth = getChannelsLastMonth();
+        if (lastMonth == 0) return thisMonth > 0 ? 100.0 : 0.0;
+        return Math.round(((thisMonth - lastMonth) * 100.0 / lastMonth) * 10.0) / 10.0;
+    }
+
+    @Override
+    public List<Integer> getChannelsLast7DaysChart() {
+        return getLast7DaysData("SELECT COUNT(*) FROM `channel` WHERE DATE(created_at) = ?");
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  Charts
     // ════════════════════════════════════════════════════════════
 
