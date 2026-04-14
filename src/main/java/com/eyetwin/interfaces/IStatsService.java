@@ -49,9 +49,26 @@ public interface IStatsService {
     int getApplicationsLast7Days();
     int getApplicationsLast30Days();
     double getApprovalRate();
+
+    // ── Channel Stats ──
+    int getTotalChannels();
+    int getApprovedChannels();
+    int getPendingChannels();
+    int getRejectedChannels();
+    int getPublicChannels();
+    int getPrivateChannels();
+    int getChannelsToday();
+    int getChannelsLast7Days();
+    int getChannelsThisMonth();
+    int getChannelsLastMonth();
+    double getChannelGrowthRate();
+
+
     // Dans IStatsService — ajoute ces méthodes
     List<Integer> getUsersLast7DaysChart();   // 1 valeur par jour
     List<Integer> getTeamsLast7DaysChart();
     List<Integer> getAppsLast7DaysChart();
+    List<Integer> getChannelsLast7DaysChart();
     List<String>  getLast7DaysLabels();
+
 }
