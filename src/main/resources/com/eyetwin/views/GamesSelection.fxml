@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.GamesSelectionController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #0a0d1a;"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    fx:id="scrollPane"
+                    style="-fx-background-color: #0a0d1a; -fx-background: #0a0d1a; -fx-border-color: transparent;">
+            <VBox fx:id="rootVBox" spacing="0" style="-fx-background-color: #0a0d1a;">
+
+                <!-- HEADER -->
+                <VBox alignment="CENTER" spacing="18"
+                      style="-fx-background-color: linear-gradient(135deg,rgba(15,19,35,0.9),rgba(20,25,45,0.9));
+                             -fx-border-color: rgba(255,255,255,0.06); -fx-border-width: 1;
+                             -fx-border-radius: 28; -fx-background-radius: 28;
+                             -fx-padding: 60 50 60 50; -fx-margin: 40;">
+                    <VBox.margin><Insets top="40" right="40" bottom="0" left="40"/></VBox.margin>
+                    <Label text="▶  Guides Complets"
+                           style="-fx-font-family:'Arial Black'; -fx-font-size:52; -fx-font-weight:bold;
+                                  -fx-text-fill: white;
+                                  -fx-effect: dropshadow(gaussian,rgba(0,217,255,0.5),25,0,0,0);"/>
+                    <Label text="Choisis ton jeu et découvre les meilleures stratégies par champions / agents."
+                           style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size:16;"/>
+                    <Button text="+ Add Guide" onAction="#goToUpload"
+                            style="-fx-background-color: linear-gradient(135deg,#ff0844,#00d9ff);
+                                   -fx-border-color: transparent; -fx-border-radius:14; -fx-background-radius:14;
+                                   -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:13;
+                                   -fx-padding: 16 32 16 32; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian,rgba(255,8,68,0.45),20,0,0,5);"/>
+                </VBox>
+
+                <!-- STATS BAR -->
+                <HBox spacing="20" style="-fx-padding: 30 40 10 40;">
+                    <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: linear-gradient(135deg,rgba(255,8,68,0.1),rgba(0,217,255,0.05));
+                                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width:1;
+                                 -fx-border-radius:20; -fx-background-radius:20; -fx-padding: 24 20 24 20;">
+                        <Label text="Total Games" style="-fx-text-fill:rgba(255,255,255,0.45); -fx-font-size:11; -fx-font-weight:bold; -fx-letter-spacing:1;"/>
+                        <Label fx:id="totalGamesLabel" text="0"
+                               style="-fx-font-size:32; -fx-font-weight:bold; -fx-text-fill:#ff0844;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: linear-gradient(135deg,rgba(255,8,68,0.1),rgba(0,217,255,0.05));
+                                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width:1;
+                                 -fx-border-radius:20; -fx-background-radius:20; -fx-padding: 24 20 24 20;">
+                        <Label text="Visible" style="-fx-text-fill:rgba(255,255,255,0.45); -fx-font-size:11; -fx-font-weight:bold;"/>
+                        <Label fx:id="visibleGamesLabel" text="0"
+                               style="-fx-font-size:32; -fx-font-weight:bold; -fx-text-fill:#00d9ff;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- SEARCH -->
+                <VBox style="-fx-padding: 10 40 10 40;">
+                    <TextField fx:id="searchField" promptText="Rechercher un jeu..."
+                               style="-fx-background-color: rgba(255,255,255,0.03);
+                                      -fx-border-color: rgba(255,255,255,0.08); -fx-border-width:1;
+                                      -fx-border-radius:18; -fx-background-radius:18;
+                                      -fx-padding: 16 24 16 24; -fx-text-fill:white; -fx-font-size:15;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.35);"/>
+                </VBox>
+                <Label fx:id="resultsNote" text="0 résultat(s)"
+                       style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:13; -fx-font-weight:bold; -fx-padding: 4 40 10 40;"/>
+
+                <!-- GAMES GRID -->
+                <FlowPane fx:id="gamesGrid" hgap="24" vgap="24"
+                          style="-fx-padding: 10 40 60 40; -fx-background-color: transparent;"/>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

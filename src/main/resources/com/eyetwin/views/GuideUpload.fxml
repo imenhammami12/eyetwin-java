@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.GuideUploadController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #0a0d1a;"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:#0a0d1a; -fx-background:#0a0d1a; -fx-border-color:transparent;">
+            <StackPane>
+
+                <!-- MAIN FORM CONTAINER -->
+                <VBox maxWidth="680" spacing="0" alignment="CENTER"
+                      style="-fx-padding: 60 0 80 0;"
+                      StackPane.alignment="TOP_CENTER">
+
+                    <VBox style="-fx-background-color:linear-gradient(135deg,rgba(15,19,35,0.9),rgba(20,25,45,0.9));
+                                 -fx-border-color:rgba(255,255,255,0.07); -fx-border-width:1;
+                                 -fx-border-radius:28; -fx-background-radius:28;
+                                 -fx-padding:46 46 46 46;
+                                 -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.5),30,0,0,0);">
+
+                        <!-- Heading -->
+                        <Label fx:id="formHeading" text="Upload Guide"
+                               style="-fx-font-family:'Arial Black'; -fx-font-size:38; -fx-font-weight:bold;
+                                      -fx-text-fill:white; -fx-padding:0 0 6 0;"/>
+                        <Label fx:id="formSubtitle" text="Share your gaming expertise with the Eye2Win community!"
+                               style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:14; -fx-wrap-text:true;
+                                      -fx-padding:0 0 20 0;"/>
+
+                        <!-- Pending notice -->
+                        <VBox fx:id="pendingNotice"
+                              style="-fx-background-color:linear-gradient(135deg,rgba(0,217,255,0.12),rgba(168,85,247,0.08));
+                                     -fx-border-color:rgba(0,217,255,0.25); -fx-border-width:1;
+                                     -fx-border-radius:14; -fx-background-radius:14;
+                                     -fx-padding:16 20 16 20; -fx-margin:0 0 20 0;">
+                            <VBox.margin><Insets bottom="20"/></VBox.margin>
+                            <Label text="💡  Votre guide sera examiné par les admins avant d'apparaître sur la plateforme."
+                                   style="-fx-text-fill:#00d9ff; -fx-font-size:13; -fx-font-weight:bold; -fx-wrap-text:true;"/>
+                        </VBox>
+
+                        <!-- Title -->
+                        <Label text="TITLE" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <TextField fx:id="titleField" promptText="Enter guide title"
+                                   style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                          -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                          -fx-padding:15 18 15 18; -fx-text-fill:white; -fx-font-size:14;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                        <Label fx:id="titleError" text="" visible="false" managed="false"
+                               style="-fx-text-fill:#ff0844; -fx-font-size:12; -fx-font-weight:bold; -fx-padding:4 0 0 0;"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Description -->
+                        <Label text="DESCRIPTION" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <TextArea fx:id="descriptionField" promptText="Describe your guide (optional)"
+                                  prefRowCount="3"
+                                  style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                         -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                         -fx-padding:14 18 14 18; -fx-text-fill:white; -fx-font-size:14;
+                                         -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Game -->
+                        <Label text="GAME" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <ComboBox fx:id="gameCombo" promptText="Select a game" maxWidth="1.7976931348623157E308"
+                                  style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                         -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                         -fx-text-fill:white; -fx-font-size:14; -fx-padding:4 0 4 0;"/>
+                        <Label fx:id="gameError" text="" visible="false" managed="false"
+                               style="-fx-text-fill:#ff0844; -fx-font-size:12; -fx-font-weight:bold; -fx-padding:4 0 0 0;"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Agent -->
+                        <Label text="AGENT / CHAMPION" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <ComboBox fx:id="agentCombo" promptText="Select an agent (optional)" maxWidth="1.7976931348623157E308"
+                                  style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                         -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                         -fx-text-fill:white; -fx-font-size:14; -fx-padding:4 0 4 0;"/>
+                        <Label text="Sélectionner un agent/champion (optionnel)"
+                               style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:4 0 0 0;"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Map -->
+                        <Label text="MAP" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <TextField fx:id="mapField" promptText="Ex: Ascent, Bind, All…"
+                                   style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                          -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                          -fx-padding:15 18 15 18; -fx-text-fill:white; -fx-font-size:14;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Video URL -->
+                        <Label text="VIDEO URL" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <TextField fx:id="videoUrlField" promptText="https://… (YouTube, Cloudflare, etc.)"
+                                   style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                          -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                          -fx-padding:15 18 15 18; -fx-text-fill:white; -fx-font-size:14;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                        <Label text="Option 1: lien vidéo"
+                               style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:4 0 8 0;"/>
+
+                        <!-- Video File -->
+                        <Label text="VIDEO FILE" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Button text="📁 Choisir un fichier" onAction="#pickVideoFile"
+                                    style="-fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                                           -fx-border-color:transparent; -fx-border-radius:10; -fx-background-radius:10;
+                                           -fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:12;
+                                           -fx-padding:12 18 12 18; -fx-cursor:hand;"/>
+                            <Label fx:id="videoFileLabel" text="Aucun fichier sélectionné"
+                                   style="-fx-text-fill:rgba(255,255,255,0.45); -fx-font-size:13;" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label text="Option 2: MP4/WEBM/OGV/MOV, max 250MB"
+                               style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:4 0 0 0;"/>
+                        <Label fx:id="videoError" text="" visible="false" managed="false"
+                               style="-fx-text-fill:#ff0844; -fx-font-size:12; -fx-font-weight:bold; -fx-padding:4 0 0 0;"/>
+                        <Region prefHeight="16"/>
+
+                        <!-- Thumbnail URL -->
+                        <Label text="THUMBNAIL URL" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <Label fx:id="thumbnailUrlField" text=""
+                               style="-fx-background-color:rgba(255,255,255,0.03); -fx-border-color:rgba(255,255,255,0.08);
+                                      -fx-border-width:1; -fx-border-radius:12;
+                                      -fx-padding:15 18 15 18; -fx-text-fill:rgba(255,255,255,0.3); -fx-font-size:14;"
+                               maxWidth="1.7976931348623157E308"/>
+                        <Label text="Option 1: lien image miniature"
+                               style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:4 0 8 0;"/>
+
+                        <!-- Thumbnail File -->
+                        <Label text="THUMBNAIL FILE" style="-fx-text-fill:transparent; -fx-font-size:12; -fx-font-weight:bold;
+                               -fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                               -fx-background-clip:text; -fx-padding:0 0 8 0;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Button text="🖼 Choisir une image" onAction="#pickThumbnailFile"
+                                    style="-fx-background-color:rgba(76,211,227,0.15); -fx-border-color:rgba(76,211,227,0.3);
+                                           -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10;
+                                           -fx-text-fill:#4cd3e3; -fx-font-weight:bold; -fx-font-size:12;
+                                           -fx-padding:12 18 12 18; -fx-cursor:hand;"/>
+                            <Label fx:id="thumbnailFileLabel" text="Aucun fichier sélectionné"
+                                   style="-fx-text-fill:rgba(255,255,255,0.45); -fx-font-size:13;" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label text="Option 2: upload image (max 5MB)"
+                               style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:4 0 0 0;"/>
+                        <Region prefHeight="28"/>
+
+                        <!-- Submit -->
+                        <Button fx:id="submitBtn" text="Upload Guide" onAction="#submitForm"
+                                maxWidth="1.7976931348623157E308"
+                                style="-fx-background-color:linear-gradient(135deg,#ff0844,#00d9ff);
+                                       -fx-border-color:transparent; -fx-border-radius:14; -fx-background-radius:14;
+                                       -fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:14;
+                                       -fx-padding:17 0 17 0; -fx-cursor:hand;
+                                       -fx-effect:dropshadow(gaussian,rgba(255,8,68,0.45),22,0,0,5);"/>
+
+                        <!-- Back -->
+                        <Button text="← Back" onAction="#goBack"
+                                maxWidth="1.7976931348623157E308"
+                                style="-fx-background-color:transparent; -fx-border-color:rgba(255,255,255,0.08);
+                                       -fx-border-width:1; -fx-border-radius:12; -fx-background-radius:12;
+                                       -fx-text-fill:rgba(255,255,255,0.6); -fx-font-size:13; -fx-font-weight:bold;
+                                       -fx-padding:13 0 13 0; -fx-margin:14 0 0 0; -fx-cursor:hand;">
+                            <VBox.margin><Insets top="14"/></VBox.margin>
+                        </Button>
+
+                    </VBox>
+                </VBox>
+
+                <!-- PROGRESS OVERLAY -->
+                <StackPane fx:id="progressOverlay" style="-fx-background-color:rgba(0,0,0,0.7);"
+                           visible="false">
+                    <VBox alignment="CENTER" spacing="16"
+                          style="-fx-background-color:rgba(15,19,35,0.95); -fx-border-color:rgba(76,211,227,0.3);
+                                 -fx-border-width:1; -fx-border-radius:20; -fx-background-radius:20;
+                                 -fx-padding:40 60 40 60;">
+                        <ProgressIndicator style="-fx-progress-color:#00d9ff;" prefWidth="48" prefHeight="48"/>
+                        <Label fx:id="progressLabel" text="Uploading..."
+                               style="-fx-text-fill:#00d9ff; -fx-font-size:15; -fx-font-weight:bold;"/>
+                    </VBox>
+                </StackPane>
+
+            </StackPane>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -18,6 +18,7 @@ module org.example.eyetwinjava {
     requires stripe.java;
 
     requires jdk.httpserver;
+    requires javafx.media;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;

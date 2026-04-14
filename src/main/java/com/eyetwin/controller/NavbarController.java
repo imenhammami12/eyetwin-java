@@ -1,5 +1,6 @@
 package com.eyetwin.controller;
 
+import com.eyetwin.entities.Game;
 import com.eyetwin.entities.User;
 import com.eyetwin.tools.SessionManager;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.lang.reflect.Method;
 
 import com.eyetwin.entities.Community.AppNotification;
 import com.eyetwin.services.Community.NotificationServiceImpl;
@@ -178,9 +180,10 @@ public class NavbarController {
     @FXML public void goHome()       { navigateTo("home.fxml"); }
     @FXML public void goToLogin()    { navigateTo("login.fxml"); }
     @FXML public void goToRegister() { navigateTo("register.fxml"); }
-    @FXML public void goToVideos()   { navigateTo("Videos.fxml"); }
-    @FXML public void goToClips()    { navigateTo("Clips.fxml"); }
-    @FXML public void goToGuides()   { navigateTo("Guides.fxml"); }
+    // Legacy menu targets (Videos/Clips/Guides) now point to the guides selection module.
+    @FXML public void goToVideos()   { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToClips()    { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToGuides()   { navigateTo("GamesSelection.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTournois() { navigateTo("Tournois.fxml"); }
     @FXML public void goToProfile()  { navigateTo("UserProfile.fxml"); }
@@ -581,5 +584,79 @@ public class NavbarController {
         String clean = text.replaceAll("\\s+", " ").trim();
         if (clean.length() <= max) return clean;
         return clean.substring(0, max - 1) + "…";
+    }
+
+    public void navigateToWithData(String fxml, String dataKey, Object payload) {
+        String[] paths = {
+                "/com/eyetwin/views/" + fxml,
+                "/com/eyetwin/view/"  + fxml,
+                "/com/eyetwin/"       + fxml
+        };
+
+        URL url = null;
+        for (String path : paths) {
+            url = getClass().getResource(path);
+            if (url != null) break;
+        }
+
+        if (url == null) {
+            System.err.println("[NavbarController] FXML not found: " + fxml);
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+
+            Object controller = loader.getController();
+            if (controller != null && payload != null) {
+                injectData(controller, payload, dataKey);
+            }
+
+            Stage stage = resolveStage();
+            if (stage == null) return;
+
+            Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
+            Scene currentScene = stage.getScene();
+            if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+                newScene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
+
+            stage.setScene(newScene);
+        } catch (IOException e) {
+            System.err.println("[NavbarController] Error loading with data: " + fxml);
+            e.printStackTrace();
+        }
+    }
+
+    private void injectData(Object controller, Object payload, String dataKey) {
+        Class<?> payloadClass = payload.getClass();
+
+        try {
+            Method exact = controller.getClass().getMethod("initData", payloadClass);
+            exact.invoke(controller, payload);
+            return;
+        } catch (Exception ignored) {
+            // Try compatible overloads below.
+        }
+
+        for (Method method : controller.getClass().getMethods()) {
+            if (!"initData".equals(method.getName()) || method.getParameterCount() != 1) {
+                continue;
+            }
+
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.isAssignableFrom(payloadClass)) {
+                try {
+                    method.invoke(controller, payload);
+                    return;
+                } catch (Exception ignored) {
+                    // Try next overload.
+                }
+            }
+        }
+
+        System.err.println("[NavbarController] No compatible initData(...) for key '" + dataKey + "' and payload "
+                + payloadClass.getSimpleName());
     }
 }
