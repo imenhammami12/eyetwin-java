@@ -127,6 +127,12 @@
                     <Region style="-fx-background-color: rgba(232,55,42,0.25);
                                    -fx-pref-width:1; -fx-pref-height:40; -fx-max-height:40;"/>
                     <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label fx:id="statChannels" text="0" styleClass="stat-val"/>
+                        <Label text="CHANNELS" styleClass="stat-lbl"/>
+                    </VBox>
+                    <Region style="-fx-background-color: rgba(232,55,42,0.25);
+                                   -fx-pref-width:1; -fx-pref-height:40; -fx-max-height:40;"/>
+                    <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
                         <Label fx:id="statTeams" text="0" styleClass="stat-val"/>
                         <Label text="TEAMS" styleClass="stat-lbl"/>
                     </VBox>
@@ -136,6 +142,8 @@
                         <Label fx:id="statCoaches" text="0" styleClass="stat-val"/>
                         <Label text="COACHES" styleClass="stat-lbl"/>
                     </VBox>
+
+
                 </HBox>
 
                 <!-- FEATURES SECTION -->
@@ -215,7 +223,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="My Teams →" styleClass="feat-link"/>
                         </VBox>
-                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" onMouseClicked="#goToChannels" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;

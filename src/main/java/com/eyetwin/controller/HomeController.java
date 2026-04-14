@@ -28,6 +28,7 @@ public class HomeController {
     @FXML private Label statTournaments;
     @FXML private Label statTeams;
     @FXML private Label statCoaches;
+    @FXML private Label statChannels;
 
     // ── Event section ──
     @FXML private Label  eventTeams;
@@ -101,12 +102,14 @@ public class HomeController {
             int tournaments = statsService.countTournaments();
             int teams       = statsService.countTeams();
             int coaches     = statsService.countCoaches();
+            int channels    = statsService.getApprovedChannels();
 
             Platform.runLater(() -> {
                 animateCounter(statPlayers,     players,     1400);
                 animateCounter(statTournaments, tournaments, 1400);
                 animateCounter(statTeams,       teams,       1400);
                 animateCounter(statCoaches,     coaches,     1400);
+                animateCounter(statChannels,    channels,    1400);
                 if (eventTeams != null)       eventTeams.setText(String.valueOf(teams));
                 if (eventTournaments != null) eventTournaments.setText(String.valueOf(tournaments));
             });
@@ -142,6 +145,7 @@ public class HomeController {
     @FXML public void goToVideos()   { navigateTo("Videos.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
+    @FXML public void goToChannels() { navigateTo("Community.fxml");}
 
     private void navigateTo(String fxml) {
         // Délègue à la navbar qui a déjà la logique complète
