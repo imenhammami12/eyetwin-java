@@ -10,10 +10,12 @@
             prefWidth="1280" prefHeight="800">
 
     <left><fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/></left>
-    <top><fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/></top>
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+        <VBox style="-fx-background-color: #0d0618;">
+        <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS"
                     style="-fx-background-color:#0d0618;-fx-background:#0d0618;-fx-border-color:transparent;">
             <VBox spacing="20" style="-fx-padding:28 32 28 32;-fx-background-color:#0d0618;">
 
@@ -452,5 +454,6 @@
 
             </VBox>
         </ScrollPane>
+        </VBox>
     </center>
 </BorderPane>

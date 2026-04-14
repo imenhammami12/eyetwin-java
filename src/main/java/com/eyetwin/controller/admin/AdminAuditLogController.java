@@ -111,9 +111,19 @@ public class AdminAuditLogController {
         if (adminSidebarController != null) adminSidebarController.setActivePage("audit");
         if (adminTopbarController  != null) adminTopbarController.setTitle("Audit Logs");
 
-        // Detect which view is active by checking injected nodes
-        if (logsTable != null)        initListView();
-        if (detailIdLabel != null)    initDetailView();
+        if (logsTable != null)     initListView();
+        if (detailIdLabel != null) initDetailView();
+
+        // ✅ Guard against null (detail view only)
+        if (detailDetailsArea != null) {
+            detailDetailsArea.setStyle(
+                    "-fx-control-inner-background: #1e0f2d;" +
+                            "-fx-background-color: #1e0f2d;" +
+                            "-fx-text-fill: rgba(255,255,255,0.85);" +
+                            "-fx-font-family: monospace;" +
+                            "-fx-font-size: 12px;"
+            );
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

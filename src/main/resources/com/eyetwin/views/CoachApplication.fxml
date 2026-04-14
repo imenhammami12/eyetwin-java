@@ -244,14 +244,16 @@
                                        style="-fx-text-fill: rgba(232,55,42,0.8); -fx-font-size: 10;
                                               -fx-font-weight: bold;"/>
                                 <TextArea fx:id="certificationsField"
-                                          promptText="• Rank achieved: Diamond/Master/Grand Master&#10;• Tournaments: ESL, DreamHack, etc.&#10;• Certifications: Riot Games Certified Coach&#10;• Achievements: Top 100 EU, Regional Champion…"
+                                          promptText="..."
                                           prefRowCount="5" wrapText="true"
-                                          style="-fx-background-color: rgba(255,255,255,0.03);
-                                                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1;
-                                                 -fx-border-radius: 9; -fx-background-radius: 9;
-                                                 -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12;
-                                                 -fx-padding: 10 12;
-                                                 -fx-prompt-text-fill: rgba(255,255,255,0.25);"/>
+                                          style="-fx-control-inner-background: #0d0c1a;
+                 -fx-background-color: rgba(255,255,255,0.03);
+                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1;
+                 -fx-border-radius: 9; -fx-background-radius: 9;
+                 -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12;
+                 -fx-padding: 10 12;
+                 -fx-prompt-text-fill: rgba(255,255,255,0.25);"/>
+
                                 <Label fx:id="certErrorLabel" text="" visible="false" managed="false"
                                        style="-fx-text-fill: #ff6b5b; -fx-font-size: 11;" wrapText="true"/>
                                 <HBox alignment="CENTER_LEFT">
@@ -291,14 +293,15 @@
                                 <Label text="EXPERIENCE"
                                        style="-fx-text-fill: rgba(232,55,42,0.8); -fx-font-size: 10; -fx-font-weight: bold;"/>
                                 <TextArea fx:id="experienceField"
-                                          promptText="• Years of experience: 3 years of esports coaching&#10;• Teams coached: Team X (2020-2022), solo players (50+)&#10;• Results: LEC qualification, average improvement +2 ranks&#10;• Methodology: VOD analysis, custom drills, mental coaching&#10;• Specialties: Mid lane, macro game, draft strategy…"
+                                          promptText="..."
                                           prefRowCount="6" wrapText="true"
-                                          style="-fx-background-color: rgba(255,255,255,0.03);
-                                                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1;
-                                                 -fx-border-radius: 9; -fx-background-radius: 9;
-                                                 -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12;
-                                                 -fx-padding: 10 12;
-                                                 -fx-prompt-text-fill: rgba(255,255,255,0.25);"/>
+                                          style="-fx-control-inner-background: #0d0c1a;
+                 -fx-background-color: rgba(255,255,255,0.03);
+                 -fx-border-color: rgba(255,255,255,0.08); -fx-border-width: 1;
+                 -fx-border-radius: 9; -fx-background-radius: 9;
+                 -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12;
+                 -fx-padding: 10 12;
+                 -fx-prompt-text-fill: rgba(255,255,255,0.25);"/>
                                 <Label fx:id="expErrorLabel" text="" visible="false" managed="false"
                                        style="-fx-text-fill: #ff6b5b; -fx-font-size: 11;" wrapText="true"/>
                                 <HBox alignment="CENTER_LEFT">
@@ -411,11 +414,18 @@
                                            -fx-padding: 10 20; -fx-cursor: hand;"/>
                             <Button fx:id="submitBtn" text="✈  Submit Application"
                                     onAction="#handleSubmit"
-                                    style="-fx-background-color: linear-gradient(135deg,#c0392b,#e8372a,#ff5533);
-                                           -fx-border-width: 0; -fx-border-radius: 9; -fx-background-radius: 9;
-                                           -fx-text-fill: white; -fx-font-size: 13; -fx-font-weight: bold;
-                                           -fx-padding: 11 28; -fx-cursor: hand;
-                                           -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.45),18,0,0,4);"/>
+                                    style="-fx-background-color: #e8372a;
+               -fx-border-width: 0;
+               -fx-border-radius: 9;
+               -fx-background-radius: 9;
+               -fx-text-fill: white;
+               -fx-font-size: 13;
+               -fx-font-weight: bold;
+               -fx-font-family: 'Arial Black';
+               -fx-padding: 11 28;
+               -fx-cursor: hand;
+               -fx-effect: dropshadow(gaussian,rgba(232,55,42,0.45),18,0,0,4);"/>
+
                         </HBox>
 
                     </VBox>

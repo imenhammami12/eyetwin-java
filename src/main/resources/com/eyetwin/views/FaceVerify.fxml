@@ -30,7 +30,7 @@
         <!-- HEADER -->
         <VBox alignment="CENTER" spacing="10" style="-fx-padding: 36 40 20 40;">
             <ImageView fitWidth="150" fitHeight="50" preserveRatio="true">
-                <image><Image url="@../../assets/img/eyetwin-logo.png"/></image>
+                <image><Image url="@../assets/img/eyetwin-logo.png"/></image>
             </ImageView>
             <Label text="🎭  Face Verification"
                    style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 26;"/>
@@ -62,17 +62,17 @@
                            preserveRatio="true"/>
             </VBox>
 
-            <!-- VERIFY BUTTON -->
             <Button fx:id="verifyBtn"
                     text="📷  Verify my face"
                     onAction="#handleVerify"
                     disable="true"
                     maxWidth="Infinity"
-                    style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
-                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
-                           -fx-background-radius: 12; -fx-padding: 15;
-                           -fx-cursor: hand;
-                           -fx-effect: dropshadow(gaussian,rgba(255,60,100,0.35),20,0,0,5);"/>
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: rgba(255,255,255,0.6);
+                           -fx-border-color: rgba(255,255,255,0.15);
+                           -fx-border-radius: 12; -fx-background-radius: 12;
+                           -fx-border-width: 1; -fx-font-size: 13; -fx-font-weight: 600;
+                           -fx-padding: 13; -fx-cursor: hand;"/>
 
             <!-- CANCEL BUTTON -->
             <Button fx:id="cancelBtn"

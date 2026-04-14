@@ -26,7 +26,7 @@
                     <!-- DASHBOARD VIEW (STARTING POINT) -->
                     <VBox fx:id="viewDashboard" visible="true" managed="true" spacing="30" alignment="CENTER"
                           style="-fx-padding: 60 40 100 40; -fx-background-color: #080810;">
-                        
+
                         <VBox styleClass="dashboard-card" maxWidth="900" spacing="25" alignment="CENTER">
                             <!-- Avatar Section -->
                             <StackPane styleClass="avatar-circle">
@@ -101,14 +101,14 @@
                                 <Image url="@../assets/img/coach_icon.png"/>
                             </ImageView>
                             <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                <Label text="AI Coach Recommendations" 
+                                <Label text="AI Coach Recommendations"
                                        style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
-                                <Label fx:id="coachRecommendationLabel" 
-                                       text="Analyzing your profile to give you the best advice..." 
+                                <Label fx:id="coachRecommendationLabel"
+                                       text="Analyzing your profile to give you the best advice..."
                                        wrapText="true"
                                        style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13;"/>
                             </VBox>
-                            <Button text="Refresh Advice" onAction="#handleRefreshCoachAdvice" 
+                            <Button text="Refresh Advice" onAction="#handleRefreshCoachAdvice"
                                     styleClass="btn-glass"/>
                             <Button text="✕" onAction="#handleCloseCoachBanner"
                                     style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 999; -fx-min-width: 34; -fx-min-height: 34;"/>
@@ -123,7 +123,7 @@
                         <VBox spacing="20" fx:id="sectionMySessions" visible="false" managed="false">
                             <Label text="My Registered Sessions"
                                    style="-fx-text-fill: #ff6b2b; -fx-font-size: 18; -fx-font-weight: bold;"/>
-                            <VBox fx:id="mySessionsList" spacing="15"/> 
+                            <VBox fx:id="mySessionsList" spacing="15"/>
                         </VBox>
 
                         <VBox spacing="20" fx:id="sectionMyHistory" visible="false" managed="false">
@@ -246,7 +246,7 @@
 
 
                                     <!-- Geolocation / Map Section -->
-                                    <VBox fx:id="mapContainer" visible="false" managed="false" spacing="8" 
+                                    <VBox fx:id="mapContainer" visible="false" managed="false" spacing="8"
                                           style="-fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 8; -fx-padding: 10;">
                                         <Label text="Session Location" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
                                         <WebView fx:id="mapWebView" prefHeight="200" style="-fx-background-color: #080810;"/>
