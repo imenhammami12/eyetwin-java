@@ -218,11 +218,6 @@ public class StatsServiceImpl implements IStatsService {
         return Math.round(((thisMonth - lastMonth) * 100.0 / lastMonth) * 10.0) / 10.0;
     }
 
-    @Override
-    public List<Integer> getChannelsLast7DaysChart() {
-        return getLast7DaysData("SELECT COUNT(*) FROM `channel` WHERE DATE(created_at) = ?");
-    }
-
     // ════════════════════════════════════════════════════════════
     //  Charts
     // ════════════════════════════════════════════════════════════
@@ -240,6 +235,11 @@ public class StatsServiceImpl implements IStatsService {
     @Override
     public List<Integer> getAppsLast7DaysChart() {
         return getLast7DaysData("SELECT COUNT(*) FROM `coach_application` WHERE DATE(submitted_at) = ?");
+    }
+
+    @Override
+    public List<Integer> getChannelsLast7DaysChart() {
+        return getLast7DaysData("SELECT COUNT(*) FROM `channel` WHERE DATE(created_at) = ?");
     }
 
     @Override
