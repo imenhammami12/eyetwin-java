@@ -46,7 +46,7 @@
                                   -fx-background-radius: 14 0 0 14;">
                     <ImageView fitWidth="375" fitHeight="648"
                                preserveRatio="false" smooth="true">
-                        <image><Image url="@../assets/img/gaming-characters.png"/></image>
+                        <image><Image url="@../assets/img/gaming-characters-Photoroom.png"/></image>
                     </ImageView>
                     <Region style="-fx-background-color:
                         linear-gradient(to right,rgba(100,0,0,0.2),rgba(0,0,0,0.52));
