@@ -25,7 +25,15 @@ public class CommunityController {
     @FXML private BorderPane rootContainer;
     @FXML private Label lblPageTitle;
     @FXML private Button btnNewChannel;
-    @FXML private FlowPane channelsContainer;
+
+    @FXML private Label lblVisibleChannelsCount;
+    @FXML private Label lblPublicChannelsCount;
+    @FXML private Label lblPrivateChannelsCount;
+    @FXML private Label lblMyPendingChannelsCount;
+
+    @FXML private FlowPane approvedChannelsContainer;
+    @FXML private FlowPane pendingChannelsContainer;
+    @FXML private VBox pendingSectionBox;
 
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
 
@@ -36,38 +44,82 @@ public class CommunityController {
         loadChannels();
     }
 
+//    private void loadChannels() {
+//        channelsContainer.getChildren().clear();
+//
+//        try {
+//            User currentUser = SessionManager.getCurrentUser();
+//            List<Channel> channels = channelService.findVisibleChannels(currentUser);
+//
+//            if (channels.isEmpty()) {
+//                VBox emptyBox = new VBox(12);
+//                emptyBox.setPadding(new Insets(28));
+//                emptyBox.setPrefWidth(420);
+//                emptyBox.setStyle(
+//                        "-fx-background-color: rgba(6,5,16,0.88);" +
+//                                "-fx-border-color: rgba(255,255,255,0.065);" +
+//                                "-fx-border-radius:14;" +
+//                                "-fx-background-radius:14;"
+//                );
+//
+//                Label emptyTitle = new Label("No channels yet");
+//                emptyTitle.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
+//
+//                Label emptyText = new Label("Create your first channel or wait for approved channels to appear.");
+//                emptyText.setWrapText(true);
+//                emptyText.setStyle("-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 13px;");
+//
+//                emptyBox.getChildren().addAll(emptyTitle, emptyText);
+//                channelsContainer.getChildren().add(emptyBox);
+//                return;
+//            }
+//
+//            for (Channel channel : channels) {
+//                channelsContainer.getChildren().add(buildChannelCard(channel));
+//            }
+//
+//        } catch (SQLException e) {
+//            showError("Failed to load channels: " + e.getMessage());
+//        }
+//    }
+
     private void loadChannels() {
-        channelsContainer.getChildren().clear();
+        approvedChannelsContainer.getChildren().clear();
+        pendingChannelsContainer.getChildren().clear();
 
         try {
             User currentUser = SessionManager.getCurrentUser();
-            List<Channel> channels = channelService.findVisibleChannels(currentUser);
 
-            if (channels.isEmpty()) {
-                VBox emptyBox = new VBox(12);
-                emptyBox.setPadding(new Insets(28));
-                emptyBox.setPrefWidth(420);
-                emptyBox.setStyle(
-                        "-fx-background-color: rgba(6,5,16,0.88);" +
-                                "-fx-border-color: rgba(255,255,255,0.065);" +
-                                "-fx-border-radius:14;" +
-                                "-fx-background-radius:14;"
-                );
+            List<Channel> approvedChannels = channelService.findApprovedCommunityChannels(currentUser);
+            List<Channel> myPendingChannels = channelService.findOwnPendingChannels(currentUser);
 
-                Label emptyTitle = new Label("No channels yet");
-                emptyTitle.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
+            // Stats
+            setLabel(lblVisibleChannelsCount, String.valueOf(approvedChannels.size()));
+            setLabel(lblPublicChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PUBLIC)));
+            setLabel(lblPrivateChannelsCount, String.valueOf(countByType(approvedChannels, Channel.TYPE_PRIVATE)));
+            setLabel(lblMyPendingChannelsCount, String.valueOf(myPendingChannels.size()));
 
-                Label emptyText = new Label("Create your first channel or wait for approved channels to appear.");
-                emptyText.setWrapText(true);
-                emptyText.setStyle("-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 13px;");
-
-                emptyBox.getChildren().addAll(emptyTitle, emptyText);
-                channelsContainer.getChildren().add(emptyBox);
-                return;
+            // Approved section
+            if (approvedChannels.isEmpty()) {
+                approvedChannelsContainer.getChildren().add(buildEmptyStateCard(
+                        "No approved channels yet",
+                        "Approved channels will appear here once they become available."
+                ));
+            } else {
+                for (Channel channel : approvedChannels) {
+                    approvedChannelsContainer.getChildren().add(buildChannelCard(channel, false));
+                }
             }
 
-            for (Channel channel : channels) {
-                channelsContainer.getChildren().add(buildChannelCard(channel));
+            // Pending section visible only for owner
+            boolean hasPending = !myPendingChannels.isEmpty();
+            pendingSectionBox.setVisible(hasPending);
+            pendingSectionBox.setManaged(hasPending);
+
+            if (hasPending) {
+                for (Channel channel : myPendingChannels) {
+                    pendingChannelsContainer.getChildren().add(buildChannelCard(channel, true));
+                }
             }
 
         } catch (SQLException e) {
@@ -75,17 +127,23 @@ public class CommunityController {
         }
     }
 
-    private VBox buildChannelCard(Channel channel) {
+    private VBox buildChannelCard(Channel channel, boolean pendingCard) {
         VBox card = new VBox(10);
         card.setPrefWidth(250);
-        card.setMinHeight(190);
+        card.setMinHeight(210);
         card.setPadding(new Insets(18));
-        card.setStyle(
-                "-fx-background-color: rgba(6,5,16,0.88);" +
-                        "-fx-border-color: rgba(232,55,42,0.18);" +
-                        "-fx-border-radius:14;" +
-                        "-fx-background-radius:14;"
-        );
+
+        String cardStyle = pendingCard
+                ? "-fx-background-color: linear-gradient(to bottom, rgba(28,20,10,0.96), rgba(15,10,18,0.96));" +
+                "-fx-border-color: rgba(246,216,96,0.28);" +
+                "-fx-border-radius:16;" +
+                "-fx-background-radius:16;"
+                : "-fx-background-color: linear-gradient(to bottom, rgba(18,10,18,0.96), rgba(8,8,16,0.96));" +
+                "-fx-border-color: rgba(255,255,255,0.09);" +
+                "-fx-border-radius:16;" +
+                "-fx-background-radius:16;";
+
+        card.setStyle(cardStyle);
 
         Label name = new Label(channel.getName());
         name.setWrapText(true);
@@ -126,10 +184,14 @@ public class CommunityController {
 
         Label description = new Label(descText);
         description.setWrapText(true);
-        description.setStyle("-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 11px;");
+        description.setStyle("-fx-text-fill: rgba(255,255,255,0.72); -fx-font-size: 11px;");
 
         Pane spacer = new Pane();
         VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        Region separator = new Region();
+        separator.setPrefHeight(1);
+        separator.setStyle("-fx-background-color: rgba(255,255,255,0.10);");
 
         HBox actions = new HBox(8);
 
@@ -157,27 +219,6 @@ public class CommunityController {
         }
 
         actions.getChildren().add(openButton);
-
-        /*/User currentUser = SessionManager.getCurrentUser();
-        boolean isOwner = currentUser != null
-                && channel.getCreatedBy() != null
-                && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
-
-        if (isOwner && Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus())) {
-            Button deleteButton = new Button("Undo");
-            deleteButton.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.06);" +
-                            "-fx-border-color: rgba(255,255,255,0.10);" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-background-radius: 9;" +
-                            "-fx-border-radius: 9;" +
-                            "-fx-padding: 8 16 8 16;" +
-                            "-fx-cursor: hand;"
-            );
-            deleteButton.setOnAction(e -> handleDeleteOwnPendingChannel(channel));
-            actions.getChildren().add(deleteButton);
-        }*/
 
         boolean isOwner = currentUser != null
                 && channel.getCreatedBy() != null
@@ -220,10 +261,9 @@ public class CommunityController {
             Label rejection = new Label("Reason: " + channel.getRejectionReason());
             rejection.setWrapText(true);
             rejection.setStyle("-fx-text-fill: #fca5a5; -fx-font-size: 11px;");
-            card.getChildren().addAll(name, game, badges, description, rejection, spacer, actions);
+            card.getChildren().addAll(name, game, badges, description, rejection, spacer, separator, actions);
         } else {
-            card.getChildren().addAll(name, game, badges, description, spacer, actions);
-        }
+            card.getChildren().addAll(name, game, badges, description, spacer, separator, actions);        }
 
         return card;
     }
@@ -239,8 +279,7 @@ public class CommunityController {
             Stage popup = new Stage();
             popup.setTitle("Edit Channel");
             popup.initModality(Modality.APPLICATION_MODAL);
-            popup.initOwner((Stage) channelsContainer.getScene().getWindow());
-            popup.setScene(new Scene(root));
+            popup.initOwner((Stage) rootContainer.getScene().getWindow());            popup.setScene(new Scene(root));
             popup.setResizable(false);
             popup.showAndWait();
 
@@ -271,36 +310,6 @@ public class CommunityController {
         }
     }
 
-//    private void handleDeleteOwnPendingChannel(Channel channel) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/ConfirmDialog.fxml"));
-//            Parent root = loader.load();
-//
-//            ConfirmDialogController controller = loader.getController();
-//            controller.setData("Undo Channel", "Do you want to delete this pending channel request?");
-//
-//            Stage popup = new Stage();
-//            popup.setTitle("Undo Channel");
-//            popup.initModality(Modality.APPLICATION_MODAL);
-//            popup.initOwner((Stage) channelsContainer.getScene().getWindow());
-//            popup.setScene(new Scene(root));
-//            popup.setResizable(false);
-//
-//            controller.setStage(popup);
-//
-//            popup.showAndWait();
-//
-//            if (controller.isConfirmed()) {
-//                User currentUser = SessionManager.getCurrentUser();
-//                channelService.deleteByOwner(channel.getId(), currentUser);
-//                loadChannels();
-//            }
-//
-//        } catch (Exception e) {
-//            showError("Failed to delete channel: " + e.getMessage());
-//        }
-//    }
-
     private void handleDeleteOwnChannel(Channel channel) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/ConfirmDialog.fxml"));
@@ -321,8 +330,7 @@ public class CommunityController {
             Stage popup = new Stage();
             popup.setTitle(title);
             popup.initModality(Modality.APPLICATION_MODAL);
-            popup.initOwner((Stage) channelsContainer.getScene().getWindow());
-            popup.setScene(new Scene(root));
+            popup.initOwner((Stage) rootContainer.getScene().getWindow());            popup.setScene(new Scene(root));
             popup.setResizable(false);
 
             controller.setStage(popup);
@@ -347,12 +355,49 @@ public class CommunityController {
             CommunityChatController controller = loader.getController();
             controller.setChannel(channel);
 
-            Stage stage = (Stage) channelsContainer.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Stage stage = (Stage) rootContainer.getScene().getWindow();            stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
             showError("Failed to open channel: " + e.getMessage());
+        }
+    }
+
+    private VBox buildEmptyStateCard(String titleText, String bodyText) {
+        VBox emptyBox = new VBox(12);
+        emptyBox.setPadding(new Insets(24));
+        emptyBox.setPrefWidth(420);
+        emptyBox.setStyle(
+                "-fx-background-color: rgba(10,10,18,0.92);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius:16;" +
+                        "-fx-background-radius:16;"
+        );
+
+        Label title = new Label(titleText);
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+
+        Label text = new Label(bodyText);
+        text.setWrapText(true);
+        text.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px;");
+
+        emptyBox.getChildren().addAll(title, text);
+        return emptyBox;
+    }
+
+    private int countByType(List<Channel> channels, String type) {
+        int count = 0;
+        for (Channel channel : channels) {
+            if (channel.getType() != null && channel.getType().equalsIgnoreCase(type)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void setLabel(Label label, String value) {
+        if (label != null) {
+            label.setText(value);
         }
     }
 
