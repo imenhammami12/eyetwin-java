@@ -53,6 +53,16 @@ public class AdminDashboardController {
     @FXML private Label usersLast7Badge;
     @FXML private Label avgUsersPerDayLabel;
 
+    // Channel KPI
+    @FXML private Label totalChannelsLabel;
+    @FXML private Label approvedChannelsLabel;
+    @FXML private Label pendingChannelsDashboardLabel;
+    @FXML private Label channelsLast7DaysLabel;
+    @FXML private Label channelGrowthBadge;
+    @FXML private Label approvedChannelsSmallLabel;
+    @FXML private Label pendingChannelsSmallLabel;
+    @FXML private Label channelsThisMonthBadge;
+
     // User stats
     @FXML private Label totalUsersLabel;
     @FXML private Label totalUsersLabel2;
@@ -109,6 +119,7 @@ public class AdminDashboardController {
 
     @FXML private AdminSidebarController adminSidebarController;
     @FXML private AdminTopbarController  adminTopbarController;
+
 
     @FXML
     public void initialize() {
@@ -195,6 +206,14 @@ public class AdminDashboardController {
                 int    appsLast30   = s.getApplicationsLast30Days();
                 double approvalRate = s.getApprovalRate();
 
+                // Channel stats
+                int    totalChannels     = s.getTotalChannels();
+                int    approvedChannels  = s.getApprovedChannels();
+                int    pendingChannels   = s.getPendingChannels();
+                int    channelsLast7     = s.getChannelsLast7Days();
+                int    channelsThisMonth = s.getChannelsThisMonth();
+                double channelGrowth     = s.getChannelGrowthRate();
+
                 // Chart data
                 List<String>  labels     = s.getLast7DaysLabels();
                 List<Integer> usersChart = s.getUsersLast7DaysChart();
@@ -219,6 +238,16 @@ public class AdminDashboardController {
                     setLabel(appsTodayBadge,           appsToday + " today");
                     setLabel(approvalRateSmall,        String.format("%.1f%% approved", approvalRate));
                     setLabel(usersLast7Badge,          usersLast7 + " this week");
+
+                    // Channel KPI
+                    setLabel(totalChannelsLabel,              String.valueOf(totalChannels));
+                    setLabel(approvedChannelsLabel,           String.valueOf(approvedChannels));
+                    setLabel(pendingChannelsDashboardLabel,   String.valueOf(pendingChannels));
+                    setLabel(channelsLast7DaysLabel,          String.valueOf(channelsLast7));
+                    setLabel(channelGrowthBadge,              formatRate(channelGrowth));
+                    setLabel(approvedChannelsSmallLabel,      approvedChannels + " approved");
+                    setLabel(pendingChannelsSmallLabel,       pendingChannels + " pending");
+                    setLabel(channelsThisMonthBadge,          channelsThisMonth + " this month");
 
                     // User stats
                     setLabel(totalUsersLabel2,         String.valueOf(totalUsers));
