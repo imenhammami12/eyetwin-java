@@ -87,62 +87,159 @@
                         <children>
 
                             <!-- Stats Row -->
-                            <HBox spacing="16">
-                                <VBox HBox.hgrow="ALWAYS"
-                                      spacing="6"
-                                      style="-fx-background-color: rgba(255,255,255,0.045);
-                                             -fx-border-color: rgba(255,120,120,0.14);
-                                             -fx-border-radius: 16;
-                                             -fx-background-radius: 16;
-                                             -fx-padding: 18 20 18 20;">
-                                    <Label fx:id="lblVisibleChannelsCount"
-                                           text="0"
-                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
-                                    <Label text="Visible Channels"
-                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+<!--                            <HBox spacing="16">-->
+<!--                                <VBox HBox.hgrow="ALWAYS"-->
+<!--                                      spacing="6"-->
+<!--                                      style="-fx-background-color: rgba(255,255,255,0.045);-->
+<!--                                             -fx-border-color: rgba(255,120,120,0.14);-->
+<!--                                             -fx-border-radius: 16;-->
+<!--                                             -fx-background-radius: 16;-->
+<!--                                             -fx-padding: 18 20 18 20;">-->
+<!--                                    <Label fx:id="lblVisibleChannelsCount"-->
+<!--                                           text="0"-->
+<!--                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>-->
+<!--                                    <Label text="Visible Channels"-->
+<!--                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>-->
+<!--                                </VBox>-->
+
+<!--                                <VBox HBox.hgrow="ALWAYS"-->
+<!--                                      spacing="6"-->
+<!--                                      style="-fx-background-color: rgba(255,255,255,0.045);-->
+<!--                                             -fx-border-color: rgba(79,172,254,0.16);-->
+<!--                                             -fx-border-radius: 16;-->
+<!--                                             -fx-background-radius: 16;-->
+<!--                                             -fx-padding: 18 20 18 20;">-->
+<!--                                    <Label fx:id="lblPublicChannelsCount"-->
+<!--                                           text="0"-->
+<!--                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>-->
+<!--                                    <Label text="Public Channels"-->
+<!--                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>-->
+<!--                                </VBox>-->
+
+<!--                                <VBox HBox.hgrow="ALWAYS"-->
+<!--                                      spacing="6"-->
+<!--                                      style="-fx-background-color: rgba(255,255,255,0.045);-->
+<!--                                             -fx-border-color: rgba(182,123,255,0.16);-->
+<!--                                             -fx-border-radius: 16;-->
+<!--                                             -fx-background-radius: 16;-->
+<!--                                             -fx-padding: 18 20 18 20;">-->
+<!--                                    <Label fx:id="lblPrivateChannelsCount"-->
+<!--                                           text="0"-->
+<!--                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>-->
+<!--                                    <Label text="Private Channels"-->
+<!--                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>-->
+<!--                                </VBox>-->
+
+<!--                                <VBox HBox.hgrow="ALWAYS"-->
+<!--                                      spacing="6"-->
+<!--                                      style="-fx-background-color: rgba(255,255,255,0.045);-->
+<!--                                             -fx-border-color: rgba(246,216,96,0.18);-->
+<!--                                             -fx-border-radius: 16;-->
+<!--                                             -fx-background-radius: 16;-->
+<!--                                             -fx-padding: 18 20 18 20;">-->
+<!--                                    <Label fx:id="lblMyPendingChannelsCount"-->
+<!--                                           text="0"-->
+<!--                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>-->
+<!--                                    <Label text="My Requests"-->
+<!--                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>-->
+<!--                                </VBox>-->
+<!--                            </HBox>-->
+
+                            <HBox alignment="CENTER"
+                                  spacing="0"
+                                  style="-fx-background-color: rgba(0,0,0,0.18);
+             -fx-border-color: rgba(232,55,42,0.18);
+             -fx-border-width: 1 0 1 0;
+             -fx-padding: 18 0 18 0;">
+
+                                <VBox alignment="CENTER"
+                                      spacing="8"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label fx:id="lblVisibleChannelsCount"
+                                               text="0"
+                                               style="-fx-text-fill: #ff5a36;
+                          -fx-font-size: 34;
+                          -fx-font-weight: bold;"/>
+                                        <Label text="Visible Channels"
+                                               style="-fx-text-fill: rgba(255,255,255,0.42);
+                          -fx-font-size: 13;
+                          -fx-font-weight: 600;"/>
+                                    </children>
                                 </VBox>
 
-                                <VBox HBox.hgrow="ALWAYS"
-                                      spacing="6"
-                                      style="-fx-background-color: rgba(255,255,255,0.045);
-                                             -fx-border-color: rgba(79,172,254,0.16);
-                                             -fx-border-radius: 16;
-                                             -fx-background-radius: 16;
-                                             -fx-padding: 18 20 18 20;">
-                                    <Label fx:id="lblPublicChannelsCount"
-                                           text="0"
-                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
-                                    <Label text="Public Channels"
-                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                <Region prefWidth="1"
+                                        maxWidth="1"
+                                        style="-fx-background-color: rgba(232,55,42,0.35);">
+                                    <HBox.margin>
+                                        <Insets top="0" right="0" bottom="0" left="0"/>
+                                    </HBox.margin>
+                                </Region>
+
+                                <VBox alignment="CENTER"
+                                      spacing="8"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label fx:id="lblPublicChannelsCount"
+                                               text="0"
+                                               style="-fx-text-fill: white;
+                          -fx-font-size: 34;
+                          -fx-font-weight: bold;"/>
+                                        <Label text="Public Channels"
+                                               style="-fx-text-fill: rgba(255,255,255,0.42);
+                          -fx-font-size: 13;
+                          -fx-font-weight: 600;"/>
+                                    </children>
                                 </VBox>
 
-                                <VBox HBox.hgrow="ALWAYS"
-                                      spacing="6"
-                                      style="-fx-background-color: rgba(255,255,255,0.045);
-                                             -fx-border-color: rgba(182,123,255,0.16);
-                                             -fx-border-radius: 16;
-                                             -fx-background-radius: 16;
-                                             -fx-padding: 18 20 18 20;">
-                                    <Label fx:id="lblPrivateChannelsCount"
-                                           text="0"
-                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
-                                    <Label text="Private Channels"
-                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                <Region prefWidth="1"
+                                        maxWidth="1"
+                                        style="-fx-background-color: rgba(232,55,42,0.35);">
+                                    <HBox.margin>
+                                        <Insets top="0" right="0" bottom="0" left="0"/>
+                                    </HBox.margin>
+                                </Region>
+
+                                <VBox alignment="CENTER"
+                                      spacing="8"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label fx:id="lblPrivateChannelsCount"
+                                               text="0"
+                                               style="-fx-text-fill: #ff7a2f;
+                          -fx-font-size: 34;
+                          -fx-font-weight: bold;"/>
+                                        <Label text="Private Channels"
+                                               style="-fx-text-fill: rgba(255,255,255,0.42);
+                          -fx-font-size: 13;
+                          -fx-font-weight: 600;"/>
+                                    </children>
                                 </VBox>
 
-                                <VBox HBox.hgrow="ALWAYS"
-                                      spacing="6"
-                                      style="-fx-background-color: rgba(255,255,255,0.045);
-                                             -fx-border-color: rgba(246,216,96,0.18);
-                                             -fx-border-radius: 16;
-                                             -fx-background-radius: 16;
-                                             -fx-padding: 18 20 18 20;">
-                                    <Label fx:id="lblMyPendingChannelsCount"
-                                           text="0"
-                                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
-                                    <Label text="My Pending Channels"
-                                           style="-fx-text-fill: rgba(255,255,255,0.68); -fx-font-size: 13;"/>
+                                <Region prefWidth="1"
+                                        maxWidth="1"
+                                        style="-fx-background-color: rgba(232,55,42,0.35);">
+                                    <HBox.margin>
+                                        <Insets top="0" right="0" bottom="0" left="0"/>
+                                    </HBox.margin>
+                                </Region>
+
+                                <VBox alignment="CENTER"
+                                      spacing="8"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label fx:id="lblMyPendingChannelsCount"
+                                               text="0"
+                                               style="-fx-text-fill: #ff5a36;
+                          -fx-font-size: 34;
+                          -fx-font-weight: bold;"/>
+                                        <Label text="My Requests"
+                                               style="-fx-text-fill: rgba(255,255,255,0.42);
+                          -fx-font-size: 13;
+                          -fx-font-weight: 600;"/>
+                                    </children>
                                 </VBox>
+
                             </HBox>
 
                             <!-- Discover Channels -->
@@ -202,6 +299,29 @@
                                     </VBox>
 
                                     <FlowPane fx:id="pendingChannelsContainer"
+                                              hgap="18"
+                                              vgap="18"
+                                              prefWrapLength="1120">
+                                        <padding>
+                                            <Insets top="0" right="0" bottom="0" left="0"/>
+                                        </padding>
+                                    </FlowPane>
+                                </children>
+                            </VBox>
+                            <!-- Rejected section -->
+                            <VBox fx:id="rejectedSectionBox"
+                                  spacing="14"
+                                  visible="false"
+                                  managed="false">
+                                <children>
+                                    <VBox spacing="4">
+                                        <Label text="My Rejected Channels"
+                                               style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+                                        <Label text="These channels were rejected by the admin. You can review the reason, edit, and resubmit them."
+                                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 12;"/>
+                                    </VBox>
+
+                                    <FlowPane fx:id="rejectedChannelsContainer"
                                               hgap="18"
                                               vgap="18"
                                               prefWrapLength="1120">
