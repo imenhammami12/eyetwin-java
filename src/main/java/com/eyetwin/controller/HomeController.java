@@ -146,6 +146,7 @@ public class HomeController {
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
     @FXML public void goToChannels() { navigateTo("Community.fxml");}
+    @FXML public void goToLive()     { navigateTo("Live.fxml"); }
 
     private void navigateTo(String fxml) {
         // Délègue à la navbar qui a déjà la logique complète

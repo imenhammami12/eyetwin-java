@@ -1,0 +1,237 @@
+/* ═══════════════════════════════════════════════════════
+   EYETWIN — LIVE STREAMS CSS (JavaFX)
+   Goal: match Symfony live/*.twig look as close as possible
+═══════════════════════════════════════════════════════ */
+
+.live-root {
+    -fx-background-color: #080810;
+}
+
+/* ──────────────────────────────────────────────────────
+   HERO
+   (approximation JavaFX of Twig hero overlays)
+   ────────────────────────────────────────────────────── */
+.live-hero {
+    -fx-background-color: linear-gradient(to bottom right, #1a0308 0%, #0c0b18 50%, #080810 100%);
+}
+.live-hero-bg {
+    -fx-opacity: 0.12;
+}
+.live-hero-overlay {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 70%, transparent 30%, rgba(0,0,0,0.75) 100%);
+}
+.live-hero-bottomfade {
+    -fx-background-color: linear-gradient(to bottom, transparent, #080810);
+}
+.live-hero-tag {
+    -fx-background-color: rgba(232,55,42,0.09);
+    -fx-border-color: rgba(232,55,42,0.28);
+    -fx-border-width: 1;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-padding: 6 12 6 12;
+}
+.live-hero-tag-text {
+    -fx-text-fill: #ff4d3d;
+    -fx-font-size: 10;
+    -fx-font-weight: 900;
+    -fx-letter-spacing: 2;
+}
+.live-hero-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 64;
+    -fx-font-weight: 900;
+}
+.live-hero-title-accent {
+    -fx-text-fill: #ff4d3d;
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 64;
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.55), 40, 0, 0, 0);
+}
+.live-hero-sub {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 14;
+}
+
+/* ──────────────────────────────────────────────────────
+   STAT BAR
+   ────────────────────────────────────────────────────── */
+.live-statbar {
+    -fx-background-color: rgba(0,0,0,0.40);
+    -fx-border-color: rgba(232,55,42,0.12) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 0 12 0;
+}
+.live-stat-val {
+    -fx-text-fill: #ff4d3d;
+    -fx-font-size: 22;
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.45), 18, 0, 0, 0);
+}
+.live-stat-val-free {
+    -fx-text-fill: #00e676;
+    -fx-effect: dropshadow(gaussian, rgba(0,230,118,0.35), 16, 0, 0, 0);
+}
+.live-stat-lbl {
+    -fx-text-fill: rgba(255,255,255,0.35);
+    -fx-font-size: 10;
+    -fx-font-weight: 900;
+    -fx-letter-spacing: 2;
+}
+.live-stat-divider {
+    -fx-background-color: linear-gradient(to bottom, transparent, rgba(232,55,42,0.25), transparent);
+}
+
+/* ──────────────────────────────────────────────────────
+   LIVE GRID + CARD
+   ────────────────────────────────────────────────────── */
+.live-grid {
+    -fx-hgap: 14;
+    -fx-vgap: 14;
+}
+.live-card {
+    -fx-background-color: rgba(6,5,16,0.88);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.2, 0, 10);
+}
+.live-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(232,55,42,0.12), 32, 0.2, 0, 12);
+}
+.live-card-live {
+    -fx-border-color: rgba(232,55,42,0.25);
+    -fx-border-width: 1;
+}
+.live-card-soon {
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-width: 1;
+}
+.live-pill {
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-font-size: 10;
+    -fx-font-weight: 900;
+    -fx-letter-spacing: 2;
+}
+.live-pill-live {
+    -fx-background-color: rgba(232,55,42,0.85);
+    -fx-border-color: rgba(255,107,107,0.50);
+    -fx-text-fill: white;
+}
+.live-pill-soon {
+    -fx-background-color: rgba(255,107,43,0.15);
+    -fx-border-color: rgba(255,107,43,0.35);
+    -fx-text-fill: #ff6b2b;
+}
+.live-thumb {
+    -fx-background-color: linear-gradient(to bottom right, #12040a 0%, #0d0818 100%);
+    -fx-min-height: 150;
+    -fx-pref-height: 150;
+    -fx-background-radius: 14 14 0 0;
+}
+.live-thumb-icon {
+    -fx-text-fill: rgba(232,55,42,0.55);
+    -fx-font-size: 44;
+    -fx-font-weight: 900;
+}
+.live-body {
+    -fx-padding: 14 16 16 16;
+    -fx-spacing: 8;
+}
+.live-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+    -fx-font-weight: 900;
+}
+.live-meta {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 11;
+    -fx-font-weight: 800;
+}
+.live-desc {
+    -fx-text-fill: rgba(255,255,255,0.42);
+    -fx-font-size: 12;
+}
+.live-footer {
+    -fx-padding: 10 0 0 0;
+    -fx-border-color: rgba(255,255,255,0.05) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+.live-price {
+    -fx-text-fill: rgba(255,255,255,0.52);
+    -fx-font-size: 11;
+    -fx-font-weight: 900;
+}
+.live-price-free {
+    -fx-text-fill: #00e676;
+}
+.live-watch-btn {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-text-fill: rgba(255,255,255,0.60);
+    -fx-font-size: 11;
+    -fx-font-weight: 900;
+    -fx-padding: 6 12 6 12;
+    -fx-cursor: hand;
+}
+.live-watch-btn:hover {
+    -fx-background-color: rgba(255,107,43,0.12);
+    -fx-border-color: rgba(255,107,43,0.35);
+    -fx-text-fill: #ff6b2b;
+}
+.live-watch-btn-live {
+    -fx-background-color: rgba(232,55,42,0.10);
+    -fx-border-color: rgba(232,55,42,0.35);
+    -fx-text-fill: #ff4d3d;
+}
+.live-watch-btn-live:hover {
+    -fx-background-color: rgba(232,55,42,0.22);
+    -fx-border-color: #e8372a;
+    -fx-text-fill: white;
+}
+
+/* ──────────────────────────────────────────────────────
+   PAYWALL / WATCH
+   ────────────────────────────────────────────────────── */
+.watch-breadcrumb {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 11;
+    -fx-font-weight: 800;
+}
+.watch-card {
+    -fx-background-color: rgba(6,5,16,0.88);
+    -fx-border-color: rgba(232,55,42,0.12);
+    -fx-border-width: 1;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 16;
+}
+.paywall-card {
+    -fx-background-color: rgba(6,5,16,0.92);
+    -fx-border-color: rgba(232,55,42,0.20);
+    -fx-border-width: 1;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-padding: 26;
+}
+.paywall-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22;
+    -fx-font-weight: 900;
+}
+.paywall-muted {
+    -fx-text-fill: rgba(255,255,255,0.45);
+}
+.paywall-price {
+    -fx-text-fill: #f6d860;
+    -fx-font-size: 34;
+    -fx-font-weight: 900;
+}
+

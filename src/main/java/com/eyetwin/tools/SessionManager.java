@@ -1,6 +1,7 @@
 package com.eyetwin.tools;
 
 import com.eyetwin.entities.Complaint;
+import com.eyetwin.entities.LiveStream;
 import com.eyetwin.entities.Planning;
 import com.eyetwin.entities.Team;
 import com.eyetwin.entities.TrainingSession;
@@ -60,6 +61,7 @@ public class SessionManager {
     private static Complaint       selectedComplaint       = null;
     private static Planning        selectedPlanning        = null;
     private static TrainingSession selectedTrainingSession = null;
+    private static LiveStream      selectedLiveStream      = null;
 
     // ─────────────────────────────────────────────────────────
     //  Session de base
@@ -276,6 +278,10 @@ public class SessionManager {
     public static TrainingSession getSelectedTrainingSession()             { return selectedTrainingSession; }
     public static void clearSelectedTrainingSession()                      { selectedTrainingSession = null; }
 
+    public static void setSelectedLiveStream(LiveStream liveStream) { selectedLiveStream = liveStream; }
+    public static LiveStream getSelectedLiveStream()                { return selectedLiveStream; }
+    public static void clearSelectedLiveStream()                    { selectedLiveStream = null; }
+
     // ─────────────────────────────────────────────────────────
     //  Déconnexion
     // ─────────────────────────────────────────────────────────
@@ -294,6 +300,7 @@ public class SessionManager {
         selectedComplaint      = null;
         selectedPlanning       = null;
         selectedTrainingSession = null;
+        selectedLiveStream     = null;
         // NE PAS supprimer le trusted device ici —
         // il doit persister entre les sessions (comme un cookie "remember_me")
     }
