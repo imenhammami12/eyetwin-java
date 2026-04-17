@@ -12,13 +12,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LiveWatchController {
 
@@ -44,11 +51,7 @@ public class LiveWatchController {
     private LiveStream live;
     private User user;
     private boolean hasAccess;
-
-
     private Process ffmpegPreviewProcess;
-    private javafx.animation.AnimationTimer previewTimer;
-
 
     @FXML
     public void initialize() {
@@ -93,8 +96,7 @@ public class LiveWatchController {
         priceLabel.setText(live.getCoinPrice() == 0 ? "FREE" : live.getCoinPrice() + " coins");
         startedAtLabel.setText(live.getStartedAt() == null ? "—" : fmt.format(live.getStartedAt()));
         descriptionLabel.setText(live.getDescription() == null || live.getDescription().isBlank()
-                ? "No description provided."
-                : live.getDescription());
+                ? "No description provided." : live.getDescription());
 
         if (!hasAccess && live.getCoinPrice() == 0 && !live.isEnded()) {
             hasAccess = true;
@@ -113,7 +115,10 @@ public class LiveWatchController {
                 waitingLabel.setText(live.isEnded()
                         ? "This live stream has ended."
                         : "The coach will go live soon.");
-                playerWebView.getEngine().loadContent("<html><body style='background:#080810;color:white;font-family:Arial;padding:24px'>Stream is not live yet.</body></html>");
+                if (playerWebView != null)
+                    playerWebView.getEngine().loadContent(
+                            "<html><body style='background:#080810;color:white;" +
+                                    "font-family:Arial;padding:24px'>Stream is not live yet.</body></html>");
             }
         } else {
             int missing = Math.max(0, live.getCoinPrice() - user.getCoinBalance());
@@ -123,34 +128,51 @@ public class LiveWatchController {
         }
     }
 
-    private void stopLivePreview() {
-        if (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
-            ffmpegPreviewProcess.destroyForcibly();
-            ffmpegPreviewProcess = null;
+    // ── Detect real stream dimensions ─────────────────────────────────────────
+
+    private int[] detectStreamSize(String ffmpegExe, String url) {
+        try {
+            Process p = new ProcessBuilder(ffmpegExe, "-i", url)
+                    .redirectErrorStream(true).start();
+            try (BufferedReader r = new BufferedReader(
+                    new InputStreamReader(p.getInputStream()))) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    if (line.contains("Video:") && line.contains("x")) {
+                        Matcher m = Pattern.compile("(\\d{2,4})x(\\d{2,4})").matcher(line);
+                        if (m.find()) {
+                            int w = Integer.parseInt(m.group(1));
+                            int h = Integer.parseInt(m.group(2));
+                            if (w > 100 && h > 100) {
+                                p.destroyForcibly();
+                                System.out.println("[LiveWatch] Detected: " + w + "x" + h);
+                                return new int[]{w, h};
+                            }
+                        }
+                    }
+                }
+            }
+            p.destroyForcibly();
+        } catch (Exception e) {
+            System.err.println("[LiveWatch] Size detection failed: " + e.getMessage());
         }
+        return new int[]{640, 360}; // fallback
     }
 
+    // ── Player ────────────────────────────────────────────────────────────────
 
     private void loadPlayer() {
-        // ✅ FFmpeg décode le HLS et envoie des frames MJPEG sur stdout
-        // JavaFX lit les frames et les affiche dans un ImageView
-
         String hlsUrl = "http://127.0.0.1:8888/live/" + live.getStreamKey() + "/index.m3u8";
 
-        // Remplace le WebView par un ImageView dans le playerBox
-        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        ImageView imageView = new ImageView();
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(860);
         imageView.setFitHeight(430);
-        imageView.setStyle("-fx-background-color: black;");
 
-        // Remplace le WebView dans le playerBox
+        // Remplace le WebView par l'ImageView dans playerBox
         Platform.runLater(() -> {
-            // playerBox contient: Label "Player", WebView, Label waitingLabel
-            // On remplace le WebView (index 1) par notre ImageView
-            if (playerBox.getChildren().size() > 1) {
+            if (playerBox.getChildren().size() > 1)
                 playerBox.getChildren().set(1, imageView);
-            }
         });
 
         new Thread(() -> {
@@ -161,26 +183,44 @@ public class LiveWatchController {
                     return;
                 }
 
-                // FFmpeg décode HLS → frames MJPEG raw sur stdout
+                // ✅ Détecte les dimensions réelles
+                int[] size   = detectStreamSize(ffmpegExe, hlsUrl);
+                int width    = size[0];
+                int height   = size[1];
+                System.out.println("[LiveWatch] Stream size: " + width + "x" + height);
+
+                // Met à jour l'ImageView avec les bonnes dimensions
+                Platform.runLater(() -> {
+                    imageView.setFitWidth(width);
+                    imageView.setFitHeight(height);
+                });
+
                 ProcessBuilder pb = new ProcessBuilder(
                         ffmpegExe,
                         "-i", hlsUrl,
-                        "-vf", "scale=860:430:force_original_aspect_ratio=decrease",
                         "-f", "rawvideo",
                         "-pix_fmt", "bgr24",
                         "-r", "25",
                         "pipe:1"
                 );
-                pb.redirectErrorStream(false); // stderr séparé pour ne pas polluer stdout
+                pb.redirectErrorStream(false);
                 ffmpegPreviewProcess = pb.start();
 
-                int width = 860, height = 430;
-                int frameSize = width * height * 3; // BGR24
+                // Drain stderr silencieusement
+                new Thread(() -> {
+                    try (BufferedReader err = new BufferedReader(
+                            new InputStreamReader(ffmpegPreviewProcess.getErrorStream()))) {
+                        while (err.readLine() != null) {} // ignore
+                    } catch (Exception ignored) {}
+                }, "ffmpeg-preview-err").start();
+
+                int frameSize     = width * height * 3;
                 byte[] frameBuffer = new byte[frameSize];
-                java.io.InputStream is = ffmpegPreviewProcess.getInputStream();
+                byte[] rgbBuffer   = new byte[frameSize];
+                var is             = ffmpegPreviewProcess.getInputStream();
 
                 while (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
-                    // Lit exactement un frame
+                    // Lit exactement un frame complet
                     int read = 0;
                     while (read < frameSize) {
                         int r = is.read(frameBuffer, read, frameSize - read);
@@ -189,31 +229,43 @@ public class LiveWatchController {
                     }
                     if (read < frameSize) break;
 
-                    // Convertit BGR24 → JavaFX WritableImage
-                    javafx.scene.image.WritableImage img =
-                            new javafx.scene.image.WritableImage(width, height);
-                    javafx.scene.image.PixelWriter pw = img.getPixelWriter();
-
-                    // BGR → RGB conversion
-                    byte[] rgbBuffer = new byte[frameSize];
+                    // BGR → RGB
                     for (int i = 0; i < width * height; i++) {
                         rgbBuffer[i * 3]     = frameBuffer[i * 3 + 2]; // R
                         rgbBuffer[i * 3 + 1] = frameBuffer[i * 3 + 1]; // G
                         rgbBuffer[i * 3 + 2] = frameBuffer[i * 3];     // B
                     }
 
-                    pw.setPixels(0, 0, width, height,
-                            javafx.scene.image.PixelFormat.getByteRgbInstance(),
-                            rgbBuffer, 0, width * 3);
+                    // Copie pour le lambda
+                    byte[] copy = rgbBuffer.clone();
+                    final int w = width, h = height;
 
-                    final javafx.scene.image.WritableImage finalImg = img;
-                    Platform.runLater(() -> imageView.setImage(finalImg));
+                    Platform.runLater(() -> {
+                        WritableImage img = new WritableImage(w, h);
+                        img.getPixelWriter().setPixels(
+                                0, 0, w, h,
+                                PixelFormat.getByteRgbInstance(),
+                                copy, 0, w * 3);
+                        imageView.setImage(img);
+                    });
                 }
+
             } catch (Exception e) {
                 System.err.println("[LiveWatch] Preview error: " + e.getMessage());
             }
         }, "live-preview").start();
     }
+
+    // ── Stop preview ──────────────────────────────────────────────────────────
+
+    private void stopLivePreview() {
+        if (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
+            ffmpegPreviewProcess.destroyForcibly();
+            ffmpegPreviewProcess = null;
+        }
+    }
+
+    // ── Actions ───────────────────────────────────────────────────────────────
 
     @FXML
     private void handleJoin() {
@@ -242,18 +294,19 @@ public class LiveWatchController {
         navigateTo("Live.fxml");
     }
 
-
     @FXML
     private void goToCoins() {
         navigateTo("Coins.fxml");
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
     private void showFlash(String type, String message) {
         if (flashBox == null || flashLabel == null) return;
         String color = switch (type) {
             case "success" -> "#70d0a0";
-            case "error" -> "#ff8a8a";
-            default -> "#9eb1ff";
+            case "error"   -> "#ff8a8a";
+            default        -> "#9eb1ff";
         };
         flashLabel.setText(message);
         flashLabel.setStyle("-fx-text-fill: " + color + ";");
@@ -263,12 +316,13 @@ public class LiveWatchController {
 
     private void navigateTo(String fxml) {
         stopLivePreview();
-
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/com/eyetwin/views/" + fxml));
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/com/eyetwin/views/" + fxml));
             Stage stage = (Stage) titleLabel.getScene().getWindow();
             Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
-            if (stage.getScene() != null) newScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            if (stage.getScene() != null)
+                newScene.getStylesheets().addAll(stage.getScene().getStylesheets());
             stage.setScene(newScene);
         } catch (IOException e) {
             System.err.println("[LiveWatchController] Navigation error: " + fxml);
