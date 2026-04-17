@@ -45,6 +45,11 @@ public class LiveWatchController {
     private User user;
     private boolean hasAccess;
 
+
+    private Process ffmpegPreviewProcess;
+    private javafx.animation.AnimationTimer previewTimer;
+
+
     @FXML
     public void initialize() {
         if (navbarController != null) navbarController.setActivePage("live");
@@ -118,21 +123,96 @@ public class LiveWatchController {
         }
     }
 
+    private void stopLivePreview() {
+        if (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
+            ffmpegPreviewProcess.destroyForcibly();
+            ffmpegPreviewProcess = null;
+        }
+    }
+
+
     private void loadPlayer() {
-        String hlsUrl = "http://127.0.0.1:8888/" + live.getStreamKey() + "/index.m3u8";
-        String html = """
-                <html><head><style>body{margin:0;background:#000}video{width:100%%;height:100%%;object-fit:cover}</style></head>
-                <body>
-                <video id='video' controls autoplay muted></video>
-                <script src='https://cdn.jsdelivr.net/npm/hls.js@latest'></script>
-                <script>
-                const video=document.getElementById('video');const src='%s';
-                if(window.Hls&&Hls.isSupported()){const hls=new Hls({lowLatencyMode:true,liveSyncDurationCount:2,liveMaxLatencyDurationCount:4});
-                hls.loadSource(src);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());}
-                else{video.src=src;video.play();}
-                </script></body></html>
-                """.formatted(hlsUrl);
-        playerWebView.getEngine().loadContent(html);
+        // ✅ FFmpeg décode le HLS et envoie des frames MJPEG sur stdout
+        // JavaFX lit les frames et les affiche dans un ImageView
+
+        String hlsUrl = "http://127.0.0.1:8888/live/" + live.getStreamKey() + "/index.m3u8";
+
+        // Remplace le WebView par un ImageView dans le playerBox
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(860);
+        imageView.setFitHeight(430);
+        imageView.setStyle("-fx-background-color: black;");
+
+        // Remplace le WebView dans le playerBox
+        Platform.runLater(() -> {
+            // playerBox contient: Label "Player", WebView, Label waitingLabel
+            // On remplace le WebView (index 1) par notre ImageView
+            if (playerBox.getChildren().size() > 1) {
+                playerBox.getChildren().set(1, imageView);
+            }
+        });
+
+        new Thread(() -> {
+            try {
+                String ffmpegExe = com.eyetwin.services.FFmpegStreamingService.resolveFfmpegPath();
+                if (ffmpegExe == null) {
+                    Platform.runLater(() -> showFlash("error", "FFmpeg not found."));
+                    return;
+                }
+
+                // FFmpeg décode HLS → frames MJPEG raw sur stdout
+                ProcessBuilder pb = new ProcessBuilder(
+                        ffmpegExe,
+                        "-i", hlsUrl,
+                        "-vf", "scale=860:430:force_original_aspect_ratio=decrease",
+                        "-f", "rawvideo",
+                        "-pix_fmt", "bgr24",
+                        "-r", "25",
+                        "pipe:1"
+                );
+                pb.redirectErrorStream(false); // stderr séparé pour ne pas polluer stdout
+                ffmpegPreviewProcess = pb.start();
+
+                int width = 860, height = 430;
+                int frameSize = width * height * 3; // BGR24
+                byte[] frameBuffer = new byte[frameSize];
+                java.io.InputStream is = ffmpegPreviewProcess.getInputStream();
+
+                while (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
+                    // Lit exactement un frame
+                    int read = 0;
+                    while (read < frameSize) {
+                        int r = is.read(frameBuffer, read, frameSize - read);
+                        if (r < 0) break;
+                        read += r;
+                    }
+                    if (read < frameSize) break;
+
+                    // Convertit BGR24 → JavaFX WritableImage
+                    javafx.scene.image.WritableImage img =
+                            new javafx.scene.image.WritableImage(width, height);
+                    javafx.scene.image.PixelWriter pw = img.getPixelWriter();
+
+                    // BGR → RGB conversion
+                    byte[] rgbBuffer = new byte[frameSize];
+                    for (int i = 0; i < width * height; i++) {
+                        rgbBuffer[i * 3]     = frameBuffer[i * 3 + 2]; // R
+                        rgbBuffer[i * 3 + 1] = frameBuffer[i * 3 + 1]; // G
+                        rgbBuffer[i * 3 + 2] = frameBuffer[i * 3];     // B
+                    }
+
+                    pw.setPixels(0, 0, width, height,
+                            javafx.scene.image.PixelFormat.getByteRgbInstance(),
+                            rgbBuffer, 0, width * 3);
+
+                    final javafx.scene.image.WritableImage finalImg = img;
+                    Platform.runLater(() -> imageView.setImage(finalImg));
+                }
+            } catch (Exception e) {
+                System.err.println("[LiveWatch] Preview error: " + e.getMessage());
+            }
+        }, "live-preview").start();
     }
 
     @FXML
@@ -158,8 +238,10 @@ public class LiveWatchController {
 
     @FXML
     private void goBack() {
+        stopLivePreview();
         navigateTo("Live.fxml");
     }
+
 
     @FXML
     private void goToCoins() {
@@ -180,6 +262,8 @@ public class LiveWatchController {
     }
 
     private void navigateTo(String fxml) {
+        stopLivePreview();
+
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/com/eyetwin/views/" + fxml));
             Stage stage = (Stage) titleLabel.getScene().getWindow();
