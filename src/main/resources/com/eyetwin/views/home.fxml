@@ -95,7 +95,7 @@
                                     text="⬆  Upload a Video"
                                     onAction="#goToVideos"
                                     styleClass="btn-fire"/>
-                            <Button text="● Watch Live"
+                            <Button text="● Watch Live" onAction="#goToLive"
                                     style="-fx-background-color: rgba(255,255,255,0.04);
                    -fx-text-fill: rgba(255,255,255,0.6); -fx-font-weight:bold;
                    -fx-font-size:13; -fx-background-radius:9;
@@ -169,7 +169,7 @@
                                    styleClass="feat-desc"/>
                             <Label text="Upload Now →" styleClass="feat-link"/>
                         </VBox>
-                        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="feat-card">
+                        <VBox spacing="12" HBox.hgrow="ALWAYS" onMouseClicked="#goToLive" styleClass="feat-card">
                             <StackPane style="-fx-background-color: rgba(232,55,42,0.1);
                                               -fx-border-color: rgba(232,55,42,0.25);
                                               -fx-border-radius:12; -fx-background-radius:12;

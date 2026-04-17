@@ -63,12 +63,12 @@
            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
               -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
     <!-- LIVE -->
-    <HBox alignment="CENTER" spacing="5"
+    <HBox alignment="CENTER" spacing="5" onMouseClicked="#goToLive"
           style="-fx-padding: 22 14 22 14; -fx-cursor: hand;">
         <Label text="●"
                style="-fx-text-fill: #ff4d3d; -fx-font-size: 7;
                       -fx-effect: dropshadow(gaussian,#ff4d3d,8,0,0,0);"/>
-        <Label text="LIVE"
+        <Label fx:id="navLive" text="LIVE"
                style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
     </HBox>
 

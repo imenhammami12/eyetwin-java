@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.LiveCreateController"
+            stylesheets="@../styles/gaming.css,@../styles/live.css"
+            styleClass="live-root"
+            prefWidth="1280" prefHeight="800">
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <StackPane style="-fx-padding: 30 64 40 64;">
+                <VBox maxWidth="680" spacing="16" styleClass="gcard">
+                    <Label text="Create a Live Stream"
+                           style="-fx-text-fill: white; -fx-font-size: 26; -fx-font-weight: 900;"/>
+
+                    <!-- ✅ FIX: removed styleClass="gcard", added managed="false" and inline style -->
+                    <VBox fx:id="flashBox" visible="false" managed="false"
+                          style="-fx-background-color: rgba(255,255,255,0.04);
+                                 -fx-padding: 12;
+                                 -fx-background-radius: 8;
+                                 -fx-border-color: rgba(255,255,255,0.10);
+                                 -fx-border-radius: 8;">
+                        <Label fx:id="flashLabel" wrapText="true"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Title"
+                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800;"/>
+                        <TextField fx:id="titleField" promptText="Create a title" styleClass="input-gaming"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Description"
+                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800;"/>
+                        <TextArea fx:id="descriptionField"
+                                  promptText="Optional — tell viewers what they'll learn."
+                                  prefRowCount="5" wrapText="true" styleClass="input-gaming"/>
+                        <Label text="Optional — tell viewers what they'll learn."
+                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Coin Price"
+                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800;"/>
+                        <TextField fx:id="coinPriceField" promptText="0 for a free live stream"
+                                   styleClass="input-gaming"/>
+                        <Label text="Set to 0 for a free live stream."
+                               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
+                    </VBox>
+
+                    <HBox spacing="10">
+                        <Button text="Create Stream" onAction="#handleCreate" styleClass="btn-fire"/>
+                        <Button text="Cancel"        onAction="#goBack"       styleClass="btn-ghost"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </ScrollPane>
+    </center>
+</BorderPane>
