@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.admin.AdminChannelDetailsDialogController"
+      spacing="12"
+      prefWidth="480"
+      prefHeight="320"
+      style="-fx-background-color: linear-gradient(to bottom right, #090f22, #12081a);
+             -fx-padding: 24;
+             -fx-border-color: rgba(255,70,70,0.24);
+             -fx-border-radius: 18;
+             -fx-background-radius: 18;">
+
+    <children>
+        <Label fx:id="lblName"
+               text="Channel Name"
+               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <Separator style="-fx-background-color: rgba(255,255,255,0.10);" />
+
+        <Label fx:id="lblGame" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+        <Label fx:id="lblType" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+        <Label fx:id="lblStatus" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+        <Label fx:id="lblActive" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+        <Label fx:id="lblCreatedBy" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+
+        <Label text="Description:"
+               style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
+
+        <Label fx:id="lblDescription"
+               wrapText="true"
+               style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 14px;" />
+
+        <Pane VBox.vgrow="ALWAYS" />
+
+        <HBox alignment="CENTER_RIGHT">
+            <children>
+                <Button text="Close"
+                        onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10 20 10 20;" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

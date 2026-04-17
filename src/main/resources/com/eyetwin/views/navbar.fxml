@@ -59,16 +59,16 @@
     <Label fx:id="navTeams" text="TEAMS" onMouseClicked="#goToTeams"
            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
               -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
-    <Label fx:id="navCommunity" text="COMMUNITY"
+    <Label fx:id="navCommunity" text="COMMUNITY" onMouseClicked="#goToCommunity"
            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size:10; -fx-font-weight:bold;
               -fx-padding: 22 14 22 14; -fx-cursor: hand;"/>
     <!-- LIVE -->
-    <HBox alignment="CENTER" spacing="5"
+    <HBox alignment="CENTER" spacing="5" onMouseClicked="#goToLive"
           style="-fx-padding: 22 14 22 14; -fx-cursor: hand;">
         <Label text="●"
                style="-fx-text-fill: #ff4d3d; -fx-font-size: 7;
                       -fx-effect: dropshadow(gaussian,#ff4d3d,8,0,0,0);"/>
-        <Label text="LIVE"
+        <Label fx:id="navLive" text="LIVE"
                style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;"/>
     </HBox>
 
@@ -95,9 +95,9 @@
         <MenuButton fx:id="navNotifMenu"
                     style="-fx-background-color: transparent;
                            -fx-border-color: transparent;
-                           -fx-text-fill: rgba(255,255,255,0.65);
+                           -fx-text-fill: rgba(255,255,255,0.72);
                            -fx-font-size: 14;
-                           -fx-mark-color: transparent;
+                           -fx-mark-color: rgba(255,255,255,0.35);
                            -fx-padding: 6 8 6 8;
                            -fx-cursor: hand;">
             <graphic>
@@ -127,11 +127,12 @@
         <!-- Profile dropdown -->
         <MenuButton fx:id="navProfileMenu"
                     style="-fx-background-color: rgba(255,255,255,0.03);
-                           -fx-border-color: rgba(232,55,42,0.18);
+                           -fx-border-color: rgba(232,55,42,0.22);
                            -fx-border-radius: 50; -fx-background-radius: 50;
                            -fx-padding: 4 12 4 4;
-                           -fx-mark-color: rgba(255,255,255,0.3);
+                           -fx-mark-color: rgba(255,255,255,0.35);
                            -fx-cursor: hand;">
+
             <graphic>
                 <HBox alignment="CENTER" spacing="7">
                     <StackPane style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);

@@ -49,7 +49,7 @@ public class UserProfileController {
     private static final String            VIEWS        = "/com/eyetwin/views/";
 
     // ══════════════════════════════════════════════════════════════════════
-    //  SERVICES  (✅ interfaces, pas de DAO)
+    //  SERVICES
     // ══════════════════════════════════════════════════════════════════════
     protected final IUserService             userService     = new UserServiceImpl();
     protected final ITeamService             teamService     = new TeamServiceImpl();

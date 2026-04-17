@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.MyLiveStreamsController"
+            stylesheets="@../styles/gaming.css,@../styles/live.css"
+            styleClass="live-root"
+            prefWidth="1280" prefHeight="800">
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16" style="-fx-padding: 22 64 40 64; -fx-background-color: #080810;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="My Live Streams" style="-fx-text-fill: white; -fx-font-size: 30; -fx-font-weight: 900;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="New Stream" onAction="#goToCreate"
+                            styleClass="btn-fire"/>
+                    <Button text="Back" onAction="#goBack"
+                            styleClass="btn-ghost"/>
+                </HBox>
+
+                <VBox fx:id="emptyStateBox" spacing="10" alignment="CENTER"
+                      styleClass="gcard">
+                    <Label text="You haven't created any live streams yet." style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: 800;"/>
+                    <Label text="Start coaching your audience with your first live stream."
+                           style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                </VBox>
+
+                <VBox fx:id="streamListBox" spacing="12"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.LiveWatchController"
+            stylesheets="@../styles/gaming.css,@../styles/live.css"
+            styleClass="live-root"
+            prefWidth="1280" prefHeight="800">
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16" style="-fx-padding: 22 64 40 64; -fx-background-color: #080810;">
+                <Label text="Live Streams / Watch" styleClass="watch-breadcrumb"/>
+                <VBox fx:id="flashBox" visible="false" managed="false" style="-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 12; -fx-background-radius: 8;">
+                    <Label fx:id="flashLabel"/>
+                </VBox>
+
+                <HBox spacing="16">
+                    <VBox VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" spacing="16">
+                        <VBox fx:id="playerBox" spacing="10" styleClass="watch-card">
+                            <Label text="Player" style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 900;"/>
+                            <WebView fx:id="playerWebView" prefHeight="430"/>
+                            <Label fx:id="waitingLabel" text="" style="-fx-text-fill: rgba(255,255,255,0.5);"/>
+                        </VBox>
+
+                        <VBox fx:id="paywallBox" spacing="10" styleClass="paywall-card">
+                            <Label text="Locked Stream" styleClass="paywall-title"/>
+                            <Label fx:id="userBalanceLabel" text="0 coins" styleClass="paywall-muted"/>
+                            <Label fx:id="neededCoinsLabel" text="" styleClass="paywall-muted"/>
+                            <HBox spacing="10">
+                                <Button fx:id="joinButton" text="Join Stream" onAction="#handleJoin"
+                                        styleClass="btn-fire"/>
+                                <Button text="Buy Coins" onAction="#goToCoins" styleClass="btn-ghost"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="10" styleClass="watch-card">
+                            <Label fx:id="titleLabel" text="Live title" style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: 900;"/>
+                            <Label fx:id="descriptionLabel" wrapText="true" style="-fx-text-fill: rgba(255,255,255,0.55);"/>
+                        </VBox>
+                    </VBox>
+
+                    <VBox prefWidth="300" spacing="14">
+                        <VBox spacing="10" styleClass="watch-card">
+                            <Label text="Stream Info" style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                            <Label fx:id="coachLabel" text="coach" style="-fx-text-fill: rgba(255,255,255,0.7);"/>
+                            <Label fx:id="statusLabel" text="status" style="-fx-text-fill: #ff4d3d;"/>
+                            <Label fx:id="priceLabel" text="price" style="-fx-text-fill: #f6d860;"/>
+                            <Label fx:id="startedAtLabel" text="—" style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                        </VBox>
+                        <Button text="Back to Live Streams" onAction="#goBack" styleClass="btn-ghost"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
