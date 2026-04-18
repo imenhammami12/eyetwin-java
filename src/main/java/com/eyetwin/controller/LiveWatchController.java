@@ -164,97 +164,71 @@ public class LiveWatchController {
     private void loadPlayer() {
         String hlsUrl = "http://127.0.0.1:8888/live/" + live.getStreamKey() + "/index.m3u8";
 
-        ImageView imageView = new ImageView();
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(860);
-        imageView.setFitHeight(430);
+        // Affiche message dans le playerWebView
+        if (playerWebView != null) {
+            playerWebView.getEngine().loadContent("""
+            <html>
+            <body style='background:#000; color:#00e676; font-family:sans-serif;
+                         display:flex; flex-direction:column; align-items:center;
+                         justify-content:center; height:100vh; margin:0; gap:16px;'>
+              <div style='font-size:48px'>🔴</div>
+              <div style='font-size:18px; font-weight:700;'>Stream en direct</div>
+              <div style='font-size:13px; color:rgba(255,255,255,0.5);'>
+                  Lecture dans le player externe...
+              </div>
+            </body>
+            </html>
+        """);
+        }
 
-        // Remplace le WebView par l'ImageView dans playerBox
-        Platform.runLater(() -> {
-            if (playerBox.getChildren().size() > 1)
-                playerBox.getChildren().set(1, imageView);
-        });
-
+        // Lance FFplay — son + vidéo fluide, latence minimale
         new Thread(() -> {
             try {
-                String ffmpegExe = com.eyetwin.services.FFmpegStreamingService.resolveFfmpegPath();
-                if (ffmpegExe == null) {
-                    Platform.runLater(() -> showFlash("error", "FFmpeg not found."));
-                    return;
+                // Cherche ffplay.exe au même endroit que ffmpeg
+                String ffmpegPath = com.eyetwin.services.FFmpegStreamingService.resolveFfmpegPath();
+                String ffplayPath = ffmpegPath != null
+                        ? ffmpegPath.replace("ffmpeg.exe", "ffplay.exe")
+                        : "ffplay";
+
+                if (!new java.io.File(ffplayPath).exists()) {
+                    ffplayPath = "ffplay";
                 }
 
-                // ✅ Détecte les dimensions réelles
-                int[] size   = detectStreamSize(ffmpegExe, hlsUrl);
-                int width    = size[0];
-                int height   = size[1];
-                System.out.println("[LiveWatch] Stream size: " + width + "x" + height);
-
-                // Met à jour l'ImageView avec les bonnes dimensions
-                Platform.runLater(() -> {
-                    imageView.setFitWidth(width);
-                    imageView.setFitHeight(height);
-                });
+                System.out.println("[LiveWatch] Launching FFplay: " + ffplayPath);
 
                 ProcessBuilder pb = new ProcessBuilder(
-                        ffmpegExe,
+                        ffplayPath,
                         "-i", hlsUrl,
-                        "-f", "rawvideo",
-                        "-pix_fmt", "bgr24",
-                        "-r", "25",
-                        "pipe:1"
+                        "-window_title", "EyeTwin Live Stream",
+                        "-x", "960",
+                        "-y", "540",
+                        "-autoexit",
+                        "-fflags", "nobuffer",
+                        "-flags", "low_delay",
+                        "-framedrop",
+                        "-sync", "ext"
                 );
-                pb.redirectErrorStream(false);
+                pb.redirectErrorStream(true);
                 ffmpegPreviewProcess = pb.start();
 
-                // Drain stderr silencieusement
-                new Thread(() -> {
-                    try (BufferedReader err = new BufferedReader(
-                            new InputStreamReader(ffmpegPreviewProcess.getErrorStream()))) {
-                        while (err.readLine() != null) {} // ignore
-                    } catch (Exception ignored) {}
-                }, "ffmpeg-preview-err").start();
-
-                int frameSize     = width * height * 3;
-                byte[] frameBuffer = new byte[frameSize];
-                byte[] rgbBuffer   = new byte[frameSize];
-                var is             = ffmpegPreviewProcess.getInputStream();
-
-                while (ffmpegPreviewProcess != null && ffmpegPreviewProcess.isAlive()) {
-                    // Lit exactement un frame complet
-                    int read = 0;
-                    while (read < frameSize) {
-                        int r = is.read(frameBuffer, read, frameSize - read);
-                        if (r < 0) break;
-                        read += r;
-                    }
-                    if (read < frameSize) break;
-
-                    // BGR → RGB
-                    for (int i = 0; i < width * height; i++) {
-                        rgbBuffer[i * 3]     = frameBuffer[i * 3 + 2]; // R
-                        rgbBuffer[i * 3 + 1] = frameBuffer[i * 3 + 1]; // G
-                        rgbBuffer[i * 3 + 2] = frameBuffer[i * 3];     // B
-                    }
-
-                    // Copie pour le lambda
-                    byte[] copy = rgbBuffer.clone();
-                    final int w = width, h = height;
-
-                    Platform.runLater(() -> {
-                        WritableImage img = new WritableImage(w, h);
-                        img.getPixelWriter().setPixels(
-                                0, 0, w, h,
-                                PixelFormat.getByteRgbInstance(),
-                                copy, 0, w * 3);
-                        imageView.setImage(img);
-                    });
+                try (BufferedReader r = new BufferedReader(
+                        new InputStreamReader(ffmpegPreviewProcess.getInputStream()))) {
+                    String line;
+                    while ((line = r.readLine()) != null)
+                        System.out.println("[FFplay] " + line);
                 }
 
             } catch (Exception e) {
-                System.err.println("[LiveWatch] Preview error: " + e.getMessage());
+                System.err.println("[LiveWatch] FFplay failed: " + e.getMessage());
+                // Fallback navigateur
+                try {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(
+                            "http://127.0.0.1:8888/live/" + live.getStreamKey()));
+                } catch (Exception ignored) {}
             }
-        }, "live-preview").start();
+        }, "ffplay-launcher").start();
     }
+
 
     // ── Stop preview ──────────────────────────────────────────────────────────
 
@@ -263,8 +237,13 @@ public class LiveWatchController {
             ffmpegPreviewProcess.destroyForcibly();
             ffmpegPreviewProcess = null;
         }
+        // Stop WebView
+        if (playerWebView != null) {
+            Platform.runLater(() ->
+                    playerWebView.getEngine().loadContent("<html><body style='background:#000'></body></html>")
+            );
+        }
     }
-
     // ── Actions ───────────────────────────────────────────────────────────────
 
     @FXML
