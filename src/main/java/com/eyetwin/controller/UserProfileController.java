@@ -584,8 +584,42 @@ public class UserProfileController {
         SessionManager.logout();
         navigateTo("login.fxml");
     }
-    @FXML public void openAiAvatarDialog() { System.out.println("[Profile] AI Avatar — à implémenter"); }
-    @FXML public void openCycleGANDialog() { System.out.println("[Profile] CycleGAN — à implémenter"); }
+    @FXML public void openAiAvatarDialog() {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/com/eyetwin/views/AvatarGenerator.fxml"));
+            Stage dialog = new Stage();
+            dialog.setTitle("AI Avatar Generator");
+            dialog.setScene(new Scene(root, 600, 700));
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+            // Refresh avatar après fermeture
+            initialize();
+        } catch (IOException e) {
+            System.err.println("[Profile] Avatar dialog error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML public void openCycleGANDialog() {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/com/eyetwin/views/CycleGANGenerator.fxml"));
+            Stage dialog = new Stage();
+            dialog.setTitle("AI Cartoon Generator");
+            dialog.setScene(new Scene(root, 500, 600));
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+            initialize();
+        } catch (IOException e) {
+            System.err.println("[Profile] CycleGAN dialog error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+
+
 
     // ══════════════════════════════════════════════════════════════════════
     //  HELPERS

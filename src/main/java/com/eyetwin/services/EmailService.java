@@ -1,8 +1,11 @@
 package com.eyetwin.services;
 
+import com.eyetwin.entities.StreamFeedback;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import java.util.Properties;
+
+import static com.eyetwin.entities.StreamFeedback.FeedbackType.REVIEW;
 
 public class EmailService {
 
@@ -308,4 +311,259 @@ public class EmailService {
             }
         }, "EmailSender").start();
     }
+
+
+    public void sendFeedbackConfirmationEmail(String toEmail, String fullName,
+                                              String streamTitle, int rating,
+                                              String comment,
+                                              StreamFeedback.FeedbackType feedbackType) {
+
+        String typeLabel, typeColor, typeIcon, typeDesc;
+        switch (feedbackType) {
+            case REVIEW    -> {
+                typeLabel = "Review Submitted";
+                typeColor = "#3dd68c";
+                typeIcon  = "⭐";
+                typeDesc  = "Your positive feedback has been recorded. Thank you!";
+            }
+            case COMPLAINT -> {
+                typeLabel = "Complaint Created";
+                typeColor = "#ff6b4a";
+                typeIcon  = "📋";
+                typeDesc  = "Your complaint has been submitted and will be reviewed by our team.";
+            }
+            default        -> {
+                typeLabel = "Feedback Recorded";
+                typeColor = "#ffc107";
+                typeIcon  = "📝";
+                typeDesc  = "Your feedback has been recorded. A review and complaint were both created.";
+            }
+        }
+
+        // ── Build stars string ──────────────────────────────────────
+        String stars = "⭐".repeat(rating) + "☆".repeat(5 - rating);
+
+        // ── Truncate comment ────────────────────────────────────────
+        String shortComment = (comment != null && comment.length() > 200)
+                ? comment.substring(0, 200) + "…"
+                : (comment != null ? comment : "—");
+
+        int    year     = java.time.LocalDate.now().getYear();
+        String initials = (fullName != null && fullName.length() >= 2)
+                ? fullName.substring(0, 2).toUpperCase() : "??";
+        String dateStr  = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm"));
+
+        String html = "<!DOCTYPE html><html lang='en'><head>"
+                + "<meta charset='UTF-8'>"
+                + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                + "</head>"
+                + "<body style='margin:0;padding:0;background:#0a0514;"
+                + "font-family:Arial,sans-serif;'>"
+
+                // ── Outer wrapper ──────────────────────────────────
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0'"
+                + " style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+
+                // ── Card ───────────────────────────────────────────
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0'"
+                + " style='max-width:560px;width:100%;background:#0d0618;"
+                + "border-radius:18px;overflow:hidden;"
+                + "border:1px solid rgba(255,60,100,0.25);'>"
+
+                // ── Top gradient bar ───────────────────────────────
+                + "<tr><td height='5'"
+                + " style='background:linear-gradient(to right,#ff3c64,#a78bfa,#4facfe);"
+                + "font-size:0;line-height:0;'>&nbsp;</td></tr>"
+
+                // ── Header ────────────────────────────────────────
+                + "<tr><td style='background:#1a0a22;padding:22px 32px;"
+                + "border-bottom:1px solid rgba(255,60,100,0.20);'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0'><tr>"
+                + "<td>"
+                + "<img src='" + LOGO_URL + "' alt='EyeTwin' width='130'"
+                + " style='display:block;height:38px;width:auto;"
+                + "border:0;outline:none;' />"
+                + "</td>"
+                + "<td align='right'"
+                + " style='color:rgba(255,255,255,0.28);font-size:10px;"
+                + "font-family:monospace;letter-spacing:1px;'>FEEDBACK PORTAL</td>"
+                + "</tr></table>"
+                + "</td></tr>"
+
+                // ── Avatar + greeting ──────────────────────────────
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;"
+                + "background:#0d0618;'>"
+                + "<div style='width:68px;height:68px;border-radius:50%;"
+                + "background:linear-gradient(135deg,#ff3c64,#764ba2);"
+                + "margin:0 auto 18px;line-height:68px;"
+                + "font-size:24px;font-weight:bold;color:white;text-align:center;'>"
+                + initials
+                + "</div>"
+                + "<h1 style='margin:0 0 8px;color:white;font-size:22px;"
+                + "font-weight:700;'>Thank you, " + fullName + "! " + typeIcon + "</h1>"
+                + "<span style='display:inline-block;padding:5px 18px;"
+                + "border-radius:20px;font-size:12px;font-weight:700;"
+                + "color:" + typeColor + ";"
+                + "background:rgba(255,255,255,0.05);"
+                + "border:1px solid " + typeColor + ";'>"
+                + typeLabel
+                + "</span>"
+                + "<p style='margin:14px 0 0;color:rgba(255,255,255,0.45);"
+                + "font-size:13px;line-height:1.7;max-width:400px;"
+                + "display:inline-block;'>" + typeDesc + "</p>"
+                + "</td></tr>"
+
+                // ── Stream info card ───────────────────────────────
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0'"
+                + " style='background:#160a22;border-radius:12px;"
+                + "border:1px solid rgba(255,60,100,0.18);overflow:hidden;'>"
+
+                // Stream title row
+                + "<tr><td style='padding:13px 20px;"
+                + "border-bottom:1px solid rgba(255,255,255,0.06);'>"
+                + "<table width='100%'><tr>"
+                + "<td style='color:rgba(255,255,255,0.40);font-size:12px;'>"
+                + "&#127909;&nbsp; Stream</td>"
+                + "<td align='right' style='color:white;font-size:13px;"
+                + "font-weight:700;'>" + streamTitle + "</td>"
+                + "</tr></table></td></tr>"
+
+                // Rating row
+                + "<tr><td style='padding:13px 20px;"
+                + "border-bottom:1px solid rgba(255,255,255,0.06);'>"
+                + "<table width='100%'><tr>"
+                + "<td style='color:rgba(255,255,255,0.40);font-size:12px;'>"
+                + "&#11088;&nbsp; Rating</td>"
+                + "<td align='right' style='color:#ffc107;font-size:15px;"
+                + "font-weight:700;letter-spacing:2px;'>"
+                + stars + " &nbsp;" + rating + "/5"
+                + "</td>"
+                + "</tr></table></td></tr>"
+
+                // Date row
+                + "<tr><td style='padding:13px 20px;'>"
+                + "<table width='100%'><tr>"
+                + "<td style='color:rgba(255,255,255,0.40);font-size:12px;'>"
+                + "&#128197;&nbsp; Submitted</td>"
+                + "<td align='right' style='color:rgba(255,255,255,0.70);"
+                + "font-size:12px;'>" + dateStr + "</td>"
+                + "</tr></table></td></tr>"
+
+                + "</table></td></tr>"
+
+                // ── Comment box ────────────────────────────────────
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<p style='margin:0 0 10px;color:rgba(255,255,255,0.55);"
+                + "font-size:13px;'>&#128172;&nbsp; Your comment:</p>"
+                + "<div style='background:rgba(255,255,255,0.03);"
+                + "border:1px solid rgba(255,255,255,0.08);border-radius:10px;"
+                + "padding:16px 20px;"
+                + "color:rgba(255,255,255,0.70);font-size:13px;"
+                + "line-height:1.7;font-style:italic;'>"
+                + "&ldquo;" + shortComment + "&rdquo;"
+                + "</div>"
+                + "</td></tr>"
+
+                // ── What happens next ──────────────────────────────
+                + "<tr><td style='padding:0 32px 28px;'>"
+                + "<p style='margin:0 0 14px;color:white;font-size:14px;"
+                + "font-weight:700;'>&#128336;&nbsp; What happens next?</p>"
+                + "<table width='100%' cellpadding='0' cellspacing='0'>"
+
+                // Step 1
+                + "<tr><td style='padding:0 0 10px 0;vertical-align:top;'>"
+                + "<div style='background:#160a22;"
+                + "border:1px solid rgba(255,255,255,0.07);"
+                + "border-radius:10px;padding:14px 16px;"
+                + "display:flex;'>"
+                + "<span style='color:#ff3c64;font-size:18px;"
+                + "margin-right:12px;'>01</span>"
+                + "<div>"
+                + "<div style='color:white;font-size:12px;font-weight:700;"
+                + "margin-bottom:3px;'>Feedback Analyzed</div>"
+                + "<div style='color:rgba(255,255,255,0.38);font-size:11px;'>"
+                + "Our system processes your rating automatically.</div>"
+                + "</div></div></td></tr>"
+
+                // Step 2
+                + "<tr><td style='padding:0 0 10px 0;vertical-align:top;'>"
+                + "<div style='background:#160a22;"
+                + "border:1px solid rgba(255,255,255,0.07);"
+                + "border-radius:10px;padding:14px 16px;'>"
+                + "<span style='color:#a78bfa;font-size:18px;"
+                + "margin-right:12px;'>02</span>"
+                + "<div>"
+                + "<div style='color:white;font-size:12px;font-weight:700;"
+                + "margin-bottom:3px;'>Team Notified</div>"
+                + "<div style='color:rgba(255,255,255,0.38);font-size:11px;'>"
+                + "Our support team reviews all feedback within 24h.</div>"
+                + "</div></div></td></tr>"
+
+                // Step 3
+                + "<tr><td style='vertical-align:top;'>"
+                + "<div style='background:#160a22;"
+                + "border:1px solid rgba(255,255,255,0.07);"
+                + "border-radius:10px;padding:14px 16px;'>"
+                + "<span style='color:#4facfe;font-size:18px;"
+                + "margin-right:12px;'>03</span>"
+                + "<div>"
+                + "<div style='color:white;font-size:12px;font-weight:700;"
+                + "margin-bottom:3px;'>Platform Improved</div>"
+                + "<div style='color:rgba(255,255,255,0.38);font-size:11px;'>"
+                + "Your feedback helps us improve EyeTwin for everyone.</div>"
+                + "</div></div></td></tr>"
+
+                + "</table></td></tr>"
+
+                // ── Divider ────────────────────────────────────────
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<div style='height:1px;"
+                + "background:linear-gradient(to right,"
+                + "transparent,rgba(255,60,100,0.30),transparent);'>"
+                + "</div></td></tr>"
+
+                // ── CTA ────────────────────────────────────────────
+                + "<tr><td align='center' style='padding:0 32px 36px;'>"
+                + "<a href='" + PLATFORM_URL + "'"
+                + " style='display:inline-block;padding:14px 40px;"
+                + "background:linear-gradient(to right,#ff3c64,#c0132f);"
+                + "color:white;text-decoration:none;border-radius:10px;"
+                + "font-weight:700;font-size:14px;letter-spacing:0.5px;'>"
+                + "Back to Platform &rarr;"
+                + "</a>"
+                + "</td></tr>"
+
+                // ── Footer ─────────────────────────────────────────
+                + "<tr><td style='padding:18px 32px;text-align:center;"
+                + "border-top:1px solid rgba(255,255,255,0.07);"
+                + "background:rgba(0,0,0,0.20);'>"
+                + "<p style='margin:0 0 5px;color:rgba(255,255,255,0.25);"
+                + "font-size:11px;'>"
+                + "&#169; " + year + " EyeTwin E-Sport Platform &mdash;"
+                + " All rights reserved."
+                + "</p>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.15);font-size:10px;'>"
+                + "This is an automated message. Please do not reply."
+                + "</p>"
+                + "</td></tr>"
+
+                + "</table>"
+                + "</td></tr>"
+                + "</table>"
+                + "</body></html>";
+
+        new Thread(() -> {
+            try {
+                sendHtml(toEmail,
+                        typeIcon + " EyeTwin — Your feedback has been received!",
+                        html);
+            } catch (Exception e) {
+                System.err.println("[EmailService] ❌ Feedback email failed: " + e.getMessage());
+            }
+        }, "FeedbackEmailSender").start();
+    }
+
 }

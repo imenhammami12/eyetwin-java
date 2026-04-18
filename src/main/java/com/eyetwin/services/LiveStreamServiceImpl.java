@@ -124,18 +124,111 @@ public class LiveStreamServiceImpl implements ILiveStreamService {
     @Override
     public boolean endStream(int liveId, User coach) throws SQLException {
         String sql = """
-                UPDATE live_stream
-                SET status = 'ended', ended_at = ?
-                WHERE id = ? AND coach_id = ?
-                """;
+            UPDATE live_stream
+            SET status = 'ended', ended_at = ?
+            WHERE id = ? AND coach_id = ?
+            """;
+        boolean updated;
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(2, liveId);
             ps.setInt(3, coach.getId());
-            return ps.executeUpdate() > 0;
+            updated = ps.executeUpdate() > 0;
         }
+
+        // ── Notifie n8n pour envoyer emails feedback aux spectateurs ──
+        if (updated) {
+            try {
+                LiveStream stream = getById(liveId);
+                List<User> spectators = getSpectatorsByStream(liveId);
+                notifyN8nStreamEnded(stream, spectators);
+            } catch (Exception e) {
+                System.err.println("[n8n] Warning: " + e.getMessage());
+            }
+        }
+        return updated;
     }
+
+    // ── Récupère les spectateurs du stream ────────────────────────
+    private List<User> getSpectatorsByStream(int liveId) throws SQLException {
+        String sql = """
+            SELECT u.id, u.email, u.full_name, u.username
+            FROM live_access la
+            JOIN user u ON u.id = la.user_id
+            WHERE la.live_stream_id = ?
+            """;
+        List<User> spectators = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, liveId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getInt("id"));
+                    u.setEmail(rs.getString("email"));
+                    u.setFullName(rs.getString("full_name"));
+                    u.setUsername(rs.getString("username"));
+                    spectators.add(u);
+                }
+            }
+        }
+        return spectators;
+    }
+
+    // ── Appelle le webhook n8n ─────────────────────────────────────
+    private void notifyN8nStreamEnded(LiveStream stream, List<User> spectators) {
+        new Thread(() -> {
+            try {
+                StringBuilder specs = new StringBuilder("[");
+                for (int i = 0; i < spectators.size(); i++) {
+                    User u = spectators.get(i);
+                    specs.append("{")
+                            .append("\"id\":").append(u.getId()).append(",")
+                            .append("\"email\":\"").append(u.getEmail()).append("\",")
+                            .append("\"fullName\":\"")
+                            .append(u.getFullName() != null
+                                    ? u.getFullName() : u.getUsername())
+                            .append("\"}");;
+                    if (i < spectators.size() - 1) specs.append(",");
+                }
+                specs.append("]");
+
+                String body = "{"
+                        + "\"streamId\":"    + stream.getId()    + ","
+                        + "\"streamTitle\":\"" + stream.getTitle() + "\","
+                        + "\"coachName\":\""
+                        + (stream.getCoach().getFullName() != null
+                        ? stream.getCoach().getFullName()
+                        : stream.getCoach().getUsername()) + "\","
+                        + "\"spectators\":"  + specs
+                        + "}";
+
+                java.net.http.HttpClient client =
+                        java.net.http.HttpClient.newHttpClient();
+
+                java.net.http.HttpRequest request =
+                        java.net.http.HttpRequest.newBuilder()
+                                .uri(java.net.URI.create(
+                                        "https://imenhammami.app.n8n.cloud/webhook/eyetwin-stream-ended"))
+                                .header("Content-Type", "application/json")
+                                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body))
+                                .build();
+
+                java.net.http.HttpResponse<String> response =
+                        client.send(request,
+                                java.net.http.HttpResponse.BodyHandlers.ofString());
+
+                System.out.println("[n8n] ✅ Status: " + response.statusCode());
+                System.out.println("[n8n] ✅ Response: " + response.body());
+
+            } catch (Exception e) {
+                System.err.println("[n8n] ❌ Failed: " + e.getMessage());
+            }
+        }, "N8nWebhook").start();
+    }
+
+
 
     @Override
     public boolean userHasAccess(User user, LiveStream live) throws SQLException {
