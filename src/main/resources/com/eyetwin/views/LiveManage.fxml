@@ -40,6 +40,13 @@
                     <HBox spacing="10">
                         <Button fx:id="startButton" text="Go Live"    onAction="#handleStart" styleClass="btn-fire"/>
                         <Button fx:id="endButton"   text="End Stream" onAction="#handleEnd"   styleClass="btn-danger"/>
+                        <Button text="⭐ View Feedback"
+                                onAction="#goToFeedbackDashboard"
+                                style="-fx-background-color:rgba(255,193,7,0.10);
+               -fx-border-color:rgba(255,193,7,0.30);
+               -fx-border-radius:8;-fx-background-radius:8;
+               -fx-text-fill:#ffc107;-fx-font-size:12;
+               -fx-cursor:hand;-fx-padding:8 20;"/>
                         <Button text="Viewer View"  onAction="#openViewer" styleClass="btn-ghost"/>
                         <Button text="All Streams"  onAction="#goBack"     styleClass="btn-ghost"/>
                     </HBox>

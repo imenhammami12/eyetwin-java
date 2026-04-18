@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.FeedbackDashboardController"
+      style="-fx-background-color:#0a0514;">
+
+    <!-- Top gradient bar — Region instead of Rectangle (Rectangle requires javafx.scene.shape import which caused line-12 parse error) -->
+    <Region prefHeight="5" maxWidth="Infinity"
+            style="-fx-background-color:linear-gradient(to right,#ff3c64,#a78bfa,#4facfe);"/>
+
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS"
+                style="-fx-background:transparent;-fx-background-color:transparent;
+                       -fx-border-color:transparent;">
+        <VBox spacing="24" style="-fx-padding:32 40;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <Button text="← Back" onAction="#goBack"
+                        style="-fx-background-color:rgba(255,255,255,0.05);
+                               -fx-border-color:rgba(255,255,255,0.10);
+                               -fx-border-radius:8;-fx-background-radius:8;
+                               -fx-text-fill:rgba(255,255,255,0.55);
+                               -fx-font-size:12;-fx-cursor:hand;-fx-padding:8 16;"/>
+                <VBox spacing="4">
+                    <Label text="⭐ Feedback Dashboard"
+                           style="-fx-text-fill:white;-fx-font-size:22;-fx-font-weight:bold;"/>
+                    <Label text="Reviews from your stream spectators"
+                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:13;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="🔄 Refresh" onAction="#refresh"
+                        style="-fx-background-color:linear-gradient(to right,#ff3c64,#c0132f);
+                               -fx-border-color:transparent;
+                               -fx-border-radius:8;-fx-background-radius:8;
+                               -fx-text-fill:white;-fx-font-size:12;
+                               -fx-cursor:hand;-fx-padding:8 20;"/>
+            </HBox>
+
+            <!-- Flash -->
+            <VBox fx:id="flashBox" visible="false" managed="false"
+                  style="-fx-background-color:rgba(255,255,255,0.03);
+                         -fx-border-color:rgba(232,55,42,0.30);
+                         -fx-border-width:0 0 0 3;-fx-padding:10 16;">
+                <Label fx:id="flashLabel" style="-fx-font-size:13;"/>
+            </VBox>
+
+            <!-- Stats cards -->
+            <HBox spacing="16">
+                <!-- Total -->
+                <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color:rgba(6,5,16,0.88);
+                             -fx-border-color:rgba(255,255,255,0.07);
+                             -fx-border-width:1;-fx-border-radius:12;
+                             -fx-background-radius:12;-fx-padding:20;">
+                    <Label text="Total Reviews"
+                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:12;"/>
+                    <Label fx:id="totalReviewsLabel" text="—"
+                           style="-fx-text-fill:white;-fx-font-size:28;-fx-font-weight:bold;"/>
+                </VBox>
+                <!-- Average -->
+                <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color:rgba(6,5,16,0.88);
+                             -fx-border-color:rgba(255,193,7,0.20);
+                             -fx-border-width:1;-fx-border-radius:12;
+                             -fx-background-radius:12;-fx-padding:20;">
+                    <Label text="Average Rating"
+                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:12;"/>
+                    <Label fx:id="avgRatingLabel" text="—"
+                           style="-fx-text-fill:#ffc107;-fx-font-size:28;-fx-font-weight:bold;"/>
+                </VBox>
+                <!-- Positive -->
+                <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color:rgba(6,5,16,0.88);
+                             -fx-border-color:rgba(61,214,140,0.20);
+                             -fx-border-width:1;-fx-border-radius:12;
+                             -fx-background-radius:12;-fx-padding:20;">
+                    <Label text="Positive (4-5⭐)"
+                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:12;"/>
+                    <Label fx:id="positiveLabel" text="—"
+                           style="-fx-text-fill:#3dd68c;-fx-font-size:28;-fx-font-weight:bold;"/>
+                </VBox>
+                <!-- Negative -->
+                <VBox alignment="CENTER" spacing="6" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color:rgba(6,5,16,0.88);
+                             -fx-border-color:rgba(232,55,42,0.20);
+                             -fx-border-width:1;-fx-border-radius:12;
+                             -fx-background-radius:12;-fx-padding:20;">
+                    <Label text="Negative (1-2⭐)"
+                           style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:12;"/>
+                    <Label fx:id="negativeLabel" text="—"
+                           style="-fx-text-fill:#ff6b4a;-fx-font-size:28;-fx-font-weight:bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Divider — Region instead of Rectangle -->
+            <Region prefHeight="1" maxWidth="Infinity"
+                    style="-fx-background-color:rgba(255,255,255,0.06);"/>
+
+            <!-- Empty state -->
+            <VBox fx:id="emptyStateBox" alignment="CENTER" spacing="12"
+                  visible="false" managed="false"
+                  style="-fx-padding:60 0;">
+                <Label text="⭐" style="-fx-font-size:48;"/>
+                <Label text="No reviews yet"
+                       style="-fx-text-fill:white;-fx-font-size:18;-fx-font-weight:bold;"/>
+                <Label text="Reviews will appear here after spectators rate your streams"
+                       style="-fx-text-fill:rgba(255,255,255,0.40);-fx-font-size:13;"/>
+            </VBox>
+
+            <!-- Reviews list -->
+            <VBox fx:id="reviewsListBox" spacing="12"/>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

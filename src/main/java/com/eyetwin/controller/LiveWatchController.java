@@ -98,8 +98,17 @@ public class LiveWatchController {
         descriptionLabel.setText(live.getDescription() == null || live.getDescription().isBlank()
                 ? "No description provided." : live.getDescription());
 
+        // ✅ Après — enregistre l'accès gratuit en DB
         if (!hasAccess && live.getCoinPrice() == 0 && !live.isEnded()) {
             hasAccess = true;
+            // Enregistre le spectateur dans live_access pour recevoir l'email feedback
+            new Thread(() -> {
+                try {
+                    liveService.grantFreeAccess(user, live);
+                } catch (Exception e) {
+                    System.err.println("[LiveWatch] grantFreeAccess error: " + e.getMessage());
+                }
+            }).start();
         }
 
         playerBox.setVisible(hasAccess);

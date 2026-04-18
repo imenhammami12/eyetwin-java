@@ -228,8 +228,27 @@ public class LiveStreamServiceImpl implements ILiveStreamService {
         }, "N8nWebhook").start();
     }
 
+    @Override
+    public boolean grantFreeAccess(User user, LiveStream live) throws SQLException {
+        if (user == null || live == null) return false;
+        if (userHasAccess(user, live)) return true;
 
-
+        String sql = """
+            INSERT IGNORE INTO live_access
+                (user_id, live_stream_id, coins_spent, purchased_at)
+            VALUES (?, ?, 0, ?)
+            """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, user.getId());
+            ps.setInt(2, live.getId());
+            ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            ps.executeUpdate();
+            System.out.println("[LiveAccess] Free access granted — user:"
+                    + user.getId() + " stream:" + live.getId());
+        }
+        return true;
+    }
     @Override
     public boolean userHasAccess(User user, LiveStream live) throws SQLException {
         if (user == null || live == null) return false;

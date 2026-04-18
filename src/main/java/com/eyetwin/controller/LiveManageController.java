@@ -214,6 +214,11 @@ public class LiveManageController {
         } catch (SQLException e) { showFlash("error", "Unable to end stream."); }
     }
 
+    @FXML
+    private void goToFeedbackDashboard() {
+        navigateTo("FeedbackDashboard.fxml");
+    }
+
     // ── Capture mode ──────────────────────────────────────────────────────────
 
     @FXML

@@ -1,5 +1,6 @@
 package com.eyetwin.services;
 
+import com.eyetwin.entities.LiveStream;
 import com.eyetwin.entities.ReviewStream;
 import com.eyetwin.interfaces.IReviewStreamService;
 import com.eyetwin.tools.DatabaseConfig;
@@ -96,4 +97,55 @@ public class ReviewStreamServiceImpl implements IReviewStreamService {
 
         return r;
     }
+
+    @Override
+    public List<ReviewStream> findByCoachId(int coachId) throws SQLException {
+        String sql = """
+            SELECT rs.*, u.email AS author_email,
+                   u.full_name AS author_name,
+                   ls.title AS stream_title
+            FROM review_stream rs
+            JOIN user u  ON u.id  = rs.author_id
+            JOIN live_stream ls ON ls.id = rs.live_stream_id
+            WHERE ls.coach_id = ?
+            ORDER BY rs.created_at DESC
+            """;
+        List<ReviewStream> list = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, coachId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ReviewStream r = mapRow(rs);
+                    // Hydrate extra fields pour l'affichage
+                    r.getAuthor().setEmail(rs.getString("author_email"));
+                    r.getAuthor().setFullName(rs.getString("author_name"));
+                    LiveStream ls = new LiveStream();
+                    ls.setTitle(rs.getString("stream_title"));
+                    r.setLiveStream(ls);
+                    list.add(r);
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public double getGlobalAverageRating(int coachId) throws SQLException {
+        String sql = """
+            SELECT AVG(rs.rating)
+            FROM review_stream rs
+            JOIN live_stream ls ON ls.id = rs.live_stream_id
+            WHERE ls.coach_id = ?
+            """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, coachId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble(1);
+            }
+        }
+        return 0.0;
+    }
+
 }

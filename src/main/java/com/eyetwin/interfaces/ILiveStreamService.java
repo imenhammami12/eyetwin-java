@@ -23,4 +23,6 @@ public interface ILiveStreamService {
     boolean userHasAccess(User user, LiveStream live) throws SQLException;
 
     boolean grantPaidAccess(User user, LiveStream live) throws SQLException;
+
+    boolean grantFreeAccess(User user, LiveStream live) throws SQLException;
 }
