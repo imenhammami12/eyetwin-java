@@ -174,4 +174,38 @@ public class CommunityWebSocketClient extends WebSocketClient {
         envelope.setSentAt(LocalDateTime.now().toString());
         return envelope;
     }
+
+    public void publishEditEvent(int channelId, int userId, String userName, String userEmail) {
+        if (!isOpen()) {
+            return;
+        }
+
+        SocketEnvelope envelope = buildEnvelope(
+                SocketEnvelope.TYPE_EDIT_MESSAGE,
+                channelId,
+                userId,
+                userName,
+                userEmail,
+                null
+        );
+
+        send(gson.toJson(envelope));
+    }
+
+    public void publishDeleteEvent(int channelId, int userId, String userName, String userEmail) {
+        if (!isOpen()) {
+            return;
+        }
+
+        SocketEnvelope envelope = buildEnvelope(
+                SocketEnvelope.TYPE_DELETE_MESSAGE,
+                channelId,
+                userId,
+                userName,
+                userEmail,
+                null
+        );
+
+        send(gson.toJson(envelope));
+    }
 }

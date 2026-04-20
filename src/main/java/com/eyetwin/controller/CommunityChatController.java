@@ -142,17 +142,22 @@ public class CommunityChatController {
                         @Override
                         public void onMessageReceived(SocketEnvelope envelope) {
                             if (envelope == null) return;
-                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())) return;
                             if (envelope.getChannelId() == null) return;
                             if (!envelope.getChannelId().equals(channel.getId())) return;
 
-                            // Ignore my own echoed message from websocket
+                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())
+                                    && !SocketEnvelope.TYPE_EDIT_MESSAGE.equals(envelope.getType())
+                                    && !SocketEnvelope.TYPE_DELETE_MESSAGE.equals(envelope.getType())) {
+                                return;
+                            }
+
+                            // Ignore my own echoed websocket event
                             if (envelope.getUserEmail() != null
                                     && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
                                 return;
                             }
 
-                            Platform.runLater(() -> appendRealtimeMessage(envelope));
+                            Platform.runLater(() -> loadMessages());
                         }
 
                         @Override
@@ -510,9 +515,20 @@ public class CommunityChatController {
                 }
 
                 messageService.updateOwnMessage(message.getId(), editArea.getText(), SessionManager.getCurrentUser());
+
                 editingMessageId = null;
                 actionMenuMessageId = null;
                 deleteConfirmMessageId = null;
+
+                if (socketClient != null && socketClient.isOpen()) {
+                    socketClient.publishEditEvent(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail()
+                    );
+                }
+
                 loadMessages();
 
             } catch (Exception ex) {
@@ -611,9 +627,20 @@ public class CommunityChatController {
         deleteBtn.setOnAction(e -> {
             try {
                 messageService.softDeleteOwnMessage(message.getId(), SessionManager.getCurrentUser());
+
                 deleteConfirmMessageId = null;
                 actionMenuMessageId = null;
                 editingMessageId = null;
+
+                if (socketClient != null && socketClient.isOpen()) {
+                    socketClient.publishDeleteEvent(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail()
+                    );
+                }
+
                 loadMessages();
             } catch (Exception ex) {
                 showError("Failed to delete message: " + ex.getMessage());
@@ -666,6 +693,8 @@ public class CommunityChatController {
 //            showError("Failed to send message: " + e.getMessage());
 //        }
 //    }
+
+
 
 //    @FXML
 //    private void handleSendMessage() {

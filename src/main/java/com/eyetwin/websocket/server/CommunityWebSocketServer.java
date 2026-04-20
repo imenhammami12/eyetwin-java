@@ -46,7 +46,11 @@ public class CommunityWebSocketServer extends WebSocketServer {
             switch (envelope.getType()) {
                 case SocketEnvelope.TYPE_JOIN -> handleJoin(conn, envelope);
                 case SocketEnvelope.TYPE_LEAVE -> unregisterConnection(conn);
-                case SocketEnvelope.TYPE_NEW_MESSAGE -> broadcastToChannel(envelope.getChannelId(), rawMessage);
+
+                case SocketEnvelope.TYPE_NEW_MESSAGE,
+                     SocketEnvelope.TYPE_EDIT_MESSAGE,
+                     SocketEnvelope.TYPE_DELETE_MESSAGE -> broadcastToChannel(envelope.getChannelId(), rawMessage);
+
                 default -> System.out.println("Unknown message type: " + envelope.getType());
             }
 

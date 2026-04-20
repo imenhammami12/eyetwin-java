@@ -5,16 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/ChatWebSocketConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/ChatSocketListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServerLauncher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
