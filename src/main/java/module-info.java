@@ -21,9 +21,14 @@ module org.example.eyetwinjava {
     requires javafx.media;
     requires uk.co.caprica.vlcj;
 
+    requires com.google.gson;
+    requires org.java_websocket;
+
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
     opens com.eyetwin.controller.admin to javafx.fxml;
+
+    opens com.eyetwin.websocket.model to com.google.gson;
 
     exports com.eyetwin;
     exports com.eyetwin.config;
