@@ -5,6 +5,8 @@ public class SocketEnvelope {
     public static final String TYPE_JOIN = "JOIN";
     public static final String TYPE_LEAVE = "LEAVE";
     public static final String TYPE_NEW_MESSAGE = "NEW_MESSAGE";
+    public static final String TYPE_EDIT_MESSAGE = "EDIT_MESSAGE";
+    public static final String TYPE_DELETE_MESSAGE = "DELETE_MESSAGE";
 
     private String type;
     private Integer channelId;
