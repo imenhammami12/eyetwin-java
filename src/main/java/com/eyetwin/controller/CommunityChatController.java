@@ -22,6 +22,15 @@ import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.eyetwin.websocket.ChatWebSocketConfig;
+import com.eyetwin.websocket.client.ChatSocketListener;
+import com.eyetwin.websocket.client.CommunityWebSocketClient;
+import com.eyetwin.websocket.model.SocketEnvelope;
+import javafx.application.Platform;
+
+import java.net.URI;
+import java.time.LocalDateTime;
+
 public class CommunityChatController {
 
     @FXML private Label lblChannelName;
@@ -41,17 +50,226 @@ public class CommunityChatController {
     private Integer actionMenuMessageId = null;
     private Integer deleteConfirmMessageId = null;
 
+    private CommunityWebSocketClient socketClient;
+    private boolean realtimeReady = false;
+
+
+
     public void setChannel(Channel channel) {
+        stopRealtimeChat();
+
         this.channel = channel;
         refreshHeader();
         refreshComposerVisibility();
         loadMessages();
+        startRealtimeChat();
     }
 
     @FXML
     public void initialize() {
         refreshHeader();
         refreshComposerVisibility();
+    }
+
+//    private void startRealtimeChat() {
+//        if (channel == null) return;
+//
+//        try {
+//            socketClient = new CommunityWebSocketClient(
+//                    URI.create(ChatWebSocketConfig.SERVER_URL),
+//                    new ChatSocketListener() {
+//                        @Override
+//                        public void onConnected() {
+//                            System.out.println("Realtime chat connected for channel " + channel.getId());
+//                        }
+//
+//                        @Override
+//                        public void onMessageReceived(SocketEnvelope envelope) {
+//                            if (envelope == null) return;
+//                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())) return;
+//                            if (envelope.getChannelId() == null) return;
+//                            if (!envelope.getChannelId().equals(channel.getId())) return;
+//
+//                            // Ignore my own echoed message from websocket
+//                            if (envelope.getUserEmail() != null
+//                                    && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
+//                                return;
+//                            }
+//
+//                            Platform.runLater(() -> appendRealtimeMessage(envelope));
+//                        }
+//
+//                        @Override
+//                        public void onDisconnected(String reason) {
+//                            System.out.println("Realtime chat disconnected: " + reason);
+//                        }
+//
+//                        @Override
+//                        public void onError(Exception ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    }
+//            );
+//
+//            socketClient.connectAndJoin(
+//                    channel.getId(),
+//                    getRealtimeUserId(),
+//                    getRealtimeUserName(),
+//                    getRealtimeUserEmail()
+//            );
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            showError("Failed to connect realtime chat: " + ex.getMessage());
+//        }
+//    }
+
+    private void startRealtimeChat() {
+        if (channel == null) return;
+
+        try {
+            realtimeReady = false;
+
+            socketClient = new CommunityWebSocketClient(
+                    URI.create(ChatWebSocketConfig.SERVER_URL),
+                    new ChatSocketListener() {
+                        @Override
+                        public void onConnected() {
+                            realtimeReady = true;
+                            System.out.println("Realtime chat connected for channel " + channel.getId());
+                        }
+
+                        @Override
+                        public void onMessageReceived(SocketEnvelope envelope) {
+                            if (envelope == null) return;
+                            if (envelope.getChannelId() == null) return;
+                            if (!envelope.getChannelId().equals(channel.getId())) return;
+
+                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())
+                                    && !SocketEnvelope.TYPE_EDIT_MESSAGE.equals(envelope.getType())
+                                    && !SocketEnvelope.TYPE_DELETE_MESSAGE.equals(envelope.getType())) {
+                                return;
+                            }
+
+                            // Ignore my own echoed websocket event
+                            if (envelope.getUserEmail() != null
+                                    && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
+                                return;
+                            }
+
+                            Platform.runLater(() -> loadMessages());
+                        }
+
+                        @Override
+                        public void onDisconnected(String reason) {
+                            realtimeReady = false;
+                            System.out.println("Realtime chat disconnected: " + reason);
+                        }
+
+                        @Override
+                        public void onError(Exception ex) {
+                            realtimeReady = false;
+                            ex.printStackTrace();
+                        }
+                    }
+            );
+
+            boolean joined = socketClient.connectAndJoin(
+                    channel.getId(),
+                    getRealtimeUserId(),
+                    getRealtimeUserName(),
+                    getRealtimeUserEmail()
+            );
+
+            System.out.println("Realtime join result = " + joined);
+
+            if (!joined) {
+                showError("Realtime chat could not connect to the server.");
+            }
+
+        } catch (Exception ex) {
+            realtimeReady = false;
+            ex.printStackTrace();
+            showError("Failed to connect realtime chat: " + ex.getMessage());
+        }
+    }
+
+    private void stopRealtimeChat() {
+        if (socketClient == null) return;
+
+        try {
+            if (channel != null && socketClient.isOpen()) {
+                socketClient.leaveChannel(
+                        channel.getId(),
+                        getRealtimeUserId(),
+                        getRealtimeUserName(),
+                        getRealtimeUserEmail()
+                );
+            }
+
+            socketClient.close();
+        } catch (Exception ignored) {
+        } finally {
+            socketClient = null;
+        }
+    }
+
+    private int getRealtimeUserId() {
+        User currentUser = SessionManager.getCurrentUser();
+        return currentUser != null ? currentUser.getId() : 0;
+    }
+
+    private String getRealtimeUserName() {
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return "Guest";
+
+        if (currentUser.getUsername() != null && !currentUser.getUsername().isBlank()) {
+            return currentUser.getUsername();
+        }
+
+        return currentUser.getEmail() != null ? currentUser.getEmail() : "Unknown";
+    }
+
+    private String getRealtimeUserEmail() {
+        User currentUser = SessionManager.getCurrentUser();
+        return currentUser != null && currentUser.getEmail() != null
+                ? currentUser.getEmail()
+                : "guest@local";
+    }
+
+    private void appendRealtimeMessage(SocketEnvelope envelope) {
+        if (messagesContainer == null) return;
+
+        removeEmptyStateIfNeeded();
+
+        Message message = new Message();
+        message.setChannel_id(envelope.getChannelId());
+        message.setContent(envelope.getContent());
+        message.setSender_name(envelope.getUserName());
+        message.setSender_email(envelope.getUserEmail());
+        message.setIs_deleted(false);
+
+        try {
+            if (envelope.getSentAt() != null && !envelope.getSentAt().isBlank()) {
+                message.setSentAt(Timestamp.valueOf(LocalDateTime.parse(envelope.getSentAt())));
+            } else {
+                message.setSentAt(new Timestamp(System.currentTimeMillis()));
+            }
+        } catch (Exception ex) {
+            message.setSentAt(new Timestamp(System.currentTimeMillis()));
+        }
+
+        messagesContainer.getChildren().add(buildMessageRow(message));
+        messagesContainer.requestLayout();
+    }
+
+    private void removeEmptyStateIfNeeded() {
+        if (messagesContainer == null) return;
+
+        if (messagesContainer.getChildren().size() == 1
+                && messagesContainer.getChildren().get(0) instanceof VBox) {
+            messagesContainer.getChildren().clear();
+        }
     }
 
     private void refreshHeader() {
@@ -297,9 +515,20 @@ public class CommunityChatController {
                 }
 
                 messageService.updateOwnMessage(message.getId(), editArea.getText(), SessionManager.getCurrentUser());
+
                 editingMessageId = null;
                 actionMenuMessageId = null;
                 deleteConfirmMessageId = null;
+
+                if (socketClient != null && socketClient.isOpen()) {
+                    socketClient.publishEditEvent(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail()
+                    );
+                }
+
                 loadMessages();
 
             } catch (Exception ex) {
@@ -398,9 +627,20 @@ public class CommunityChatController {
         deleteBtn.setOnAction(e -> {
             try {
                 messageService.softDeleteOwnMessage(message.getId(), SessionManager.getCurrentUser());
+
                 deleteConfirmMessageId = null;
                 actionMenuMessageId = null;
                 editingMessageId = null;
+
+                if (socketClient != null && socketClient.isOpen()) {
+                    socketClient.publishDeleteEvent(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail()
+                    );
+                }
+
                 loadMessages();
             } catch (Exception ex) {
                 showError("Failed to delete message: " + ex.getMessage());
@@ -426,6 +666,85 @@ public class CommunityChatController {
         return confirmBox;
     }
 
+//    @FXML
+//    private void handleSendMessage() {
+//        if (channel == null) return;
+//
+//        try {
+//            if (!SessionManager.canWriteCommunityMessages()) {
+//                showError("Only a plain player can send messages.");
+//                return;
+//            }
+//
+//            String validation = CommunityValidator.validateMessageContent(taNewMessage.getText());
+//            if (validation != null) {
+//                showError(validation);
+//                return;
+//            }
+//
+//            messageService.sendMessage(channel.getId(), taNewMessage.getText(), SessionManager.getCurrentUser());
+//            taNewMessage.clear();
+//            editingMessageId = null;
+//            actionMenuMessageId = null;
+//            deleteConfirmMessageId = null;
+//            loadMessages();
+//
+//        } catch (Exception e) {
+//            showError("Failed to send message: " + e.getMessage());
+//        }
+//    }
+
+
+
+//    @FXML
+//    private void handleSendMessage() {
+//        if (channel == null) return;
+//
+//        try {
+//            if (!SessionManager.canWriteCommunityMessages()) {
+//                showError("Only a plain player can send messages.");
+//                return;
+//            }
+//
+//            String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
+//
+//            String validation = CommunityValidator.validateMessageContent(content);
+//            if (validation != null) {
+//                showError(validation);
+//                return;
+//            }
+//
+//            // 1) Save in database
+//            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
+//
+//            // 2) Reset UI state
+//            taNewMessage.clear();
+//            editingMessageId = null;
+//            actionMenuMessageId = null;
+//            deleteConfirmMessageId = null;
+//
+//            // 3) Send realtime event
+//            if (socketClient != null && socketClient.isOpen()) {
+//                socketClient.publishMessage(
+//                        channel.getId(),
+//                        getRealtimeUserId(),
+//                        getRealtimeUserName(),
+//                        getRealtimeUserEmail(),
+//                        content
+//                );
+//
+//                // Reload from DB so my own message has the real id
+//                loadMessages();
+//            } else {
+//                // fallback if socket is not connected
+//                loadMessages();
+//            }
+//
+//        } catch (Exception e) {
+//            showError("Failed to send message: " + e.getMessage());
+//        }
+//    }
+
     @FXML
     private void handleSendMessage() {
         if (channel == null) return;
@@ -436,17 +755,35 @@ public class CommunityChatController {
                 return;
             }
 
-            String validation = CommunityValidator.validateMessageContent(taNewMessage.getText());
+            String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
+
+            String validation = CommunityValidator.validateMessageContent(content);
             if (validation != null) {
                 showError(validation);
                 return;
             }
 
-            messageService.sendMessage(channel.getId(), taNewMessage.getText(), SessionManager.getCurrentUser());
+            // 1) Save in database
+            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
+
+            // 2) Reset UI state
             taNewMessage.clear();
             editingMessageId = null;
             actionMenuMessageId = null;
             deleteConfirmMessageId = null;
+
+            // 3) Publish realtime for other users
+            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                socketClient.publishMessage(
+                        channel.getId(),
+                        getRealtimeUserId(),
+                        getRealtimeUserName(),
+                        getRealtimeUserEmail(),
+                        content
+                );
+            }
+
+            // 4) Always reload for sender so the sender gets the real DB row with real id
             loadMessages();
 
         } catch (Exception e) {
@@ -454,8 +791,25 @@ public class CommunityChatController {
         }
     }
 
+//    @FXML
+//    private void handleBack() {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
+//            Parent root = loader.load();
+//
+//            Stage stage = (Stage) lblChannelName.getScene().getWindow();
+//            stage.setScene(new Scene(root));
+//            stage.show();
+//
+//        } catch (IOException e) {
+//            showError("Failed to go back: " + e.getMessage());
+//        }
+//    }
+
     @FXML
     private void handleBack() {
+        stopRealtimeChat();
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
             Parent root = loader.load();
