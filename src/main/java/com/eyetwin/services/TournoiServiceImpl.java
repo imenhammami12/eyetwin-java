@@ -19,7 +19,7 @@ public class TournoiServiceImpl implements ITournoiService {
         try (Connection conn = DatabaseConfig.getConnection()) {
             if (conn == null) return;
             
-            // Check if column 'prix' exists
+            // 1. Check if column 'prix' exists in 'tournoi'
             DatabaseMetaData metaData = conn.getMetaData();
             try (ResultSet rs = metaData.getColumns(null, null, "tournoi", "prix")) {
                 if (!rs.next()) {
@@ -29,6 +29,22 @@ public class TournoiServiceImpl implements ITournoiService {
                         System.out.println("[TournoiService] ✅ Colonne 'prix' ajoutée avec succès.");
                     }
                 }
+            }
+
+            // 2. Create 'inscription_tournoi' table
+            try (Statement stmt = conn.createStatement()) {
+                String sql = "CREATE TABLE IF NOT EXISTS inscription_tournoi (" +
+                        "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                        "user_id INT NOT NULL, " +
+                        "tournoi_id INT NOT NULL, " +
+                        "stripe_session_id VARCHAR(255), " +
+                        "status VARCHAR(50) DEFAULT 'PENDING', " +
+                        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                        "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE, " +
+                        "FOREIGN KEY (tournoi_id) REFERENCES tournoi(id) ON DELETE CASCADE" +
+                        ") ENGINE=InnoDB";
+                stmt.execute(sql);
+                System.out.println("[TournoiService] ✅ Table 'inscription_tournoi' vérifiée/créée.");
             }
         } catch (SQLException e) {
             System.err.println("[TournoiService] ❌ Erreur lors de la vérification du schéma : " + e.getMessage());

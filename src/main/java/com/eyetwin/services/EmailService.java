@@ -1,5 +1,7 @@
 package com.eyetwin.services;
 
+import com.eyetwin.entities.Tournoi;
+import com.eyetwin.entities.User;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import java.util.Properties;
@@ -8,10 +10,10 @@ public class EmailService {
 
     private static final String SMTP_HOST    = "smtp.gmail.com";
     private static final int    SMTP_PORT    = 587;
-    private static final String SMTP_USER    = "hammami.imen200@gmail.com";
-    private static final String SMTP_PASSWORD= "rvacppycaatyxprc";
+    private static final String SMTP_USER    = "ferferferfer1288@gmail.com";
+    private static final String SMTP_PASSWORD= "znpf mula zqdg stll";
     private static final String FROM_NAME    = "E-Sport Platform";
-    private static final String FROM_EMAIL   = "hammami.imen200@gmail.com";
+    private static final String FROM_EMAIL   = "ferferferfer1288@gmail.com";
     private static final String PLATFORM_URL = "https://eye2win-metamind.onrender.com";
     private static final String LOGO_URL     =
             "https://eye2win-metamind.onrender.com/assets/img/eyetwin-logo.png";
@@ -305,6 +307,42 @@ public class EmailService {
                         html);
             } catch (Exception e) {
                 System.err.println("[EmailService] ❌ Failed: " + e.getMessage());
+            }
+        }, "EmailSender").start();
+    }
+
+    public void sendTournamentRegistrationEmail(User user, Tournoi tournoi) {
+        int year = java.time.LocalDate.now().getYear();
+        String html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'></head>"
+                + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'><tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0' style='max-width:560px;width:100%;background:#0d0618;border-radius:18px;overflow:hidden;border:1px solid rgba(255,60,100,0.25);'>"
+                + "<tr><td height='5' style='background:linear-gradient(to right,#ff3c64,#a78bfa,#4facfe);font-size:0;line-height:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(255,60,100,0.20);'>"
+                + "<table width='100%'><tr><td><img src='" + LOGO_URL + "' alt='EyeTwin' height='38'/></td>"
+                + "<td align='right' style='color:rgba(255,255,255,0.28);font-size:10px;'>CONFIRMATION</td></tr></table></td></tr>"
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
+                + "<div style='font-size:48px;margin-bottom:20px;'>🏆</div>"
+                + "<h1 style='margin:0 0 10px;color:white;font-size:22px;'>Registration Confirmed!</h1>"
+                + "<p style='color:rgba(255,255,255,0.6);font-size:14px;'>You are now officially registered for <strong>" + tournoi.getNom() + "</strong>.</p></td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'><table width='100%' style='background:#160a22;border-radius:12px;border:1px solid rgba(255,60,100,0.2);'>"
+                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Tournament</td>"
+                + "<td align='right' style='padding:15px;color:white;font-weight:bold;'>" + tournoi.getNom() + "</td></tr>"
+                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Start Date</td>"
+                + "<td align='right' style='padding:15px;color:#4facfe;font-weight:bold;'>" + tournoi.getDateDebut() + "</td></tr>"
+                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Amount Paid</td>"
+                + "<td align='right' style='padding:15px;color:#ff3c64;font-weight:bold;'>" + tournoi.getPrix() + " EUR</td></tr>"
+                + "</table></td></tr>"
+                + "<tr><td align='center' style='padding:0 32px 36px;'><p style='color:rgba(255,255,255,0.5);font-size:13px;'>Prepare your gear, warrior. Victory awaits!</p></td></tr>"
+                + "<tr><td style='padding:18px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.20);'>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:11px;'>&#169; " + year + " EyeTwin Platform</p></td></tr>"
+                + "</table></td></tr></table></body></html>";
+
+        new Thread(() -> {
+            try {
+                sendHtml(user.getEmail(), "🏆 Registration Confirmed: " + tournoi.getNom(), html);
+            } catch (Exception e) {
+                System.err.println("[EmailService] ❌ Failed to send registration email: " + e.getMessage());
             }
         }, "EmailSender").start();
     }

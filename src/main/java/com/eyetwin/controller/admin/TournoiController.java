@@ -17,11 +17,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import com.eyetwin.entities.Tournoi;
-import com.eyetwin.services.TournoiServiceImpl;
-import com.eyetwin.interfaces.ITournoiService;
+import com.eyetwin.entities.*;
+import com.eyetwin.interfaces.*;
+import com.eyetwin.services.*;
 import com.eyetwin.tools.SessionManager;
-
+import javafx.application.Platform;
 import java.io.File;
 import java.io.IOException;
 
@@ -51,10 +51,16 @@ public class TournoiController {
 
     private ITournoiService                      tournoiService;
     private com.eyetwin.interfaces.IMatchService matchService;
+    private ITournoiInscriptionService           inscriptionService;
+    private StripeService                        stripeService;
+    private StripePaymentChecker                 paymentChecker;
 
     public TournoiController() {
-        tournoiService = new TournoiServiceImpl();
-        matchService   = new com.eyetwin.services.MatchServiceImpl();
+        tournoiService      = new TournoiServiceImpl();
+        matchService        = new com.eyetwin.services.MatchServiceImpl();
+        inscriptionService  = new TournoiInscriptionServiceImpl();
+        stripeService       = new StripeService();
+        paymentChecker      = new StripePaymentChecker();
     }
 
     private boolean canManage() {
@@ -159,19 +165,38 @@ public class TournoiController {
         btnDetails.getStyleClass().add("card-btn-details");
         btnDetails.setOnAction(e -> openDetail(t));
 
-        Button btnEdit = new Button("✏");
-        btnEdit.getStyleClass().add("card-btn-edit");
-        btnEdit.setOnAction(e -> openForm(t));
-
-        Button btnDelete = new Button("✕");
-        btnDelete.getStyleClass().add("card-btn-delete");
-        btnDelete.setOnAction(e -> confirmDelete(t.getId()));
-
         HBox btnRow = new HBox(6, btnDetails);
         btnRow.getStyleClass().add("card-btn-row");
         btnRow.setAlignment(Pos.CENTER_LEFT);
 
+        // ── Regular User Registration ──
+        if (!canManage()) {
+            User user = SessionManager.getCurrentUser();
+            if (user != null) {
+                boolean isRegistered = inscriptionService.isUserRegistered(user.getId(), t.getId());
+                if (isRegistered) {
+                    Label registeredLabel = new Label("✅ Inscribed");
+                    registeredLabel.setStyle("-fx-text-fill: #4ade80; -fx-font-weight: bold; -fx-padding: 0 10;");
+                    btnRow.getChildren().add(registeredLabel);
+                } else {
+                    Button btnRegister = new Button("🏆 S'inscrire");
+                    btnRegister.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 5;");
+                    btnRegister.setOnAction(e -> handleRegistration(t, btnRegister));
+                    btnRow.getChildren().add(btnRegister);
+                }
+            }
+        }
+
+        // ── Admin Management ──
         if (canManage()) {
+            Button btnEdit = new Button("✏");
+            btnEdit.getStyleClass().add("card-btn-edit");
+            btnEdit.setOnAction(e -> openForm(t));
+
+            Button btnDelete = new Button("✕");
+            btnDelete.getStyleClass().add("card-btn-delete");
+            btnDelete.setOnAction(e -> confirmDelete(t.getId()));
+
             Region btnSpacer = new Region();
             HBox.setHgrow(btnSpacer, Priority.ALWAYS);
             btnRow.getChildren().addAll(btnSpacer, btnEdit, btnDelete);
@@ -323,6 +348,83 @@ public class TournoiController {
                 }
             }
         });
+    }
+
+    // ─── Registration & Stripe ────────────────────────────────────────────────
+
+    private void handleRegistration(Tournoi t, Button btn) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) {
+            new Alert(Alert.AlertType.WARNING, "Veuillez vous connecter pour vous inscrire.").show();
+            return;
+        }
+
+        try {
+            btn.setDisable(true);
+            btn.setText("⏳ Redirecting...");
+
+            CheckoutResult result = stripeService.createTournamentCheckoutSession(user, t);
+            
+            // Create PENDING inscription
+            TournoiInscription ins = new TournoiInscription(user.getId(), t.getId(), result.sessionId);
+            inscriptionService.add(ins);
+
+            // Open browser
+            stripeService.openCheckoutInBrowser(result.url);
+
+            // Start polling background task
+            startPollingStatus(result.sessionId, t, user, btn);
+
+        } catch (Exception e) {
+            btn.setDisable(false);
+            btn.setText("🏆 S'inscrire");
+            new Alert(Alert.AlertType.ERROR, "Erreur Stripe : " + e.getMessage()).show();
+        }
+    }
+
+    private void startPollingStatus(String sessionId, Tournoi t, User user, Button btn) {
+        Thread pollThread = new Thread(() -> {
+            boolean confirmed = false;
+            int attempts = 0;
+            while (!confirmed && attempts < 60) { // Poll for 5 minutes max (5s * 60)
+                try {
+                    Thread.sleep(5000); 
+                    attempts++;
+                    
+                    if (paymentChecker.isSessionPaid(sessionId)) {
+                        confirmed = true;
+                        
+                        // Update DB
+                        inscriptionService.updateStatusBySession(sessionId, "PAID");
+
+                        // Send Email
+                        EmailService.getInstance().sendTournamentRegistrationEmail(user, t);
+
+                        Platform.runLater(() -> {
+                            btn.setText("✅ Inscribed");
+                            btn.setDisable(true);
+                            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #4ade80; -fx-font-weight: bold;");
+                            
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Félicitations !");
+                            alert.setHeaderText("Inscription confirmée");
+                            alert.setContentText("Vous avez été inscrit au tournoi " + t.getNom() + ". Un mail de confirmation a été envoyé.");
+                            alert.show();
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+            if (!confirmed) {
+                Platform.runLater(() -> {
+                    btn.setDisable(false);
+                    btn.setText("🏆 S'inscrire");
+                });
+            }
+        }, "StripePolling-" + sessionId);
+        pollThread.setDaemon(true);
+        pollThread.start();
     }
 
     // ─── Navigation ───────────────────────────────────────────────────────────
