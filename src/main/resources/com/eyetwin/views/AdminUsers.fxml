@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminUserController"
+            style="-fx-background-color: #0a0514;">
+
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+
+    <center>
+        <VBox style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox spacing="16" style="-fx-padding: 24;">
+
+                    <!-- ═══════════════════════════════════════════
+                         XP CARDS ROW — 4 columns (identical to Symfony xp-card)
+                         ═══════════════════════════════════════════ -->
+                    <HBox spacing="14">
+
+                        <!-- TOTAL USERS — Purple -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.92);
+                                     -fx-border-color: rgba(102,126,234,0.30);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 12; -fx-background-radius: 12;
+                                     -fx-padding: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.15), 20, 0, 0, 4);
+                                     -fx-cursor: hand;">
+                            <!-- top accent bar via label trick -->
+                            <Label text="◈ ROSTER COUNT"
+                                   style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                          -fx-font-family: monospace;"/>
+                            <Label fx:id="totalUsersLabel" text="0"
+                                   style="-fx-font-size: 44; -fx-font-weight: bold;
+                                          -fx-text-fill: white; -fx-min-width: 60;"/>
+                            <Label text="Total Users"
+                                   style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.5);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 4 0;"/>
+                            <ProgressBar fx:id="progressTotal" progress="1.0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-purple"/>
+                        </VBox>
+
+                        <!-- ACTIVE — Green -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.92);
+                                     -fx-border-color: rgba(67,233,123,0.30);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 12; -fx-background-radius: 12;
+                                     -fx-padding: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(67,233,123,0.15), 20, 0, 0, 4);
+                                     -fx-cursor: hand;">
+                            <Label text="✓ IN THE ARENA"
+                                   style="-fx-font-size: 9; -fx-text-fill: rgba(67,233,123,0.75);
+                                          -fx-font-family: monospace;"/>
+                            <Label fx:id="activeUsersLabel" text="0"
+                                   style="-fx-font-size: 44; -fx-font-weight: bold;
+                                          -fx-text-fill: white;"/>
+                            <Label text="Active"
+                                   style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.5);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 4 0;"/>
+                            <ProgressBar fx:id="progressActive" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-green"/>
+                        </VBox>
+
+                        <!-- COACHES — Pink -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.92);
+                                     -fx-border-color: rgba(240,147,251,0.30);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 12; -fx-background-radius: 12;
+                                     -fx-padding: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(240,147,251,0.15), 20, 0, 0, 4);
+                                     -fx-cursor: hand;">
+                            <Label text="⚡ ELITE SQUAD"
+                                   style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                          -fx-font-family: monospace;"/>
+                            <Label fx:id="coachesLabel" text="0"
+                                   style="-fx-font-size: 44; -fx-font-weight: bold;
+                                          -fx-text-fill: white;"/>
+                            <Label text="Coaches"
+                                   style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.5);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 4 0;"/>
+                            <ProgressBar fx:id="progressCoaches" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-pink"/>
+                        </VBox>
+
+                        <!-- ADMINS — Blue -->
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.92);
+                                     -fx-border-color: rgba(79,172,254,0.30);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 12; -fx-background-radius: 12;
+                                     -fx-padding: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(79,172,254,0.15), 20, 0, 0, 4);
+                                     -fx-cursor: hand;">
+                            <Label text="◉ COMMAND OPS"
+                                   style="-fx-font-size: 9; -fx-text-fill: rgba(255,255,255,0.35);
+                                          -fx-font-family: monospace;"/>
+                            <Label fx:id="adminsLabel" text="0"
+                                   style="-fx-font-size: 44; -fx-font-weight: bold;
+                                          -fx-text-fill: white;"/>
+                            <Label text="Admins"
+                                   style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.5);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 4 0;"/>
+                            <ProgressBar fx:id="progressAdmins" progress="0" maxWidth="Infinity"
+                                         prefHeight="3" styleClass="progress-blue"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ═══════════════════════════════════════════
+                         MINI STATS ROW
+                         ═══════════════════════════════════════════ -->
+                    <HBox spacing="12">
+                        <!-- Active Rate — Orange -->
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.85);
+                                     -fx-border-color: rgba(255,167,81,0.22);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 10; -fx-background-radius: 10;
+                                     -fx-padding: 14; -fx-cursor: hand;">
+                            <Label text="Active Rate"
+                                   style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.4);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 2 0;"/>
+                            <Label fx:id="activeRateLabel" text="0%"
+                                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </VBox>
+                        <!-- Inactive — Red -->
+                        <VBox spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: rgba(10,5,20,0.85);
+                                     -fx-border-color: rgba(255,107,107,0.22);
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 10; -fx-background-radius: 10;
+                                     -fx-padding: 14; -fx-cursor: hand;">
+                            <Label text="Inactive / Suspended / Banned"
+                                   style="-fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.4);
+                                          -fx-font-weight: 600; -fx-padding: 0 0 2 0;"/>
+                            <Label fx:id="inactiveUsersLabel" text="0"
+                                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ═══════════════════════════════════════════
+                         FILTERS CARD
+                         ═══════════════════════════════════════════ -->
+                    <VBox spacing="12"
+                          style="-fx-background-color: rgba(255,255,255,0.02);
+                                 -fx-border-color: rgba(255,255,255,0.07);
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 12; -fx-background-radius: 12;
+                                 -fx-padding: 16;">
+                        <Label text="🔍  Filters &amp; Search"
+                               style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <TextField fx:id="searchField" promptText="Name, email, username…"
+                                       prefWidth="260"
+                                       style="-fx-background-color: rgba(30,15,45,0.95);
+                                              -fx-text-fill: white;
+                                              -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                              -fx-border-color: rgba(255,60,100,0.30);
+                                              -fx-border-radius: 10; -fx-background-radius: 10;
+                                              -fx-padding: 10 14;"/>
+                            <ComboBox fx:id="roleFilterCombo" prefWidth="155"
+                                      style="-fx-background-color: rgba(30,15,45,0.95);
+                                             -fx-border-color: rgba(255,60,100,0.30);
+                                             -fx-border-radius: 10; -fx-background-radius: 10;"/>
+                            <ComboBox fx:id="statusFilterCombo" prefWidth="155"
+                                      style="-fx-background-color: rgba(30,15,45,0.95);
+                                             -fx-border-color: rgba(255,60,100,0.30);
+                                             -fx-border-radius: 10; -fx-background-radius: 10;"/>
+                            <Button text="🔍  Filter" onAction="#handleFilter"
+                                    style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+               -fx-text-fill: white;
+               -fx-background-radius: 8; -fx-border-color: transparent;
+               -fx-padding: 9 18; -fx-cursor: hand; -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>                            <Button text="✕  Clear" onAction="#handleClearFilters"
+                                    style="-fx-background-color: rgba(255,255,255,0.05);
+                                           -fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 8;
+                                           -fx-background-radius: 8;
+                                           -fx-text-fill: rgba(255,255,255,0.65);
+                                           -fx-padding: 9 12; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ═══════════════════════════════════════════
+                         RESULT COUNT + NEW USER BUTTON
+                         ═══════════════════════════════════════════ -->
+                    <HBox alignment="CENTER_LEFT">
+                        <Label fx:id="resultCountLabel" text="—"
+                               style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="＋  New User" onAction="#handleNewUser"
+                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+               -fx-text-fill: white; -fx-background-radius: 10;
+               -fx-border-color: transparent;
+               -fx-padding: 10 22; -fx-cursor: hand; -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>                    </HBox>
+
+                    <!-- ═══════════════════════════════════════════
+                         TABLE CARD
+                         ═══════════════════════════════════════════ -->
+                    <VBox style="-fx-background-color: rgba(255,255,255,0.02);
+                                 -fx-border-color: rgba(255,255,255,0.07);
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 12; -fx-background-radius: 12;">
+                        <Label text="👥  Users List"
+                               style="-fx-font-size: 13; -fx-font-weight: bold;
+                                      -fx-text-fill: white; -fx-padding: 14 16;"/>
+
+                        <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="440"
+                                   style="-fx-background-color: transparent;
+                                          -fx-border-color: transparent;
+                                          -fx-table-cell-border-color: transparent;">
+                            <columns>
+                                <TableColumn fx:id="colAvatar"   text="Photo"     prefWidth="72"/>
+                                <TableColumn fx:id="colFullName" text="Full Name"  prefWidth="165"/>
+                                <TableColumn fx:id="colEmail"    text="Email"      prefWidth="210"/>
+                                <TableColumn fx:id="colUsername" text="Username"   prefWidth="140"/>
+                                <TableColumn fx:id="colRole"     text="Role"       prefWidth="110"/>
+                                <TableColumn fx:id="colStatus"   text="Status"     prefWidth="115"/>
+                                <TableColumn fx:id="colJoined"   text="Joined"     prefWidth="120"/>
+                                <TableColumn fx:id="colActions"  text="Actions"    prefWidth="170"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- ═══════════════════════════════════════════
+                         PAGINATION ROW
+                         ═══════════════════════════════════════════ -->
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label fx:id="paginationInfoLabel" text=""
+                               style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 12;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="prevPageBtn" text="← Prev" onAction="#handlePrevPage"
+                                style="-fx-background-color: rgba(255,255,255,0.05);
+                                       -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
+                                       -fx-background-radius: 8;
+                                       -fx-text-fill: rgba(255,255,255,0.65);
+                                       -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 13;"/>
+                        <Label fx:id="pageNumberLabel" text="Page 1 / 1"
+                               style="-fx-text-fill: white; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                        <Button fx:id="nextPageBtn" text="Next →" onAction="#handleNextPage"
+                                style="-fx-background-color: rgba(255,255,255,0.05);
+                                       -fx-border-color: rgba(255,255,255,0.12); -fx-border-radius: 8;
+                                       -fx-background-radius: 8;
+                                       -fx-text-fill: rgba(255,255,255,0.65);
+                                       -fx-padding: 8 16; -fx-cursor: hand; -fx-font-size: 13;"/>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

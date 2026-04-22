@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.media.MediaView?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.LiveManageController"
+            stylesheets="@../styles/gaming.css,@../styles/live.css"
+            styleClass="live-root"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- ✅ ToggleGroup déclaré ici, PAS dans le HBox -->
+    <fx:define>
+        <ToggleGroup fx:id="captureToggleGroup"/>
+    </fx:define>
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16" style="-fx-padding: 22 64 40 64; -fx-background-color: #080810;">
+
+                <!-- Flash -->
+                <VBox fx:id="flashBox" visible="false" managed="false"
+                      style="-fx-background-color: rgba(255,255,255,0.04); -fx-padding: 12;
+                             -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.10);
+                             -fx-border-radius: 8;">
+                    <Label fx:id="flashLabel" wrapText="true"/>
+                </VBox>
+
+                <!-- Header card -->
+                <VBox spacing="10" styleClass="watch-card">
+                    <Label fx:id="titleLabel" text="Live title"
+                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: 900;"/>
+                    <Label fx:id="statusLabel" text="SCHEDULED"
+                           style="-fx-text-fill: #9eb1ff; -fx-font-size: 14; -fx-font-weight: 800;"/>
+                    <Label fx:id="descriptionLabel" wrapText="true"
+                           style="-fx-text-fill: rgba(255,255,255,0.55);"/>
+                    <HBox spacing="10">
+                        <Button fx:id="startButton" text="Go Live"    onAction="#handleStart" styleClass="btn-fire"/>
+                        <Button fx:id="endButton"   text="End Stream" onAction="#handleEnd"   styleClass="btn-danger"/>
+                        <Button text="Viewer View"  onAction="#openViewer" styleClass="btn-ghost"/>
+                        <Button text="All Streams"  onAction="#goBack"     styleClass="btn-ghost"/>
+                    </HBox>
+                </VBox>
+
+                <!-- FFmpeg Capture Panel -->
+                <VBox fx:id="ffmpegBox" visible="false" managed="false" spacing="12"
+                      style="-fx-background-color: rgba(0,230,118,0.05);
+                             -fx-border-color: rgba(0,230,118,0.25);
+                             -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 18;">
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="Capture Source"
+                               style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                        <Label fx:id="ffmpegStatusLabel" text="○ Idle"
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-weight: 800;"/>
+                    </HBox>
+
+                    <!-- ✅ ToggleGroup référencé avec $, mais pas redéclaré ici -->
+                    <HBox spacing="10">
+                        <ToggleButton fx:id="modeScreen" text="🖥  Screen"
+                                      toggleGroup="$captureToggleGroup" selected="true"
+                                      style="-fx-background-color: rgba(158,177,255,0.15);
+                                             -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
+                                             -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                        <ToggleButton fx:id="modeWebcam" text="📷  Webcam"
+                                      toggleGroup="$captureToggleGroup"
+                                      style="-fx-background-color: rgba(158,177,255,0.15);
+                                             -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
+                                             -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                        <ToggleButton fx:id="modeFile" text="🎬  Video File"
+                                      toggleGroup="$captureToggleGroup"
+                                      style="-fx-background-color: rgba(158,177,255,0.15);
+                                             -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
+                                             -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                        <!-- ❌ <ToggleGroup fx:id="captureToggleGroup"/> SUPPRIMÉ d'ici -->
+                    </HBox>
+
+                    <!-- File picker (only visible in File mode) -->
+                    <HBox fx:id="filePickerBox" visible="false" managed="false"
+                          spacing="10" alignment="CENTER_LEFT">
+                        <Button text="📁  Choose File" onAction="#handlePickFile"
+                                style="-fx-background-color: rgba(255,255,255,0.08);
+                                       -fx-text-fill: white; -fx-background-radius: 8;
+                                       -fx-padding: 8 16; -fx-cursor: hand;"/>
+                        <Label fx:id="selectedFileLabel" text="No file selected"
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 12;"/>
+                    </HBox>
+
+                    <!-- Start / Stop buttons -->
+                    <HBox spacing="10">
+                        <Button fx:id="ffmpegStartButton" text="▶  Start Capture"
+                                onAction="#handleFfmpegStart"
+                                style="-fx-background-color: #00e676; -fx-text-fill: #080810;
+                                       -fx-font-weight: 900; -fx-font-size: 13;
+                                       -fx-background-radius: 8; -fx-padding: 10 22; -fx-cursor: hand;"/>
+                        <Button fx:id="ffmpegStopButton" text="■  Stop Capture"
+                                onAction="#handleFfmpegStop" visible="false" managed="false"
+                                style="-fx-background-color: #ff5252; -fx-text-fill: white;
+                                       -fx-font-weight: 900; -fx-font-size: 13;
+                                       -fx-background-radius: 8; -fx-padding: 10 22; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- FFmpeg log -->
+                    <TextArea fx:id="ffmpegLogArea" editable="false" prefHeight="110" wrapText="false"
+                              style="-fx-control-inner-background: #0d0d1a;
+                                     -fx-text-fill: rgba(0,230,118,0.7);
+                                     -fx-font-family: monospace; -fx-font-size: 11;
+                                     -fx-border-color: rgba(255,255,255,0.08);
+                                     -fx-border-radius: 6; -fx-background-radius: 6;"/>
+                </VBox>
+
+                <!-- Preview player -->
+                <VBox fx:id="previewBox" spacing="10" visible="false" managed="false" styleClass="watch-card">
+                    <Label text="Live Preview"
+                           style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                    <!-- ✅ Rien ici — VLC injecte son ImageView dynamiquement -->
+                </VBox>
+
+                <!-- Stats row -->
+                <HBox spacing="16">
+                    <VBox HBox.hgrow="ALWAYS" spacing="8" styleClass="watch-card">
+                        <Label text="Viewers" style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                        <Label fx:id="viewersLabel" text="0"
+                               style="-fx-text-fill: #00e676; -fx-font-size: 24; -fx-font-weight: 900;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8" styleClass="watch-card">
+                        <Label text="Price" style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                        <Label fx:id="priceLabel" text="Free"
+                               style="-fx-text-fill: #f6d860; -fx-font-size: 24; -fx-font-weight: 900;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8" styleClass="watch-card">
+                        <Label text="Started At" style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                        <Label fx:id="startedAtLabel" text="—"
+                               style="-fx-text-fill: #9eb1ff; -fx-font-size: 20; -fx-font-weight: 900;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8" styleClass="watch-card">
+                        <Label text="Revenue" style="-fx-text-fill: rgba(255,255,255,0.45);"/>
+                        <Label fx:id="revenueLabel" text="0 coins"
+                               style="-fx-text-fill: #f6d860; -fx-font-size: 20; -fx-font-weight: 900;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Streaming configuration -->
+                <VBox spacing="12" styleClass="watch-card">
+                    <Label text="Streaming Configuration"
+                           style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                    <VBox spacing="4">
+                        <Label text="RTMP Server"
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <TextField fx:id="rtmpField" editable="false" HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: #70d0a0;
+                                              -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 6;
+                                              -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13;"/>
+                            <Button fx:id="copyRtmpButton" text="⎘ Copy" onAction="#copyRtmp"
+                                    style="-fx-background-color: rgba(112,208,160,0.15); -fx-text-fill: #70d0a0;
+                                           -fx-border-color: rgba(112,208,160,0.4); -fx-border-radius: 6;
+                                           -fx-background-radius: 6; -fx-padding: 8 14; -fx-cursor: hand;
+                                           -fx-font-size: 12; -fx-font-weight: 700;"/>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="Stream Key"
+                               style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <TextField fx:id="streamKeyField" editable="false" HBox.hgrow="ALWAYS"
+                                       style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;
+                                              -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 6;
+                                              -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13;"/>
+                            <Button fx:id="copyKeyButton" text="⎘ Copy" onAction="#copyStreamKey"
+                                    style="-fx-background-color: rgba(158,177,255,0.15); -fx-text-fill: #9eb1ff;
+                                           -fx-border-color: rgba(158,177,255,0.4); -fx-border-radius: 6;
+                                           -fx-background-radius: 6; -fx-padding: 8 14; -fx-cursor: hand;
+                                           -fx-font-size: 12; -fx-font-weight: 700;"/>
+                        </HBox>
+                    </VBox>
+                    <Label fx:id="shareLinkLabel" text="share"
+                           style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

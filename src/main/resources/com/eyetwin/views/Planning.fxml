@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.PlanningController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #080810;"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <center>
+        <!-- Wrap scroll content + fixed overlays (chatbot) -->
+        <StackPane style="-fx-background-color: #080810;">
+            <ScrollPane fx:id="mainScroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: #080810; -fx-background: #080810;">
+                <content>
+                    <StackPane fx:id="mainStack" style="-fx-background-color: #080810;">
+
+                    <!-- DASHBOARD VIEW (STARTING POINT) -->
+                    <VBox fx:id="viewDashboard" visible="true" managed="true" spacing="30" alignment="CENTER"
+                          style="-fx-padding: 60 40 100 40; -fx-background-color: #080810;">
+
+                        <VBox styleClass="dashboard-card" maxWidth="900" spacing="25" alignment="CENTER">
+                            <!-- Avatar Section -->
+                            <StackPane styleClass="avatar-circle">
+                                <Label text="I" style="-fx-text-fill: white; -fx-font-size: 40; -fx-font-weight: bold;"/>
+                            </StackPane>
+
+                            <VBox spacing="5" alignment="CENTER">
+                                <Label fx:id="welcomeLabel" text="Welcome, Islem" styleClass="welcome-title"/>
+                                <Label text="We're glad to have you back in the arena." styleClass="welcome-sub"/>
+                            </VBox>
+
+                            <HBox styleClass="info-banner" alignment="CENTER" spacing="10">
+                                <Label text="★" style="-fx-text-fill: #3b82f6; -fx-font-size: 18;"/>
+                                <Label text="You are currently a highly ranked Gold Member" style="-fx-text-fill: #3b82f6; -fx-font-weight: bold;"/>
+                            </HBox>
+
+                            <VBox spacing="20" alignment="CENTER">
+                                <HBox spacing="15" alignment="CENTER">
+                                    <Button text="VIEW ALL PLANNING" onAction="#handleShowAllPlanning" styleClass="btn-blue" prefWidth="220"/>
+                                    <Button text="MY SESSIONS" onAction="#handleShowMySessions" styleClass="btn-cyan" prefWidth="220"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- LIST VIEW (SESSIONS) -->
+                    <VBox fx:id="viewList" visible="false" managed="false" spacing="24"
+                          style="-fx-padding: 30 40 50 40; -fx-background-color: #080810;">
+
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Button text="← Back to Home" onAction="#handleBackToDashboard"
+                                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.6); -fx-cursor: hand;"/>
+                            <Label text="Available Sessions"
+                                   style="-fx-font-family: 'Arial Black'; -fx-font-size: 28; -fx-text-fill: white;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <HBox spacing="12" alignment="CENTER_RIGHT">
+                                <Button onAction="#handleRefreshCoachAdvice" styleClass="btn-outline-indigo">
+                                    <graphic>
+                                        <HBox spacing="8" alignment="CENTER">
+                                            <ImageView fitWidth="18" fitHeight="18"><Image url="@../assets/img/brain_icon.png"/></ImageView>
+                                            <Label text="AI COACHING ADVISOR" style="-fx-text-fill: #e8372a; -fx-font-weight: bold; -fx-font-size: 11;"/>
+                                        </HBox>
+                                    </graphic>
+                                </Button>
+                                <Button onAction="#handleShowMyHistory" styleClass="btn-outline-indigo">
+                                    <graphic>
+                                        <HBox spacing="8" alignment="CENTER">
+                                            <ImageView fitWidth="18" fitHeight="18"><Image url="@../assets/img/history_icon.png"/></ImageView>
+                                            <Label text="MY HISTORY" style="-fx-text-fill: #e8372a; -fx-font-weight: bold; -fx-font-size: 11;"/>
+                                        </HBox>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </HBox>
+
+                        <HBox fx:id="filtersBar" spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 15; -fx-background-radius: 10;">
+                            <TextField fx:id="searchField" promptText="Search sessions..."
+                                       onAction="#handleSearch"
+                                       HBox.hgrow="ALWAYS" styleClass="input-gaming"/>
+                            <ComboBox fx:id="filterTypeCombo" onAction="#handleFilter" prefWidth="150" promptText="Type"/>
+                            <ComboBox fx:id="filterLevelCombo" onAction="#handleFilter" prefWidth="150" promptText="Level"/>
+                            <Button text="Search" onAction="#handleSearch" styleClass="btn-blue" prefWidth="100"/>
+                            <Button text="Reset" onAction="#handleResetFilters" styleClass="btn-ghost" prefWidth="90"/>
+                        </HBox>
+
+                        <!-- AI Coach Banner -->
+                        <HBox fx:id="coachBanner" spacing="15" alignment="CENTER_LEFT" visible="false" managed="false"
+                              style="-fx-background-color: linear-gradient(to right, #b02b20, #000000);
+                                     -fx-background-radius: 14; -fx-padding: 20; -fx-border-color: rgba(232,55,42,0.3); -fx-border-radius: 14;">
+                            <ImageView fitWidth="40" fitHeight="40">
+                                <Image url="@../assets/img/coach_icon.png"/>
+                            </ImageView>
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="AI Coach Recommendations"
+                                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
+                                <Label fx:id="coachRecommendationLabel"
+                                       text="Analyzing your profile to give you the best advice..."
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13;"/>
+                            </VBox>
+                            <Button text="Refresh Advice" onAction="#handleRefreshCoachAdvice"
+                                    styleClass="btn-glass"/>
+                            <Button text="✕" onAction="#handleCloseCoachBanner"
+                                    style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 999; -fx-min-width: 34; -fx-min-height: 34;"/>
+                        </HBox>
+
+                        <VBox fx:id="sectionAvailableSessions" spacing="20">
+                            <Label text="All Active Plannings"
+                                   style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                            <FlowPane fx:id="allPlanningsPane" hgap="25" vgap="25"/>
+                        </VBox>
+
+                        <VBox spacing="20" fx:id="sectionMySessions" visible="false" managed="false">
+                            <Label text="My Registered Sessions"
+                                   style="-fx-text-fill: #ff6b2b; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                            <VBox fx:id="mySessionsList" spacing="15"/>
+                        </VBox>
+
+                        <VBox spacing="20" fx:id="sectionMyHistory" visible="false" managed="false">
+                            <Label text="My History"
+                                   style="-fx-text-fill: #ff6b2b; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                            <VBox fx:id="myHistoryList" spacing="15"/>
+                        </VBox>
+                    </VBox>
+
+                    <VBox fx:id="viewCreate" visible="false" managed="false" spacing="16"
+                          style="-fx-padding: 28 40 50 40; -fx-background-color: #080810;">
+                        <Button text="← Back to list" onAction="#handleBackToList"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.6);"/>
+
+                        <VBox spacing="14" maxWidth="680"
+                              style="-fx-background-color: rgba(6,5,16,0.88);
+                                     -fx-border-color: rgba(232,55,42,0.22);
+                                     -fx-border-radius: 14; -fx-background-radius: 14;
+                                     -fx-padding: 26;">
+                            <Label text="Create Planning"
+                                   style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+
+                            <GridPane hgap="12" vgap="12">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="30"/>
+                                    <ColumnConstraints percentWidth="70"/>
+                                </columnConstraints>
+
+                                <Label text="Date" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <DatePicker fx:id="createDatePicker" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Time (HH:mm)" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="createTimeField" promptText="18:30" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Location" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="createLocalisationField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextArea fx:id="createDescriptionArea" prefRowCount="4" wrapText="true"
+                                          GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Level" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="createLevelCombo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <Label text="Type" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="createTypeCombo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                            </GridPane>
+
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <CheckBox fx:id="createNeedPartnerCheck"/>
+                                <Label text="Need partner" style="-fx-text-fill: rgba(255,255,255,0.8);"/>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="createImageBtn" text="Choose image" onAction="#handleSelectImage"
+                                        styleClass="btn-fire"/>
+                                <Label fx:id="createImageLabel" text="No image selected"
+                                       style="-fx-text-fill: rgba(255,255,255,0.5);"/>
+                            </HBox>
+
+                            <Label fx:id="createGeneralError" text="" visible="false" managed="false"/>
+
+                            <HBox spacing="10" alignment="CENTER_RIGHT">
+                                <Button text="Cancel" onAction="#handleBackToList"/>
+                                <Button fx:id="createSubmitBtn" text="Create" onAction="#handleCreateSubmit" styleClass="btn-green"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <VBox fx:id="viewShow" visible="false" managed="false" spacing="14"
+                          style="-fx-padding: 24 40 50 40; -fx-background-color: #080810;">
+                        <Button text="← Back to list" onAction="#handleBackToList"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.6);"/>
+
+                        <HBox spacing="18" alignment="TOP_LEFT">
+                            <VBox spacing="12" HBox.hgrow="ALWAYS">
+                                <ImageView fx:id="showImage" fitWidth="430" fitHeight="220" preserveRatio="true"/>
+
+                                <VBox spacing="8"
+                                      style="-fx-background-color: rgba(6,5,16,0.88);
+                                             -fx-border-color: rgba(255,255,255,0.08);
+                                             -fx-border-radius: 12; -fx-background-radius: 12;
+                                             -fx-padding: 16;">
+                                    <GridPane hgap="10" vgap="8">
+                                        <columnConstraints>
+                                            <ColumnConstraints percentWidth="30"/>
+                                            <ColumnConstraints percentWidth="70"/>
+                                        </columnConstraints>
+                                        <Label text="Date" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showDate" text="-" style="-fx-text-fill: white;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                        <Label text="Time" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showTime" text="-" style="-fx-text-fill: white;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                        <Label text="Location" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showLocalisation" text="-" wrapText="true" style="-fx-text-fill: white;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                        <Label text="Level" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showLevel" text="-" style="-fx-text-fill: #00e676;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                                        <Label text="Type" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showType" text="-" style="-fx-text-fill: #ff6b2b;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                        <Label text="Need partner" style="-fx-text-fill: rgba(255,255,255,0.6);" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                        <Label fx:id="showNeedPartner" text="-" style="-fx-text-fill: white;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                    </GridPane>
+
+                                    <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-weight: bold;"/>
+                                    <Label fx:id="showDescription" text="-" wrapText="true" style="-fx-text-fill: rgba(255,255,255,0.82);"/>
+
+                                    <HBox spacing="14" alignment="CENTER_LEFT">
+                                        <Label text="Participants :" style="-fx-text-fill: rgba(255,255,255,0.6);"/>
+                                        <Label fx:id="showParticipantCount" text="0" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Note moyenne :" style="-fx-text-fill: rgba(255,255,255,0.6);"/>
+                                        <Label fx:id="showAverageRating" text="0.0" style="-fx-text-fill: #ffd166; -fx-font-weight: bold;"/>
+                                    </HBox>
+
+                                    <Separator styleClass="separator-gaming"/>
+
+
+                                    <!-- Geolocation / Map Section -->
+                                    <VBox fx:id="mapContainer" visible="false" managed="false" spacing="8"
+                                          style="-fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 8; -fx-padding: 10;">
+                                        <Label text="Session Location" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                        <WebView fx:id="mapWebView" prefHeight="200" style="-fx-background-color: #080810;"/>
+                                    </VBox>
+                                </VBox>
+                            </VBox>
+
+                            <VBox spacing="12" prefWidth="380">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Button fx:id="showEditBtn" text="Edit" onAction="#handleShowEdit"/>
+                                    <Button fx:id="showDeleteBtn" text="Delete" onAction="#handleDeletePlanning"/>
+                                </HBox>
+
+                                <VBox spacing="8"
+                                      style="-fx-background-color: rgba(6,5,16,0.88);
+                                             -fx-border-color: rgba(255,255,255,0.08);
+                                             -fx-border-radius: 12; -fx-background-radius: 12;
+                                             -fx-padding: 14;">
+                                    <Label text="Inscriptions"
+                                           style="-fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
+                                    <VBox fx:id="participantsList" spacing="8"/>
+                                </VBox>
+
+                                <!-- Reviews hidden on frontend (sent to Admin only) -->
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox fx:id="viewEdit" visible="false" managed="false" spacing="16"
+                          style="-fx-padding: 28 40 50 40; -fx-background-color: #080810;">
+                        <Button text="← Back to list" onAction="#handleBackToList"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.6);"/>
+
+                        <VBox spacing="14" maxWidth="680"
+                              style="-fx-background-color: rgba(6,5,16,0.88);
+                                     -fx-border-color: rgba(232,55,42,0.22);
+                                     -fx-border-radius: 14; -fx-background-radius: 14;
+                                     -fx-padding: 26;">
+                            <Label text="Edit Planning"
+                                   style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: bold;"/>
+
+                            <GridPane hgap="12" vgap="12">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="30"/>
+                                    <ColumnConstraints percentWidth="70"/>
+                                </columnConstraints>
+
+                                <Label text="Date" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <DatePicker fx:id="editDatePicker" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Time (HH:mm)" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="editTimeField" promptText="18:30" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Location" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="editLocalisationField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextArea fx:id="editDescriptionArea" prefRowCount="4" wrapText="true"
+                                          GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="input-gaming"/>
+
+                                <Label text="Level" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="editLevelCombo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <Label text="Type" style="-fx-text-fill: rgba(255,255,255,0.8);" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="editTypeCombo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                            </GridPane>
+
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <CheckBox fx:id="editNeedPartnerCheck"/>
+                                <Label text="Need partner" style="-fx-text-fill: rgba(255,255,255,0.8);"/>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="editImageBtn" text="Choose image" onAction="#handleEditSelectImage"
+                                        styleClass="btn-fire"/>
+                                <Label fx:id="editImageLabel" text="No image selected"
+                                       style="-fx-text-fill: rgba(255,255,255,0.5);"/>
+                            </HBox>
+
+                            <Label fx:id="editGeneralError" text="" visible="false" managed="false"/>
+
+                            <HBox spacing="10" alignment="CENTER_RIGHT">
+                                <Button text="Cancel" onAction="#handleBackToList"/>
+                                <Button fx:id="editSubmitBtn" text="Save changes" onAction="#handleEditSubmit" styleClass="btn-green"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Feedback modal (Rate + comment) -->
+                    <StackPane fx:id="feedbackOverlay" visible="false" managed="false"
+                               style="-fx-background-color: rgba(0,0,0,0.55);">
+                        <VBox maxWidth="680" spacing="18" alignment="CENTER"
+                              style="-fx-background-color: rgba(6,5,16,0.92); -fx-background-radius: 16;
+                                     -fx-border-color: rgba(255,255,255,0.10); -fx-border-radius: 16;
+                                     -fx-padding: 22;">
+                            <Label text="Rate this session:" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 900; -fx-font-size: 20;"/>
+                            <HBox fx:id="feedbackStarsRow" spacing="12" alignment="CENTER"/>
+                            <TextArea fx:id="feedbackTextArea" promptText="Tell us what you thought..." wrapText="true"
+                                      prefRowCount="5" styleClass="input-gaming" />
+                            <HBox spacing="14" alignment="CENTER">
+                                <Button fx:id="feedbackSendBtn" text="Send Feedback" onAction="#handleSendFeedback" styleClass="btn-blue" prefWidth="260"/>
+                                <Button text="Cancel" onAction="#handleCancelFeedback" styleClass="btn-ghost" prefWidth="180"/>
+                            </HBox>
+                            <Label fx:id="feedbackErrorLabel" text="" visible="false" managed="false"
+                                   style="-fx-text-fill:#ff6b7a; -fx-font-weight:700;"/>
+                        </VBox>
+                    </StackPane>
+
+                    <!-- Join modal (Registration Details) -->
+                    <StackPane fx:id="joinOverlay" visible="false" managed="false"
+                               style="-fx-background-color: rgba(0,0,0,0.65);">
+                        <HBox maxWidth="1080" prefWidth="1080" spacing="22" alignment="CENTER"
+                              style="-fx-background-color: rgba(9,10,26,0.96);
+                                     -fx-background-radius: 18;
+                                     -fx-border-color: rgba(255,255,255,0.10);
+                                     -fx-border-radius: 18;
+                                     -fx-padding: 22;">
+                            <!-- Left: session preview -->
+                            <VBox spacing="14" prefWidth="410">
+                                <ImageView fx:id="joinImage" fitWidth="410" fitHeight="230" preserveRatio="false"
+                                           style="-fx-background-radius: 14; -fx-border-radius: 14;"/>
+                                <Label fx:id="joinTypeLabel" text="SESSION"
+                                       style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-weight: 900; -fx-font-size: 12;"/>
+                                <Label fx:id="joinTitleLabel" text="Session title"
+                                       style="-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 22;"/>
+                                <Label fx:id="joinLevelLabel" text="Level"
+                                       style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800;"/>
+                                <VBox spacing="8" style="-fx-padding: 6 0 0 0;">
+                                    <Label fx:id="joinDateLabel" text="Date"
+                                           style="-fx-text-fill: rgba(163,190,255,0.95); -fx-font-weight: 800;"/>
+                                    <Label fx:id="joinTimeLabel" text="Time"
+                                           style="-fx-text-fill: rgba(163,190,255,0.95); -fx-font-weight: 800;"/>
+                                    <Label fx:id="joinLocationLabel" text="Location"
+                                           wrapText="true"
+                                           style="-fx-text-fill: rgba(163,190,255,0.95); -fx-font-weight: 800;"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Right: registration -->
+                            <VBox spacing="14" HBox.hgrow="ALWAYS">
+                                <Label text="Registration Details"
+                                       style="-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 26;"/>
+                                <Label text="Please review your registration information below"
+                                       style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-weight: 700;"/>
+
+                                <VBox spacing="8">
+                                    <Label text="PARTICIPANT NAME"
+                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-weight: 900; -fx-font-size: 11;"/>
+                                    <TextField fx:id="joinParticipantField" editable="false" styleClass="input-gaming"/>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <Label text="REGISTRATION DATE &amp; TIME"
+                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-weight: 900; -fx-font-size: 11;"/>
+                                    <TextField fx:id="joinRegDateTimeField" editable="false" styleClass="input-gaming"/>
+                                </VBox>
+
+                                <VBox spacing="6">
+                                    <Label text="STATUS"
+                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-weight: 900; -fx-font-size: 11;"/>
+                                    <Label fx:id="joinStatusPill" text="Pending"
+                                           style="-fx-background-color: rgba(255,214,102,0.10);
+                                                  -fx-border-color: rgba(255,214,102,0.35);
+                                                  -fx-border-radius: 10; -fx-background-radius: 10;
+                                                  -fx-padding: 12 14;
+                                                  -fx-text-fill: #ffd166; -fx-font-weight: 900;"/>
+                                    <Label text="Your registration will be reviewed by the admin"
+                                           style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-weight: 700;"/>
+                                </VBox>
+
+                                <Label fx:id="joinErrorLabel" text="" visible="false" managed="false"
+                                       style="-fx-text-fill:#ff6b7a; -fx-font-weight:800;"/>
+
+                                <HBox spacing="12" alignment="CENTER_RIGHT">
+                                    <Button fx:id="joinConfirmBtn" text="✓ Confirm Registration" onAction="#handleConfirmRegistration"
+                                            styleClass="btn-blue" prefWidth="280"/>
+                                    <Button text="✕ Cancel" onAction="#handleCancelRegistration"
+                                            styleClass="btn-ghost" prefWidth="160"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </StackPane>
+
+                    <!-- Chatbot enabled on this page -->
+
+                </StackPane>
+                </content>
+            </ScrollPane>
+
+            <!-- Fixed Chatbot overlay: stays visible while scrolling -->
+            <StackPane fx:id="chatbotContainer" StackPane.alignment="BOTTOM_RIGHT"
+                       pickOnBounds="false">
+                <StackPane.margin>
+                    <Insets top="0" right="22" bottom="22" left="0"/>
+                </StackPane.margin>
+                <VBox fx:id="chatbotWindow" visible="false" managed="false" spacing="0"
+                      prefWidth="380" maxWidth="380" prefHeight="560" maxHeight="560"
+                      styleClass="fe-chat-window2">
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="fe-chat-header2">
+                        <Label text="🤖" styleClass="fe-chat-robot2"/>
+                        <Label text="Assistant E-Sport" styleClass="fe-chat-title2"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="✕" onAction="#handleToggleChatbot" styleClass="fe-chat-close2"/>
+                    </HBox>
+
+                    <ScrollPane fx:id="chatbotScroll" fitToWidth="true" hbarPolicy="NEVER"
+                                styleClass="fe-chat-scroll2">
+                        <content>
+                            <VBox fx:id="chatbotMessages" spacing="12" style="-fx-padding: 14;"/>
+                        </content>
+                    </ScrollPane>
+
+                    <VBox spacing="10" styleClass="fe-chat-actions2">
+                        <Button fx:id="chatbotQuickSessionsBtn" text="📅  Sessions disponibles" onAction="#handleChatbotQuickSessions"
+                                styleClass="fe-chat-chip2"/>
+                        <Button fx:id="chatbotQuickNextBtn" text="⏰  Prochaine session" onAction="#handleChatbotQuickNext"
+                                styleClass="fe-chat-chip2"/>
+                        <Button fx:id="chatbotQuickWhatBtn" text="🎮  C'est quoi l'e-sport ?" onAction="#handleChatbotQuickWhat"
+                                styleClass="fe-chat-chip2"/>
+                    </VBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="fe-chat-inputRow2">
+                        <TextField fx:id="chatbotInput" promptText="Posez votre question..."
+                                   HBox.hgrow="ALWAYS" styleClass="fe-chat-input2"/>
+                        <Button fx:id="chatbotSendBtn" onAction="#handleChatbotSend"
+                                styleClass="fe-chat-send2"/>
+                    </HBox>
+                </VBox>
+
+                <Button fx:id="chatbotFabBtn" onAction="#handleToggleChatbot"
+                        styleClass="fe-chat-bubble2"/>
+            </StackPane>
+        </StackPane>
+    </center>
+
+</BorderPane>

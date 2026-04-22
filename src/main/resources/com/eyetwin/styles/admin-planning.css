@@ -1,0 +1,535 @@
+.admin-planning-root {
+    /* Match Symfony admincss.css (body background) */
+    -fx-background-color: linear-gradient(to bottom right, #1a0e2e 0%, #2d1b3d 50%, #1a0e2e 100%);
+}
+
+.page-scroll {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.page-stack {
+    -fx-background-color: transparent;
+}
+
+.page-content {
+    -fx-padding: 22;
+    -fx-background-color: transparent;
+}
+
+.glass-card {
+    /* Match Symfony table-card */
+    -fx-background-color: rgba(20, 10, 35, 0.8);
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 14;
+}
+
+.card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: 700;
+}
+
+.results-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13;
+    -fx-font-weight: 600;
+}
+
+.section-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: 700;
+}
+
+.section-title-alt {
+    -fx-text-fill: #a5b4fc;
+    -fx-font-size: 16;
+    -fx-font-weight: 700;
+}
+
+.section-title-info {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 16;
+    -fx-font-weight: 700;
+}
+
+.filter-input,
+.text-field,
+.text-area,
+.combo-box,
+.date-picker {
+    /* Match Symfony inputs */
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.text-area .content {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.combo-box .list-cell,
+.combo-box-popup .list-view .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: rgba(20, 10, 35, 0.98);
+}
+
+.button {
+    -fx-background-radius: 8;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.primary-btn {
+    /* Symfony --gradient-primary */
+    -fx-background-color: linear-gradient(to bottom right, #ff3c64, #ff1744);
+    -fx-text-fill: white;
+}
+
+.success-btn {
+    /* Symfony --gradient-success */
+    -fx-background-color: linear-gradient(to bottom right, #43e97b, #38f9d7);
+    -fx-text-fill: white;
+}
+
+.outline-btn {
+    /* Symfony btn-outline-secondary */
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-radius: 10;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+
+.danger-btn {
+    /* Symfony btn-danger */
+    -fx-background-color: rgba(255, 107, 107, 0.15);
+    -fx-border-color: rgba(255, 107, 107, 0.30);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ff6b6b;
+}
+
+.back-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+}
+
+.form-card {
+    -fx-background-color: #1e293b;
+    -fx-border-color: rgba(99, 102, 241, 0.3);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.form-header {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-padding: 16;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.form-header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: 700;
+}
+
+.form-content {
+    -fx-padding: 16;
+}
+
+.form-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12;
+    -fx-font-weight: 600;
+}
+
+.muted-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.toggle-row {
+    -fx-background-color: #0f172a;
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(148, 163, 184, 0.3);
+    -fx-border-radius: 10;
+}
+
+.upload-row {
+    -fx-padding: 8 0 2 0;
+}
+
+.form-actions {
+    -fx-padding: 10 0 0 0;
+}
+
+.profile-card {
+    -fx-background-color: #1e293b;
+    -fx-border-color: rgba(99, 102, 241, 0.3);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 14;
+}
+
+.profile-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: 700;
+}
+
+.profile-subtitle {
+    -fx-text-fill: #a5b4fc;
+    -fx-font-size: 13;
+}
+
+.mini-stat {
+    -fx-background-color: #0f172a;
+    -fx-padding: 8;
+    -fx-background-radius: 8;
+}
+
+.mini-stat-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12;
+}
+
+.mini-stat-value {
+    -fx-text-fill: white;
+    -fx-font-size: 12;
+    -fx-font-weight: 700;
+}
+
+.planning-card {
+    -fx-background-color: #0f172a;
+    -fx-border-color: rgba(148, 163, 184, 0.28);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 12;
+    -fx-spacing: 8;
+    -fx-cursor: hand;
+}
+
+.planning-card:hover {
+    -fx-border-color: rgba(99, 102, 241, 0.8);
+}
+
+.planning-card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+    -fx-font-weight: 700;
+}
+
+.planning-card-meta {
+    -fx-text-fill: #93c5fd;
+    -fx-font-size: 12;
+}
+
+.planning-card-muted {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11;
+}
+
+.planning-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: rgba(148, 163, 184, 0.18);
+    -fx-control-inner-background: transparent;
+    -fx-control-inner-background-alt: transparent;
+}
+
+.planning-table .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.planning-table .column-header,
+.planning-table .filler {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: transparent;
+}
+
+.planning-table .column-header .label {
+    -fx-text-fill: rgba(255, 255, 255, 0.70);
+    -fx-font-size: 11;
+    -fx-font-weight: 600;
+}
+
+.planning-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+
+/* Rows styled like Symfony custom-table (rounded, spaced) */
+.planning-table .table-row-cell:filled {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+    -fx-background-insets: 0 0 8 0;
+    -fx-background-radius: 10;
+}
+
+.planning-table .table-row-cell:filled:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+.planning-table .table-row-cell:filled:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: #ff3c64 transparent transparent transparent;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-radius: 10;
+}
+
+.planning-table .table-cell {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-padding: 16 16;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Action icons (colored like Symfony)
+   ───────────────────────────────────────────────────────── */
+.icon-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 6 10;
+    -fx-font-size: 16;
+    -fx-font-weight: 900;
+    -fx-cursor: hand;
+    -fx-min-width: 38;
+    -fx-min-height: 34;
+}
+
+.icon-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.05);
+}
+
+.icon-svg {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+}
+
+.icon-eye .icon-svg { -fx-fill: #4facfe; }
+.icon-edit .icon-svg { -fx-fill: #ffa751; }
+.icon-users .icon-svg { -fx-fill: #43e97b; }
+.icon-trash .icon-svg { -fx-fill: #ff6b6b; }
+
+.icon-eye { -fx-text-fill: #4facfe; }
+.icon-edit { -fx-text-fill: #ffa751; }
+.icon-users { -fx-text-fill: #43e97b; }
+.icon-trash { -fx-text-fill: #ff6b6b; }
+
+.planning-table .column-header .label {
+    -fx-alignment: CENTER;
+}
+
+/* Table cell helpers (icons + muted text like Symfony) */
+.cell-icon {
+    -fx-font-size: 12;
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+}
+
+.cell-svg {
+    -fx-scale-x: 0.78;
+    -fx-scale-y: 0.78;
+}
+
+.cell-svg-calendar { -fx-fill: #4facfe; } /* Symfony info blue */
+.cell-svg-pin { -fx-fill: #ffa751; }      /* Symfony warning orange */
+
+.cell-muted {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-font-weight: 600;
+    -fx-font-size: 13;
+}
+
+/* Yes/No badge like Symfony */
+.badge {
+    -fx-padding: 4 14;
+    -fx-background-radius: 999;
+    -fx-font-weight: 900;
+    -fx-font-size: 11;
+}
+
+.badge-yes {
+    -fx-background-color: rgba(67, 233, 123, 0.15);
+    -fx-text-fill: #43e97b;
+    -fx-border-color: rgba(67, 233, 123, 0.40);
+    -fx-border-radius: 999;
+}
+
+.badge-no {
+    -fx-background-color: rgba(156, 163, 175, 0.15);
+    -fx-text-fill: #9ca3af;
+    -fx-border-color: rgba(156, 163, 175, 0.40);
+    -fx-border-radius: 999;
+}
+
+/* Reviews: sentiment + rating */
+.sentiment-badge {
+    -fx-padding: 4 12;
+    -fx-background-radius: 999;
+    -fx-font-weight: 900;
+    -fx-font-size: 11;
+    -fx-border-radius: 999;
+}
+
+.sentiment-positive {
+    -fx-background-color: rgba(34, 197, 94, 0.16);
+    -fx-text-fill: #22c55e;
+    -fx-border-color: rgba(34, 197, 94, 0.45);
+}
+
+.sentiment-neutral {
+    -fx-background-color: rgba(250, 204, 21, 0.14);
+    -fx-text-fill: #facc15;
+    -fx-border-color: rgba(250, 204, 21, 0.45);
+}
+
+.sentiment-negative {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-text-fill: #ef4444;
+    -fx-border-color: rgba(239, 68, 68, 0.45);
+}
+
+.sentiment-pill {
+    -fx-padding: 7 14;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-width: 1.3;
+    -fx-min-height: 32;
+    -fx-alignment: center;
+}
+
+.sentiment-pill.sentiment-positive {
+    -fx-background-color: rgba(34, 197, 94, 0.16);
+    -fx-border-color: rgba(34, 197, 94, 0.45);
+}
+.sentiment-pill.sentiment-neutral {
+    -fx-background-color: rgba(250, 204, 21, 0.14);
+    -fx-border-color: rgba(250, 204, 21, 0.45);
+}
+.sentiment-pill.sentiment-negative {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-border-color: rgba(239, 68, 68, 0.45);
+}
+
+.sentiment-dot { -fx-fill: rgba(255,255,255,0.25); }
+.sentiment-dot-positive { -fx-fill: #22c55e; }
+.sentiment-dot-neutral { -fx-fill: #facc15; }
+.sentiment-dot-negative { -fx-fill: #ef4444; }
+
+.sentiment-text {
+    -fx-font-weight: 900;
+    -fx-font-size: 12;
+}
+.sentiment-pill.sentiment-positive .sentiment-text { -fx-text-fill: #22c55e; }
+.sentiment-pill.sentiment-neutral  .sentiment-text { -fx-text-fill: #facc15; }
+.sentiment-pill.sentiment-negative .sentiment-text { -fx-text-fill: #ef4444; }
+
+.analyze-pill {
+    -fx-padding: 7 12;
+    -fx-font-size: 12;
+    -fx-font-weight: 800;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.2;
+    -fx-min-height: 32;
+    -fx-alignment: center;
+}
+
+.analyze-icon { -fx-fill: #93c5fd; } /* light blue like Symfony */
+
+.star-svg { -fx-fill: rgba(255, 255, 255, 0.25); }
+.star-filled { -fx-fill: #fbbf24; }
+.star-empty { -fx-fill: rgba(255, 255, 255, 0.22); }
+
+.avatar-sm {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255,255,255,0.18);
+}
+
+.analyze-btn {
+    -fx-padding: 6 10;
+    -fx-font-size: 11;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Confirm delete modal (Symfony-like)
+   ───────────────────────────────────────────────────────── */
+.confirm-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 22, 0.2, 0, 8);
+}
+
+.confirm-header {
+    -fx-background-color: #d84a4a;
+    -fx-background-radius: 18 18 0 0;
+    -fx-padding: 18 18 18 18;
+}
+
+.confirm-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22;
+    -fx-font-weight: 800;
+}
+
+.confirm-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-weight: 900;
+    -fx-font-size: 14;
+    -fx-padding: 6 10;
+}
+
+.confirm-body {
+    -fx-padding: 26 24 16 24;
+}
+
+.confirm-icon {
+    -fx-font-size: 54;
+    -fx-text-fill: rgba(220,38,38,0.65);
+}
+
+.confirm-message {
+    -fx-font-size: 22;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.confirm-warning {
+    -fx-font-size: 12.5;
+    -fx-text-fill: rgba(17,24,39,0.70);
+    -fx-alignment: center;
+}
+
+.confirm-actions {
+    -fx-padding: 14 18 20 18;
+}
+
+.confirm-cancel {
+    -fx-background-color: rgba(148,163,184,0.25);
+    -fx-border-color: transparent;
+    -fx-text-fill: #111827;
+}
+
+.confirm-delete {
+    -fx-background-color: rgba(239,68,68,0.12);
+    -fx-border-color: rgba(239,68,68,0.45);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ef4444;
+}
