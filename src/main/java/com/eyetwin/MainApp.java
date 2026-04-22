@@ -1,5 +1,6 @@
 package com.eyetwin;
 
+import com.eyetwin.tools.FeedbackHttpServer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,6 +12,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        FeedbackHttpServer.start();
         primaryStage = stage;
         stage.setTitle("EyeTwin E-Sport Platform");
         stage.setWidth(1280);
@@ -37,6 +39,10 @@ public class MainApp extends Application {
     }
 
     public static Stage getPrimaryStage() { return primaryStage; }
-
+    @Override
+    public void stop() throws Exception {
+        FeedbackHttpServer.stop();
+        super.stop();
+    }
     public static void main(String[] args) { launch(args); }
 }
