@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminChannelDetailController"
+            style="-fx-background-color: #0d0618;">
+
+    <left>
+        <fx:include fx:id="adminSidebar" source="AdminSidebar.fxml"/>
+    </left>
+
+    <top>
+        <fx:include fx:id="adminTopbar" source="AdminTopbar.fxml"/>
+    </top>
+
+    <center>
+        <VBox spacing="18" style="-fx-padding: 22; -fx-background-color: #0d0618;">
+            <children>
+                <Label text="Channel Details"
+                       style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+
+                <Button text="← Back to List"
+                        onAction="#handleBack"
+                        style="-fx-background-color: rgba(255,255,255,0.06);
+                               -fx-border-color: rgba(255,255,255,0.12);
+                               -fx-border-radius: 10;
+                               -fx-background-radius: 10;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-padding: 10 18 10 18;" />
+
+                <HBox spacing="20">
+                    <children>
+                        <VBox spacing="16"
+                              prefWidth="360"
+                              style="-fx-background-color: rgba(255,255,255,0.03);
+                                     -fx-border-color: rgba(255,255,255,0.06);
+                                     -fx-border-radius: 16;
+                                     -fx-background-radius: 16;
+                                     -fx-padding: 24;">
+                            <children>
+                                <StackPane prefWidth="120" prefHeight="120"
+                                           style="-fx-background-color: linear-gradient(to bottom right, #5f7cf6, #7f59c8);
+                                                  -fx-background-radius: 60;">
+                                    <children>
+                                        <Label fx:id="lblAvatar"
+                                               text="CH"
+                                               style="-fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: bold;" />
+                                    </children>
+                                </StackPane>
+
+                                <Label fx:id="lblName"
+                                       text="Channel Name"
+                                       style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;" />
+
+                                <Label fx:id="lblGameSmall"
+                                       text="game"
+                                       style="-fx-text-fill: rgba(255,255,255,0.50); -fx-font-size: 18px;" />
+
+                                <HBox spacing="10">
+                                    <children>
+                                        <Label fx:id="lblTypeBadge"
+                                               text="Public"
+                                               style="-fx-background-color: rgba(0,183,255,0.12);
+                                                      -fx-border-color: rgba(0,183,255,0.30);
+                                                      -fx-text-fill: #6ddcff;
+                                                      -fx-border-radius: 18;
+                                                      -fx-background-radius: 18;
+                                                      -fx-padding: 6 14 6 14;
+                                                      -fx-font-weight: bold;" />
+
+                                        <Label fx:id="lblStatusBadge"
+                                               text="Approved"
+                                               style="-fx-background-color: rgba(34,197,94,0.12);
+                                                      -fx-border-color: rgba(34,197,94,0.30);
+                                                      -fx-text-fill: #4ade80;
+                                                      -fx-border-radius: 18;
+                                                      -fx-background-radius: 18;
+                                                      -fx-padding: 6 14 6 14;
+                                                      -fx-font-weight: bold;" />
+                                    </children>
+                                </HBox>
+
+                                <Separator style="-fx-background-color: rgba(255,255,255,0.08);" />
+
+                                <Label text="Description"
+                                       style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px; -fx-font-weight: bold;" />
+
+                                <Label fx:id="lblDescription"
+                                       wrapText="true"
+                                       text="description"
+                                       style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 14px;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="18" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="14"
+                                      style="-fx-background-color: rgba(255,255,255,0.03);
+                                             -fx-border-color: rgba(255,255,255,0.06);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;">
+                                    <children>
+                                        <Label text="Channel Information"
+                                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 16 18 0 18;" />
+
+                                        <Separator style="-fx-background-color: rgba(255,255,255,0.08);" />
+
+                                        <GridPane hgap="40" vgap="18" style="-fx-padding: 18;">
+                                            <children>
+                                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="4">
+                                                    <children>
+                                                        <Label text="NAME" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoName" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="4">
+                                                    <children>
+                                                        <Label text="GAME" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoGame" style="-fx-text-fill: #59c1ff; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="4">
+                                                    <children>
+                                                        <Label text="TYPE" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoType" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="4">
+                                                    <children>
+                                                        <Label text="STATUS" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoStatus" style="-fx-text-fill: #4ade80; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="2" spacing="4">
+                                                    <children>
+                                                        <Label text="ACTIVE" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoActive" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="2" spacing="4">
+                                                    <children>
+                                                        <Label text="CREATED BY" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoCreatedBy" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="0" GridPane.rowIndex="3" spacing="4">
+                                                    <children>
+                                                        <Label text="CREATED AT" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoCreatedAt" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox GridPane.columnIndex="1" GridPane.rowIndex="3" spacing="4">
+                                                    <children>
+                                                        <Label text="APPROVED BY" style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11px;" />
+                                                        <Label fx:id="lblInfoApprovedBy" style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="14"
+                                      style="-fx-background-color: rgba(255,255,255,0.03);
+                                             -fx-border-color: rgba(255,255,255,0.06);
+                                             -fx-border-radius: 16;
+                                             -fx-background-radius: 16;
+                                             -fx-padding: 18;">
+                                    <children>
+                                        <Label text="Moderation"
+                                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                                        <Button fx:id="btnApprove"
+                                                text="Approve Channel"
+                                                onAction="#handleApprove"
+                                                style="-fx-background-color: rgba(34,197,94,0.15);
+                                                       -fx-border-color: rgba(34,197,94,0.30);
+                                                       -fx-text-fill: #4ade80;
+                                                       -fx-font-weight: bold;
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 18 12 18;" />
+
+                                        <Button fx:id="btnReject"
+                                                text="Reject Channel"
+                                                onAction="#handleReject"
+                                                style="-fx-background-color: rgba(255,107,107,0.12);
+                                                       -fx-border-color: rgba(255,107,107,0.30);
+                                                       -fx-text-fill: #ff8b8b;
+                                                       -fx-font-weight: bold;
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 18 12 18;" />
+
+                                        <Button fx:id="btnToggle"
+                                                text="Toggle Active"
+                                                onAction="#handleToggle"
+                                                style="-fx-background-color: rgba(255,255,255,0.08);
+                                                       -fx-border-color: rgba(255,255,255,0.14);
+                                                       -fx-text-fill: white;
+                                                       -fx-font-weight: bold;
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 18 12 18;" />
+
+                                        <Button fx:id="btnEdit"
+                                                text="Edit Channel"
+                                                onAction="#handleEdit"
+                                                style="-fx-background-color: rgba(251,191,36,0.12);
+                                                       -fx-border-color: rgba(251,191,36,0.30);
+                                                       -fx-text-fill: #fbbf24;
+                                                       -fx-font-weight: bold;
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 18 12 18;" />
+
+                                        <Button fx:id="btnDelete"
+                                                text="Delete Channel"
+                                                onAction="#handleDelete"
+                                                style="-fx-background-color: rgba(251,113,133,0.12);
+                                                       -fx-border-color: rgba(251,113,133,0.30);
+                                                       -fx-text-fill: #fb7185;
+                                                       -fx-font-weight: bold;
+                                                       -fx-border-radius: 10;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 12 18 12 18;" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>

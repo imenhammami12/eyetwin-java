@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    AdminLogin.fxml — Miroir de templates/admin/security/login.html.twig
+    Route Symfony : /admin/login  (name: admin_login)
+    Controller    : AdminLoginController.java
+-->
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.eyetwin.controller.admin.AdminLoginController"
+           style="-fx-background-color: linear-gradient(to bottom right, #1a0e2e, #2d1b3d, #1a0e2e);"
+           prefWidth="900" prefHeight="700">
+
+    <!-- Fond animé (grid) - même effet que body::before Symfony -->
+    <Region style="-fx-background-color: transparent;
+                   -fx-background-image: url('data:image/png;base64,placeholder');
+                   -fx-opacity: 0.04;"/>
+
+    <!-- Carte centrale — miroir de .box dans login.html.twig -->
+    <VBox alignment="TOP_CENTER" maxWidth="460"
+          style="-fx-background-color: rgba(20,10,35,0.95);
+                 -fx-background-radius: 20;
+                 -fx-border-color: rgba(255,255,255,0.1);
+                 -fx-border-radius: 20;
+                 -fx-border-width: 1;
+                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.5),60,0,0,20);"
+          StackPane.alignment="CENTER">
+
+        <!-- ══ HEADER — miroir de .hdr ══ -->
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color: linear-gradient(135deg,rgba(255,60,100,0.15),rgba(120,40,200,0.15));
+                     -fx-padding: 40 40 30 40;
+                     -fx-border-color: transparent transparent rgba(255,255,255,0.08) transparent;
+                     -fx-border-width: 0 0 1 0;">
+
+            <!-- Logo — miroir de .logo img -->
+            <VBox alignment="CENTER"
+                  style="-fx-background-color: rgba(255,255,255,0.05);
+                         -fx-background-radius: 16;
+                         -fx-border-color: rgba(255,255,255,0.1);
+                         -fx-border-radius: 16;
+                         -fx-border-width: 1;
+                         -fx-padding: 14;
+                         -fx-max-width: 140; -fx-max-height: 80;">
+                <ImageView fitWidth="120" fitHeight="40" preserveRatio="true">
+                    <image><Image url="@../../assets/img/eyetwin-logo.png"/></image>
+                </ImageView>
+            </VBox>
+
+            <!-- Titre — miroir de .hdr h1 -->
+            <Label text="Administration"
+                   style="-fx-font-family: 'Arial Black'; -fx-font-size: 28;
+                          -fx-font-weight: bold; -fx-text-fill: white;
+                          -fx-effect: dropshadow(gaussian,rgba(255,60,100,0.2),10,0,0,0);"/>
+
+            <!-- Sous-titre — miroir de .hdr p -->
+            <Label text="SECURE LOGIN"
+                   style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.6);
+                          -fx-letter-spacing: 2;"/>
+        </VBox>
+
+        <!-- ══ BODY — miroir de .bdy ══ -->
+        <VBox spacing="0" style="-fx-padding: 32 40 40 40;">
+
+            <!-- ── Message d'erreur — miroir de {% if error %} .alert ── -->
+            <HBox fx:id="errorBox" alignment="CENTER_LEFT" spacing="12" visible="false" managed="false"
+                  style="-fx-background-color: rgba(255,60,100,0.15);
+                         -fx-border-color: rgba(255,60,100,0.3);
+                         -fx-border-radius: 12; -fx-background-radius: 12;
+                         -fx-border-width: 1; -fx-padding: 14 18 14 18;
+                         -fx-margin: 0 0 20 0;">
+                <Label text="⚠" style="-fx-font-size: 18; -fx-text-fill: #ff3c64;"/>
+                <Label fx:id="errorLabel" text=""
+                       style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13;
+                              -fx-wrap-text: true;"
+                       wrapText="true"/>
+            </HBox>
+            <Region style="-fx-pref-height: 4;"/>
+
+            <!-- ── Section Face Recognition — miroir de {% if has_face_user %} ── -->
+            <VBox fx:id="faceSection" visible="false" managed="false" spacing="12">
+                <Button fx:id="faceLoginBtn"
+                        text="📷  Log in with face recognition"
+                        onAction="#handleFaceLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: linear-gradient(135deg,#7828c8,#5a67d8);
+                               -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;
+                               -fx-background-radius: 12; -fx-border-radius: 12;
+                               -fx-padding: 14 16 14 16; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian,rgba(120,40,200,0.35),20,0,0,5);"/>
+
+                <!-- Divider — miroir de .divider "or with password" -->
+                <HBox alignment="CENTER" spacing="12" style="-fx-padding: 4 0 4 0;">
+                    <Region HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: rgba(255,255,255,0.1);
+                                   -fx-pref-height: 1; -fx-max-height: 1;"/>
+                    <Label text="or with password"
+                           style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 12;"/>
+                    <Region HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: rgba(255,255,255,0.1);
+                                   -fx-pref-height: 1; -fx-max-height: 1;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ── Champ Email — miroir de <input type="email" name="_username"> ── -->
+            <VBox spacing="8" style="-fx-padding: 0 0 20 0;">
+                <Label text="📧  EMAIL"
+                       style="-fx-font-weight: bold; -fx-font-size: 11;
+                              -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1;"/>
+                <StackPane>
+                    <TextField fx:id="emailField"
+                               promptText="admin@example.com"
+                               style="-fx-background-color: rgba(255,255,255,0.08);
+                                      -fx-background-radius: 12; -fx-border-radius: 12;
+                                      -fx-border-color: rgba(255,255,255,0.15); -fx-border-width: 1;
+                                      -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.4);
+                                      -fx-font-size: 13; -fx-padding: 12 16 12 46;"/>
+                    <Label text="👤"
+                           style="-fx-font-size: 16; -fx-padding: 0 0 0 14;"
+                           StackPane.alignment="CENTER_LEFT"/>
+                </StackPane>
+                <!-- Checking indicator — miroir du spinner JS -->
+                <Label fx:id="checkingLabel" text="⟳  Checking..."
+                       visible="false" managed="false"
+                       style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.4);"/>
+            </VBox>
+
+            <!-- ── Champ Password — miroir de <input type="password" name="_password"> ── -->
+            <VBox spacing="8" style="-fx-padding: 0 0 20 0;">
+                <Label text="🔑  PASSWORD"
+                       style="-fx-font-weight: bold; -fx-font-size: 11;
+                              -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1;"/>
+                <StackPane>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter your password"
+                                   style="-fx-background-color: rgba(255,255,255,0.08);
+                                          -fx-background-radius: 12; -fx-border-radius: 12;
+                                          -fx-border-color: rgba(255,255,255,0.15); -fx-border-width: 1;
+                                          -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.4);
+                                          -fx-font-size: 13; -fx-padding: 12 16 12 46;"/>
+                    <Label text="🔒"
+                           style="-fx-font-size: 16; -fx-padding: 0 0 0 14;"
+                           StackPane.alignment="CENTER_LEFT"/>
+                </StackPane>
+            </VBox>
+
+            <!-- ── Remember me — miroir de <input type="checkbox" name="_remember_me"> ── -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 24 0;">
+                <CheckBox fx:id="rememberMeCheck"
+                          style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13;">
+                </CheckBox>
+                <Label text="Remember me"
+                       style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13;"/>
+            </HBox>
+
+            <!-- ── Bouton Login — miroir de <button type="submit" class="btn"> ── -->
+            <Button fx:id="loginBtn"
+                    text="🛡  Log in"
+                    onAction="#handleLogin"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
+                           -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
+                           -fx-background-radius: 12; -fx-border-radius: 12;
+                           -fx-padding: 15 16 15 16; -fx-cursor: hand; -fx-letter-spacing: 1;
+                           -fx-effect: dropshadow(gaussian,rgba(255,60,100,0.35),20,0,0,5);"/>
+
+            <!-- ── Footer SSL — miroir de .footer ── -->
+            <HBox alignment="CENTER" spacing="8" style="-fx-padding: 24 0 0 0;">
+                <Label text="✅" style="-fx-font-size: 18; -fx-text-fill: #43e97b;"/>
+                <Label text="SECURE SSL CONNECTION"
+                       style="-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.6); -fx-letter-spacing: 1;"/>
+            </HBox>
+
+            <!-- ── Back to home — miroir de .back a ── -->
+            <HBox alignment="CENTER" style="-fx-padding: 14 0 0 0;">
+                <Button text="← Back to home"
+                        onAction="#goToHome"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12;
+                               -fx-cursor: hand; -fx-border-color: transparent;
+                               -fx-padding: 6 14 6 14;"/>
+            </HBox>
+
+        </VBox>
+    </VBox>
+</StackPane>

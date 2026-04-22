@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminCoachesListController"
+            style="-fx-background-color:#0a0514;">
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+    <center>
+        <VBox style="-fx-background-color:#0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color:transparent;-fx-background:transparent;">
+                <VBox spacing="16" style="-fx-padding:24;">
+
+                    <!-- Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Button text="← Back to Applications"
+                                onAction="#goBackToApplications"
+                                style="-fx-background-color:rgba(255,255,255,0.05);
+                                       -fx-border-color:rgba(255,255,255,0.15);
+                                       -fx-border-radius:8;-fx-background-radius:8;
+                                       -fx-text-fill:rgba(255,255,255,0.7);
+                                       -fx-padding:8 16;-fx-cursor:hand;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="⬇  Export to Excel"
+                                onAction="#handleExportExcel"
+                                style="-fx-background-color:linear-gradient(to right,#43e97b,#38f9d7);
+                                       -fx-text-fill:#0a0514;-fx-font-weight:bold;
+                                       -fx-background-radius:8;-fx-border-color:transparent;
+                                       -fx-padding:8 18;-fx-cursor:hand;-fx-font-size:13;"/>
+                    </HBox>
+
+                    <!-- Title + count -->
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="⚡  Certified Coaches"
+                               style="-fx-font-size:20;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                        <Label fx:id="coachCountBadge" text="0"
+                               style="-fx-background-color:rgba(255,60,100,0.20);
+                                      -fx-border-color:rgba(255,60,100,0.40);
+                                      -fx-border-radius:20;-fx-background-radius:20;
+                                      -fx-text-fill:#ff6b7a;-fx-font-size:12;
+                                      -fx-font-weight:bold;-fx-padding:3 12;"/>
+                    </HBox>
+
+                    <!-- Search -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="searchField"
+                                   promptText="Search by name, username or email…"
+                                   onKeyReleased="#handleSearch"
+                                   prefWidth="320"
+                                   style="-fx-background-color:#160a22;
+                                          -fx-border-color:rgba(255,255,255,0.12);
+                                          -fx-border-radius:8;-fx-background-radius:8;
+                                          -fx-text-fill:white;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.30);
+                                          -fx-padding:9 14;"/>
+                    </HBox>
+
+                    <!-- Grid of coach cards -->
+                    <FlowPane fx:id="coachesGrid"
+                              hgap="16" vgap="16"
+                              style="-fx-padding:4 0;"/>
+
+                    <!-- Empty state -->
+                    <VBox fx:id="emptyState" alignment="CENTER" spacing="12"
+                          visible="false" managed="false"
+                          style="-fx-padding:60 0;">
+                        <Label text="🏅"
+                               style="-fx-font-size:48;-fx-opacity:0.25;"/>
+                        <Label text="No coaches found"
+                               style="-fx-font-size:16;-fx-text-fill:rgba(255,255,255,0.35);"/>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
