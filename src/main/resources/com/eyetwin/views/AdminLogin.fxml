@@ -32,7 +32,7 @@
 
         <!-- ══ HEADER — miroir de .hdr ══ -->
         <VBox alignment="CENTER" spacing="10"
-              style="-fx-background-color: linear-gradient(135deg,rgba(255,60,100,0.15),rgba(120,40,200,0.15));
+              style="-fx-background-color: linear-gradient(to bottom right,rgba(255,60,100,0.15),rgba(120,40,200,0.15));
                      -fx-padding: 40 40 30 40;
                      -fx-border-color: transparent transparent rgba(255,255,255,0.08) transparent;
                      -fx-border-width: 0 0 1 0;">
@@ -87,7 +87,7 @@
                         text="📷  Log in with face recognition"
                         onAction="#handleFaceLogin"
                         maxWidth="Infinity"
-                        style="-fx-background-color: linear-gradient(135deg,#7828c8,#5a67d8);
+                        style="-fx-background-color: linear-gradient(to bottom right,#7828c8,#5a67d8);
                                -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13;
                                -fx-background-radius: 12; -fx-border-radius: 12;
                                -fx-padding: 14 16 14 16; -fx-cursor: hand;
@@ -162,7 +162,7 @@
                     text="🛡  Log in"
                     onAction="#handleLogin"
                     maxWidth="Infinity"
-                    style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
+                    style="-fx-background-color: linear-gradient(to bottom right,#ff3c64,#ff1744);
                            -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;
                            -fx-background-radius: 12; -fx-border-radius: 12;
                            -fx-padding: 15 16 15 16; -fx-cursor: hand; -fx-letter-spacing: 1;

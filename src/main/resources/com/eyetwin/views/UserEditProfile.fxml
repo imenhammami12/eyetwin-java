@@ -120,7 +120,7 @@
                                     </clip>
                                 </ImageView>
                                 <StackPane fx:id="previewPlaceholder"
-                                           style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);
+                                           style="-fx-background-color: linear-gradient(to bottom right,#b02b20,#ff4d3d);
                                                   -fx-background-radius: 50;
                                                   -fx-min-width: 90; -fx-min-height: 90;
                                                   -fx-max-width: 90; -fx-max-height: 90;">

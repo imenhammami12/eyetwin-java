@@ -10,6 +10,36 @@ import java.util.List;
 
 public class MatchServiceImpl implements IMatchService {
 
+    public MatchServiceImpl() {
+        ensureSchema();
+    }
+
+    private void ensureSchema() {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            if (conn == null) return;
+            DatabaseMetaData metaData = conn.getMetaData();
+            
+            checkAndAddColumn(conn, metaData, "play_mode", "VARCHAR(255) DEFAULT 'Online'");
+            checkAndAddColumn(conn, metaData, "localisation", "VARCHAR(255) DEFAULT ''");
+            checkAndAddColumn(conn, metaData, "prix", "VARCHAR(255) DEFAULT 'Free'");
+            
+        } catch (SQLException e) {
+            System.err.println("[MatchService] ❌ Erreur lors de la vérification du schéma : " + e.getMessage());
+        }
+    }
+
+    private void checkAndAddColumn(Connection conn, DatabaseMetaData metaData, String columnName, String type) throws SQLException {
+        try (ResultSet rs = metaData.getColumns(null, null, "matches", columnName)) {
+            if (!rs.next()) {
+                System.out.println("[MatchService] Colonne '" + columnName + "' manquante. Ajout en cours...");
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.execute("ALTER TABLE matches ADD COLUMN " + columnName + " " + type);
+                    System.out.println("[MatchService] ✅ Colonne '" + columnName + "' ajoutée avec succès.");
+                }
+            }
+        }
+    }
+
     @Override
     public void add(Match match) {
         String query = "INSERT INTO matches (equipe1, equipe2, score, date_match, prix, tournoi_id, play_mode, localisation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -18,7 +48,7 @@ public class MatchServiceImpl implements IMatchService {
             stmt.setString(1, match.getEquipe1());
             stmt.setString(2, match.getEquipe2());
             stmt.setInt(3, match.getScore());
-            stmt.setDate(4, match.getDateMatch());
+            stmt.setDate(4, Date.valueOf(match.getDateMatch()));
             stmt.setString(5, match.getPrix());
             stmt.setInt(6, match.getTournoiId());
             stmt.setString(7, match.getPlayMode());
@@ -38,7 +68,7 @@ public class MatchServiceImpl implements IMatchService {
             stmt.setString(1, match.getEquipe1());
             stmt.setString(2, match.getEquipe2());
             stmt.setInt(3, match.getScore());
-            stmt.setDate(4, match.getDateMatch());
+            stmt.setDate(4, Date.valueOf(match.getDateMatch()));
             stmt.setString(5, match.getPrix());
             stmt.setInt(6, match.getTournoiId());
             stmt.setString(7, match.getPlayMode());
@@ -70,19 +100,20 @@ public class MatchServiceImpl implements IMatchService {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Match(
-                        rs.getInt("id"),
-                        rs.getString("equipe1"),
-                        rs.getString("equipe2"),
-                        rs.getInt("score"),
-                        rs.getDate("date_match"),
-                        rs.getString("prix"),
-                        rs.getInt("tournoi_id"),
-                        rs.getString("play_mode"),
-                        rs.getString("localisation")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Match m = new Match();
+                    m.setId(rs.getInt("id"));
+                    m.setEquipe1(rs.getString("equipe1"));
+                    m.setEquipe2(rs.getString("equipe2"));
+                    m.setScore(rs.getInt("score"));
+                    m.setDateMatch(rs.getDate("date_match").toLocalDate());
+                    m.setPrix(rs.getString("prix"));
+                    m.setTournoiId(rs.getInt("tournoi_id"));
+                    m.setPlayMode(rs.getString("play_mode"));
+                    m.setLocalisation(rs.getString("localisation"));
+                    return m;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,17 +129,45 @@ public class MatchServiceImpl implements IMatchService {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                list.add(new Match(
-                        rs.getInt("id"),
-                        rs.getString("equipe1"),
-                        rs.getString("equipe2"),
-                        rs.getInt("score"),
-                        rs.getDate("date_match"),
-                        rs.getString("prix"),
-                        rs.getInt("tournoi_id"),
-                        rs.getString("play_mode"),
-                        rs.getString("localisation")
-                ));
+                Match m = new Match();
+                m.setId(rs.getInt("id"));
+                m.setEquipe1(rs.getString("equipe1"));
+                m.setEquipe2(rs.getString("equipe2"));
+                m.setScore(rs.getInt("score"));
+                m.setDateMatch(rs.getDate("date_match").toLocalDate());
+                m.setPrix(rs.getString("prix"));
+                m.setTournoiId(rs.getInt("tournoi_id"));
+                m.setPlayMode(rs.getString("play_mode"));
+                m.setLocalisation(rs.getString("localisation"));
+                list.add(m);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Match> getByTournoi(int tournoiId) {
+        List<Match> list = new ArrayList<>();
+        String query = "SELECT * FROM matches WHERE tournoi_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, tournoiId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Match m = new Match();
+                    m.setId(rs.getInt("id"));
+                    m.setEquipe1(rs.getString("equipe1"));
+                    m.setEquipe2(rs.getString("equipe2"));
+                    m.setScore(rs.getInt("score"));
+                    m.setDateMatch(rs.getDate("date_match").toLocalDate());
+                    m.setPrix(rs.getString("prix"));
+                    m.setTournoiId(rs.getInt("tournoi_id"));
+                    m.setPlayMode(rs.getString("play_mode"));
+                    m.setLocalisation(rs.getString("localisation"));
+                    list.add(m);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

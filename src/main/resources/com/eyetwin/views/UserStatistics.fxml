@@ -71,7 +71,7 @@
                                    -fx-mark-color: rgba(255,255,255,0.3); -fx-cursor: hand;">
                     <graphic>
                         <HBox alignment="CENTER" spacing="7">
-                            <StackPane style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);
+                            <StackPane style="-fx-background-color: linear-gradient(to bottom right,#b02b20,#ff4d3d);
                                               -fx-background-radius: 50;
                                               -fx-min-width: 28; -fx-min-height: 28;
                                               -fx-max-width: 28; -fx-max-height: 28;">
