@@ -8,6 +8,7 @@ import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 
+import com.eyetwin.entities.Tournoi;
 import java.awt.Desktop;
 import java.net.URI;
 
@@ -57,6 +58,46 @@ public class StripeService {
         Session session = Session.create(params);
 
         // Retourner l'URL ET le sessionId pour polling
+        return new CheckoutResult(session.getUrl(), session.getId());
+    }
+
+    /**
+     * Crée une Stripe Checkout Session pour l'inscription à un tournoi.
+     */
+    public CheckoutResult createTournamentCheckoutSession(User user, Tournoi tournoi) throws Exception {
+
+        String successUrl = "https://eyetwin.com/payment-success?session_id={CHECKOUT_SESSION_ID}";
+        String cancelUrl  = "https://eyetwin.com/payment-cancelled";
+
+        SessionCreateParams params = SessionCreateParams.builder()
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                .addLineItem(
+                        SessionCreateParams.LineItem.builder()
+                                .setQuantity(1L)
+                                .setPriceData(
+                                        SessionCreateParams.LineItem.PriceData.builder()
+                                                .setCurrency("eur")
+                                                .setUnitAmount((long) (tournoi.getPrix() * 100)) // Prix en cents
+                                                .setProductData(
+                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                .setName("Inscription Tournoi — " + tournoi.getNom())
+                                                                .setDescription("Accès au tournoi " + tournoi.getNom() + " sur EyeTwin")
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .build()
+                )
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl(successUrl)
+                .setCancelUrl(cancelUrl)
+                .putMetadata("user_id",    String.valueOf(user.getId()))
+                .putMetadata("tournoi_id", String.valueOf(tournoi.getId()))
+                .putMetadata("type",       "tournament_registration")
+                .build();
+
+        Session session = Session.create(params);
+
         return new CheckoutResult(session.getUrl(), session.getId());
     }
 
