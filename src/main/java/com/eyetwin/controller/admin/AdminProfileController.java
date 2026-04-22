@@ -157,7 +157,7 @@ public class AdminProfileController {
             } else {
                 faceAuthActionBtn.setText("📷  Enable");
                 faceAuthActionBtn.setStyle(
-                        "-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);" +
+                        "-fx-background-color:linear-gradient(to bottom right,#ff3c64,#ff1744);" +
                                 "-fx-background-radius:8;-fx-border-color:transparent;" +
                                 "-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;-fx-cursor:hand;-fx-padding:10 18 10 18;");
                 faceAuthActionBtn.setOnAction(e -> handleEnableFace());

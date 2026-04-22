@@ -307,7 +307,7 @@
                             <VBox spacing="9" maxWidth="360">
                                 <Button fx:id="verifyBtn" text="✓  Verify and Enable 2FA"
                                         maxWidth="360" onAction="#handleVerify"
-                                        style="-fx-background-color: linear-gradient(135deg, #00e5ff, #00bcd4);
+                                        style="-fx-background-color: linear-gradient(to bottom right, #00e5ff, #00bcd4);
                                                -fx-text-fill: #06050f; -fx-font-weight: bold;
                                                -fx-font-size: 14; -fx-background-radius: 10;
                                                -fx-padding: 15 0; -fx-cursor: hand; -fx-border-width: 0;"/>

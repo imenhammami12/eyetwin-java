@@ -152,7 +152,7 @@
                                         <clip><Circle centerX="48" centerY="48" radius="48"/></clip>
                                     </ImageView>
                                     <StackPane fx:id="avatarPlaceholder"
-                                               style="-fx-background-color: linear-gradient(135deg,#b02b20,#ff4d3d);
+                                               style="-fx-background-color: linear-gradient(to bottom right,#b02b20,#ff4d3d);
                                                       -fx-background-radius: 50;
                                                       -fx-min-width: 96; -fx-min-height: 96;
                                                       -fx-max-width: 96; -fx-max-height: 96;">

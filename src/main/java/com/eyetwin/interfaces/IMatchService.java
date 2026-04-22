@@ -9,4 +9,5 @@ public interface IMatchService {
     void delete(int id);
     Match getById(int id);
     List<Match> getAll();
+    List<Match> getByTournoi(int tournoiId);
 }

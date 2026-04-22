@@ -476,7 +476,7 @@ TextArea.input-gaming:focused .content {
     -fx-translate-y: -4;
 }
 .feat-card-highlight {
-    -fx-background-color: linear-gradient(135deg, rgba(30,4,8,0.95), rgba(8,8,20,0.95));
+    -fx-background-color: linear-gradient(to bottom right, rgba(30,4,8,0.95), rgba(8,8,20,0.95));
     -fx-border-color: rgba(232,55,42,0.25);
     -fx-border-radius: 14;
     -fx-background-radius: 14;
@@ -790,7 +790,7 @@ TextArea.input-gaming:focused .content {
 .red-btn:hover,
 .red-btn:focused,
 .red-btn:pressed {
-    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d);
+    -fx-background-color: linear-gradient(to bottom right, #b02b20, #e8372a, #ff4d3d);
     -fx-text-fill: white;
     -fx-background-radius: 9;
 }
@@ -799,7 +799,7 @@ Button.red-btn:hover,
 Button.red-btn:focused,
 Button.red-btn:pressed,
 Button.red-btn:armed {
-    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d) !important;
+    -fx-background-color: linear-gradient(to bottom right, #b02b20, #e8372a, #ff4d3d) !important;
     -fx-text-fill: white;
     -fx-background-radius: 9;
     -fx-border-color: transparent;

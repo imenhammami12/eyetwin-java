@@ -87,7 +87,7 @@
                                        style="-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:13;"/>
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Button text="＋  New Complaint" onAction="#goToNewView"
-                                        style="-fx-background-color:linear-gradient(135deg,#b02b20,#e8372a,#ff5533);
+                                        style="-fx-background-color:linear-gradient(to bottom right,#b02b20,#e8372a,#ff5533);
                                                -fx-text-fill:white;-fx-background-radius:8;
                                                -fx-border-color:transparent;-fx-padding:10 20;
                                                -fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:12;
@@ -106,7 +106,7 @@
                                 <Label text="You haven't submitted any complaints yet."
                                        style="-fx-text-fill:rgba(255,255,255,0.38);-fx-font-size:13;"/>
                                 <Button text="＋  Submit Your First Complaint" onAction="#goToNewView"
-                                        style="-fx-background-color:linear-gradient(135deg,#b02b20,#e8372a);
+                                        style="-fx-background-color:linear-gradient(to bottom right,#b02b20,#e8372a);
                                                -fx-text-fill:white;-fx-background-radius:8;
                                                -fx-border-color:transparent;-fx-padding:10 20;
                                                -fx-cursor:hand;-fx-font-weight:bold;"/>
@@ -294,7 +294,7 @@
                                                    -fx-padding:12 22;-fx-cursor:hand;"/>
                                     <Button fx:id="submitBtn" text="🚀  Submit Complaint"
                                             onAction="#handleSubmit"
-                                            style="-fx-background-color:linear-gradient(135deg,#b02b20,#e8372a,#ff5533);
+                                            style="-fx-background-color:linear-gradient(to bottom right,#b02b20,#e8372a,#ff5533);
                                                    -fx-text-fill:white;-fx-background-radius:9;
                                                    -fx-border-color:transparent;-fx-padding:12 24;
                                                    -fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13;

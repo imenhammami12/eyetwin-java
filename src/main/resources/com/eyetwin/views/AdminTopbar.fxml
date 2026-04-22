@@ -52,7 +52,7 @@
                        style="-fx-text-fill: rgba(255,255,255,0.75);
                               -fx-font-size: 13; -fx-font-weight: bold;"/>
                 <StackPane prefWidth="36" prefHeight="36">
-                    <!-- FIX: from 0% 0% to 100% 100% — replaces invalid 135deg syntax -->
+                    <!-- FIX: from 0% 0% to 100% 100% — replaces invalid to bottom right syntax -->
                     <StackPane style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff3c64, #ff1744);
                                       -fx-background-radius: 50;
                                       -fx-min-width: 36; -fx-min-height: 36;
