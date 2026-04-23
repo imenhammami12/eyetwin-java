@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.eyetwin.entities.Community.MessageAttachment;
+import java.sql.Statement;
 
 public class MessageServiceImpl implements IMessageService {
 
@@ -44,7 +45,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
         return messages;
     }
@@ -209,7 +212,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            return mapMessage(rs);
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            return message;
         }
         return null;
     }
@@ -252,11 +257,11 @@ public class MessageServiceImpl implements IMessageService {
 
     @Override
     public void sendMessage(int channelId, String content, User player) throws SQLException {
-        sendMessage(channelId, content, player, null);
+        sendMessage(channelId, content, player, new ArrayList<>());
     }
 
     @Override
-    public void sendMessage(int channelId, String content, User player, MessageAttachment attachment) throws SQLException {
+    public void sendMessage(int channelId, String content, User player, List<MessageAttachment> attachments) throws SQLException {
         Channel channel = findChannelById(channelId);
         if (channel == null) {
             throw new IllegalArgumentException("Channel not found.");
@@ -267,57 +272,76 @@ public class MessageServiceImpl implements IMessageService {
         }
 
         String cleanContent = (content == null) ? "" : content.trim();
-        boolean hasAttachment = attachment != null && attachment.isPresent();
+        boolean hasAttachments = attachments != null && !attachments.isEmpty();
 
-        if (cleanContent.isEmpty() && !hasAttachment) {
-            throw new IllegalArgumentException("Message cannot be empty.");
+        if (cleanContent.isEmpty() && !hasAttachments) {
+            throw new IllegalArgumentException("Message content cannot be empty.");
         }
-
-        if (cleanContent.length() > 1000) {
-            throw new IllegalArgumentException("Message must not exceed 1000 characters.");
-        }
-
-        String sql = """
-        INSERT INTO message (
-            content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id,
-            attachment_public_id, attachment_url, attachment_resource_type, attachment_format,
-            attachment_original_name, attachment_mime_type, attachment_bytes
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
-
-        Timestamp now = new Timestamp(System.currentTimeMillis());
 
         Connection c = getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, cleanContent);
-        ps.setTimestamp(2, now);
-        ps.setTimestamp(3, now);
-        ps.setBoolean(4, false);
-        ps.setString(5, player.getUsername());
-        ps.setString(6, player.getEmail());
-        ps.setInt(7, channelId);
+        boolean oldAutoCommit = c.getAutoCommit();
+        c.setAutoCommit(false);
 
-        if (hasAttachment) {
-            ps.setString(8, attachment.getPublicId());
-            ps.setString(9, attachment.getUrl());
-            ps.setString(10, attachment.getResourceType());
-            ps.setString(11, attachment.getFormat());
-            ps.setString(12, attachment.getOriginalName());
-            ps.setString(13, attachment.getMimeType());
-            ps.setLong(14, attachment.getBytes());
-        } else {
-            ps.setNull(8, Types.VARCHAR);
-            ps.setNull(9, Types.VARCHAR);
-            ps.setNull(10, Types.VARCHAR);
-            ps.setNull(11, Types.VARCHAR);
-            ps.setNull(12, Types.VARCHAR);
-            ps.setNull(13, Types.VARCHAR);
-            ps.setNull(14, Types.BIGINT);
+        try {
+            String messageSql = """
+            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+
+            PreparedStatement ps = c.prepareStatement(messageSql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, cleanContent);
+            ps.setTimestamp(2, now);
+            ps.setTimestamp(3, now);
+            ps.setBoolean(4, false);
+            ps.setString(5, player.getUsername());
+            ps.setString(6, player.getEmail());
+            ps.setInt(7, channelId);
+            ps.executeUpdate();
+
+            int messageId;
+            ResultSet keys = ps.getGeneratedKeys();
+            if (keys.next()) {
+                messageId = keys.getInt(1);
+            } else {
+                throw new SQLException("Failed to retrieve inserted message ID.");
+            }
+
+            if (hasAttachments) {
+                String attachmentSql = """
+                INSERT INTO message_attachment
+                (original_name, stored_name, mime_type, size, message_id, url, public_id, cloud_resource_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+                PreparedStatement aps = c.prepareStatement(attachmentSql);
+
+                for (MessageAttachment attachment : attachments) {
+                    aps.setString(1, attachment.getOriginalName());
+                    aps.setString(2, attachment.getStoredName());
+                    aps.setString(3, attachment.getMimeType());
+                    aps.setInt(4, attachment.getSize());
+                    aps.setInt(5, messageId);
+                    aps.setString(6, attachment.getUrl());
+                    aps.setString(7, attachment.getPublicId());
+                    aps.setString(8, attachment.getCloudResourceType());
+                    aps.addBatch();
+                }
+
+                aps.executeBatch();
+            }
+
+            c.commit();
+
+        } catch (Exception e) {
+            c.rollback();
+            throw new SQLException("Failed to send message with attachments: " + e.getMessage(), e);
+        } finally {
+            c.setAutoCommit(oldAutoCommit);
         }
-
-        ps.executeUpdate();
     }
+
 
     @Override
     public void updateOwnMessage(int messageId, String newContent, User player) throws SQLException {
@@ -465,14 +489,6 @@ public class MessageServiceImpl implements IMessageService {
         message.setSender_email(rs.getString("sender_email"));
         message.setChannel_id(rs.getInt("channel_id"));
 
-        message.setAttachmentPublicId(rs.getString("attachment_public_id"));
-        message.setAttachmentUrl(rs.getString("attachment_url"));
-        message.setAttachmentResourceType(rs.getString("attachment_resource_type"));
-        message.setAttachmentFormat(rs.getString("attachment_format"));
-        message.setAttachmentOriginalName(rs.getString("attachment_original_name"));
-        message.setAttachmentMimeType(rs.getString("attachment_mime_type"));
-        message.setAttachmentBytes(rs.getLong("attachment_bytes"));
-
         try {
             message.setChannelName(rs.getString("channel_name"));
         } catch (SQLException ignored) {
@@ -480,6 +496,37 @@ public class MessageServiceImpl implements IMessageService {
         }
 
         return message;
+    }
+
+    private List<MessageAttachment> loadAttachmentsForMessage(int messageId, Connection c) throws SQLException {
+        List<MessageAttachment> attachments = new ArrayList<>();
+
+        String sql = """
+        SELECT *
+        FROM message_attachment
+        WHERE message_id = ?
+        ORDER BY id ASC
+        """;
+
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, messageId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            MessageAttachment attachment = new MessageAttachment();
+            attachment.setId(rs.getInt("id"));
+            attachment.setOriginalName(rs.getString("original_name"));
+            attachment.setStoredName(rs.getString("stored_name"));
+            attachment.setMimeType(rs.getString("mime_type"));
+            attachment.setSize(rs.getInt("size"));
+            attachment.setMessageId(rs.getInt("message_id"));
+            attachment.setUrl(rs.getString("url"));
+            attachment.setPublicId(rs.getString("public_id"));
+            attachment.setCloudResourceType(rs.getString("cloud_resource_type"));
+            attachments.add(attachment);
+        }
+
+        return attachments;
     }
 
 

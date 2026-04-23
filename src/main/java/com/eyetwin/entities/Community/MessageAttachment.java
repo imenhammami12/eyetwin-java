@@ -1,48 +1,22 @@
 package com.eyetwin.entities.Community;
 
 public class MessageAttachment {
-
-    private String publicId;
-    private String url;
-    private String resourceType;
-    private String format;
+    private int id;
     private String originalName;
+    private String storedName;
     private String mimeType;
-    private long bytes;
+    private int size;
+    private int messageId;
+    private String url;
+    private String publicId;
+    private String cloudResourceType;
 
-    public MessageAttachment() {
+    public int getId() {
+        return id;
     }
 
-    public String getPublicId() {
-        return publicId;
-    }
-
-    public void setPublicId(String publicId) {
-        this.publicId = publicId;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getResourceType() {
-        return resourceType;
-    }
-
-    public void setResourceType(String resourceType) {
-        this.resourceType = resourceType;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getOriginalName() {
@@ -53,6 +27,14 @@ public class MessageAttachment {
         this.originalName = originalName;
     }
 
+    public String getStoredName() {
+        return storedName;
+    }
+
+    public void setStoredName(String storedName) {
+        this.storedName = storedName;
+    }
+
     public String getMimeType() {
         return mimeType;
     }
@@ -61,15 +43,47 @@ public class MessageAttachment {
         this.mimeType = mimeType;
     }
 
-    public long getBytes() {
-        return bytes;
+    public int getSize() {
+        return size;
     }
 
-    public void setBytes(long bytes) {
-        this.bytes = bytes;
+    public void setSize(int size) {
+        this.size = size;
     }
 
-    public boolean isPresent() {
-        return url != null && !url.isBlank();
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
+    public String getCloudResourceType() {
+        return cloudResourceType;
+    }
+
+    public void setCloudResourceType(String cloudResourceType) {
+        this.cloudResourceType = cloudResourceType;
+    }
+
+    public boolean isImage() {
+        return mimeType != null && mimeType.toLowerCase().startsWith("image/");
     }
 }

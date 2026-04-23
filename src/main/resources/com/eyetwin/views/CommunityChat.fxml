@@ -16,21 +16,24 @@
                 <StackPane prefHeight="170" style="-fx-background-color: #080810;">
                     <Region style="-fx-background-color: rgba(8,8,16,0.96);" />
 
-                    <VBox alignment="CENTER_LEFT" spacing="10"
+                    <VBox alignment="CENTER_LEFT"
+                          spacing="10"
                           style="-fx-padding: 26 36 0 36;">
                         <children>
-                            <HBox alignment="CENTER_LEFT" spacing="8"
+                            <HBox alignment="CENTER_LEFT"
+                                  spacing="8"
                                   style="-fx-background-color: rgba(232,55,42,0.09);
                                          -fx-border-color: rgba(232,55,42,0.28);
-                                         -fx-border-width:1;
-                                         -fx-border-radius:3;
-                                         -fx-background-radius:3;
+                                         -fx-border-width: 1;
+                                         -fx-border-radius: 3;
+                                         -fx-background-radius: 3;
                                          -fx-padding: 4 12 4 12;
-                                         -fx-max-width:220;">
+                                         -fx-max-width: 220;">
                                 <children>
-                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;" />
+                                    <Label text="●"
+                                           style="-fx-text-fill: #3dff8a; -fx-font-size: 8;" />
                                     <Label text="💬 Channel Chat"
-                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;" />
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size: 10; -fx-font-weight: bold;" />
                                 </children>
                             </HBox>
 
@@ -49,7 +52,7 @@
                                             <Label fx:id="lblChannelDescription"
                                                    text="Channel description"
                                                    wrapText="true"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;" />
+                                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 13;" />
                                         </children>
                                     </VBox>
 
@@ -84,7 +87,8 @@
     </top>
 
     <center>
-        <VBox spacing="16" style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
+        <VBox spacing="16"
+              style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
             <children>
                 <ScrollPane fitToWidth="true"
                             VBox.vgrow="ALWAYS"
@@ -96,7 +100,7 @@
                               spacing="10"
                               style="-fx-background-color: transparent;">
                             <padding>
-                                <Insets top="4" right="0" bottom="8" left="0"/>
+                                <Insets top="4" right="0" bottom="8" left="0" />
                             </padding>
                         </VBox>
                     </content>
@@ -131,49 +135,38 @@
                                          -fx-border-radius: 12;
                                          -fx-border-color: rgba(255,255,255,0.08);" />
 
-<!--                        <HBox alignment="CENTER_RIGHT">-->
-<!--                            <children>-->
-<!--                                <Button fx:id="btnSend"-->
-<!--                                        text="Send"-->
-<!--                                        onAction="#handleSendMessage"-->
-<!--                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);-->
-<!--                                               -fx-text-fill: white;-->
-<!--                                               -fx-font-weight: bold;-->
-<!--                                               -fx-background-radius: 10;-->
-<!--                                               -fx-padding: 10 22 10 22;-->
-<!--                                               -fx-cursor: hand;" />-->
-<!--                            </children>-->
-<!--                        </HBox>-->
                         <HBox alignment="CENTER_LEFT" spacing="8">
                             <children>
                                 <Button fx:id="btnAttach"
-                                        text="Attach File"
-                                        onAction="#handleChooseAttachment"
+                                        text="Attach Files"
+                                        onAction="#handleChooseAttachments"
                                         style="-fx-background-color: rgba(255,255,255,0.08);
-                       -fx-border-color: rgba(255,255,255,0.12);
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-background-radius: 10;
-                       -fx-border-radius: 10;
-                       -fx-padding: 10 16 10 16;
-                       -fx-cursor: hand;" />
+                                               -fx-border-color: rgba(255,255,255,0.12);
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-border-radius: 10;
+                                               -fx-padding: 10 16 10 16;
+                                               -fx-cursor: hand;" />
 
-                                <Label fx:id="lblAttachmentName"
+                                <Label fx:id="lblAttachmentNames"
                                        text=""
                                        visible="false"
                                        managed="false"
+                                       maxWidth="500"
+                                       wrapText="true"
                                        style="-fx-text-fill: rgba(255,255,255,0.75);
-                      -fx-font-size: 12px;" />
+                                              -fx-font-size: 12px;" />
 
-                                <Button fx:id="btnClearAttachment"
+                                <Button fx:id="btnClearAttachments"
                                         text="✕"
-                                        onAction="#handleClearAttachment"
+                                        onAction="#handleClearAttachments"
                                         visible="false"
                                         managed="false"
                                         style="-fx-background-color: transparent;
-                       -fx-text-fill: #ff7b7b;
-                       -fx-font-weight: bold;
-                       -fx-cursor: hand;" />
+                                               -fx-text-fill: #ff7b7b;
+                                               -fx-font-weight: bold;
+                                               -fx-cursor: hand;" />
 
                                 <Pane HBox.hgrow="ALWAYS" />
 
@@ -181,11 +174,11 @@
                                         text="Send"
                                         onAction="#handleSendMessage"
                                         style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-background-radius: 10;
-                       -fx-padding: 10 22 10 22;
-                       -fx-cursor: hand;" />
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-padding: 10 22 10 22;
+                                               -fx-cursor: hand;" />
                             </children>
                         </HBox>
                     </children>
