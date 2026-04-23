@@ -13,6 +13,14 @@ public class Message {
     private int channel_id;
     private String channelName;
 
+    private String attachmentPublicId;
+    private String attachmentUrl;
+    private String attachmentResourceType;
+    private String attachmentFormat;
+    private String attachmentOriginalName;
+    private String attachmentMimeType;
+    private long attachmentBytes;
+
     public Message() {
     }
 
@@ -91,4 +99,67 @@ public class Message {
     public String getChannelName() {return channelName;}
 
     public void setChannelName(String channelName) {this.channelName = channelName;}
+
+
+    public String getAttachmentPublicId() {
+        return attachmentPublicId;
+    }
+
+    public void setAttachmentPublicId(String attachmentPublicId) {
+        this.attachmentPublicId = attachmentPublicId;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
+    }
+
+    public String getAttachmentResourceType() {
+        return attachmentResourceType;
+    }
+
+    public void setAttachmentResourceType(String attachmentResourceType) {
+        this.attachmentResourceType = attachmentResourceType;
+    }
+
+    public String getAttachmentFormat() {
+        return attachmentFormat;
+    }
+
+    public void setAttachmentFormat(String attachmentFormat) {
+        this.attachmentFormat = attachmentFormat;
+    }
+
+    public String getAttachmentOriginalName() {
+        return attachmentOriginalName;
+    }
+
+    public void setAttachmentOriginalName(String attachmentOriginalName) {
+        this.attachmentOriginalName = attachmentOriginalName;
+    }
+
+    public String getAttachmentMimeType() {
+        return attachmentMimeType;
+    }
+
+    public void setAttachmentMimeType(String attachmentMimeType) {
+        this.attachmentMimeType = attachmentMimeType;
+    }
+
+    public long getAttachmentBytes() {
+        return attachmentBytes;
+    }
+
+    public void setAttachmentBytes(long attachmentBytes) {
+        this.attachmentBytes = attachmentBytes;
+    }
+
+    public boolean hasAttachment() {
+        return attachmentUrl != null && !attachmentUrl.isBlank();
+    }
+
+
 }
