@@ -90,11 +90,12 @@
         <VBox spacing="16"
               style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
             <children>
-                <ScrollPane fitToWidth="true"
+                <ScrollPane fx:id="messagesScrollPane"
+                            fitToWidth="true"
                             VBox.vgrow="ALWAYS"
                             style="-fx-background-color: transparent;
-                                   -fx-background: transparent;
-                                   -fx-border-color: transparent;">
+                   -fx-background: transparent;
+                   -fx-border-color: transparent;">
                     <content>
                         <VBox fx:id="messagesContainer"
                               spacing="10"
