@@ -131,17 +131,61 @@
                                          -fx-border-radius: 12;
                                          -fx-border-color: rgba(255,255,255,0.08);" />
 
-                        <HBox alignment="CENTER_RIGHT">
+<!--                        <HBox alignment="CENTER_RIGHT">-->
+<!--                            <children>-->
+<!--                                <Button fx:id="btnSend"-->
+<!--                                        text="Send"-->
+<!--                                        onAction="#handleSendMessage"-->
+<!--                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);-->
+<!--                                               -fx-text-fill: white;-->
+<!--                                               -fx-font-weight: bold;-->
+<!--                                               -fx-background-radius: 10;-->
+<!--                                               -fx-padding: 10 22 10 22;-->
+<!--                                               -fx-cursor: hand;" />-->
+<!--                            </children>-->
+<!--                        </HBox>-->
+                        <HBox alignment="CENTER_LEFT" spacing="8">
                             <children>
+                                <Button fx:id="btnAttach"
+                                        text="Attach File"
+                                        onAction="#handleChooseAttachment"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                       -fx-border-color: rgba(255,255,255,0.12);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 10;
+                       -fx-border-radius: 10;
+                       -fx-padding: 10 16 10 16;
+                       -fx-cursor: hand;" />
+
+                                <Label fx:id="lblAttachmentName"
+                                       text=""
+                                       visible="false"
+                                       managed="false"
+                                       style="-fx-text-fill: rgba(255,255,255,0.75);
+                      -fx-font-size: 12px;" />
+
+                                <Button fx:id="btnClearAttachment"
+                                        text="✕"
+                                        onAction="#handleClearAttachment"
+                                        visible="false"
+                                        managed="false"
+                                        style="-fx-background-color: transparent;
+                       -fx-text-fill: #ff7b7b;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;" />
+
+                                <Pane HBox.hgrow="ALWAYS" />
+
                                 <Button fx:id="btnSend"
                                         text="Send"
                                         onAction="#handleSendMessage"
                                         style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 10;
-                                               -fx-padding: 10 22 10 22;
-                                               -fx-cursor: hand;" />
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 10;
+                       -fx-padding: 10 22 10 22;
+                       -fx-cursor: hand;" />
                             </children>
                         </HBox>
                     </children>

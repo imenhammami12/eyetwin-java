@@ -31,6 +31,15 @@ import javafx.application.Platform;
 import java.net.URI;
 import java.time.LocalDateTime;
 
+import com.eyetwin.entities.Community.MessageAttachment;
+import com.eyetwin.services.Community.CloudinaryUploadService;
+import com.eyetwin.tools.CommunityFileValidator;
+import javafx.concurrent.Task;
+import javafx.stage.FileChooser;
+
+import java.awt.Desktop;
+import java.io.File;
+
 public class CommunityChatController {
 
     @FXML private Label lblChannelName;
@@ -41,6 +50,13 @@ public class CommunityChatController {
     @FXML private Button btnSend;
     @FXML private VBox composerBox;
     @FXML private Label lblComposerInfo;
+
+    @FXML private Button btnAttach;
+    @FXML private Button btnClearAttachment;
+    @FXML private Label lblAttachmentName;
+
+    private File selectedAttachment;
+    private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
 
     private final MessageServiceImpl messageService = new MessageServiceImpl();
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -70,59 +86,6 @@ public class CommunityChatController {
         refreshHeader();
         refreshComposerVisibility();
     }
-
-//    private void startRealtimeChat() {
-//        if (channel == null) return;
-//
-//        try {
-//            socketClient = new CommunityWebSocketClient(
-//                    URI.create(ChatWebSocketConfig.SERVER_URL),
-//                    new ChatSocketListener() {
-//                        @Override
-//                        public void onConnected() {
-//                            System.out.println("Realtime chat connected for channel " + channel.getId());
-//                        }
-//
-//                        @Override
-//                        public void onMessageReceived(SocketEnvelope envelope) {
-//                            if (envelope == null) return;
-//                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())) return;
-//                            if (envelope.getChannelId() == null) return;
-//                            if (!envelope.getChannelId().equals(channel.getId())) return;
-//
-//                            // Ignore my own echoed message from websocket
-//                            if (envelope.getUserEmail() != null
-//                                    && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
-//                                return;
-//                            }
-//
-//                            Platform.runLater(() -> appendRealtimeMessage(envelope));
-//                        }
-//
-//                        @Override
-//                        public void onDisconnected(String reason) {
-//                            System.out.println("Realtime chat disconnected: " + reason);
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//                    }
-//            );
-//
-//            socketClient.connectAndJoin(
-//                    channel.getId(),
-//                    getRealtimeUserId(),
-//                    getRealtimeUserName(),
-//                    getRealtimeUserEmail()
-//            );
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            showError("Failed to connect realtime chat: " + ex.getMessage());
-//        }
-//    }
 
     private void startRealtimeChat() {
         if (channel == null) return;
@@ -432,19 +395,43 @@ public class CommunityChatController {
 
         bubble.getChildren().add(top);
 
+//        if (editingMessageId != null && editingMessageId == message.getId()) {
+//            bubble.getChildren().add(buildInlineEditBox(message));
+//        } else {
+//            Label content = new Label(message.getDisplayContent());
+//            content.setWrapText(true);
+//
+//            if (message.isIs_deleted()) {
+//                content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
+//            } else {
+//                content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+//            }
+//
+//            bubble.getChildren().add(content);
+//        }
+
         if (editingMessageId != null && editingMessageId == message.getId()) {
             bubble.getChildren().add(buildInlineEditBox(message));
         } else {
-            Label content = new Label(message.getDisplayContent());
-            content.setWrapText(true);
+            String visibleText = message.getDisplayContent();
+            boolean showText = message.isIs_deleted() || (visibleText != null && !visibleText.isBlank());
 
-            if (message.isIs_deleted()) {
-                content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
-            } else {
-                content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+            if (showText) {
+                Label content = new Label(visibleText);
+                content.setWrapText(true);
+
+                if (message.isIs_deleted()) {
+                    content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
+                } else {
+                    content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+                }
+
+                bubble.getChildren().add(content);
             }
 
-            bubble.getChildren().add(content);
+            if (message.hasAttachment() && !message.isIs_deleted()) {
+                bubble.getChildren().add(buildAttachmentBox(message));
+            }
         }
 
         wrapper.getChildren().add(bubble);
@@ -676,36 +663,6 @@ public class CommunityChatController {
 //                return;
 //            }
 //
-//            String validation = CommunityValidator.validateMessageContent(taNewMessage.getText());
-//            if (validation != null) {
-//                showError(validation);
-//                return;
-//            }
-//
-//            messageService.sendMessage(channel.getId(), taNewMessage.getText(), SessionManager.getCurrentUser());
-//            taNewMessage.clear();
-//            editingMessageId = null;
-//            actionMenuMessageId = null;
-//            deleteConfirmMessageId = null;
-//            loadMessages();
-//
-//        } catch (Exception e) {
-//            showError("Failed to send message: " + e.getMessage());
-//        }
-//    }
-
-
-
-//    @FXML
-//    private void handleSendMessage() {
-//        if (channel == null) return;
-//
-//        try {
-//            if (!SessionManager.canWriteCommunityMessages()) {
-//                showError("Only a plain player can send messages.");
-//                return;
-//            }
-//
 //            String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
 //
 //            String validation = CommunityValidator.validateMessageContent(content);
@@ -723,8 +680,8 @@ public class CommunityChatController {
 //            actionMenuMessageId = null;
 //            deleteConfirmMessageId = null;
 //
-//            // 3) Send realtime event
-//            if (socketClient != null && socketClient.isOpen()) {
+//            // 3) Publish realtime for other users
+//            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
 //                socketClient.publishMessage(
 //                        channel.getId(),
 //                        getRealtimeUserId(),
@@ -732,13 +689,10 @@ public class CommunityChatController {
 //                        getRealtimeUserEmail(),
 //                        content
 //                );
-//
-//                // Reload from DB so my own message has the real id
-//                loadMessages();
-//            } else {
-//                // fallback if socket is not connected
-//                loadMessages();
 //            }
+//
+//            // 4) Always reload for sender so the sender gets the real DB row with real id
+//            loadMessages();
 //
 //        } catch (Exception e) {
 //            showError("Failed to send message: " + e.getMessage());
@@ -757,54 +711,75 @@ public class CommunityChatController {
 
             String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
 
-            String validation = CommunityValidator.validateMessageContent(content);
+            String validation = CommunityValidator.validateMessageForSend(content, selectedAttachment != null);
             if (validation != null) {
                 showError(validation);
                 return;
             }
 
-            // 1) Save in database
-            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
+            final String contentToSend = content;
+            final File attachmentToSend = selectedAttachment;
 
-            // 2) Reset UI state
-            taNewMessage.clear();
-            editingMessageId = null;
-            actionMenuMessageId = null;
-            deleteConfirmMessageId = null;
+            setComposerSendingState(true);
 
-            // 3) Publish realtime for other users
-            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
-                socketClient.publishMessage(
-                        channel.getId(),
-                        getRealtimeUserId(),
-                        getRealtimeUserName(),
-                        getRealtimeUserEmail(),
-                        content
-                );
-            }
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    MessageAttachment attachment = null;
 
-            // 4) Always reload for sender so the sender gets the real DB row with real id
-            loadMessages();
+                    if (attachmentToSend != null) {
+                        attachment = cloudinaryUploadService.upload(attachmentToSend);
+                    }
+
+                    messageService.sendMessage(
+                            channel.getId(),
+                            contentToSend,
+                            SessionManager.getCurrentUser(),
+                            attachment
+                    );
+
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                taNewMessage.clear();
+                selectedAttachment = null;
+                editingMessageId = null;
+                actionMenuMessageId = null;
+                deleteConfirmMessageId = null;
+
+                refreshAttachmentUi();
+                setComposerSendingState(false);
+
+                if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                    socketClient.publishMessage(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail(),
+                            contentToSend
+                    );
+                }
+
+                loadMessages();
+            });
+
+            task.setOnFailed(event -> {
+                setComposerSendingState(false);
+                Throwable ex = task.getException();
+                showError("Failed to send message: " + (ex != null ? ex.getMessage() : "Unknown error"));
+            });
+
+            Thread thread = new Thread(task, "community-chat-send-message");
+            thread.setDaemon(true);
+            thread.start();
 
         } catch (Exception e) {
+            setComposerSendingState(false);
             showError("Failed to send message: " + e.getMessage());
         }
     }
-
-//    @FXML
-//    private void handleBack() {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
-//            Parent root = loader.load();
-//
-//            Stage stage = (Stage) lblChannelName.getScene().getWindow();
-//            stage.setScene(new Scene(root));
-//            stage.show();
-//
-//        } catch (IOException e) {
-//            showError("Failed to go back: " + e.getMessage());
-//        }
-//    }
 
     @FXML
     private void handleBack() {
@@ -834,5 +809,114 @@ public class CommunityChatController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleChooseAttachment() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose attachment");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Allowed files",
+                        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
+                        "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
+                        "*.ppt", "*.pptx", "*.txt", "*.zip"
+                )
+        );
+
+        File file = chooser.showOpenDialog(btnSend.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+
+        try {
+            CommunityFileValidator.validate(file);
+            selectedAttachment = file;
+            refreshAttachmentUi();
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleClearAttachment() {
+        selectedAttachment = null;
+        refreshAttachmentUi();
+    }
+
+    private void refreshAttachmentUi() {
+        boolean hasAttachment = selectedAttachment != null;
+
+        if (lblAttachmentName != null) {
+            lblAttachmentName.setText(hasAttachment ? selectedAttachment.getName() : "");
+            lblAttachmentName.setVisible(hasAttachment);
+            lblAttachmentName.setManaged(hasAttachment);
+        }
+
+        if (btnClearAttachment != null) {
+            btnClearAttachment.setVisible(hasAttachment);
+            btnClearAttachment.setManaged(hasAttachment);
+        }
+    }
+
+    private void setComposerSendingState(boolean sending) {
+        if (btnSend != null) btnSend.setDisable(sending);
+        if (btnAttach != null) btnAttach.setDisable(sending);
+        if (btnClearAttachment != null) btnClearAttachment.setDisable(sending);
+        if (taNewMessage != null) taNewMessage.setDisable(sending);
+    }
+
+    private String formatAttachmentSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
+        return String.format("%.1f MB", bytes / 1024.0 / 1024.0);
+    }
+
+    private String resolveAttachmentLabel(Message message) {
+        String name = message.getAttachmentOriginalName();
+        if (name != null && !name.isBlank()) {
+            return name;
+        }
+        return "Open attachment";
+    }
+
+    private VBox buildAttachmentBox(Message message) {
+        VBox box = new VBox(4);
+        box.setPadding(new Insets(10));
+        box.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.04);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;"
+        );
+
+        Hyperlink link = new Hyperlink(resolveAttachmentLabel(message));
+        link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
+        link.setOnAction(e -> openAttachment(message.getAttachmentUrl()));
+
+        Label meta = new Label(
+                (message.getAttachmentMimeType() != null ? message.getAttachmentMimeType() : "file")
+                        + " • " + formatAttachmentSize(message.getAttachmentBytes())
+        );
+        meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
+
+        box.getChildren().addAll(link, meta);
+        return box;
+    }
+
+    private void openAttachment(String url) {
+        try {
+            if (url == null || url.isBlank()) {
+                throw new IllegalArgumentException("Attachment URL is empty.");
+            }
+
+            if (!Desktop.isDesktopSupported()) {
+                throw new IllegalStateException("Desktop browsing is not supported on this system.");
+            }
+
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception e) {
+            showError("Cannot open attachment: " + e.getMessage());
+        }
     }
 }

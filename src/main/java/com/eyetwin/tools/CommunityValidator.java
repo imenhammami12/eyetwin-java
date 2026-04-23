@@ -116,4 +116,18 @@ public class CommunityValidator {
 
         return null;
     }
+
+    public static String validateMessageForSend(String value, boolean hasAttachment) {
+        String v = value == null ? "" : value.trim();
+
+        if (v.isEmpty() && !hasAttachment) {
+            return "Message cannot be empty.";
+        }
+
+        if (v.length() > 1000) {
+            return "Message must not exceed 1000 characters.";
+        }
+
+        return null;
+    }
 }

@@ -11,6 +11,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eyetwin.entities.Community.MessageAttachment;
+
 public class MessageServiceImpl implements IMessageService {
 
     private Connection getConnection() {
@@ -212,8 +214,49 @@ public class MessageServiceImpl implements IMessageService {
         return null;
     }
 
+//    @Override
+//    public void sendMessage(int channelId, String content, User player) throws SQLException {
+//        Channel channel = findChannelById(channelId);
+//        if (channel == null) {
+//            throw new IllegalArgumentException("Channel not found.");
+//        }
+//
+//        if (!Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) || !channel.isActive()) {
+//            throw new IllegalStateException("You cannot send a message to an unavailable channel.");
+//        }
+//
+//        String cleanContent = (content == null) ? "" : content.trim();
+//        if (cleanContent.isEmpty()) {
+//            throw new IllegalArgumentException("Message content cannot be empty.");
+//        }
+//
+//        String sql = """
+//            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
+//            VALUES (?, ?, ?, ?, ?, ?, ?)
+//            """;
+//
+//        Timestamp now = new Timestamp(System.currentTimeMillis());
+//
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setString(1, cleanContent);
+//        ps.setTimestamp(2, now);
+//        ps.setTimestamp(3, now);
+//        ps.setBoolean(4, false);
+//        ps.setString(5, player.getUsername());
+//        ps.setString(6, player.getEmail());
+//        ps.setInt(7, channelId);
+//        ps.executeUpdate();
+//    }
+
+
     @Override
     public void sendMessage(int channelId, String content, User player) throws SQLException {
+        sendMessage(channelId, content, player, null);
+    }
+
+    @Override
+    public void sendMessage(int channelId, String content, User player, MessageAttachment attachment) throws SQLException {
         Channel channel = findChannelById(channelId);
         if (channel == null) {
             throw new IllegalArgumentException("Channel not found.");
@@ -224,14 +267,24 @@ public class MessageServiceImpl implements IMessageService {
         }
 
         String cleanContent = (content == null) ? "" : content.trim();
-        if (cleanContent.isEmpty()) {
-            throw new IllegalArgumentException("Message content cannot be empty.");
+        boolean hasAttachment = attachment != null && attachment.isPresent();
+
+        if (cleanContent.isEmpty() && !hasAttachment) {
+            throw new IllegalArgumentException("Message cannot be empty.");
+        }
+
+        if (cleanContent.length() > 1000) {
+            throw new IllegalArgumentException("Message must not exceed 1000 characters.");
         }
 
         String sql = """
-            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
+        INSERT INTO message (
+            content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id,
+            attachment_public_id, attachment_url, attachment_resource_type, attachment_format,
+            attachment_original_name, attachment_mime_type, attachment_bytes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
 
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
@@ -244,6 +297,25 @@ public class MessageServiceImpl implements IMessageService {
         ps.setString(5, player.getUsername());
         ps.setString(6, player.getEmail());
         ps.setInt(7, channelId);
+
+        if (hasAttachment) {
+            ps.setString(8, attachment.getPublicId());
+            ps.setString(9, attachment.getUrl());
+            ps.setString(10, attachment.getResourceType());
+            ps.setString(11, attachment.getFormat());
+            ps.setString(12, attachment.getOriginalName());
+            ps.setString(13, attachment.getMimeType());
+            ps.setLong(14, attachment.getBytes());
+        } else {
+            ps.setNull(8, Types.VARCHAR);
+            ps.setNull(9, Types.VARCHAR);
+            ps.setNull(10, Types.VARCHAR);
+            ps.setNull(11, Types.VARCHAR);
+            ps.setNull(12, Types.VARCHAR);
+            ps.setNull(13, Types.VARCHAR);
+            ps.setNull(14, Types.BIGINT);
+        }
+
         ps.executeUpdate();
     }
 
@@ -393,6 +465,14 @@ public class MessageServiceImpl implements IMessageService {
         message.setSender_email(rs.getString("sender_email"));
         message.setChannel_id(rs.getInt("channel_id"));
 
+        message.setAttachmentPublicId(rs.getString("attachment_public_id"));
+        message.setAttachmentUrl(rs.getString("attachment_url"));
+        message.setAttachmentResourceType(rs.getString("attachment_resource_type"));
+        message.setAttachmentFormat(rs.getString("attachment_format"));
+        message.setAttachmentOriginalName(rs.getString("attachment_original_name"));
+        message.setAttachmentMimeType(rs.getString("attachment_mime_type"));
+        message.setAttachmentBytes(rs.getLong("attachment_bytes"));
+
         try {
             message.setChannelName(rs.getString("channel_name"));
         } catch (SQLException ignored) {
@@ -401,4 +481,6 @@ public class MessageServiceImpl implements IMessageService {
 
         return message;
     }
+
+
 }
