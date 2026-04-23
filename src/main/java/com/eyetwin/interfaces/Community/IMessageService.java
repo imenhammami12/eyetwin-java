@@ -16,7 +16,7 @@ public interface IMessageService {
     Message findById(int id) throws SQLException;
 
     void sendMessage(int channelId, String content, User player) throws SQLException;
-    void sendMessage(int channelId, String content, User player, MessageAttachment attachment) throws SQLException;
+    void sendMessage(int channelId, String content, User player, List<MessageAttachment> attachments) throws SQLException;
     void updateOwnMessage(int messageId, String newContent, User player) throws SQLException;
     void softDeleteOwnMessage(int messageId, User player) throws SQLException;
 

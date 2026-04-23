@@ -40,6 +40,12 @@ import javafx.stage.FileChooser;
 import java.awt.Desktop;
 import java.io.File;
 
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+import java.util.ArrayList;
+
 public class CommunityChatController {
 
     @FXML private Label lblChannelName;
@@ -52,10 +58,11 @@ public class CommunityChatController {
     @FXML private Label lblComposerInfo;
 
     @FXML private Button btnAttach;
-    @FXML private Button btnClearAttachment;
-    @FXML private Label lblAttachmentName;
+    @FXML private Button btnClearAttachments;
+    @FXML private Label lblAttachmentNames;
 
-    private File selectedAttachment;
+    private final List<File> selectedAttachments = new ArrayList<>();
+
     private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
 
     private final MessageServiceImpl messageService = new MessageServiceImpl();
@@ -395,26 +402,11 @@ public class CommunityChatController {
 
         bubble.getChildren().add(top);
 
-//        if (editingMessageId != null && editingMessageId == message.getId()) {
-//            bubble.getChildren().add(buildInlineEditBox(message));
-//        } else {
-//            Label content = new Label(message.getDisplayContent());
-//            content.setWrapText(true);
-//
-//            if (message.isIs_deleted()) {
-//                content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
-//            } else {
-//                content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
-//            }
-//
-//            bubble.getChildren().add(content);
-//        }
-
         if (editingMessageId != null && editingMessageId == message.getId()) {
             bubble.getChildren().add(buildInlineEditBox(message));
         } else {
             String visibleText = message.getDisplayContent();
-            boolean showText = message.isIs_deleted() || (visibleText != null && !visibleText.isBlank());
+            boolean showText = visibleText != null && !visibleText.isBlank();
 
             if (showText) {
                 Label content = new Label(visibleText);
@@ -429,8 +421,10 @@ public class CommunityChatController {
                 bubble.getChildren().add(content);
             }
 
-            if (message.hasAttachment() && !message.isIs_deleted()) {
-                bubble.getChildren().add(buildAttachmentBox(message));
+            if (!message.isIs_deleted() && message.hasAttachments()) {
+                for (MessageAttachment attachment : message.getAttachments()) {
+                    bubble.getChildren().add(buildAttachmentNode(attachment));
+                }
             }
         }
 
@@ -653,51 +647,150 @@ public class CommunityChatController {
         return confirmBox;
     }
 
-//    @FXML
-//    private void handleSendMessage() {
-//        if (channel == null) return;
-//
-//        try {
-//            if (!SessionManager.canWriteCommunityMessages()) {
-//                showError("Only a plain player can send messages.");
-//                return;
-//            }
-//
-//            String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
-//
-//            String validation = CommunityValidator.validateMessageContent(content);
-//            if (validation != null) {
-//                showError(validation);
-//                return;
-//            }
-//
-//            // 1) Save in database
-//            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
-//
-//            // 2) Reset UI state
-//            taNewMessage.clear();
-//            editingMessageId = null;
-//            actionMenuMessageId = null;
-//            deleteConfirmMessageId = null;
-//
-//            // 3) Publish realtime for other users
-//            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
-//                socketClient.publishMessage(
-//                        channel.getId(),
-//                        getRealtimeUserId(),
-//                        getRealtimeUserName(),
-//                        getRealtimeUserEmail(),
-//                        content
-//                );
-//            }
-//
-//            // 4) Always reload for sender so the sender gets the real DB row with real id
-//            loadMessages();
-//
-//        } catch (Exception e) {
-//            showError("Failed to send message: " + e.getMessage());
-//        }
-//    }
+    @FXML
+    private void handleChooseAttachments() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose attachments");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Allowed files",
+                        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
+                        "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
+                        "*.ppt", "*.pptx", "*.txt", "*.zip"
+                )
+        );
+
+        List<File> files = chooser.showOpenMultipleDialog(btnSend.getScene().getWindow());
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+
+        try {
+            for (File file : files) {
+                CommunityFileValidator.validate(file);
+            }
+
+            selectedAttachments.clear();
+            selectedAttachments.addAll(files);
+            refreshAttachmentSelectionUi();
+
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleClearAttachments() {
+        selectedAttachments.clear();
+        refreshAttachmentSelectionUi();
+    }
+
+    private void refreshAttachmentSelectionUi() {
+        boolean hasFiles = !selectedAttachments.isEmpty();
+
+        if (lblAttachmentNames != null) {
+            lblAttachmentNames.setVisible(hasFiles);
+            lblAttachmentNames.setManaged(hasFiles);
+
+            if (!hasFiles) {
+                lblAttachmentNames.setText("");
+            } else if (selectedAttachments.size() == 1) {
+                lblAttachmentNames.setText(selectedAttachments.get(0).getName());
+            } else {
+                lblAttachmentNames.setText(selectedAttachments.size() + " files selected");
+            }
+        }
+
+        if (btnClearAttachments != null) {
+            btnClearAttachments.setVisible(hasFiles);
+            btnClearAttachments.setManaged(hasFiles);
+        }
+    }
+
+    private void setComposerBusy(boolean busy) {
+        if (taNewMessage != null) taNewMessage.setDisable(busy);
+        if (btnSend != null) btnSend.setDisable(busy);
+        if (btnAttach != null) btnAttach.setDisable(busy);
+        if (btnClearAttachments != null) btnClearAttachments.setDisable(busy);
+    }
+
+    private String formatBytes(int bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
+        return String.format("%.1f MB", bytes / 1024.0 / 1024.0);
+    }
+
+    private void openAttachment(String url) {
+        try {
+            if (url == null || url.isBlank()) {
+                throw new IllegalArgumentException("Attachment URL is empty.");
+            }
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception e) {
+            showError("Cannot open attachment: " + e.getMessage());
+        }
+    }
+
+    private Node buildAttachmentNode(MessageAttachment attachment) {
+        if (attachment.isImage()) {
+            VBox box = new VBox(6);
+            box.setPadding(new Insets(8));
+            box.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.04);" +
+                            "-fx-border-color: rgba(255,255,255,0.08);" +
+                            "-fx-border-radius: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            ImageView imageView = new ImageView();
+            Image image = new Image(attachment.getUrl(), true);
+            imageView.setImage(image);
+            imageView.setPreserveRatio(true);
+            imageView.setFitWidth(260);
+            imageView.setSmooth(true);
+            imageView.setStyle("-fx-cursor: hand;");
+            imageView.setOnMouseClicked(e -> openAttachment(attachment.getUrl()));
+
+            Hyperlink link = new Hyperlink(
+                    attachment.getOriginalName() != null ? attachment.getOriginalName() : "Open image"
+            );
+            link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
+            link.setOnAction(e -> openAttachment(attachment.getUrl()));
+
+            Label meta = new Label(
+                    (attachment.getMimeType() != null ? attachment.getMimeType() : "image")
+                            + " • " + formatBytes(attachment.getSize())
+            );
+            meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
+
+            box.getChildren().addAll(imageView, link, meta);
+            return box;
+        }
+
+        VBox box = new VBox(4);
+        box.setPadding(new Insets(10));
+        box.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.04);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;"
+        );
+
+        Hyperlink link = new Hyperlink(
+                attachment.getOriginalName() != null ? attachment.getOriginalName() : "Open attachment"
+        );
+        link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
+        link.setOnAction(e -> openAttachment(attachment.getUrl()));
+
+        Label meta = new Label(
+                (attachment.getMimeType() != null ? attachment.getMimeType() : "file")
+                        + " • " + formatBytes(attachment.getSize())
+        );
+        meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
+
+        box.getChildren().addAll(link, meta);
+        return box;
+    }
 
     @FXML
     private void handleSendMessage() {
@@ -711,31 +804,32 @@ public class CommunityChatController {
 
             String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
 
-            String validation = CommunityValidator.validateMessageForSend(content, selectedAttachment != null);
+            String validation = CommunityValidator.validateMessageForSend(content, !selectedAttachments.isEmpty());
             if (validation != null) {
                 showError(validation);
                 return;
             }
 
             final String contentToSend = content;
-            final File attachmentToSend = selectedAttachment;
+            final List<File> filesToUpload = new ArrayList<>(selectedAttachments);
 
-            setComposerSendingState(true);
+            setComposerBusy(true);
 
             Task<Void> task = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
-                    MessageAttachment attachment = null;
+                    List<MessageAttachment> uploadedAttachments = new ArrayList<>();
 
-                    if (attachmentToSend != null) {
-                        attachment = cloudinaryUploadService.upload(attachmentToSend);
+                    for (File file : filesToUpload) {
+                        MessageAttachment uploaded = cloudinaryUploadService.upload(file);
+                        uploadedAttachments.add(uploaded);
                     }
 
                     messageService.sendMessage(
                             channel.getId(),
                             contentToSend,
                             SessionManager.getCurrentUser(),
-                            attachment
+                            uploadedAttachments
                     );
 
                     return null;
@@ -744,13 +838,13 @@ public class CommunityChatController {
 
             task.setOnSucceeded(event -> {
                 taNewMessage.clear();
-                selectedAttachment = null;
+                selectedAttachments.clear();
                 editingMessageId = null;
                 actionMenuMessageId = null;
                 deleteConfirmMessageId = null;
 
-                refreshAttachmentUi();
-                setComposerSendingState(false);
+                refreshAttachmentSelectionUi();
+                setComposerBusy(false);
 
                 if (socketClient != null && socketClient.isOpen() && realtimeReady) {
                     socketClient.publishMessage(
@@ -766,7 +860,7 @@ public class CommunityChatController {
             });
 
             task.setOnFailed(event -> {
-                setComposerSendingState(false);
+                setComposerBusy(false);
                 Throwable ex = task.getException();
                 showError("Failed to send message: " + (ex != null ? ex.getMessage() : "Unknown error"));
             });
@@ -776,7 +870,7 @@ public class CommunityChatController {
             thread.start();
 
         } catch (Exception e) {
-            setComposerSendingState(false);
+            setComposerBusy(false);
             showError("Failed to send message: " + e.getMessage());
         }
     }
@@ -811,112 +905,4 @@ public class CommunityChatController {
         alert.showAndWait();
     }
 
-    @FXML
-    private void handleChooseAttachment() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Choose attachment");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "Allowed files",
-                        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
-                        "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
-                        "*.ppt", "*.pptx", "*.txt", "*.zip"
-                )
-        );
-
-        File file = chooser.showOpenDialog(btnSend.getScene().getWindow());
-        if (file == null) {
-            return;
-        }
-
-        try {
-            CommunityFileValidator.validate(file);
-            selectedAttachment = file;
-            refreshAttachmentUi();
-        } catch (Exception e) {
-            showError(e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleClearAttachment() {
-        selectedAttachment = null;
-        refreshAttachmentUi();
-    }
-
-    private void refreshAttachmentUi() {
-        boolean hasAttachment = selectedAttachment != null;
-
-        if (lblAttachmentName != null) {
-            lblAttachmentName.setText(hasAttachment ? selectedAttachment.getName() : "");
-            lblAttachmentName.setVisible(hasAttachment);
-            lblAttachmentName.setManaged(hasAttachment);
-        }
-
-        if (btnClearAttachment != null) {
-            btnClearAttachment.setVisible(hasAttachment);
-            btnClearAttachment.setManaged(hasAttachment);
-        }
-    }
-
-    private void setComposerSendingState(boolean sending) {
-        if (btnSend != null) btnSend.setDisable(sending);
-        if (btnAttach != null) btnAttach.setDisable(sending);
-        if (btnClearAttachment != null) btnClearAttachment.setDisable(sending);
-        if (taNewMessage != null) taNewMessage.setDisable(sending);
-    }
-
-    private String formatAttachmentSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
-        return String.format("%.1f MB", bytes / 1024.0 / 1024.0);
-    }
-
-    private String resolveAttachmentLabel(Message message) {
-        String name = message.getAttachmentOriginalName();
-        if (name != null && !name.isBlank()) {
-            return name;
-        }
-        return "Open attachment";
-    }
-
-    private VBox buildAttachmentBox(Message message) {
-        VBox box = new VBox(4);
-        box.setPadding(new Insets(10));
-        box.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.04);" +
-                        "-fx-border-color: rgba(255,255,255,0.08);" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;"
-        );
-
-        Hyperlink link = new Hyperlink(resolveAttachmentLabel(message));
-        link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
-        link.setOnAction(e -> openAttachment(message.getAttachmentUrl()));
-
-        Label meta = new Label(
-                (message.getAttachmentMimeType() != null ? message.getAttachmentMimeType() : "file")
-                        + " • " + formatAttachmentSize(message.getAttachmentBytes())
-        );
-        meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
-
-        box.getChildren().addAll(link, meta);
-        return box;
-    }
-
-    private void openAttachment(String url) {
-        try {
-            if (url == null || url.isBlank()) {
-                throw new IllegalArgumentException("Attachment URL is empty.");
-            }
-
-            if (!Desktop.isDesktopSupported()) {
-                throw new IllegalStateException("Desktop browsing is not supported on this system.");
-            }
-
-            Desktop.getDesktop().browse(URI.create(url));
-        } catch (Exception e) {
-            showError("Cannot open attachment: " + e.getMessage());
-        }
-    }
 }

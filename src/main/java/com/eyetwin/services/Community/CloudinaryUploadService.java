@@ -52,13 +52,24 @@ public class CloudinaryUploadService {
         JSONObject json = new JSONObject(response.body());
 
         MessageAttachment attachment = new MessageAttachment();
-        attachment.setPublicId(json.optString("public_id", null));
-        attachment.setUrl(json.optString("secure_url", null));
-        attachment.setResourceType(json.optString("resource_type", null));
-        attachment.setFormat(json.optString("format", null));
+
+        String publicId = json.optString("public_id", null);
+        String resourceType = json.optString("resource_type", null);
+
+        String storedName = file.getName();
+        if (publicId != null && !publicId.isBlank()) {
+            storedName = publicId.contains("/")
+                    ? publicId.substring(publicId.lastIndexOf('/') + 1)
+                    : publicId;
+        }
+
         attachment.setOriginalName(file.getName());
+        attachment.setStoredName(storedName);
         attachment.setMimeType(mimeType);
-        attachment.setBytes(json.optLong("bytes", file.length()));
+        attachment.setSize((int) Math.min(file.length(), Integer.MAX_VALUE));
+        attachment.setUrl(json.optString("secure_url", null));
+        attachment.setPublicId(publicId);
+        attachment.setCloudResourceType(resourceType);
 
         return attachment;
     }
