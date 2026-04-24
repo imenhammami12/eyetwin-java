@@ -27,6 +27,8 @@ import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
 import java.io.File;
 
+import javafx.scene.Node;
+
 public class ChannelAccessManageController {
 
     @FXML private Label lblChannelName;
@@ -87,9 +89,89 @@ public class ChannelAccessManageController {
         }
     }
 
+//    private VBox buildRequestCard(ChannelJoinRequest request) {
+//        VBox card = new VBox(8);
+//        card.setPadding(new Insets(12));
+//        card.setStyle(
+//                "-fx-background-color: rgba(255,255,255,0.03);" +
+//                        "-fx-border-color: rgba(255,255,255,0.08);" +
+//                        "-fx-border-radius: 12;" +
+//                        "-fx-background-radius: 12;"
+//        );
+//
+//        String displayName = request.getRequesterUsername() != null && !request.getRequesterUsername().isBlank()
+//                ? request.getRequesterUsername()
+//                : (request.getRequesterEmail() != null ? request.getRequesterEmail() : "Unknown user");
+//
+//        Label requester = new Label(displayName);
+//        requester.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+//
+//        Label email = new Label(request.getRequesterEmail() != null ? request.getRequesterEmail() : "");
+//        email.setStyle("-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px;");
+//
+//        Label date = new Label(request.getRequestedAt() != null ? request.getRequestedAt().toString() : "");
+//        date.setStyle("-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 11px;");
+//
+//        HBox actions = new HBox(8);
+//        actions.setAlignment(Pos.CENTER_LEFT);
+//
+//        Button btnApprove = new Button("Approve");
+//        btnApprove.setStyle(
+//                "-fx-background-color: linear-gradient(to right, #10b981, #059669);" +
+//                        "-fx-text-fill: white;" +
+//                        "-fx-font-weight: bold;" +
+//                        "-fx-background-radius: 8;" +
+//                        "-fx-cursor: hand;"
+//        );
+//        btnApprove.setOnAction(e -> {
+//            try {
+//                accessService.approveJoinRequest(request.getId(), SessionManager.getCurrentUser());
+//                loadPendingRequests();
+//                if (onChanged != null) onChanged.run();
+//            } catch (Exception ex) {
+//                showError("Failed to approve request: " + ex.getMessage());
+//            }
+//        });
+//
+//        Button btnDeny = new Button("Deny");
+//        btnDeny.setStyle(
+//                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+//                        "-fx-text-fill: white;" +
+//                        "-fx-font-weight: bold;" +
+//                        "-fx-background-radius: 8;" +
+//                        "-fx-cursor: hand;"
+//        );
+//        btnDeny.setOnAction(e -> {
+//            TextInputDialog dialog = new TextInputDialog();
+//            dialog.setTitle("Deny Request");
+//            dialog.setHeaderText("Reason for denial");
+//            dialog.setContentText("Reason:");
+//
+//            dialog.showAndWait().ifPresent(reason -> {
+//                try {
+//                    accessService.denyJoinRequest(request.getId(), SessionManager.getCurrentUser(), reason);
+//                    loadPendingRequests();
+//                    if (onChanged != null) onChanged.run();
+//                } catch (Exception ex) {
+//                    showError("Failed to deny request: " + ex.getMessage());
+//                }
+//            });
+//        });
+//
+//        actions.getChildren().addAll(btnApprove, btnDeny);
+//
+//        card.getChildren().addAll(requester, email, date, actions);
+//        return card;
+//    }
+
     private VBox buildRequestCard(ChannelJoinRequest request) {
-        VBox card = new VBox(8);
-        card.setPadding(new Insets(12));
+        VBox card = new VBox(10);
+        card.setPadding(new Insets(14));
+        card.setMinHeight(120);
+        card.setPrefWidth(800);
+        card.setMaxWidth(Double.MAX_VALUE);
+        VBox.setVgrow(card, Priority.NEVER);
+
         card.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.03);" +
                         "-fx-border-color: rgba(255,255,255,0.08);" +
@@ -102,15 +184,15 @@ public class ChannelAccessManageController {
                 : (request.getRequesterEmail() != null ? request.getRequesterEmail() : "Unknown user");
 
         Label requester = new Label(displayName);
-        requester.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        requester.setStyle("-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;");
 
         Label email = new Label(request.getRequesterEmail() != null ? request.getRequesterEmail() : "");
-        email.setStyle("-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px;");
+        email.setStyle("-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 13px;");
 
         Label date = new Label(request.getRequestedAt() != null ? request.getRequestedAt().toString() : "");
-        date.setStyle("-fx-text-fill: rgba(255,255,255,0.40); -fx-font-size: 11px;");
+        date.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 12px;");
 
-        HBox actions = new HBox(8);
+        HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_LEFT);
 
         Button btnApprove = new Button("Approve");
@@ -139,27 +221,86 @@ public class ChannelAccessManageController {
                         "-fx-background-radius: 8;" +
                         "-fx-cursor: hand;"
         );
-        btnDeny.setOnAction(e -> {
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Deny Request");
-            dialog.setHeaderText("Reason for denial");
-            dialog.setContentText("Reason:");
-
-            dialog.showAndWait().ifPresent(reason -> {
-                try {
-                    accessService.denyJoinRequest(request.getId(), SessionManager.getCurrentUser(), reason);
-                    loadPendingRequests();
-                    if (onChanged != null) onChanged.run();
-                } catch (Exception ex) {
-                    showError("Failed to deny request: " + ex.getMessage());
-                }
-            });
-        });
+        btnDeny.setOnAction(e -> openDenyReasonDialog(request));
 
         actions.getChildren().addAll(btnApprove, btnDeny);
 
         card.getChildren().addAll(requester, email, date, actions);
         return card;
+    }
+
+    private void openDenyReasonDialog(ChannelJoinRequest request) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Deny Request");
+        dialog.setHeaderText(null);
+
+        ButtonType confirmButtonType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+
+        Label title = new Label("Reason for denial");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Label reasonLabel = new Label("Reason:");
+        reasonLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13px;");
+
+        TextField input = new TextField();
+        input.setPromptText("Enter a reason");
+        input.setStyle(
+                "-fx-background-color: #14192b;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-prompt-text-fill: rgba(255,255,255,0.35);" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-border-color: rgba(255,255,255,0.08);"
+        );
+
+        VBox box = new VBox(12, title, reasonLabel, input);
+        box.setPadding(new Insets(10, 0, 0, 0));
+
+        DialogPane pane = dialog.getDialogPane();
+        pane.setContent(box);
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #070b1f, #050816);" +
+                        "-fx-border-color: rgba(232,55,42,0.22);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        Node confirmButton = pane.lookupButton(confirmButtonType);
+        confirmButton.setDisable(true);
+        confirmButton.setStyle(
+                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;"
+        );
+
+        Node cancelButton = pane.lookupButton(ButtonType.CANCEL);
+        if (cancelButton != null) {
+            cancelButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.08);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 8;"
+            );
+        }
+
+        input.textProperty().addListener((obs, oldVal, newVal) ->
+                confirmButton.setDisable(newVal == null || newVal.trim().isEmpty())
+        );
+
+        dialog.setResultConverter(button -> button == confirmButtonType ? input.getText().trim() : null);
+
+        dialog.showAndWait().ifPresent(reason -> {
+            try {
+                accessService.denyJoinRequest(request.getId(), SessionManager.getCurrentUser(), reason);
+                loadPendingRequests();
+                if (onChanged != null) onChanged.run();
+            } catch (Exception ex) {
+                showError("Failed to deny request: " + ex.getMessage());
+            }
+        });
     }
 
     @FXML
@@ -251,11 +392,41 @@ public class ChannelAccessManageController {
         stage.close();
     }
 
+//    private void showError(String message) {
+//        Alert alert = new Alert(Alert.AlertType.ERROR);
+//        alert.setTitle("Error");
+//        alert.setHeaderText(null);
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(message);
+
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #070b1f, #050816);" +
+                        "-fx-border-color: rgba(232,55,42,0.22);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        pane.lookup(".content.label").setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        Node okButton = pane.lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 8;"
+            );
+        }
+
         alert.showAndWait();
     }
 }
