@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.ChannelAccessManageController"
+      spacing="14"
+      prefWidth="720"
+      prefHeight="640"
+      style="-fx-background-color: #080810; -fx-padding: 18;">
+
+    <children>
+        <HBox alignment="CENTER_LEFT">
+            <children>
+                <Label fx:id="lblChannelName"
+                       text="Private Channel Access"
+                       style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button text="Close" onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+            </children>
+        </HBox>
+
+        <Label text="Pending Join Requests"
+               style="-fx-text-fill: #ff8a7a; -fx-font-size: 15px; -fx-font-weight: bold;" />
+
+        <ScrollPane fitToWidth="true"
+                    VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox fx:id="pendingRequestsContainer" spacing="10"
+                      style="-fx-background-color: transparent;">
+                    <padding>
+                        <Insets top="4" right="4" bottom="4" left="4" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+
+        <Separator />
+
+        <Label text="Generate QR Invitation"
+               style="-fx-text-fill: #ff8a7a; -fx-font-size: 15px; -fx-font-weight: bold;" />
+
+        <HBox spacing="10">
+            <children>
+                <VBox spacing="8">
+                    <children>
+                        <Label text="Mode" style="-fx-text-fill: white;" />
+                        <ComboBox fx:id="cbInviteMode" prefWidth="220" />
+
+                        <Label text="Max Uses (optional)" style="-fx-text-fill: white;" />
+                        <TextField fx:id="tfMaxUses" promptText="Leave empty for unlimited" />
+
+                        <Label text="Expires At (optional)" style="-fx-text-fill: white;" />
+                        <DatePicker fx:id="dpExpiresAt" />
+
+                        <Button text="Generate Invite"
+                                onAction="#handleGenerateInvite"
+                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 10;" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Invite Token" style="-fx-text-fill: white;" />
+                        <Label fx:id="lblInviteToken"
+                               wrapText="true"
+                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12px;" />
+
+                        <Label fx:id="lblInviteInfo"
+                               wrapText="true"
+                               style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 12px;" />
+
+                        <ImageView fx:id="imgQrCode" fitWidth="260" fitHeight="260" preserveRatio="true" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>
