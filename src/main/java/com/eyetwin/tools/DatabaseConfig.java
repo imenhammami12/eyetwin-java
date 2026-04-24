@@ -21,7 +21,9 @@ public class DatabaseConfig {
             cnx = DriverManager.getConnection(URL, LOGIN, PWD);
             System.out.println("[DatabaseConfig] Connexion établie ✅");
         } catch (SQLException e) {
-            System.out.println("[DatabaseConfig] Erreur : " + e.getMessage());
+            System.err.println("[DatabaseConfig] ❌ Échec de la connexion à MySQL.");
+            System.err.println("Détails : " + e.getMessage());
+            System.err.println("Assurez-vous que MySQL tourne sur le port 3306 et que la base 'eyetwin_platform' existe.");
         }
     }
 
@@ -37,11 +39,12 @@ public class DatabaseConfig {
     public Connection getCnx() {
         try {
             if (cnx == null || cnx.isClosed()) {
-                System.out.println("[DatabaseConfig] Reconnexion...");
+                System.out.println("[DatabaseConfig] tentative de (re)connexion...");
                 cnx = DriverManager.getConnection(URL, LOGIN, PWD);
             }
         } catch (SQLException e) {
-            System.err.println("[DatabaseConfig] Reconnexion échouée : " + e.getMessage());
+            System.err.println("[DatabaseConfig] ❌ Impossible de récupérer la connexion : " + e.getMessage());
+            return null; // On force le retour null pour que l'appelant sache que ça a échoué
         }
         return cnx;
     }

@@ -148,7 +148,7 @@
                     <HBox alignment="CENTER" spacing="8">
                         <Label fx:id="usernameLabel" text="Admin"
                                style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 12;"/>
-                        <StackPane style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
+                        <StackPane style="-fx-background-color: linear-gradient(to bottom right,#ff3c64,#ff1744);
                                           -fx-background-radius: 50;
                                           -fx-min-width: 34; -fx-min-height: 34;
                                           -fx-max-width: 34; -fx-max-height: 34;">
@@ -224,7 +224,7 @@
                                 text="📸  Capture my face"
                                 onAction="#handleCapture"
                                 disable="true"
-                                style="-fx-background-color: linear-gradient(135deg,#ff3c64,#ff1744);
+                                style="-fx-background-color: linear-gradient(to bottom right,#ff3c64,#ff1744);
                                        -fx-text-fill: white; -fx-font-weight: bold;
                                        -fx-font-size: 14; -fx-background-radius: 10;
                                        -fx-padding: 14 28 14 28; -fx-cursor: hand;

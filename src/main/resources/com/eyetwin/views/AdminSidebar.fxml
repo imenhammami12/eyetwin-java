@@ -58,6 +58,13 @@
                        -fx-alignment: CENTER_LEFT; -fx-padding: 11 14;
                        -fx-cursor: hand; -fx-background-radius: 10;"/>
 
+        <Button fx:id="navMatches" text="⚔  Matches"
+                onAction="#goToMatches" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 13;
+                       -fx-alignment: CENTER_LEFT; -fx-padding: 11 14;
+                       -fx-cursor: hand; -fx-background-radius: 10;"/>
+
         <Button fx:id="navVideos" text="🎬  Videos"
                 onAction="#goToVideos" maxWidth="Infinity"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;

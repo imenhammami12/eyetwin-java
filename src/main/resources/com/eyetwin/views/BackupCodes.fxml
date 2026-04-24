@@ -203,7 +203,7 @@
                     <VBox spacing="10">
                         <Button fx:id="savedBtn" text="✓  I've Saved My Backup Codes"
                                 maxWidth="1.7976931348623157E308" onAction="#handleSaved"
-                                style="-fx-background-color: linear-gradient(135deg, #00e5ff, #00bcd4);
+                                style="-fx-background-color: linear-gradient(to bottom right, #00e5ff, #00bcd4);
                                        -fx-text-fill: #06050f; -fx-font-weight: bold;
                                        -fx-font-family: 'Arial Black';
                                        -fx-font-size: 14; -fx-background-radius: 10;
