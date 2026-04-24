@@ -15,6 +15,10 @@ public class AppNotification {
     public static final String CHANNEL_APPROVED = "CHANNEL_APPROVED";
     public static final String CHANNEL_REJECTED = "CHANNEL_REJECTED";
 
+    public static final String CHANNEL_JOIN_REQUESTED = "CHANNEL_JOIN_REQUESTED";
+    public static final String CHANNEL_JOIN_APPROVED = "CHANNEL_JOIN_APPROVED";
+    public static final String CHANNEL_JOIN_DENIED = "CHANNEL_JOIN_DENIED";
+
     public AppNotification() {
     }
 
@@ -26,6 +30,7 @@ public class AppNotification {
         this.id = id;
     }
 
+
     public String getType() {
         return type;
     }
@@ -33,6 +38,7 @@ public class AppNotification {
     public void setType(String type) {
         this.type = type;
     }
+
 
     public String getMessage() {
         return message;
