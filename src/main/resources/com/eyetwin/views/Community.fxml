@@ -64,15 +64,31 @@
 
                                         <Pane HBox.hgrow="ALWAYS" />
 
-                                        <Button fx:id="btnNewChannel"
-                                                text="⚡  New Channel"
-                                                onAction="#handleShowCreateForm"
-                                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
-                                                       -fx-text-fill: white;
-                                                       -fx-font-weight: bold;
-                                                       -fx-background-radius: 10;
-                                                       -fx-padding: 12 22 12 22;
-                                                       -fx-cursor: hand;" />
+                                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                                            <children>
+                                                <Button fx:id="btnJoinWithQr"
+                                                        text="🔐 Join With QR"
+                                                        onAction="#handleOpenJoinWithQrDialog"
+                                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                       -fx-border-color: rgba(255,255,255,0.12);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 10;
+                       -fx-border-radius: 10;
+                       -fx-padding: 12 18 12 18;
+                       -fx-cursor: hand;" />
+
+                                                <Button fx:id="btnNewChannel"
+                                                        text="⚡  New Channel"
+                                                        onAction="#handleShowCreateForm"
+                                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 10;
+                       -fx-padding: 12 22 12 22;
+                       -fx-cursor: hand;" />
+                                            </children>
+                                        </HBox>
                                     </children>
                                 </HBox>
                             </children>
@@ -267,7 +283,7 @@
                                             <VBox spacing="4">
                                                 <Label text="Discover Channels"
                                                        style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
-                                                <Label text="Browse approved community channels and open the ones available to you."
+                                                <Label text="Browse channels, request access to private ones, or join directly with a QR invite."
                                                        style="-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 12;"/>
                                             </VBox>
                                         </children>

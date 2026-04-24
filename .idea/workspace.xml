@@ -6,11 +6,25 @@
   <component name="ChangeListManager">
     <list default="true" id="3c230b31-3345-4fb7-a143-6cd0043eb989" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Community.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Community.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -29,11 +43,13 @@
     "Application.CommunityWebSocketServerLauncher.executor": "Run",
     "Application.MainApp.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "gestion-community"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.CommunityWebSocketServerLauncher">
+  <component name="RunManager" selected="Application.MainApp">
     <list>
       <item itemvalue="Application.MainApp" />
       <item itemvalue="Application.CommunityWebSocketServerLauncher" />
