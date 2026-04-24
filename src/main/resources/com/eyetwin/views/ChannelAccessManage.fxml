@@ -73,9 +73,35 @@
                 <VBox spacing="8" HBox.hgrow="ALWAYS">
                     <children>
                         <Label text="Invite Token" style="-fx-text-fill: white;" />
-                        <Label fx:id="lblInviteToken"
-                               wrapText="true"
-                               style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 12px;" />
+
+                        <TextArea fx:id="lblInviteToken"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefRowCount="2"
+                                  style="-fx-control-inner-background: #14192b;
+                         -fx-background-color: #14192b;
+                         -fx-text-fill: white;
+                         -fx-background-radius: 10;
+                         -fx-border-radius: 10;
+                         -fx-border-color: rgba(255,255,255,0.08);" />
+
+                        <HBox spacing="8">
+                            <children>
+                                <Button text="Copy Token"
+                                        onAction="#handleCopyToken"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+
+                                <Button text="Download QR"
+                                        onAction="#handleDownloadQr"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+                            </children>
+                        </HBox>
 
                         <Label fx:id="lblInviteInfo"
                                wrapText="true"

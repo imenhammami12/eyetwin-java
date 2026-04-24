@@ -20,6 +20,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
+
+import javax.imageio.ImageIO;
+import java.io.File;
+
 public class ChannelAccessManageController {
 
     @FXML private Label lblChannelName;
@@ -29,7 +36,7 @@ public class ChannelAccessManageController {
     @FXML private TextField tfMaxUses;
     @FXML private DatePicker dpExpiresAt;
 
-    @FXML private Label lblInviteToken;
+    @FXML private TextArea lblInviteToken;
     @FXML private Label lblInviteInfo;
     @FXML private ImageView imgQrCode;
 
@@ -38,6 +45,8 @@ public class ChannelAccessManageController {
 
     private Channel channel;
     private Runnable onChanged;
+
+    private Image lastGeneratedQrImage;
 
     @FXML
     public void initialize() {
@@ -187,10 +196,52 @@ public class ChannelAccessManageController {
                     "Mode: " + invite.getMode()
                             + (invite.getMaxUses() != null ? " | Max uses: " + invite.getMaxUses() : " | Unlimited uses")
             );
-            imgQrCode.setImage(qrCodeService.generateQrImage(invite.getToken(), 260, 260));
+
+            lastGeneratedQrImage = qrCodeService.generateQrImage(invite.getToken(), 260, 260);
+            imgQrCode.setImage(lastGeneratedQrImage);
 
         } catch (Exception e) {
             showError("Failed to generate invite: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleCopyToken() {
+        String token = lblInviteToken.getText();
+        if (token == null || token.isBlank()) {
+            showError("Generate an invite first.");
+            return;
+        }
+
+        javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+        content.putString(token);
+        javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
+        lblInviteInfo.setText("Invite token copied to clipboard.");
+    }
+
+    @FXML
+    private void handleDownloadQr() {
+        try {
+            if (lastGeneratedQrImage == null) {
+                showError("Generate an invite first.");
+                return;
+            }
+
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Save QR Code");
+            chooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("PNG Image", "*.png")
+            );
+            chooser.setInitialFileName("channel-invite-" + channel.getName().replaceAll("[^a-zA-Z0-9-_]", "_") + ".png");
+
+            File file = chooser.showSaveDialog(lblChannelName.getScene().getWindow());
+            if (file == null) return;
+
+            ImageIO.write(SwingFXUtils.fromFXImage(lastGeneratedQrImage, null), "png", file);
+            lblInviteInfo.setText("QR code saved: " + file.getAbsolutePath());
+
+        } catch (Exception e) {
+            showError("Failed to save QR code: " + e.getMessage());
         }
     }
 

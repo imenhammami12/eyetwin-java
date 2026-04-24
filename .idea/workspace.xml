@@ -7,12 +7,10 @@
     <list default="true" id="3c230b31-3345-4fb7-a143-6cd0043eb989" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ChannelAccessManageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ChannelAccessManageController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/AppNotification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/INotificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/NotificationServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Community.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/Community.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ChannelAccessManage.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ChannelAccessManage.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +44,8 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "gestion-community"
+    "git-widget-placeholder": "gestion-community",
+    "settings.editor.selected.configurable": "editor.preferences.completion"
   }
 }]]></component>
   <component name="RunManager" selected="Application.MainApp">
