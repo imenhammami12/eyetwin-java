@@ -23,4 +23,10 @@ public interface IMessageService {
     void adminDeleteMessage(int messageId, User admin) throws SQLException;
     void adminRestoreMessage(int messageId, User admin) throws SQLException;
 
+
+
+    /// SUMMARY
+    List<Message> findMessagesAfter(int channelId, int messageId) throws SQLException;
+    Message findLatestMessageInChannel(int channelId) throws SQLException;
+    int countMessagesAfter(int channelId, int messageId) throws SQLException;
 }
