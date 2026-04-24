@@ -8,8 +8,11 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ChannelAccessManageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/ChannelAccessManageController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/NavbarController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/ChannelAccessService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/ChannelAccessService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ChannelAccessManage.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/ChannelAccessManage.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

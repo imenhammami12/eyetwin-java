@@ -22,6 +22,14 @@ import javafx.scene.Node;
 
 import com.eyetwin.services.Community.ChannelAccessService;
 
+import javafx.application.Platform;
+import java.net.URI;
+
+import com.eyetwin.websocket.ChatWebSocketConfig;
+import com.eyetwin.websocket.client.ChatSocketListener;
+import com.eyetwin.websocket.client.CommunityWebSocketClient;
+import com.eyetwin.websocket.model.SocketEnvelope;
+
 public class CommunityController {
 
     @FXML private BorderPane rootContainer;
@@ -42,8 +50,23 @@ public class CommunityController {
     @FXML private Button btnJoinWithQr;
 
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
-
     private final ChannelAccessService channelAccessService = new ChannelAccessService();
+    private CommunityWebSocketClient realtimeClient;
+
+
+//    @FXML
+//    public void initialize() {
+//        btnNewChannel.setVisible(SessionManager.canManageCommunityChannels());
+//        btnNewChannel.setManaged(SessionManager.canManageCommunityChannels());
+//
+//        boolean canUseQrJoin = SessionManager.getCurrentUser() != null;
+//        if (btnJoinWithQr != null) {
+//            btnJoinWithQr.setVisible(canUseQrJoin);
+//            btnJoinWithQr.setManaged(canUseQrJoin);
+//        }
+//
+//        loadChannels();
+//    }
 
     @FXML
     public void initialize() {
@@ -57,6 +80,16 @@ public class CommunityController {
         }
 
         loadChannels();
+
+        rootContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null && newScene == null) {
+                stopRealtime();
+            } else if (newScene != null) {
+                Platform.runLater(this::startRealtime);
+            }
+        });
+
+        Platform.runLater(this::startRealtime);
     }
 
     private void loadChannels() {
@@ -1063,5 +1096,63 @@ public class CommunityController {
         }
 
         alert.showAndWait();
+    }
+
+
+    private void startRealtime() {
+        if (realtimeClient != null && realtimeClient.isOpen()) {
+            return;
+        }
+
+        realtimeClient = new CommunityWebSocketClient(
+                URI.create(ChatWebSocketConfig.SERVER_URL),
+                new ChatSocketListener() {
+                    @Override
+                    public void onConnected() {
+                    }
+
+                    @Override
+                    public void onMessageReceived(SocketEnvelope envelope) {
+                        if (envelope == null || envelope.getType() == null) return;
+
+                        if (SocketEnvelope.TYPE_COMMUNITY_CHANGED.equals(envelope.getType())) {
+                            Platform.runLater(() -> {
+                                try {
+                                    loadChannels();
+                                } catch (Exception ignored) {
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String reason) {
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                    }
+                }
+        );
+
+        if (realtimeClient.ensureConnected()) {
+            realtimeClient.subscribeRoom("community:all");
+        }
+    }
+
+    private void stopRealtime() {
+        if (realtimeClient == null) return;
+
+        try {
+            realtimeClient.unsubscribeRoom("community:all");
+        } catch (Exception ignored) {
+        }
+
+        try {
+            realtimeClient.close();
+        } catch (Exception ignored) {
+        }
+
+        realtimeClient = null;
     }
 }
