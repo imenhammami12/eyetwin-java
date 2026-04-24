@@ -7,60 +7,81 @@
       fx:controller="com.eyetwin.controller.CycleGANGeneratorController"
       spacing="16" style="-fx-background-color: #0d0c1a; -fx-padding: 28;">
 
+    <!-- Header -->
     <Label text="🤖  AI Cartoon Generator"
            style="-fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: 900;"/>
     <Label text="Upload your photo — CycleGAN turns it into a cartoon in ~10 seconds"
            style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 12;" wrapText="true"/>
 
+
+
+    <!-- File picker -->
     <Button text="📁  Choose Photo" onAction="#handlePickFile"
             maxWidth="1.7976931348623157E308"
             style="-fx-background-color: rgba(236,72,153,0.15);
                    -fx-text-fill: #ec4899; -fx-font-weight: 700;
-                   -fx-border-color: rgba(236,72,153,0.4); -fx-border-radius: 8;
-                   -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand; -fx-border-width: 1;"/>
+                   -fx-border-color: #ec4899; -fx-border-radius: 8;
+                   -fx-background-radius: 8; -fx-padding: 12;
+                   -fx-cursor: hand; -fx-border-width: 1;"/>
 
     <Label fx:id="fileLabel" text="No file selected"
            style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
 
-    <!-- Preview original -->
+    <!-- Before / After preview -->
     <HBox spacing="16" alignment="CENTER">
         <VBox alignment="CENTER" spacing="6">
-            <Label text="Original" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
-            <ImageView fx:id="originalImageView" fitWidth="160" fitHeight="160" preserveRatio="true"/>
+            <Label text="Original"
+                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
+            <ImageView fx:id="originalImageView"
+                       fitWidth="160" fitHeight="160" preserveRatio="true"/>
         </VBox>
-        <Label text="→" style="-fx-text-fill: #ec4899; -fx-font-size: 28; -fx-font-weight: 900;"/>
-        <VBox fx:id="resultBox" alignment="CENTER" spacing="6" visible="false" managed="false">
-            <Label text="Cartoon" style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
-            <ImageView fx:id="resultImageView" fitWidth="160" fitHeight="160" preserveRatio="true"/>
+        <Label text="→"
+               style="-fx-text-fill: #ec4899; -fx-font-size: 28; -fx-font-weight: 900;"/>
+        <VBox fx:id="resultBox" alignment="CENTER" spacing="6"
+              visible="false" managed="false">
+            <Label text="Cartoon"
+                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11;"/>
+            <ImageView fx:id="resultImageView"
+                       fitWidth="160" fitHeight="160" preserveRatio="true"/>
         </VBox>
     </HBox>
 
+    <!-- Generate button — solid colour (JavaFX doesn't support inline linear-gradient on Button) -->
     <Button fx:id="generateBtn" text="🤖  Generate Cartoon"
             maxWidth="1.7976931348623157E308"
             onAction="#handleGenerate"
-            style="-fx-background-color: linear-gradient(90deg,#ec4899,#db2777);
+            style="-fx-background-color: #d43f8d;
                    -fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14;
-                   -fx-background-radius: 10; -fx-padding: 14; -fx-cursor: hand; -fx-border-width: 0;"/>
+                   -fx-background-radius: 10; -fx-padding: 14;
+                   -fx-cursor: hand; -fx-border-width: 0;"/>
 
     <!-- Loading -->
     <VBox fx:id="loadingBox" alignment="CENTER" spacing="10"
           style="-fx-padding: 10;" visible="false" managed="false">
-        <ProgressIndicator style="-fx-progress-color: #ec4899;" prefWidth="40" prefHeight="40"/>
+        <ProgressIndicator style="-fx-progress-color: #ec4899;"
+                           prefWidth="40" prefHeight="40"/>
         <Label text="CycleGAN is processing your photo..."
                style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 12;"/>
     </VBox>
 
+    <!-- Apply -->
     <Button fx:id="applyBtn" text="✔  Apply as Profile Picture"
             maxWidth="1.7976931348623157E308"
             onAction="#handleApply"
             style="-fx-background-color: #00e676; -fx-text-fill: #080810;
                    -fx-font-weight: 900; -fx-font-size: 13;
-                   -fx-background-radius: 10; -fx-padding: 12; -fx-cursor: hand; -fx-border-width: 0;"/>
+                   -fx-background-radius: 10; -fx-padding: 12;
+                   -fx-cursor: hand; -fx-border-width: 0;"/>
 
+    <!-- Status -->
     <Label fx:id="statusLabel" text="" wrapText="true"
            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;"/>
 
-    <Button text="Close" onAction="#handleClose" maxWidth="1.7976931348623157E308"
-            style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: rgba(255,255,255,0.5);
-                   -fx-border-width: 0; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand;"/>
+    <!-- Close -->
+    <Button text="Close" onAction="#handleClose"
+            maxWidth="1.7976931348623157E308"
+            style="-fx-background-color: rgba(255,255,255,0.06);
+                   -fx-text-fill: rgba(255,255,255,0.5);
+                   -fx-border-width: 0; -fx-background-radius: 8;
+                   -fx-padding: 10; -fx-cursor: hand;"/>
 </VBox>

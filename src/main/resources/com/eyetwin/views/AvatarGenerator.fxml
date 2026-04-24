@@ -4,16 +4,33 @@
 <?import javafx.scene.image.ImageView?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.eyetwin.controller.AvatarGeneratorController"
-      spacing="16" style="-fx-background-color: #0d0c1a; -fx-padding: 28;">
+      fx:controller="com.eyetwin.controller.AvataarGeneratorController"
+      spacing="14" style="-fx-background-color: #0d0c1a; -fx-padding: 28;">
 
+    <!-- Header -->
     <Label text="✦  AI Avatar Generator"
            style="-fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: 900;"/>
-    <Label text="Describe your appearance — FLUX.1 generates your avatar in ~15 seconds"
+    <Label text="Describe yourself OR upload a photo — FLUX.1 generates your avatar"
            style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 12;" wrapText="true"/>
 
-    <VBox spacing="6">
-        <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 700;"/>
+    <!-- Tab Switcher -->
+    <HBox spacing="8">
+        <Button fx:id="tabDescribeBtn" text="✏  Describe"
+                onAction="#switchToDescribe"
+                style="-fx-background-color: #6a5eea; -fx-text-fill: white; -fx-font-weight: 900;
+                       -fx-font-size: 12; -fx-background-radius: 8; -fx-padding: 8 20;
+                       -fx-cursor: hand; -fx-border-width: 0;"/>
+        <Button fx:id="tabPhotoBtn2" text="📷  Upload Photo"
+                onAction="#switchToPhoto"
+                style="-fx-background-color: #13132a; -fx-text-fill: rgba(255,255,255,0.4);
+                       -fx-font-weight: 700; -fx-font-size: 12; -fx-background-radius: 8;
+                       -fx-padding: 8 20; -fx-cursor: hand; -fx-border-width: 0;"/>
+    </HBox>
+
+    <!-- ══ TAB 1: Describe ══ -->
+    <VBox fx:id="tabDescribeBox" spacing="6">
+        <Label text="Description"
+               style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 700;"/>
         <TextField fx:id="descriptionField"
                    promptText="e.g. young woman with long black hair, glasses, smiling"
                    style="-fx-background-color: #13132a; -fx-text-fill: white;
@@ -21,25 +38,73 @@
                           -fx-background-radius: 8; -fx-padding: 10 14; -fx-font-size: 13;"/>
     </VBox>
 
-    <VBox spacing="6">
-        <Label text="Style" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 700;"/>
-        <ComboBox fx:id="styleCombo" maxWidth="1.7976931348623157E308"
-                  style="-fx-background-color: #13132a; -fx-text-fill: white;
-                         -fx-border-color: rgba(102,126,234,0.4); -fx-border-radius: 8;
-                         -fx-background-radius: 8;"/>
+    <!-- ══ TAB 2: Upload Photo ══ -->
+    <VBox fx:id="tabPhotoBox" spacing="10" visible="false" managed="false">
+
+        <!-- Upload button -->
+        <Button fx:id="pickPhotoBtn" text="📁  Choose Photo"
+                onAction="#handlePickPhoto"
+                maxWidth="1.7976931348623157E308"
+                style="-fx-background-color: rgba(102,126,234,0.15);
+                       -fx-text-fill: #667eea; -fx-font-weight: 700;
+                       -fx-border-color: rgba(102,126,234,0.4); -fx-border-radius: 8;
+                       -fx-background-radius: 8; -fx-padding: 12;
+                       -fx-cursor: hand; -fx-border-width: 1;"/>
+
+        <Label fx:id="photoFileLabel" text="No file selected"
+               style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 11;"/>
+
+        <!-- Photo preview -->
+        <HBox alignment="CENTER_LEFT" spacing="14">
+            <ImageView fx:id="photoPreviewView"
+                       fitWidth="90" fitHeight="90"
+                       preserveRatio="true"
+                       visible="false" managed="false"/>
+
+            <!-- Analyzed description box -->
+            <VBox fx:id="analyzedBox" spacing="5"
+                  visible="false" managed="false"
+                  HBox.hgrow="ALWAYS"
+                  style="-fx-background-color: rgba(102,126,234,0.08);
+                         -fx-border-color: rgba(102,126,234,0.3); -fx-border-width: 1;
+                         -fx-border-radius: 8; -fx-background-radius: 8;
+                         -fx-padding: 10 12;">
+                <Label text="🔍  Detected description:"
+                       style="-fx-text-fill: #667eea; -fx-font-size: 10; -fx-font-weight: 700;"/>
+                <Label fx:id="analyzedDescLabel" text="—"
+                       wrapText="true"
+                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12;"/>
+                <Label text="✏  You can edit this in the Describe tab before generating."
+                       wrapText="true"
+                       style="-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 10;"/>
+            </VBox>
+        </HBox>
     </VBox>
 
+    <!-- Style selector -->
+    <VBox spacing="6">
+        <Label text="Style"
+               style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 700;"/>
+        <ComboBox fx:id="styleCombo" maxWidth="1.7976931348623157E308"
+                  style="-fx-background-color: #13132a; -fx-text-fill: white;
+                         -fx-border-color: rgba(102,126,234,0.4);
+                         -fx-border-radius: 8; -fx-background-radius: 8;"/>
+    </VBox>
+
+    <!-- Generate button -->
     <Button fx:id="generateBtn" text="✦  Generate Avatar"
             maxWidth="1.7976931348623157E308"
             onAction="#handleGenerate"
-            style="-fx-background-color: linear-gradient(90deg,#667eea,#764ba2);
+            style="-fx-background-color: #6a5eea;
                    -fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14;
-                   -fx-background-radius: 10; -fx-padding: 14; -fx-cursor: hand; -fx-border-width: 0;"/>
+                   -fx-background-radius: 10; -fx-padding: 14;
+                   -fx-cursor: hand; -fx-border-width: 0;"/>
 
     <!-- Loading -->
     <VBox fx:id="loadingBox" alignment="CENTER" spacing="10"
-          style="-fx-padding: 20;" visible="false" managed="false">
-        <ProgressIndicator style="-fx-progress-color: #667eea;" prefWidth="50" prefHeight="50"/>
+          style="-fx-padding: 16;" visible="false" managed="false">
+        <ProgressIndicator style="-fx-progress-color: #667eea;"
+                           prefWidth="48" prefHeight="48"/>
         <Label text="FLUX.1 is generating your avatar..."
                style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 13;"/>
     </VBox>
@@ -47,19 +112,26 @@
     <!-- Result -->
     <VBox fx:id="resultBox" alignment="CENTER" spacing="12"
           visible="false" managed="false">
-        <ImageView fx:id="resultImageView" fitWidth="200" fitHeight="200" preserveRatio="true"/>
+        <ImageView fx:id="resultImageView"
+                   fitWidth="200" fitHeight="200" preserveRatio="true"/>
         <Button fx:id="applyBtn" text="✔  Apply as Profile Picture"
                 maxWidth="1.7976931348623157E308"
                 onAction="#handleApply"
                 style="-fx-background-color: #00e676; -fx-text-fill: #080810;
                        -fx-font-weight: 900; -fx-font-size: 13;
-                       -fx-background-radius: 10; -fx-padding: 12; -fx-cursor: hand; -fx-border-width: 0;"/>
+                       -fx-background-radius: 10; -fx-padding: 12;
+                       -fx-cursor: hand; -fx-border-width: 0;"/>
     </VBox>
 
+    <!-- Status -->
     <Label fx:id="statusLabel" text="" wrapText="true"
            style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 12;"/>
 
-    <Button text="Close" onAction="#handleClose" maxWidth="1.7976931348623157E308"
-            style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: rgba(255,255,255,0.5);
-                   -fx-border-width: 0; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand;"/>
+    <!-- Close -->
+    <Button text="Close" onAction="#handleClose"
+            maxWidth="1.7976931348623157E308"
+            style="-fx-background-color: rgba(255,255,255,0.06);
+                   -fx-text-fill: rgba(255,255,255,0.5);
+                   -fx-border-width: 0; -fx-background-radius: 8;
+                   -fx-padding: 10; -fx-cursor: hand;"/>
 </VBox>

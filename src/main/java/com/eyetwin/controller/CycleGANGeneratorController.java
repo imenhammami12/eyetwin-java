@@ -6,7 +6,8 @@ import com.eyetwin.tools.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -19,68 +20,81 @@ import java.time.Duration;
 
 public class CycleGANGeneratorController {
 
-    @FXML private Button generateBtn;
-    @FXML private Button applyBtn;
-    @FXML private ImageView originalImageView;
-    @FXML private ImageView resultImageView;
-    @FXML private Label statusLabel;
-    @FXML private Label fileLabel;
-    @FXML private VBox loadingBox;
-    @FXML private VBox resultBox;
+    @FXML private TextField  apiUrlField;
+    @FXML private Button     generateBtn;
+    @FXML private Button     applyBtn;
+    @FXML private ImageView  originalImageView;
+    @FXML private ImageView  resultImageView;
+    @FXML private Label      fileLabel;
+    @FXML private Label      statusLabel;
+    @FXML private VBox       loadingBox;
+    @FXML private VBox       resultBox;
 
-    private static final String CYCLEGAN_URL =
-            "https://dermographic-shelba-nonresisting.ngrok-free.dev/transform";
+    // Update this when your Colab tunnel restarts
+    private static final String DEFAULT_API_URL =
+            "https://witty-humans-smoke.loca.lt/transform";
 
-    private File selectedFile;
-    private byte[] generatedImageBytes;
+    private File   selectedFile;
+    private byte[] resultBytes;
 
     @FXML
     public void initialize() {
-        if (loadingBox != null) { loadingBox.setVisible(false); loadingBox.setManaged(false); }
-        if (resultBox  != null) { resultBox.setVisible(false);  resultBox.setManaged(false);  }
-        if (applyBtn   != null) applyBtn.setDisable(true);
+        if (apiUrlField != null) apiUrlField.setText(DEFAULT_API_URL);
+        if (loadingBox  != null) { loadingBox.setVisible(false); loadingBox.setManaged(false); }
+        if (resultBox   != null) { resultBox.setVisible(false);  resultBox.setManaged(false);  }
+        if (applyBtn    != null) applyBtn.setDisable(true);
         if (generateBtn != null) generateBtn.setDisable(true);
     }
 
     @FXML
     private void handlePickFile() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Select your photo");
-        fc.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.jpg", "*.jpeg", "*.png", "*.webp"));
-        File f = fc.showOpenDialog(generateBtn.getScene().getWindow());
-        if (f != null) {
-            selectedFile = f;
-            fileLabel.setText("📎 " + f.getName());
-            Image preview = new Image(f.toURI().toString(), 180, 180, true, true);
-            originalImageView.setImage(preview);
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Photo");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
+        File file = chooser.showOpenDialog((Stage) generateBtn.getScene().getWindow());
+        if (file != null) {
+            selectedFile = file;
+            fileLabel.setText("📎 " + file.getName());
             generateBtn.setDisable(false);
-            statusLabel.setText("Photo selected — click Generate!");
+            try {
+                originalImageView.setImage(new Image(file.toURI().toString(), 160, 160, true, true));
+            } catch (Exception e) {
+                System.err.println("[CycleGAN] Preview error: " + e.getMessage());
+            }
         }
     }
 
     @FXML
     private void handleGenerate() {
         if (selectedFile == null) return;
+
+        String apiUrl = (apiUrlField != null && !apiUrlField.getText().isBlank())
+                ? apiUrlField.getText().trim()
+                : DEFAULT_API_URL;
+        // Ensure endpoint is /transform
+        if (!apiUrl.endsWith("/transform"))
+            apiUrl = apiUrl.replaceAll("/?$", "/transform");
+
+        final String finalUrl = apiUrl;
         setLoading(true);
         statusLabel.setText("Sending to CycleGAN API...");
 
         new Thread(() -> {
             try {
-                byte[] imageBytes = callCycleGAN(selectedFile);
+                byte[] bytes = callCycleGAN(selectedFile, finalUrl);
                 Platform.runLater(() -> {
-                    generatedImageBytes = imageBytes;
-                    Image img = new Image(new ByteArrayInputStream(imageBytes));
-                    resultImageView.setImage(img);
+                    resultBytes = bytes;
+                    resultImageView.setImage(new Image(new ByteArrayInputStream(bytes)));
                     setLoading(false);
                     showResult(true);
                     applyBtn.setDisable(false);
-                    statusLabel.setText("✔ Cartoon avatar generated!");
+                    statusLabel.setText("✔ Cartoon generated!");
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     setLoading(false);
-                    statusLabel.setText("❌ Error: " + e.getMessage());
+                    statusLabel.setText("❌ " + e.getMessage());
                     System.err.println("[CycleGAN] Error: " + e.getMessage());
                 });
             }
@@ -89,31 +103,26 @@ public class CycleGANGeneratorController {
 
     @FXML
     private void handleApply() {
-        if (generatedImageBytes == null) return;
+        if (resultBytes == null) return;
         try {
             User user = SessionManager.getCurrentUser();
             if (user == null) return;
 
-            String filename = "cartoon_" + user.getId() + "_"
-                    + System.currentTimeMillis() + ".png";
+            String filename = "cartoon_" + user.getId() + "_" + System.currentTimeMillis() + ".png";
             Path uploadsDir = Path.of(System.getProperty("user.dir"), "uploads", "profiles");
             Files.createDirectories(uploadsDir);
-            Files.write(uploadsDir.resolve(filename), generatedImageBytes);
+            Files.write(uploadsDir.resolve(filename), resultBytes);
 
-            UserServiceImpl userService = new UserServiceImpl();
-            userService.saveProfilePicture(user.getId(), generatedImageBytes, filename);
+            new UserServiceImpl().saveProfilePicture(user.getId(), resultBytes, filename);
             user.setProfilePicture(filename);
             SessionManager.refresh();
 
-            statusLabel.setText("✔ Cartoon avatar applied!");
+            statusLabel.setText("✔ Avatar applied!");
             statusLabel.setStyle("-fx-text-fill: #00e676;");
 
             new Thread(() -> {
                 try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-                Platform.runLater(() -> {
-                    Stage stage = (Stage) applyBtn.getScene().getWindow();
-                    stage.close();
-                });
+                Platform.runLater(() -> ((Stage) applyBtn.getScene().getWindow()).close());
             }).start();
 
         } catch (Exception e) {
@@ -124,51 +133,69 @@ public class CycleGANGeneratorController {
 
     @FXML
     private void handleClose() {
-        Stage stage = (Stage) generateBtn.getScene().getWindow();
-        stage.close();
+        ((Stage) generateBtn.getScene().getWindow()).close();
     }
 
-    private byte[] callCycleGAN(File imageFile) throws Exception {
-        String boundary = "----FormBoundary" + System.currentTimeMillis();
+    // ─────────────────────────────────────────────────────────────────
+
+    private byte[] callCycleGAN(File imageFile, String apiUrl) throws Exception {
         byte[] fileBytes = Files.readAllBytes(imageFile.toPath());
+        String mime      = getMimeType(imageFile.getName());
+        String boundary  = "----JavaBoundary" + System.currentTimeMillis();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos, "UTF-8"), true);
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        String partHeader = "--" + boundary + "\r\n"
+                + "Content-Disposition: form-data; name=\"image\"; filename=\""
+                + imageFile.getName() + "\"\r\n"
+                + "Content-Type: " + mime + "\r\n\r\n";
+        body.write(partHeader.getBytes());
+        body.write(fileBytes);
+        body.write(("\r\n--" + boundary + "--\r\n").getBytes());
 
-        pw.append("--").append(boundary).append("\r\n");
-        pw.append("Content-Disposition: form-data; name=\"image\"; filename=\"")
-                .append(imageFile.getName()).append("\"").append("\r\n");
-        pw.append("Content-Type: image/jpeg").append("\r\n\r\n");
-        pw.flush();
-        baos.write(fileBytes);
-        pw.append("\r\n--").append(boundary).append("--\r\n");
-        pw.flush();
-
+        // HTTP/1.1 — avoids GOAWAY with localtunnel/ngrok HTTP/2
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(CYCLEGAN_URL))
+                .uri(URI.create(apiUrl))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                // ✅ Bypasses localtunnel's browser confirmation page
+                .header("bypass-tunnel-reminder", "true")
                 .header("ngrok-skip-browser-warning", "true")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(baos.toByteArray()))
-                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body.toByteArray()))
+                .timeout(Duration.ofSeconds(60))
                 .build();
 
-        HttpResponse<byte[]> response = client.send(request,
-                HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-        if (response.statusCode() != 200)
-            throw new Exception("API returned " + response.statusCode());
+        System.err.println("[CycleGAN] HTTP=" + response.statusCode()
+                + " | size=" + response.body().length + " bytes");
 
+        if (response.statusCode() == 404) {
+            throw new Exception("API offline or URL outdated.\n"
+                    + "Start Colab again and paste the new URL in the field above.\n"
+                    + "Used: " + apiUrl);
+        }
+        if (response.statusCode() != 200) {
+            throw new Exception("API returned HTTP " + response.statusCode()
+                    + ": " + new String(response.body(), 0, Math.min(200, response.body().length)));
+        }
         return response.body();
     }
 
-    private void setLoading(boolean loading) {
-        if (loadingBox != null) { loadingBox.setVisible(loading); loadingBox.setManaged(loading); }
-        generateBtn.setDisable(loading);
-        generateBtn.setText(loading ? "Generating..." : "🤖  Generate Cartoon");
+    private String getMimeType(String name) {
+        String l = name.toLowerCase();
+        if (l.endsWith(".png"))  return "image/png";
+        if (l.endsWith(".webp")) return "image/webp";
+        return "image/jpeg";
+    }
+
+    private void setLoading(boolean on) {
+        if (loadingBox != null) { loadingBox.setVisible(on); loadingBox.setManaged(on); }
+        generateBtn.setDisable(on);
+        generateBtn.setText(on ? "Generating..." : "🤖  Generate Cartoon");
     }
 
     private void showResult(boolean show) {
