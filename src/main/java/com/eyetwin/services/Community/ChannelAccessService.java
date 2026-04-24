@@ -117,22 +117,59 @@ public class ChannelAccessService {
         }
     }
 
+//    public List<ChannelJoinRequest> findPendingRequestsForOwner(int channelId, User owner) throws SQLException {
+//        Channel channel = channelService.findById(channelId);
+//        if (channel == null) throw new IllegalArgumentException("Channel not found.");
+//        if (!isOwner(owner, channel)) throw new SecurityException("Only the owner can manage access.");
+//
+//        String sql = """
+//            SELECT r.*,
+//                   u.email AS requester_email,
+//                   u.username AS requester_username,
+//                   c.name AS channel_name
+//            FROM channel_join_request r
+//            INNER JOIN channel c ON c.id = r.channel_id
+//            LEFT JOIN user u ON u.id = r.requester_id
+//            WHERE r.channel_id = ? AND r.status = ?
+//            ORDER BY r.requested_at DESC, r.id DESC
+//            """;
+//
+//        List<ChannelJoinRequest> requests = new ArrayList<>();
+//
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setInt(1, channelId);
+//        ps.setString(2, ChannelJoinRequest.STATUS_PENDING);
+//
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            requests.add(mapJoinRequest(rs));
+//        }
+//
+//        return requests;
+//    }
+
     public List<ChannelJoinRequest> findPendingRequestsForOwner(int channelId, User owner) throws SQLException {
         Channel channel = channelService.findById(channelId);
         if (channel == null) throw new IllegalArgumentException("Channel not found.");
         if (!isOwner(owner, channel)) throw new SecurityException("Only the owner can manage access.");
 
         String sql = """
-            SELECT r.*,
-                   u.email AS requester_email,
-                   u.username AS requester_username,
-                   c.name AS channel_name
-            FROM channel_join_request r
-            INNER JOIN channel c ON c.id = r.channel_id
-            LEFT JOIN user u ON u.id = r.requester_id
-            WHERE r.channel_id = ? AND r.status = ?
-            ORDER BY r.requested_at DESC, r.id DESC
-            """;
+        SELECT r.*,
+               u.email AS requester_email,
+               u.username AS requester_username,
+               c.name AS channel_name
+        FROM channel_join_request r
+        INNER JOIN channel c ON c.id = r.channel_id
+        LEFT JOIN user u ON u.id = r.requester_id
+        LEFT JOIN channel_member m
+               ON m.channel_id = r.channel_id
+              AND m.user_id = r.requester_id
+        WHERE r.channel_id = ?
+          AND r.status = ?
+          AND m.user_id IS NULL
+        ORDER BY r.requested_at DESC, r.id DESC
+        """;
 
         List<ChannelJoinRequest> requests = new ArrayList<>();
 
@@ -148,6 +185,61 @@ public class ChannelAccessService {
 
         return requests;
     }
+
+//    public void approveJoinRequest(int requestId, User owner) throws SQLException {
+//        ChannelJoinRequest request = findRequestById(requestId);
+//        if (request == null) throw new IllegalArgumentException("Join request not found.");
+//
+//        Channel channel = channelService.findById(request.getChannelId());
+//        if (channel == null) throw new IllegalArgumentException("Channel not found.");
+//        if (!isOwner(owner, channel)) throw new SecurityException("Only the owner can approve this request.");
+//        if (!ChannelJoinRequest.STATUS_PENDING.equalsIgnoreCase(request.getStatus())) {
+//            throw new IllegalStateException("Request is no longer pending.");
+//        }
+//
+//        Connection c = getConnection();
+//        boolean oldAutoCommit = c.getAutoCommit();
+//        c.setAutoCommit(false);
+//
+//        try {
+//            Timestamp now = new Timestamp(System.currentTimeMillis());
+//
+//            PreparedStatement ps1 = c.prepareStatement("""
+//                UPDATE channel_join_request
+//                SET status = ?, decided_at = ?, decided_by_email = ?, reason = ?
+//                WHERE id = ?
+//                """);
+//            ps1.setString(1, ChannelJoinRequest.STATUS_APPROVED);
+//            ps1.setTimestamp(2, now);
+//            ps1.setString(3, owner.getEmail());
+//            ps1.setString(4, null);
+//            ps1.setInt(5, requestId);
+//            ps1.executeUpdate();
+//
+//            if (!isMember(channel.getId(), request.getRequesterId())) {
+//                PreparedStatement ps2 = c.prepareStatement("""
+//                    INSERT INTO channel_member (joined_at, channel_id, user_id)
+//                    VALUES (?, ?, ?)
+//                    """);
+//                ps2.setTimestamp(1, now);
+//                ps2.setInt(2, channel.getId());
+//                ps2.setInt(3, request.getRequesterId());
+//                ps2.executeUpdate();
+//            }
+//
+//            c.commit();
+//
+//            if (request.getRequesterId() != null) {
+//                notificationService.createChannelJoinApprovedNotification(channel, request.getRequesterId());
+//            }
+//
+//        } catch (Exception e) {
+//            c.rollback();
+//            throw e;
+//        } finally {
+//            c.setAutoCommit(oldAutoCommit);
+//        }
+//    }
 
     public void approveJoinRequest(int requestId, User owner) throws SQLException {
         ChannelJoinRequest request = findRequestById(requestId);
@@ -165,13 +257,19 @@ public class ChannelAccessService {
         c.setAutoCommit(false);
 
         try {
+            if (isAlreadyMember(c, channel.getId(), request.getRequesterId())) {
+                clearPendingRequests(c, channel.getId(), request.getRequesterId());
+                c.commit();
+                return;
+            }
+
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
             PreparedStatement ps1 = c.prepareStatement("""
-                UPDATE channel_join_request
-                SET status = ?, decided_at = ?, decided_by_email = ?, reason = ?
-                WHERE id = ?
-                """);
+            UPDATE channel_join_request
+            SET status = ?, decided_at = ?, decided_by_email = ?, reason = ?
+            WHERE id = ?
+            """);
             ps1.setString(1, ChannelJoinRequest.STATUS_APPROVED);
             ps1.setTimestamp(2, now);
             ps1.setString(3, owner.getEmail());
@@ -179,16 +277,16 @@ public class ChannelAccessService {
             ps1.setInt(5, requestId);
             ps1.executeUpdate();
 
-            if (!isMember(channel.getId(), request.getRequesterId())) {
-                PreparedStatement ps2 = c.prepareStatement("""
-                    INSERT INTO channel_member (joined_at, channel_id, user_id)
-                    VALUES (?, ?, ?)
-                    """);
-                ps2.setTimestamp(1, now);
-                ps2.setInt(2, channel.getId());
-                ps2.setInt(3, request.getRequesterId());
-                ps2.executeUpdate();
-            }
+            PreparedStatement ps2 = c.prepareStatement("""
+            INSERT INTO channel_member (joined_at, channel_id, user_id)
+            VALUES (?, ?, ?)
+            """);
+            ps2.setTimestamp(1, now);
+            ps2.setInt(2, channel.getId());
+            ps2.setInt(3, request.getRequesterId());
+            ps2.executeUpdate();
+
+            clearPendingRequests(c, channel.getId(), request.getRequesterId());
 
             c.commit();
 
@@ -204,6 +302,39 @@ public class ChannelAccessService {
         }
     }
 
+//    public void denyJoinRequest(int requestId, User owner, String reason) throws SQLException {
+//        ChannelJoinRequest request = findRequestById(requestId);
+//        if (request == null) throw new IllegalArgumentException("Join request not found.");
+//
+//        Channel channel = channelService.findById(request.getChannelId());
+//        if (channel == null) throw new IllegalArgumentException("Channel not found.");
+//        if (!isOwner(owner, channel)) throw new SecurityException("Only the owner can deny this request.");
+//        if (!ChannelJoinRequest.STATUS_PENDING.equalsIgnoreCase(request.getStatus())) {
+//            throw new IllegalStateException("Request is no longer pending.");
+//        }
+//
+//        String finalReason = (reason == null || reason.trim().isEmpty()) ? "No reason provided." : reason.trim();
+//
+//        String sql = """
+//            UPDATE channel_join_request
+//            SET status = ?, decided_at = ?, decided_by_email = ?, reason = ?
+//            WHERE id = ?
+//            """;
+//
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setString(1, ChannelJoinRequest.STATUS_DENIED);
+//        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+//        ps.setString(3, owner.getEmail());
+//        ps.setString(4, finalReason);
+//        ps.setInt(5, requestId);
+//        ps.executeUpdate();
+//
+//        if (request.getRequesterId() != null) {
+//            notificationService.createChannelJoinDeniedNotification(channel, request.getRequesterId(), finalReason);
+//        }
+//    }
+
     public void denyJoinRequest(int requestId, User owner, String reason) throws SQLException {
         ChannelJoinRequest request = findRequestById(requestId);
         if (request == null) throw new IllegalArgumentException("Join request not found.");
@@ -215,25 +346,44 @@ public class ChannelAccessService {
             throw new IllegalStateException("Request is no longer pending.");
         }
 
-        String finalReason = (reason == null || reason.trim().isEmpty()) ? "No reason provided." : reason.trim();
+        Connection c = getConnection();
+        boolean oldAutoCommit = c.getAutoCommit();
+        c.setAutoCommit(false);
 
-        String sql = """
+        try {
+            if (isAlreadyMember(c, channel.getId(), request.getRequesterId())) {
+                clearPendingRequests(c, channel.getId(), request.getRequesterId());
+                c.commit();
+                return;
+            }
+
+            String finalReason = (reason == null || reason.trim().isEmpty()) ? "No reason provided." : reason.trim();
+
+            String sql = """
             UPDATE channel_join_request
             SET status = ?, decided_at = ?, decided_by_email = ?, reason = ?
             WHERE id = ?
             """;
 
-        Connection c = getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, ChannelJoinRequest.STATUS_DENIED);
-        ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-        ps.setString(3, owner.getEmail());
-        ps.setString(4, finalReason);
-        ps.setInt(5, requestId);
-        ps.executeUpdate();
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setString(1, ChannelJoinRequest.STATUS_DENIED);
+            ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            ps.setString(3, owner.getEmail());
+            ps.setString(4, finalReason);
+            ps.setInt(5, requestId);
+            ps.executeUpdate();
 
-        if (request.getRequesterId() != null) {
-            notificationService.createChannelJoinDeniedNotification(channel, request.getRequesterId(), finalReason);
+            c.commit();
+
+            if (request.getRequesterId() != null) {
+                notificationService.createChannelJoinDeniedNotification(channel, request.getRequesterId(), finalReason);
+            }
+
+        } catch (Exception e) {
+            c.rollback();
+            throw e;
+        } finally {
+            c.setAutoCommit(oldAutoCommit);
         }
     }
 
@@ -322,6 +472,41 @@ public class ChannelAccessService {
         return invite;
     }
 
+//    public String joinWithInvite(String token, User user) throws SQLException {
+//        if (user == null) {
+//            throw new IllegalArgumentException("You must be logged in.");
+//        }
+//
+//        ChannelInvite invite = resolveActiveInvite(token);
+//        Channel channel = channelService.findById(invite.getChannelId());
+//
+//        if (channel == null) {
+//            throw new IllegalArgumentException("Channel not found.");
+//        }
+//
+//        if (!Channel.TYPE_PRIVATE.equalsIgnoreCase(channel.getType())) {
+//            throw new IllegalStateException("This invite does not belong to a private channel.");
+//        }
+//
+//        if (isOwner(user, channel) || isMember(channel.getId(), user.getId())) {
+//            return "ALREADY_MEMBER";
+//        }
+//
+//        if (ChannelInvite.MODE_AUTO_JOIN.equalsIgnoreCase(invite.getMode())) {
+//            addMember(channel.getId(), user.getId());
+//            consumeInvite(invite);
+//            return "AUTO_JOINED";
+//        }
+//
+//        if (hasPendingRequest(channel.getId(), user.getId())) {
+//            return "ALREADY_PENDING";
+//        }
+//
+//        requestAccess(channel, user);
+//        consumeInvite(invite);
+//        return "REQUEST_CREATED";
+//    }
+
     public String joinWithInvite(String token, User user) throws SQLException {
         if (user == null) {
             throw new IllegalArgumentException("You must be logged in.");
@@ -338,23 +523,49 @@ public class ChannelAccessService {
             throw new IllegalStateException("This invite does not belong to a private channel.");
         }
 
-        if (isOwner(user, channel) || isMember(channel.getId(), user.getId())) {
-            return "ALREADY_MEMBER";
-        }
+        Connection c = getConnection();
+        boolean oldAutoCommit = c.getAutoCommit();
+        c.setAutoCommit(false);
 
-        if (ChannelInvite.MODE_AUTO_JOIN.equalsIgnoreCase(invite.getMode())) {
-            addMember(channel.getId(), user.getId());
+        try {
+            if (isOwner(user, channel) || isAlreadyMember(c, channel.getId(), user.getId())) {
+                c.rollback();
+                return "ALREADY_MEMBER";
+            }
+
+            if (ChannelInvite.MODE_AUTO_JOIN.equalsIgnoreCase(invite.getMode())) {
+                PreparedStatement ps = c.prepareStatement("""
+                INSERT INTO channel_member (joined_at, channel_id, user_id)
+                VALUES (?, ?, ?)
+                """);
+                ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                ps.setInt(2, channel.getId());
+                ps.setInt(3, user.getId());
+                ps.executeUpdate();
+
+                clearPendingRequests(c, channel.getId(), user.getId());
+                consumeInviteInConnection(c, invite);
+
+                c.commit();
+                return "AUTO_JOINED";
+            }
+
+            if (hasPendingRequest(channel.getId(), user.getId())) {
+                c.rollback();
+                return "ALREADY_PENDING";
+            }
+
+            c.rollback();
+            requestAccess(channel, user);
             consumeInvite(invite);
-            return "AUTO_JOINED";
-        }
+            return "REQUEST_CREATED";
 
-        if (hasPendingRequest(channel.getId(), user.getId())) {
-            return "ALREADY_PENDING";
+        } catch (Exception e) {
+            c.rollback();
+            throw e;
+        } finally {
+            c.setAutoCommit(oldAutoCommit);
         }
-
-        requestAccess(channel, user);
-        consumeInvite(invite);
-        return "REQUEST_CREATED";
     }
 
     public ChannelJoinRequest findRequestById(int requestId) throws SQLException {
@@ -535,4 +746,43 @@ public class ChannelAccessService {
 
         return invite;
     }
+
+    private boolean isAlreadyMember(Connection cn, int channelId, int userId) throws SQLException {
+        String sql = "SELECT 1 FROM channel_member WHERE channel_id = ? AND user_id = ? LIMIT 1";
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, channelId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private void clearPendingRequests(Connection cn, int channelId, int userId) throws SQLException {
+        String sql = "DELETE FROM channel_join_request WHERE channel_id = ? AND requester_id = ? AND status = 'pending'";
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, channelId);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    private void consumeInviteInConnection(Connection c, ChannelInvite invite) throws SQLException {
+        int nextUses = (invite.getUses() == null ? 0 : invite.getUses()) + 1;
+        boolean stillActive = invite.getMaxUses() == null || nextUses < invite.getMaxUses();
+
+        String sql = """
+        UPDATE channel_invite
+        SET uses = ?, is_active = ?
+        WHERE id = ?
+        """;
+
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, nextUses);
+        ps.setBoolean(2, stillActive);
+        ps.setInt(3, invite.getId());
+        ps.executeUpdate();
+    }
+
+
 }

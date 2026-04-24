@@ -9,9 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -19,6 +17,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+
+import javafx.scene.Node;
 
 import com.eyetwin.services.Community.ChannelAccessService;
 
@@ -334,12 +334,200 @@ public class CommunityController {
 //        return card;
 //    }
 
+//    private VBox buildChannelCard(Channel channel, String sectionType) {
+//        VBox card = new VBox(10);
+//        card.setPrefWidth(295);
+//        card.setMinWidth(295);
+//        card.setMaxWidth(295);
+//        card.setMinHeight(255);
+//        card.setPadding(new Insets(18));
+//
+//        String cardStyle;
+//        switch (sectionType.toLowerCase()) {
+//            case "pending" -> cardStyle =
+//                    "-fx-background-color: linear-gradient(to bottom, rgba(28,20,10,0.96), rgba(15,10,18,0.96));" +
+//                            "-fx-border-color: rgba(246,216,96,0.28);" +
+//                            "-fx-border-radius:16;" +
+//                            "-fx-background-radius:16;";
+//            case "rejected" -> cardStyle =
+//                    "-fx-background-color: linear-gradient(to bottom, rgba(30,10,10,0.96), rgba(18,8,12,0.96));" +
+//                            "-fx-border-color: rgba(232,55,42,0.32);" +
+//                            "-fx-border-radius:16;" +
+//                            "-fx-background-radius:16;";
+//            default -> cardStyle =
+//                    "-fx-background-color: linear-gradient(to bottom, rgba(18,10,18,0.96), rgba(8,8,16,0.96));" +
+//                            "-fx-border-color: rgba(255,255,255,0.09);" +
+//                            "-fx-border-radius:16;" +
+//                            "-fx-background-radius:16;";
+//        }
+//
+//        card.setStyle(cardStyle);
+//
+//        Label name = new Label(channel.getName());
+//        name.setWrapText(true);
+//        name.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+//
+//        Label game = new Label(channel.getGame() == null ? "" : channel.getGame().toUpperCase());
+//        game.setStyle("-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11px;");
+//
+//        Label type = new Label(channel.getType().toUpperCase());
+//        type.setStyle(
+//                "-fx-text-fill: #ff6b2b;" +
+//                        "-fx-border-color: rgba(255,107,43,0.55);" +
+//                        "-fx-border-radius: 18;" +
+//                        "-fx-background-radius: 18;" +
+//                        "-fx-padding: 4 12 4 12;" +
+//                        "-fx-font-size: 10px;" +
+//                        "-fx-font-weight: bold;"
+//        );
+//
+//        Label status = new Label(channel.getStatus().toUpperCase());
+//        String statusStyle = switch (channel.getStatus().toLowerCase()) {
+//            case "approved" ->
+//                    "-fx-text-fill:#00e676; -fx-border-color:rgba(0,230,118,0.55); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:4 12 4 12; -fx-font-size:10px; -fx-font-weight:bold;";
+//            case "pending" ->
+//                    "-fx-text-fill:#f6d860; -fx-border-color:rgba(246,216,96,0.55); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:4 12 4 12; -fx-font-size:10px; -fx-font-weight:bold;";
+//            case "rejected" ->
+//                    "-fx-text-fill:#ff4d3d; -fx-border-color:rgba(232,55,42,0.55); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:4 12 4 12; -fx-font-size:10px; -fx-font-weight:bold;";
+//            default ->
+//                    "-fx-text-fill:white; -fx-border-color:rgba(255,255,255,0.35); -fx-border-radius:18; -fx-background-radius:18; -fx-padding:4 12 4 12; -fx-font-size:10px; -fx-font-weight:bold;";
+//        };
+//        status.setStyle(statusStyle);
+//
+//        HBox badges = new HBox(8, type, status);
+//
+//        String descText = (channel.getDescription() == null || channel.getDescription().trim().isEmpty())
+//                ? "No description."
+//                : channel.getDescription();
+//
+//        Label description = new Label(descText);
+//        description.setWrapText(true);
+//        description.setStyle("-fx-text-fill: rgba(255,255,255,0.72); -fx-font-size: 11px;");
+//
+//        Pane spacer = new Pane();
+//        VBox.setVgrow(spacer, Priority.ALWAYS);
+//
+//        Region separator = new Region();
+//        separator.setPrefHeight(1);
+//        separator.setStyle("-fx-background-color: rgba(255,255,255,0.10);");
+//
+//        VBox actionsBox = new VBox(8);
+//
+//        User currentUser = SessionManager.getCurrentUser();
+//
+//        boolean isOwner = currentUser != null
+//                && channel.getCreatedBy() != null
+//                && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
+//
+//        boolean isApprovedAndActive = Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) && channel.isActive();
+//        boolean isPrivate = Channel.TYPE_PRIVATE.equalsIgnoreCase(channel.getType());
+//
+//        boolean canOpen = false;
+//        boolean hasPendingRequest = false;
+//        int pendingRequestsCount = 0;
+//
+//        try {
+//            canOpen = channelAccessService.canOpenChannel(currentUser, channel);
+//
+//            if (currentUser != null && isPrivate && !canOpen && isApprovedAndActive) {
+//                hasPendingRequest = channelAccessService.hasPendingRequest(channel.getId(), currentUser.getId());
+//            }
+//
+//            if (isOwner && isPrivate && isApprovedAndActive) {
+//                pendingRequestsCount = channelAccessService.findPendingRequestsForOwner(
+//                        channel.getId(),
+//                        currentUser
+//                ).size();
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        HBox firstRow = new HBox(8);
+//        HBox secondRow = new HBox(8);
+//
+//        if (currentUser == null) {
+//            Button loginBtn = createCardActionButton("Login First", "secondary");
+//            loginBtn.setDisable(true);
+//            loginBtn.setOpacity(0.55);
+//            firstRow.getChildren().add(loginBtn);
+//
+//        } else if (!isApprovedAndActive) {
+//            Button unavailableBtn = createCardActionButton("Unavailable", "secondary");
+//            unavailableBtn.setDisable(true);
+//            unavailableBtn.setOpacity(0.55);
+//            firstRow.getChildren().add(unavailableBtn);
+//
+//        } else if (canOpen) {
+//            Button openBtn = createCardActionButton("Open", "primary");
+//            openBtn.setOnAction(e -> openChannel(channel));
+//            firstRow.getChildren().add(openBtn);
+//
+//        } else if (isPrivate) {
+//            if (hasPendingRequest) {
+//                Button pendingBtn = createCardActionButton("Pending", "secondary");
+//                pendingBtn.setDisable(true);
+//                pendingBtn.setOpacity(0.75);
+//                firstRow.getChildren().add(pendingBtn);
+//            } else {
+//                Button requestBtn = createCardActionButton("Request Access", "primary");
+//                requestBtn.setOnAction(e -> handleRequestAccess(channel));
+//                firstRow.getChildren().add(requestBtn);
+//            }
+//
+//            Button joinQrBtn = createCardActionButton("Join With QR", "secondary");
+//            joinQrBtn.setOnAction(e -> openJoinWithQrDialog());
+//            firstRow.getChildren().add(joinQrBtn);
+//        }
+//
+//        if (isOwner) {
+//            Button editBtn = createCardActionButton("Edit", "secondary");
+//            editBtn.setOnAction(e -> handleEditOwnChannel(channel));
+//
+//            Button deleteBtn = createCardActionButton(
+//                    Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus()) ? "Undo" : "Delete",
+//                    "secondary"
+//            );
+//            deleteBtn.setOnAction(e -> handleDeleteOwnChannel(channel));
+//
+//            secondRow.getChildren().addAll(editBtn, deleteBtn);
+//
+//            if (isPrivate && isApprovedAndActive) {
+//                String accessText = pendingRequestsCount > 0
+//                        ? "Access (" + pendingRequestsCount + ")"
+//                        : "Manage Access";
+//
+//                Button manageAccessBtn = createCardActionButton(accessText, pendingRequestsCount > 0 ? "success" : "secondary");
+//                manageAccessBtn.setOnAction(e -> openAccessManager(channel));
+//                secondRow.getChildren().add(manageAccessBtn);
+//            }
+//        }
+//
+//        if (!firstRow.getChildren().isEmpty()) {
+//            actionsBox.getChildren().add(firstRow);
+//        }
+//        if (!secondRow.getChildren().isEmpty()) {
+//            actionsBox.getChildren().add(secondRow);
+//        }
+//
+//        if (channel.getRejectionReason() != null && !channel.getRejectionReason().isBlank()) {
+//            Label rejection = new Label("Reason: " + channel.getRejectionReason());
+//            rejection.setWrapText(true);
+//            rejection.setStyle("-fx-text-fill: #fca5a5; -fx-font-size: 11px;");
+//            card.getChildren().addAll(name, game, badges, description, rejection, spacer, separator, actionsBox);
+//        } else {
+//            card.getChildren().addAll(name, game, badges, description, spacer, separator, actionsBox);
+//        }
+//
+//        return card;
+//    }
+
     private VBox buildChannelCard(Channel channel, String sectionType) {
         VBox card = new VBox(10);
         card.setPrefWidth(295);
         card.setMinWidth(295);
         card.setMaxWidth(295);
-        card.setMinHeight(255);
+        card.setMinHeight(270);
         card.setPadding(new Insets(18));
 
         String cardStyle;
@@ -445,6 +633,7 @@ public class CommunityController {
 
         HBox firstRow = new HBox(8);
         HBox secondRow = new HBox(8);
+        HBox thirdRow = new HBox(8);
 
         if (currentUser == null) {
             Button loginBtn = createCardActionButton("Login First", "secondary");
@@ -494,12 +683,19 @@ public class CommunityController {
 
             if (isPrivate && isApprovedAndActive) {
                 String accessText = pendingRequestsCount > 0
-                        ? "Access (" + pendingRequestsCount + ")"
+                        ? "Manage Access (" + pendingRequestsCount + ")"
                         : "Manage Access";
 
-                Button manageAccessBtn = createCardActionButton(accessText, pendingRequestsCount > 0 ? "success" : "secondary");
+                Button manageAccessBtn = createCardActionButton(
+                        accessText,
+                        pendingRequestsCount > 0 ? "success" : "secondary"
+                );
+                manageAccessBtn.setPrefWidth(240);
+                manageAccessBtn.setMinWidth(240);
+                manageAccessBtn.setMaxWidth(240);
                 manageAccessBtn.setOnAction(e -> openAccessManager(channel));
-                secondRow.getChildren().add(manageAccessBtn);
+
+                thirdRow.getChildren().add(manageAccessBtn);
             }
         }
 
@@ -508,6 +704,9 @@ public class CommunityController {
         }
         if (!secondRow.getChildren().isEmpty()) {
             actionsBox.getChildren().add(secondRow);
+        }
+        if (!thirdRow.getChildren().isEmpty()) {
+            actionsBox.getChildren().add(thirdRow);
         }
 
         if (channel.getRejectionReason() != null && !channel.getRejectionReason().isBlank()) {
@@ -666,6 +865,10 @@ public class CommunityController {
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.initOwner((Stage) rootContainer.getScene().getWindow());
             popup.setScene(new Scene(root));
+            popup.setWidth(950);
+            popup.setHeight(760);
+            popup.setMinWidth(900);
+            popup.setMinHeight(700);
             popup.setResizable(false);
             popup.showAndWait();
 
@@ -786,19 +989,79 @@ public class CommunityController {
         }
     }
 
+//    private void showError(String message) {
+//        Alert alert = new Alert(Alert.AlertType.ERROR);
+//        alert.setHeaderText(null);
+//        alert.setTitle("Error");
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(null);
         alert.setTitle("Error");
         alert.setContentText(message);
+
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #070b1f, #050816);" +
+                        "-fx-border-color: rgba(232,55,42,0.22);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        pane.lookup(".content.label").setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        Node okButton = pane.lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 8;"
+            );
+        }
+
         alert.showAndWait();
     }
+
+//    private void showInfo(String message) {
+//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//        alert.setHeaderText(null);
+//        alert.setTitle("Information");
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setHeaderText(null);
         alert.setTitle("Information");
         alert.setContentText(message);
+
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #070b1f, #050816);" +
+                        "-fx-border-color: rgba(232,55,42,0.22);" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;"
+        );
+
+        pane.lookup(".content.label").setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        Node okButton = pane.lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 8;"
+            );
+        }
+
         alert.showAndWait();
     }
 }
