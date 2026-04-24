@@ -4,7 +4,7 @@
 <?import javafx.scene.image.ImageView?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.eyetwin.controller.AvataarGeneratorController"
+      fx:controller="com.eyetwin.controller.AvatarGeneratorController"
       spacing="14" style="-fx-background-color: #0d0c1a; -fx-padding: 28;">
 
     <!-- Header -->
