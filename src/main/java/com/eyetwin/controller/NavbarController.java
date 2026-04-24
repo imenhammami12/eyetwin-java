@@ -28,13 +28,21 @@ import javafx.scene.layout.Region;
 
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import java.net.URI;
 
+import com.eyetwin.websocket.ChatWebSocketConfig;
+import com.eyetwin.websocket.client.ChatSocketListener;
+import com.eyetwin.websocket.client.CommunityWebSocketClient;
+import com.eyetwin.websocket.model.SocketEnvelope;
 
 public class NavbarController {
     private final NotificationServiceImpl notificationService = new NotificationServiceImpl();
     private static final SimpleDateFormat NOTIF_DATE_FMT = new SimpleDateFormat("dd/MM HH:mm");
 
     private static final String NAVBAR_POPUP_CSS = "/com/eyetwin/assets/css/navbar-popups.css";
+
+    private CommunityWebSocketClient notifRealtimeClient;
+
     // ── Zones ──
     @FXML private HBox loggedInZone;
     @FXML private HBox guestZone;
@@ -73,6 +81,18 @@ public class NavbarController {
     // ════════════════════════════════════════════
     //  INITIALIZE
     // ════════════════════════════════════════════
+//    @FXML
+//    public void initialize() {
+//        User user = SessionManager.getCurrentUser();
+//        if (user != null) setupLoggedIn(user);
+//        else              setupGuest();
+//
+//        Platform.runLater(() -> {
+//            attachNavbarCssToScene();
+//            styleStaticMenuItems();
+//        });
+//    }
+
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();
@@ -83,6 +103,16 @@ public class NavbarController {
             attachNavbarCssToScene();
             styleStaticMenuItems();
         });
+
+        if (navNotifMenu != null) {
+            navNotifMenu.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (oldScene != null && newScene == null) {
+                    stopRealtimeNotifications();
+                } else if (newScene != null && SessionManager.getCurrentUser() != null) {
+                    Platform.runLater(() -> startRealtimeNotifications(SessionManager.getCurrentUser()));
+                }
+            });
+        }
     }
 
     // ════════════════════════════════════════════
@@ -120,6 +150,7 @@ public class NavbarController {
         loadNotifications(user);
         show(navUploaderMenu);
         show(navHighlights);
+        startRealtimeNotifications(user);
     }
 
     private void setupGuest() {
@@ -206,8 +237,15 @@ public class NavbarController {
         navigateTo("TwoFactor.fxml");
     }
 
+//    @FXML
+//    public void handleLogout() {
+//        SessionManager.logout();
+//        navigateTo("login.fxml");
+//    }
+
     @FXML
     public void handleLogout() {
+        stopRealtimeNotifications();
         SessionManager.logout();
         navigateTo("login.fxml");
     }
@@ -223,6 +261,8 @@ public class NavbarController {
     }
 
     public void navigateTo(String fxml) {
+        stopRealtimeNotifications();
+
         String[] paths = {
                 "/com/eyetwin/views/" + fxml,
                 "/com/eyetwin/view/"  + fxml,
@@ -289,6 +329,7 @@ public class NavbarController {
 
     @FXML
     private void goToCommunity() {
+        stopRealtimeNotifications();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
             Parent root = loader.load();
@@ -585,5 +626,63 @@ public class NavbarController {
         String clean = text.replaceAll("\\s+", " ").trim();
         if (clean.length() <= max) return clean;
         return clean.substring(0, max - 1) + "…";
+    }
+
+
+    private void startRealtimeNotifications(User user) {
+        if (user == null) return;
+        if (notifRealtimeClient != null && notifRealtimeClient.isOpen()) return;
+
+        String roomKey = "notif:" + user.getId();
+
+        notifRealtimeClient = new CommunityWebSocketClient(
+                URI.create(ChatWebSocketConfig.SERVER_URL),
+                new ChatSocketListener() {
+                    @Override
+                    public void onConnected() {
+                    }
+
+                    @Override
+                    public void onMessageReceived(SocketEnvelope envelope) {
+                        if (envelope == null || envelope.getType() == null) return;
+
+                        if (SocketEnvelope.TYPE_NOTIFICATION_CHANGED.equals(envelope.getType())
+                                && roomKey.equals(envelope.getRoomKey())) {
+                            Platform.runLater(() -> loadNotifications(user));
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String reason) {
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                    }
+                }
+        );
+
+        if (notifRealtimeClient.ensureConnected()) {
+            notifRealtimeClient.subscribeRoom(roomKey);
+        }
+    }
+
+    private void stopRealtimeNotifications() {
+        if (notifRealtimeClient == null) return;
+
+        try {
+            User user = SessionManager.getCurrentUser();
+            if (user != null) {
+                notifRealtimeClient.unsubscribeRoom("notif:" + user.getId());
+            }
+        } catch (Exception ignored) {
+        }
+
+        try {
+            notifRealtimeClient.close();
+        } catch (Exception ignored) {
+        }
+
+        notifRealtimeClient = null;
     }
 }

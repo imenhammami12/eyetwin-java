@@ -16,10 +16,14 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
+import com.eyetwin.websocket.client.CommunityRealtimePublisher;
+
 public class ChannelAccessService {
 
     private final NotificationServiceImpl notificationService = new NotificationServiceImpl();
     private final ChannelServiceImpl channelService = new ChannelServiceImpl();
+
+    private final CommunityRealtimePublisher realtimePublisher = new CommunityRealtimePublisher();
 
     private Connection getConnection() {
         return DatabaseConfig.getInstance().getCnx();
@@ -115,6 +119,9 @@ public class ChannelAccessService {
         if (ownerUserId != null) {
             notificationService.createChannelJoinRequestedNotification(channel, ownerUserId, buildRequesterDisplay(requester));
         }
+
+        publishNotificationRefresh(ownerUserId);
+        publishAccessRefresh(channel.getId());
     }
 
 //    public List<ChannelJoinRequest> findPendingRequestsForOwner(int channelId, User owner) throws SQLException {
@@ -294,6 +301,9 @@ public class ChannelAccessService {
                 notificationService.createChannelJoinApprovedNotification(channel, request.getRequesterId());
             }
 
+            publishNotificationRefresh(request.getRequesterId());
+            publishAccessRefresh(channel.getId());
+
         } catch (Exception e) {
             c.rollback();
             throw e;
@@ -378,6 +388,9 @@ public class ChannelAccessService {
             if (request.getRequesterId() != null) {
                 notificationService.createChannelJoinDeniedNotification(channel, request.getRequesterId(), finalReason);
             }
+
+            publishNotificationRefresh(request.getRequesterId());
+            publishAccessRefresh(channel.getId());
 
         } catch (Exception e) {
             c.rollback();
@@ -547,6 +560,7 @@ public class ChannelAccessService {
                 consumeInviteInConnection(c, invite);
 
                 c.commit();
+                publishAccessRefresh(channel.getId());
                 return "AUTO_JOINED";
             }
 
@@ -785,4 +799,19 @@ public class ChannelAccessService {
     }
 
 
+    private void publishAccessRefresh(int channelId) {
+        try {
+            realtimePublisher.publishAccessChanged(channelId);
+            realtimePublisher.publishCommunityChanged();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void publishNotificationRefresh(Integer userId) {
+        if (userId == null) return;
+        try {
+            realtimePublisher.publishNotificationChanged(userId);
+        } catch (Exception ignored) {
+        }
+    }
 }

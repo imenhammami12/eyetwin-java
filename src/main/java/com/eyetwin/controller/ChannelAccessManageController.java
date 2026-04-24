@@ -29,6 +29,14 @@ import java.io.File;
 
 import javafx.scene.Node;
 
+import javafx.application.Platform;
+import java.net.URI;
+
+import com.eyetwin.websocket.ChatWebSocketConfig;
+import com.eyetwin.websocket.client.ChatSocketListener;
+import com.eyetwin.websocket.client.CommunityWebSocketClient;
+import com.eyetwin.websocket.model.SocketEnvelope;
+
 public class ChannelAccessManageController {
 
     @FXML private Label lblChannelName;
@@ -50,11 +58,22 @@ public class ChannelAccessManageController {
 
     private Image lastGeneratedQrImage;
 
+    private CommunityWebSocketClient realtimeClient;
+
+
     @FXML
     public void initialize() {
         cbInviteMode.getItems().addAll("Auto Join", "Requires Approval");
         cbInviteMode.setValue("Requires Approval");
     }
+
+//    public void setChannel(Channel channel, Runnable onChanged) {
+//        this.channel = channel;
+//        this.onChanged = onChanged;
+//
+//        lblChannelName.setText(channel.getName());
+//        loadPendingRequests();
+//    }
 
     public void setChannel(Channel channel, Runnable onChanged) {
         this.channel = channel;
@@ -62,6 +81,7 @@ public class ChannelAccessManageController {
 
         lblChannelName.setText(channel.getName());
         loadPendingRequests();
+        startRealtime();
     }
 
     private void loadPendingRequests() {
@@ -386,11 +406,11 @@ public class ChannelAccessManageController {
         }
     }
 
-    @FXML
-    private void handleClose() {
-        Stage stage = (Stage) lblChannelName.getScene().getWindow();
-        stage.close();
-    }
+//    @FXML
+//    private void handleClose() {
+//        Stage stage = (Stage) lblChannelName.getScene().getWindow();
+//        stage.close();
+//    }
 
 //    private void showError(String message) {
 //        Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -399,6 +419,13 @@ public class ChannelAccessManageController {
 //        alert.setContentText(message);
 //        alert.showAndWait();
 //    }
+
+    @FXML
+    private void handleClose() {
+        stopRealtime();
+        Stage stage = (Stage) lblChannelName.getScene().getWindow();
+        stage.close();
+    }
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -428,5 +455,65 @@ public class ChannelAccessManageController {
         }
 
         alert.showAndWait();
+    }
+
+
+    private void startRealtime() {
+        if (channel == null) return;
+        if (realtimeClient != null && realtimeClient.isOpen()) return;
+
+        realtimeClient = new CommunityWebSocketClient(
+                URI.create(ChatWebSocketConfig.SERVER_URL),
+                new ChatSocketListener() {
+                    @Override
+                    public void onConnected() {
+                    }
+
+                    @Override
+                    public void onMessageReceived(SocketEnvelope envelope) {
+                        if (envelope == null || envelope.getType() == null) return;
+
+                        if (SocketEnvelope.TYPE_ACCESS_CHANGED.equals(envelope.getType())
+                                && ("access:" + channel.getId()).equals(envelope.getRoomKey())) {
+                            Platform.runLater(() -> {
+                                loadPendingRequests();
+                                if (onChanged != null) {
+                                    onChanged.run();
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected(String reason) {
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                    }
+                }
+        );
+
+        if (realtimeClient.ensureConnected()) {
+            realtimeClient.subscribeRoom("access:" + channel.getId());
+        }
+    }
+
+    private void stopRealtime() {
+        if (realtimeClient == null) return;
+
+        try {
+            if (channel != null) {
+                realtimeClient.unsubscribeRoom("access:" + channel.getId());
+            }
+        } catch (Exception ignored) {
+        }
+
+        try {
+            realtimeClient.close();
+        } catch (Exception ignored) {
+        }
+
+        realtimeClient = null;
     }
 }
