@@ -45,13 +45,6 @@ public class CommunityController {
 
     private final ChannelAccessService channelAccessService = new ChannelAccessService();
 
-//    @FXML
-//    public void initialize() {
-//        btnNewChannel.setVisible(SessionManager.canManageCommunityChannels());
-//        btnNewChannel.setManaged(SessionManager.canManageCommunityChannels());
-//        loadChannels();
-//    }
-
     @FXML
     public void initialize() {
         btnNewChannel.setVisible(SessionManager.canManageCommunityChannels());
@@ -200,7 +193,29 @@ public class CommunityController {
 //
 //        HBox actions = new HBox(8);
 //
-//        Button openButton = new Button("Open");
+//        User currentUser = SessionManager.getCurrentUser();
+//
+//        boolean isOwner = currentUser != null
+//                && channel.getCreatedBy() != null
+//                && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
+//
+//        boolean isApprovedAndActive = Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) && channel.isActive();
+//        boolean isPrivate = Channel.TYPE_PRIVATE.equalsIgnoreCase(channel.getType());
+//
+//        boolean canOpen = false;
+//        boolean hasPendingRequest = false;
+//
+//        try {
+//            canOpen = channelAccessService.canOpenChannel(currentUser, channel);
+//
+//            if (currentUser != null && isPrivate && !canOpen && isApprovedAndActive) {
+//                hasPendingRequest = channelAccessService.hasPendingRequest(channel.getId(), currentUser.getId());
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Button openButton = new Button();
 //        openButton.setStyle(
 //                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
 //                        "-fx-text-fill: white;" +
@@ -210,24 +225,53 @@ public class CommunityController {
 //                        "-fx-cursor: hand;"
 //        );
 //
-//        User currentUser = SessionManager.getCurrentUser();
+//        if (currentUser == null) {
+//            openButton.setText("Login First");
+//            openButton.setDisable(true);
+//            openButton.setOpacity(0.45);
 //
-//        boolean canOpen = currentUser != null
-//                && Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus())
-//                && channel.isActive();
+//        } else if (!isApprovedAndActive) {
+//            openButton.setText("Unavailable");
+//            openButton.setDisable(true);
+//            openButton.setOpacity(0.45);
 //
-//        openButton.setDisable(!canOpen);
-//        openButton.setOpacity(canOpen ? 1.0 : 0.45);
-//
-//        if (canOpen) {
+//        } else if (canOpen) {
+//            openButton.setText("Open");
 //            openButton.setOnAction(e -> openChannel(channel));
+//
+//        } else if (isPrivate) {
+//            if (hasPendingRequest) {
+//                openButton.setText("Pending Request");
+//                openButton.setDisable(true);
+//                openButton.setOpacity(0.65);
+//            } else {
+//                openButton.setText("Request Access");
+//                openButton.setOnAction(e -> handleRequestAccess(channel));
+//            }
+//
+//        } else {
+//            openButton.setText("Open");
+//            openButton.setDisable(true);
+//            openButton.setOpacity(0.45);
 //        }
 //
 //        actions.getChildren().add(openButton);
 //
-//        boolean isOwner = currentUser != null
-//                && channel.getCreatedBy() != null
-//                && channel.getCreatedBy().equalsIgnoreCase(currentUser.getEmail());
+//        if (isPrivate && currentUser != null && isApprovedAndActive && !canOpen && !isOwner) {
+//            Button qrJoinButton = new Button("Join With QR");
+//            qrJoinButton.setStyle(
+//                    "-fx-background-color: rgba(255,255,255,0.06);" +
+//                            "-fx-border-color: rgba(255,255,255,0.10);" +
+//                            "-fx-text-fill: white;" +
+//                            "-fx-font-weight: bold;" +
+//                            "-fx-background-radius: 9;" +
+//                            "-fx-border-radius: 9;" +
+//                            "-fx-padding: 8 16 8 16;" +
+//                            "-fx-cursor: hand;"
+//            );
+//            qrJoinButton.setOnAction(e -> openJoinWithQrDialog());
+//            actions.getChildren().add(qrJoinButton);
+//        }
 //
 //        if (isOwner) {
 //            Button editButton = new Button("Edit");
@@ -260,6 +304,22 @@ public class CommunityController {
 //
 //            actions.getChildren().add(editButton);
 //            actions.getChildren().add(deleteButton);
+//
+//            if (isPrivate && isApprovedAndActive) {
+//                Button manageAccessButton = new Button("Manage Access");
+//                manageAccessButton.setStyle(
+//                        "-fx-background-color: rgba(255,255,255,0.06);" +
+//                                "-fx-border-color: rgba(255,255,255,0.10);" +
+//                                "-fx-text-fill: white;" +
+//                                "-fx-font-weight: bold;" +
+//                                "-fx-background-radius: 9;" +
+//                                "-fx-border-radius: 9;" +
+//                                "-fx-padding: 8 16 8 16;" +
+//                                "-fx-cursor: hand;"
+//                );
+//                manageAccessButton.setOnAction(e -> openAccessManager(channel));
+//                actions.getChildren().add(manageAccessButton);
+//            }
 //        }
 //
 //        if (channel.getRejectionReason() != null && !channel.getRejectionReason().isBlank()) {
@@ -268,15 +328,18 @@ public class CommunityController {
 //            rejection.setStyle("-fx-text-fill: #fca5a5; -fx-font-size: 11px;");
 //            card.getChildren().addAll(name, game, badges, description, rejection, spacer, separator, actions);
 //        } else {
-//            card.getChildren().addAll(name, game, badges, description, spacer, separator, actions);        }
+//            card.getChildren().addAll(name, game, badges, description, spacer, separator, actions);
+//        }
 //
 //        return card;
 //    }
 
     private VBox buildChannelCard(Channel channel, String sectionType) {
         VBox card = new VBox(10);
-        card.setPrefWidth(250);
-        card.setMinHeight(210);
+        card.setPrefWidth(295);
+        card.setMinWidth(295);
+        card.setMaxWidth(295);
+        card.setMinHeight(255);
         card.setPadding(new Insets(18));
 
         String cardStyle;
@@ -348,7 +411,7 @@ public class CommunityController {
         separator.setPrefHeight(1);
         separator.setStyle("-fx-background-color: rgba(255,255,255,0.10);");
 
-        HBox actions = new HBox(8);
+        VBox actionsBox = new VBox(8);
 
         User currentUser = SessionManager.getCurrentUser();
 
@@ -361,6 +424,7 @@ public class CommunityController {
 
         boolean canOpen = false;
         boolean hasPendingRequest = false;
+        int pendingRequestsCount = 0;
 
         try {
             canOpen = channelAccessService.canOpenChannel(currentUser, channel);
@@ -368,124 +432,91 @@ public class CommunityController {
             if (currentUser != null && isPrivate && !canOpen && isApprovedAndActive) {
                 hasPendingRequest = channelAccessService.hasPendingRequest(channel.getId(), currentUser.getId());
             }
+
+            if (isOwner && isPrivate && isApprovedAndActive) {
+                pendingRequestsCount = channelAccessService.findPendingRequestsForOwner(
+                        channel.getId(),
+                        currentUser
+                ).size();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        Button openButton = new Button();
-        openButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 9;" +
-                        "-fx-padding: 8 16 8 16;" +
-                        "-fx-cursor: hand;"
-        );
+        HBox firstRow = new HBox(8);
+        HBox secondRow = new HBox(8);
 
         if (currentUser == null) {
-            openButton.setText("Login First");
-            openButton.setDisable(true);
-            openButton.setOpacity(0.45);
+            Button loginBtn = createCardActionButton("Login First", "secondary");
+            loginBtn.setDisable(true);
+            loginBtn.setOpacity(0.55);
+            firstRow.getChildren().add(loginBtn);
 
         } else if (!isApprovedAndActive) {
-            openButton.setText("Unavailable");
-            openButton.setDisable(true);
-            openButton.setOpacity(0.45);
+            Button unavailableBtn = createCardActionButton("Unavailable", "secondary");
+            unavailableBtn.setDisable(true);
+            unavailableBtn.setOpacity(0.55);
+            firstRow.getChildren().add(unavailableBtn);
 
         } else if (canOpen) {
-            openButton.setText("Open");
-            openButton.setOnAction(e -> openChannel(channel));
+            Button openBtn = createCardActionButton("Open", "primary");
+            openBtn.setOnAction(e -> openChannel(channel));
+            firstRow.getChildren().add(openBtn);
 
         } else if (isPrivate) {
             if (hasPendingRequest) {
-                openButton.setText("Pending Request");
-                openButton.setDisable(true);
-                openButton.setOpacity(0.65);
+                Button pendingBtn = createCardActionButton("Pending", "secondary");
+                pendingBtn.setDisable(true);
+                pendingBtn.setOpacity(0.75);
+                firstRow.getChildren().add(pendingBtn);
             } else {
-                openButton.setText("Request Access");
-                openButton.setOnAction(e -> handleRequestAccess(channel));
+                Button requestBtn = createCardActionButton("Request Access", "primary");
+                requestBtn.setOnAction(e -> handleRequestAccess(channel));
+                firstRow.getChildren().add(requestBtn);
             }
 
-        } else {
-            openButton.setText("Open");
-            openButton.setDisable(true);
-            openButton.setOpacity(0.45);
-        }
-
-        actions.getChildren().add(openButton);
-
-        if (isPrivate && currentUser != null && isApprovedAndActive && !canOpen && !isOwner) {
-            Button qrJoinButton = new Button("Join With QR");
-            qrJoinButton.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.06);" +
-                            "-fx-border-color: rgba(255,255,255,0.10);" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-background-radius: 9;" +
-                            "-fx-border-radius: 9;" +
-                            "-fx-padding: 8 16 8 16;" +
-                            "-fx-cursor: hand;"
-            );
-            qrJoinButton.setOnAction(e -> openJoinWithQrDialog());
-            actions.getChildren().add(qrJoinButton);
+            Button joinQrBtn = createCardActionButton("Join With QR", "secondary");
+            joinQrBtn.setOnAction(e -> openJoinWithQrDialog());
+            firstRow.getChildren().add(joinQrBtn);
         }
 
         if (isOwner) {
-            Button editButton = new Button("Edit");
-            editButton.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.06);" +
-                            "-fx-border-color: rgba(255,255,255,0.10);" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-background-radius: 9;" +
-                            "-fx-border-radius: 9;" +
-                            "-fx-padding: 8 16 8 16;" +
-                            "-fx-cursor: hand;"
-            );
-            editButton.setOnAction(e -> handleEditOwnChannel(channel));
+            Button editBtn = createCardActionButton("Edit", "secondary");
+            editBtn.setOnAction(e -> handleEditOwnChannel(channel));
 
-            Button deleteButton = new Button(
-                    Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus()) ? "Undo" : "Delete"
+            Button deleteBtn = createCardActionButton(
+                    Channel.STATUS_PENDING.equalsIgnoreCase(channel.getStatus()) ? "Undo" : "Delete",
+                    "secondary"
             );
-            deleteButton.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.06);" +
-                            "-fx-border-color: rgba(255,255,255,0.10);" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-background-radius: 9;" +
-                            "-fx-border-radius: 9;" +
-                            "-fx-padding: 8 16 8 16;" +
-                            "-fx-cursor: hand;"
-            );
-            deleteButton.setOnAction(e -> handleDeleteOwnChannel(channel));
+            deleteBtn.setOnAction(e -> handleDeleteOwnChannel(channel));
 
-            actions.getChildren().add(editButton);
-            actions.getChildren().add(deleteButton);
+            secondRow.getChildren().addAll(editBtn, deleteBtn);
 
             if (isPrivate && isApprovedAndActive) {
-                Button manageAccessButton = new Button("Manage Access");
-                manageAccessButton.setStyle(
-                        "-fx-background-color: rgba(255,255,255,0.06);" +
-                                "-fx-border-color: rgba(255,255,255,0.10);" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-background-radius: 9;" +
-                                "-fx-border-radius: 9;" +
-                                "-fx-padding: 8 16 8 16;" +
-                                "-fx-cursor: hand;"
-                );
-                manageAccessButton.setOnAction(e -> openAccessManager(channel));
-                actions.getChildren().add(manageAccessButton);
+                String accessText = pendingRequestsCount > 0
+                        ? "Access (" + pendingRequestsCount + ")"
+                        : "Manage Access";
+
+                Button manageAccessBtn = createCardActionButton(accessText, pendingRequestsCount > 0 ? "success" : "secondary");
+                manageAccessBtn.setOnAction(e -> openAccessManager(channel));
+                secondRow.getChildren().add(manageAccessBtn);
             }
+        }
+
+        if (!firstRow.getChildren().isEmpty()) {
+            actionsBox.getChildren().add(firstRow);
+        }
+        if (!secondRow.getChildren().isEmpty()) {
+            actionsBox.getChildren().add(secondRow);
         }
 
         if (channel.getRejectionReason() != null && !channel.getRejectionReason().isBlank()) {
             Label rejection = new Label("Reason: " + channel.getRejectionReason());
             rejection.setWrapText(true);
             rejection.setStyle("-fx-text-fill: #fca5a5; -fx-font-size: 11px;");
-            card.getChildren().addAll(name, game, badges, description, rejection, spacer, separator, actions);
+            card.getChildren().addAll(name, game, badges, description, rejection, spacer, separator, actionsBox);
         } else {
-            card.getChildren().addAll(name, game, badges, description, spacer, separator, actions);
+            card.getChildren().addAll(name, game, badges, description, spacer, separator, actionsBox);
         }
 
         return card;
@@ -569,22 +600,6 @@ public class CommunityController {
             showError("Failed to delete channel: " + e.getMessage());
         }
     }
-
-//    private void openChannel(Channel channel) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/CommunityChat.fxml"));
-//            Parent root = loader.load();
-//
-//            CommunityChatController controller = loader.getController();
-//            controller.setChannel(channel);
-//
-//            Stage stage = (Stage) rootContainer.getScene().getWindow();            stage.setScene(new Scene(root));
-//            stage.show();
-//
-//        } catch (IOException e) {
-//            showError("Failed to open channel: " + e.getMessage());
-//        }
-//    }
 
     private void openChannel(Channel channel) {
         try {
@@ -682,6 +697,55 @@ public class CommunityController {
         } catch (IOException e) {
             showError("Failed to open QR join popup: " + e.getMessage());
         }
+    }
+
+    private Button createCardActionButton(String text, String styleType) {
+        Button button = new Button(text);
+        button.setPrefWidth(115);
+        button.setMinWidth(115);
+        button.setMaxWidth(115);
+        button.setPrefHeight(38);
+        button.setWrapText(false);
+
+        String style;
+        switch (styleType) {
+            case "primary" -> style =
+                    "-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 8 14 8 14;" +
+                            "-fx-cursor: hand;";
+            case "secondary" -> style =
+                    "-fx-background-color: rgba(255,255,255,0.06);" +
+                            "-fx-border-color: rgba(255,255,255,0.10);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-border-radius: 10;" +
+                            "-fx-padding: 8 14 8 14;" +
+                            "-fx-cursor: hand;";
+            case "success" -> style =
+                    "-fx-background-color: linear-gradient(to right, #10b981, #059669);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 8 14 8 14;" +
+                            "-fx-cursor: hand;";
+            default -> style =
+                    "-fx-background-color: rgba(255,255,255,0.08);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 8 14 8 14;" +
+                            "-fx-cursor: hand;";
+        }
+
+        button.setStyle(style);
+        return button;
     }
 
     private VBox buildEmptyStateCard(String titleText, String bodyText) {
