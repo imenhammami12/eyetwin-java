@@ -4,6 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+    <list default="true" id="37c02466-cdf2-4345-b8e8-27dc6f948a14" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.edit.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eyetwin-java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TournoiServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TournoiServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/cv/1749145229501-10-1775038553153.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-15-1775499367342.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-16-1775499892081.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-17-1775501709471.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-0b16403a-f969-4bc9-8342-09ef1fcf296f.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-20c7a9c8-05cc-4f8f-a3dd-8c964742aef8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-89c1fdce-fb82-4ba8-b21c-38d6819cf933.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-a56d59bd-15a0-4b26-a665-bf216303c769.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1774644768894.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1775032983914.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1775227852624.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_1_1775316197260.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_22c4818a9dbd4015b19407e69534ba7e.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_25c8d15c9fae4fa0b3ef8f55f5b6b0f3.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_36a5883029264ea49567698bdaf7fe4c.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_771fa3f6a8d641e5a4321bbe06e3f6ee.jpeg" beforeDir="false" />
     <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
@@ -42,6 +70,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.CommunityWebSocketServerLauncher.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [org.apache.maven.plugins:maven-clean-plugin:2.5:clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [package].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;gestion__tournoi__match&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/DELL/Documents/GitHub/eyetwin-java&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Application.CommunityWebSocketServerLauncher.executor&quot;: &quot;Run&quot;,
@@ -112,16 +168,48 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="" />
+      <changelist id="37c02466-cdf2-4345-b8e8-27dc6f948a14" name="Changes" comment="" />
       <created>1775566691743</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1775566691743</updated>
+      <workItem from="1776813385120" duration="3678000" />
+      <workItem from="1776821886606" duration="196000" />
+      <workItem from="1776822094914" duration="220000" />
+      <workItem from="1776822325807" duration="94000" />
+      <workItem from="1776822492092" duration="639000" />
+      <workItem from="1776823151789" duration="41000" />
+      <workItem from="1776823205203" duration="104000" />
+      <workItem from="1776823341658" duration="126000" />
+      <workItem from="1776823480883" duration="74000" />
+      <workItem from="1776823559815" duration="27000" />
+      <workItem from="1776823590454" duration="20000" />
+      <workItem from="1776823636287" duration="235000" />
+      <workItem from="1776823876849" duration="36000" />
+      <workItem from="1776823925021" duration="89000" />
+      <workItem from="1776824172360" duration="29000" />
+      <workItem from="1776824210483" duration="232000" />
+      <workItem from="1776824460806" duration="66000" />
+      <workItem from="1776824535754" duration="81000" />
+      <workItem from="1776824816641" duration="27000" />
+      <workItem from="1776824853237" duration="84000" />
+      <workItem from="1776830417405" duration="3668000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">

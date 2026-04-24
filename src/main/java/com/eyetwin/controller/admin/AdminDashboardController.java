@@ -444,7 +444,7 @@ public class AdminDashboardController {
     @FXML public void goToDashboard()         { navigateTo("Admin.fxml"); }
     @FXML public void goToUsers()             { navigateTo("AdminUsers.fxml"); }
     @FXML public void goToPlanning()          { navigateTo("AdminPlanning.fxml"); }
-    @FXML public void goToTournaments()       { navigateTo("AdminTournois.fxml"); }
+    @FXML public void goToTournaments()       { navigateTo("Tournois.fxml"); }
     @FXML public void goToVideos()            { navigateTo("AdminVideos.fxml"); }
     @FXML public void goToCoachApplications() { navigateTo("AdminCoachApplications.fxml"); }
     @FXML public void goToChannels()          { navigateTo("AdminChannels.fxml"); }

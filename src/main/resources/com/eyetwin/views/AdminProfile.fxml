@@ -34,8 +34,8 @@
 
                 <!-- PROFILE HEADER -->
                 <HBox alignment="CENTER_LEFT" spacing="28"
-                      style="-fx-background-color:linear-gradient(135deg,rgba(255,60,100,0.08),rgba(120,40,200,0.08));-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:32;">
-                    <StackPane style="-fx-background-color:linear-gradient(135deg,#ff3c64,#7828c8);-fx-background-radius:60;-fx-min-width:100;-fx-min-height:100;-fx-max-width:100;-fx-max-height:100;">
+                      style="-fx-background-color:linear-gradient(to bottom right,rgba(255,60,100,0.08),rgba(120,40,200,0.08));-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:32;">
+                    <StackPane style="-fx-background-color:linear-gradient(to bottom right,#ff3c64,#7828c8);-fx-background-radius:60;-fx-min-width:100;-fx-min-height:100;-fx-max-width:100;-fx-max-height:100;">
                         <Label fx:id="avatarInitialLarge" text="AD"
                                style="-fx-text-fill:white;-fx-font-weight:900;-fx-font-size:36;"/>
                     </StackPane>
@@ -106,7 +106,7 @@
                                    style="-fx-text-fill:rgba(255,255,255,0.5);-fx-font-size:12;"/>
                         </VBox>
                         <Button fx:id="faceAuthActionBtn" text="📷  Enable"
-                                style="-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);-fx-background-radius:8;-fx-border-color:transparent;-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;-fx-cursor:hand;-fx-padding:10 18 10 18;"/>
+                                style="-fx-background-color:linear-gradient(to bottom right,#ff3c64,#ff1744);-fx-background-radius:8;-fx-border-color:transparent;-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:12;-fx-cursor:hand;-fx-padding:10 18 10 18;"/>
                     </HBox>
 
                     <!-- ══ PANNEAU CAMÉRA (caché par défaut, affiché au clic "Enable") ══ -->
@@ -138,7 +138,7 @@
                                     text="📸  Capture my face"
                                     onAction="#handleCapture"
                                     disable="true"
-                                    style="-fx-background-color:linear-gradient(135deg,#ff3c64,#ff1744);-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;-fx-background-radius:10;-fx-padding:12 24 12 24;-fx-cursor:hand;"/>
+                                    style="-fx-background-color:linear-gradient(to bottom right,#ff3c64,#ff1744);-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:13;-fx-background-radius:10;-fx-padding:12 24 12 24;-fx-cursor:hand;"/>
                             <Button fx:id="cameraCancelBtn"
                                     text="✕  Cancel"
                                     onAction="#handleCameraCancel"

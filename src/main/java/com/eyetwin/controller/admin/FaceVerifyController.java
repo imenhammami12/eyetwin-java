@@ -343,10 +343,21 @@ public class FaceVerifyController {
     //  STOP CAMERA
     // ════════════════════════════════════════════════════════════
     private void stopCamera() {
-        cameraRunning = false;
-        stopDetection();
-        if (previewTimer != null) { previewTimer.cancel(); previewTimer = null; }
-        if (camera != null && camera.isOpened()) { camera.release(); camera = null; }
+        synchronized (this) {
+            cameraRunning = false;
+            stopDetection();
+            if (previewTimer != null) {
+                previewTimer.cancel();
+                previewTimer = null;
+            }
+            if (camera != null) {
+                if (camera.isOpened()) {
+                    camera.release();
+                    System.out.println("[FaceVerifyController] Camera released.");
+                }
+                camera = null;
+            }
+        }
     }
 
     // ════════════════════════════════════════════════════════════

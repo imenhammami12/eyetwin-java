@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox styleClass="modal-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.eyetwin.controller.admin.TournoiFormController">
+    <stylesheets><URL value="@../styles/gaming-theme.css"/></stylesheets>
+
+    <!-- Header -->
+    <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="⚔" style="-fx-font-size:18px;-fx-text-fill:#e63946;"/>
+        <VBox spacing="2">
+            <Label fx:id="formTitle" text="Add Tournament" styleClass="modal-title"/>
+            <Label fx:id="formSubtitle" text="Fill in the tournament details" styleClass="modal-subtitle"/>
+        </VBox>
+    </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="modal-body" spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Row 1: Name + Type -->
+        <HBox spacing="20">
+            <VBox spacing="5">
+                <Label text="TOURNAMENT NAME" styleClass="form-label"/>
+                <TextField fx:id="txtNom" styleClass="form-input-wide" promptText="e.g. World Championship 2026"/>
+                <Label fx:id="errNom" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="TYPE" styleClass="form-label"/>
+                <ComboBox fx:id="cbType" styleClass="form-combo" promptText="Choose type..."/>
+                <Label fx:id="errType" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+
+        <!-- Row 2: Date début + Date fin + Prix -->
+        <HBox spacing="20">
+            <VBox spacing="5">
+                <Label text="START DATE" styleClass="form-label"/>
+                <DatePicker fx:id="dpDateDebut" styleClass="form-datepicker"/>
+                <Label fx:id="errDateDebut" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="END DATE" styleClass="form-label"/>
+                <DatePicker fx:id="dpDateFin" styleClass="form-datepicker"/>
+                <Label fx:id="errDateFin" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="PRIZE POOL (DT)" styleClass="form-label"/>
+                <TextField fx:id="txtPrix" styleClass="form-input" promptText="e.g. 5000"/>
+                <Label fx:id="errPrix" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+
+        <!-- Description -->
+        <VBox spacing="5">
+            <Label text="DESCRIPTION" styleClass="form-label"/>
+            <TextField fx:id="txtDescription" styleClass="form-input-wide" promptText="Short description of the tournament"/>
+            <Label fx:id="errDescription" styleClass="error-label" visible="false" managed="false"/>
+        </VBox>
+
+        <!-- Image picker -->
+        <VBox spacing="5">
+            <Label text="BANNER IMAGE" styleClass="form-label"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="txtImage" styleClass="form-input-wide" editable="false"
+                           promptText="Select an image file..."/>
+                <Button text="📁  Browse" onAction="#onBrowseImage" styleClass="btn-browse"/>
+            </HBox>
+            <Label fx:id="errImage" styleClass="error-label" visible="false" managed="false"/>
+        </VBox>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="modal-footer" alignment="CENTER_RIGHT" spacing="12">
+        <Button text="Cancel" onAction="#onCancel" styleClass="btn-cancel"/>
+        <Button text="💾  Save Tournament" onAction="#onSave" styleClass="btn-save"/>
+    </HBox>
+</VBox>

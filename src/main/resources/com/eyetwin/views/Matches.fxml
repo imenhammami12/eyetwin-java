@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.eyetwin.controller.admin.MatchController"
+            style="-fx-background-color: #0a0514;">
+    <stylesheets>
+        <URL value="@../styles/gaming-theme.css"/>
+    </stylesheets>
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+
+    <center>
+        <VBox fx:id="contentBox" style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox spacing="16" style="-fx-padding: 24;">
+                    
+                    <!-- Header with Title & Add button -->
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <VBox spacing="3">
+                            <Label text="Matches" styleClass="page-title" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                            <Label text="Manage and view all arena matches" styleClass="page-subtitle" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 13px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="statsLabel" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 12px;"/>
+                        <Button fx:id="btnAdd" text="＋  Add Match" onAction="#onOpenAddForm"
+                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+                                       -fx-text-fill: white; -fx-background-radius: 10;
+                                       -fx-padding: 10 22; -fx-cursor: hand; -fx-font-weight: bold;
+                                       -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>
+                    </HBox>
+                    
+                    <!-- Match Grid -->
+                    <FlowPane fx:id="matchGrid" hgap="20" vgap="20" styleClass="card-flow">
+                        <padding>
+                            <Insets top="10" right="0" bottom="20" left="0"/>
+                        </padding>
+                    </FlowPane>
+                    
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
