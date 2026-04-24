@@ -530,4 +530,79 @@ public class MessageServiceImpl implements IMessageService {
     }
 
 
+    /// SUMMARY
+    @Override
+    public List<Message> findMessagesAfter(int channelId, int messageId) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+
+        if (messageId <= 0) {
+            return findByChannel(channelId);
+        }
+
+        String sql = """
+        SELECT * FROM message
+        WHERE channel_id = ? AND id > ?
+        ORDER BY sent_at ASC, id ASC
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+        ps.setInt(2, messageId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
+        }
+
+        return messages;
+    }
+
+    @Override
+    public Message findLatestMessageInChannel(int channelId) throws SQLException {
+        String sql = """
+        SELECT * FROM message
+        WHERE channel_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            return message;
+        }
+
+        return null;
+    }
+
+    @Override
+    public int countMessagesAfter(int channelId, int messageId) throws SQLException {
+        String sql = """
+        SELECT COUNT(*)
+        FROM message
+        WHERE channel_id = ? AND id > ?
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+        ps.setInt(2, Math.max(0, messageId));
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+
+        return 0;
+    }
+
+
 }
