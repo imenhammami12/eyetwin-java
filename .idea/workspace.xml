@@ -32,6 +32,8 @@
       <change beforePath="$PROJECT_DIR$/uploads/teams/logo_25c8d15c9fae4fa0b3ef8f55f5b6b0f3.jpeg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/uploads/teams/logo_36a5883029264ea49567698bdaf7fe4c.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/uploads/teams/logo_771fa3f6a8d641e5a4321bbe06e3f6ee.jpeg" beforeDir="false" />
+    <list default="true" id="f1023141-5f5d-491c-b3de-87ac69d620c5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,6 +98,25 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.CommunityWebSocketServerLauncher.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.eyetwin [package].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;gestion-community&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/LENOVO/Desktop/eyetwin-java/src/main/java/com/eyetwin/services&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -142,8 +163,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.MainApp" />
         <item itemvalue="Application.CommunityWebSocketServerLauncher" />
+        <item itemvalue="Application.MainApp" />
       </list>
     </recent_temporary>
   </component>

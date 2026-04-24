@@ -11,6 +11,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eyetwin.entities.Community.MessageAttachment;
+import java.sql.Statement;
+
 public class MessageServiceImpl implements IMessageService {
 
     private Connection getConnection() {
@@ -42,7 +45,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
         return messages;
     }
@@ -207,13 +212,56 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            return mapMessage(rs);
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            return message;
         }
         return null;
     }
 
+//    @Override
+//    public void sendMessage(int channelId, String content, User player) throws SQLException {
+//        Channel channel = findChannelById(channelId);
+//        if (channel == null) {
+//            throw new IllegalArgumentException("Channel not found.");
+//        }
+//
+//        if (!Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) || !channel.isActive()) {
+//            throw new IllegalStateException("You cannot send a message to an unavailable channel.");
+//        }
+//
+//        String cleanContent = (content == null) ? "" : content.trim();
+//        if (cleanContent.isEmpty()) {
+//            throw new IllegalArgumentException("Message content cannot be empty.");
+//        }
+//
+//        String sql = """
+//            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
+//            VALUES (?, ?, ?, ?, ?, ?, ?)
+//            """;
+//
+//        Timestamp now = new Timestamp(System.currentTimeMillis());
+//
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setString(1, cleanContent);
+//        ps.setTimestamp(2, now);
+//        ps.setTimestamp(3, now);
+//        ps.setBoolean(4, false);
+//        ps.setString(5, player.getUsername());
+//        ps.setString(6, player.getEmail());
+//        ps.setInt(7, channelId);
+//        ps.executeUpdate();
+//    }
+
+
     @Override
     public void sendMessage(int channelId, String content, User player) throws SQLException {
+        sendMessage(channelId, content, player, new ArrayList<>());
+    }
+
+    @Override
+    public void sendMessage(int channelId, String content, User player, List<MessageAttachment> attachments) throws SQLException {
         Channel channel = findChannelById(channelId);
         if (channel == null) {
             throw new IllegalArgumentException("Channel not found.");
@@ -224,28 +272,76 @@ public class MessageServiceImpl implements IMessageService {
         }
 
         String cleanContent = (content == null) ? "" : content.trim();
-        if (cleanContent.isEmpty()) {
+        boolean hasAttachments = attachments != null && !attachments.isEmpty();
+
+        if (cleanContent.isEmpty() && !hasAttachments) {
             throw new IllegalArgumentException("Message content cannot be empty.");
         }
 
-        String sql = """
+        Connection c = getConnection();
+        boolean oldAutoCommit = c.getAutoCommit();
+        c.setAutoCommit(false);
+
+        try {
+            String messageSql = """
             INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
 
-        Timestamp now = new Timestamp(System.currentTimeMillis());
+            Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        Connection c = getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, cleanContent);
-        ps.setTimestamp(2, now);
-        ps.setTimestamp(3, now);
-        ps.setBoolean(4, false);
-        ps.setString(5, player.getUsername());
-        ps.setString(6, player.getEmail());
-        ps.setInt(7, channelId);
-        ps.executeUpdate();
+            PreparedStatement ps = c.prepareStatement(messageSql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, cleanContent);
+            ps.setTimestamp(2, now);
+            ps.setTimestamp(3, now);
+            ps.setBoolean(4, false);
+            ps.setString(5, player.getUsername());
+            ps.setString(6, player.getEmail());
+            ps.setInt(7, channelId);
+            ps.executeUpdate();
+
+            int messageId;
+            ResultSet keys = ps.getGeneratedKeys();
+            if (keys.next()) {
+                messageId = keys.getInt(1);
+            } else {
+                throw new SQLException("Failed to retrieve inserted message ID.");
+            }
+
+            if (hasAttachments) {
+                String attachmentSql = """
+                INSERT INTO message_attachment
+                (original_name, stored_name, mime_type, size, message_id, url, public_id, cloud_resource_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+                PreparedStatement aps = c.prepareStatement(attachmentSql);
+
+                for (MessageAttachment attachment : attachments) {
+                    aps.setString(1, attachment.getOriginalName());
+                    aps.setString(2, attachment.getStoredName());
+                    aps.setString(3, attachment.getMimeType());
+                    aps.setInt(4, attachment.getSize());
+                    aps.setInt(5, messageId);
+                    aps.setString(6, attachment.getUrl());
+                    aps.setString(7, attachment.getPublicId());
+                    aps.setString(8, attachment.getCloudResourceType());
+                    aps.addBatch();
+                }
+
+                aps.executeBatch();
+            }
+
+            c.commit();
+
+        } catch (Exception e) {
+            c.rollback();
+            throw new SQLException("Failed to send message with attachments: " + e.getMessage(), e);
+        } finally {
+            c.setAutoCommit(oldAutoCommit);
+        }
     }
+
 
     @Override
     public void updateOwnMessage(int messageId, String newContent, User player) throws SQLException {
@@ -401,4 +497,112 @@ public class MessageServiceImpl implements IMessageService {
 
         return message;
     }
+
+    private List<MessageAttachment> loadAttachmentsForMessage(int messageId, Connection c) throws SQLException {
+        List<MessageAttachment> attachments = new ArrayList<>();
+
+        String sql = """
+        SELECT *
+        FROM message_attachment
+        WHERE message_id = ?
+        ORDER BY id ASC
+        """;
+
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, messageId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            MessageAttachment attachment = new MessageAttachment();
+            attachment.setId(rs.getInt("id"));
+            attachment.setOriginalName(rs.getString("original_name"));
+            attachment.setStoredName(rs.getString("stored_name"));
+            attachment.setMimeType(rs.getString("mime_type"));
+            attachment.setSize(rs.getInt("size"));
+            attachment.setMessageId(rs.getInt("message_id"));
+            attachment.setUrl(rs.getString("url"));
+            attachment.setPublicId(rs.getString("public_id"));
+            attachment.setCloudResourceType(rs.getString("cloud_resource_type"));
+            attachments.add(attachment);
+        }
+
+        return attachments;
+    }
+
+
+    /// SUMMARY
+    @Override
+    public List<Message> findMessagesAfter(int channelId, int messageId) throws SQLException {
+        List<Message> messages = new ArrayList<>();
+
+        if (messageId <= 0) {
+            return findByChannel(channelId);
+        }
+
+        String sql = """
+        SELECT * FROM message
+        WHERE channel_id = ? AND id > ?
+        ORDER BY sent_at ASC, id ASC
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+        ps.setInt(2, messageId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
+        }
+
+        return messages;
+    }
+
+    @Override
+    public Message findLatestMessageInChannel(int channelId) throws SQLException {
+        String sql = """
+        SELECT * FROM message
+        WHERE channel_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            return message;
+        }
+
+        return null;
+    }
+
+    @Override
+    public int countMessagesAfter(int channelId, int messageId) throws SQLException {
+        String sql = """
+        SELECT COUNT(*)
+        FROM message
+        WHERE channel_id = ? AND id > ?
+        """;
+
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, channelId);
+        ps.setInt(2, Math.max(0, messageId));
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+
+        return 0;
+    }
+
+
 }

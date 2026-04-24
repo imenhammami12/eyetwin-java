@@ -16,21 +16,24 @@
                 <StackPane prefHeight="170" style="-fx-background-color: #080810;">
                     <Region style="-fx-background-color: rgba(8,8,16,0.96);" />
 
-                    <VBox alignment="CENTER_LEFT" spacing="10"
+                    <VBox alignment="CENTER_LEFT"
+                          spacing="10"
                           style="-fx-padding: 26 36 0 36;">
                         <children>
-                            <HBox alignment="CENTER_LEFT" spacing="8"
+                            <HBox alignment="CENTER_LEFT"
+                                  spacing="8"
                                   style="-fx-background-color: rgba(232,55,42,0.09);
                                          -fx-border-color: rgba(232,55,42,0.28);
-                                         -fx-border-width:1;
-                                         -fx-border-radius:3;
-                                         -fx-background-radius:3;
+                                         -fx-border-width: 1;
+                                         -fx-border-radius: 3;
+                                         -fx-background-radius: 3;
                                          -fx-padding: 4 12 4 12;
-                                         -fx-max-width:220;">
+                                         -fx-max-width: 220;">
                                 <children>
-                                    <Label text="●" style="-fx-text-fill: #3dff8a; -fx-font-size:8;" />
+                                    <Label text="●"
+                                           style="-fx-text-fill: #3dff8a; -fx-font-size: 8;" />
                                     <Label text="💬 Channel Chat"
-                                           style="-fx-text-fill: #ff4d3d; -fx-font-size:10; -fx-font-weight:bold;" />
+                                           style="-fx-text-fill: #ff4d3d; -fx-font-size: 10; -fx-font-weight: bold;" />
                                 </children>
                             </HBox>
 
@@ -49,7 +52,7 @@
                                             <Label fx:id="lblChannelDescription"
                                                    text="Channel description"
                                                    wrapText="true"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size:13;" />
+                                                   style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 13;" />
                                         </children>
                                     </VBox>
 
@@ -84,19 +87,97 @@
     </top>
 
     <center>
-        <VBox spacing="16" style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
+        <VBox spacing="16"
+              style="-fx-background-color: #080810; -fx-padding: 24 36 24 36;">
             <children>
-                <ScrollPane fitToWidth="true"
+                <VBox fx:id="summaryBannerBox"
+                      spacing="8"
+                      visible="false"
+                      managed="false"
+                      style="-fx-background-color: rgba(232,55,42,0.10);
+             -fx-border-color: rgba(232,55,42,0.28);
+             -fx-border-radius: 14;
+             -fx-background-radius: 14;
+             -fx-padding: 14;">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <children>
+                                <Label fx:id="lblMissedMessages"
+                                       text="You missed 0 messages"
+                                       style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
+
+                                <Pane HBox.hgrow="ALWAYS" />
+
+                                <Button fx:id="btnSummarizeMissed"
+                                        text="Summarize"
+                                        onAction="#handleSummarizeMissedMessages"
+                                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 10;
+                               -fx-padding: 8 18 8 18;
+                               -fx-cursor: hand;" />
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="lblSummaryLoading"
+                               text="Generating summary..."
+                               visible="false"
+                               managed="false"
+                               style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 12px;" />
+                    </children>
+                </VBox>
+
+                <VBox fx:id="summaryCardBox"
+                      spacing="10"
+                      visible="false"
+                      managed="false"
+                      style="-fx-background-color: rgba(255,255,255,0.03);
+             -fx-border-color: rgba(255,255,255,0.08);
+             -fx-border-radius: 14;
+             -fx-background-radius: 14;
+             -fx-padding: 16;">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label fx:id="lblSummaryTitle"
+                                       text="Summary"
+                                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                                <Pane HBox.hgrow="ALWAYS" />
+
+                                <Button text="Hide"
+                                        onAction="#handleHideSummary"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;
+                               -fx-padding: 6 14 6 14;
+                               -fx-cursor: hand;" />
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="lblSummaryOverview"
+                               wrapText="true"
+                               style="-fx-text-fill: rgba(255,255,255,0.86); -fx-font-size: 13px;" />
+
+                        <VBox fx:id="summaryKeyPointsBox" spacing="4" />
+                        <VBox fx:id="summaryActionItemsBox" spacing="4" />
+                        <VBox fx:id="summaryOpenQuestionsBox" spacing="4" />
+                    </children>
+                </VBox>
+                <ScrollPane fx:id="messagesScrollPane"
+                            fitToWidth="true"
                             VBox.vgrow="ALWAYS"
                             style="-fx-background-color: transparent;
-                                   -fx-background: transparent;
-                                   -fx-border-color: transparent;">
+                   -fx-background: transparent;
+                   -fx-border-color: transparent;">
                     <content>
                         <VBox fx:id="messagesContainer"
                               spacing="10"
                               style="-fx-background-color: transparent;">
                             <padding>
-                                <Insets top="4" right="0" bottom="8" left="0"/>
+                                <Insets top="4" right="0" bottom="8" left="0" />
                             </padding>
                         </VBox>
                     </content>
@@ -131,8 +212,41 @@
                                          -fx-border-radius: 12;
                                          -fx-border-color: rgba(255,255,255,0.08);" />
 
-                        <HBox alignment="CENTER_RIGHT">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
                             <children>
+                                <Button fx:id="btnAttach"
+                                        text="Attach Files"
+                                        onAction="#handleChooseAttachments"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                                               -fx-border-color: rgba(255,255,255,0.12);
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-border-radius: 10;
+                                               -fx-padding: 10 16 10 16;
+                                               -fx-cursor: hand;" />
+
+                                <Label fx:id="lblAttachmentNames"
+                                       text=""
+                                       visible="false"
+                                       managed="false"
+                                       maxWidth="500"
+                                       wrapText="true"
+                                       style="-fx-text-fill: rgba(255,255,255,0.75);
+                                              -fx-font-size: 12px;" />
+
+                                <Button fx:id="btnClearAttachments"
+                                        text="✕"
+                                        onAction="#handleClearAttachments"
+                                        visible="false"
+                                        managed="false"
+                                        style="-fx-background-color: transparent;
+                                               -fx-text-fill: #ff7b7b;
+                                               -fx-font-weight: bold;
+                                               -fx-cursor: hand;" />
+
+                                <Pane HBox.hgrow="ALWAYS" />
+
                                 <Button fx:id="btnSend"
                                         text="Send"
                                         onAction="#handleSendMessage"

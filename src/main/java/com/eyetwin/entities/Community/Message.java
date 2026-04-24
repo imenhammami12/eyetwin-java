@@ -2,6 +2,9 @@ package com.eyetwin.entities.Community;
 
 import java.sql.Timestamp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Message {
     private int id;
     private String content;
@@ -12,6 +15,8 @@ public class Message {
     private boolean is_deleted;
     private int channel_id;
     private String channelName;
+
+    private List<MessageAttachment> attachments = new ArrayList<>();
 
     public Message() {
     }
@@ -91,4 +96,17 @@ public class Message {
     public String getChannelName() {return channelName;}
 
     public void setChannelName(String channelName) {this.channelName = channelName;}
+
+    public List<MessageAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<MessageAttachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    public boolean hasAttachments() {
+        return attachments != null && !attachments.isEmpty();
+    }
+
 }

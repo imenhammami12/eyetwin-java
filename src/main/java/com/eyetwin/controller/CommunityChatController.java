@@ -2,34 +2,56 @@ package com.eyetwin.controller;
 
 import com.eyetwin.entities.Community.Channel;
 import com.eyetwin.entities.Community.Message;
+import com.eyetwin.entities.Community.MessageAttachment;
 import com.eyetwin.entities.User;
+import com.eyetwin.services.Community.CloudinaryUploadService;
 import com.eyetwin.services.Community.MessageServiceImpl;
+import com.eyetwin.tools.CommunityFileValidator;
 import com.eyetwin.tools.CommunityValidator;
 import com.eyetwin.tools.SessionManager;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 import com.eyetwin.websocket.ChatWebSocketConfig;
 import com.eyetwin.websocket.client.ChatSocketListener;
 import com.eyetwin.websocket.client.CommunityWebSocketClient;
 import com.eyetwin.websocket.model.SocketEnvelope;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.eyetwin.config.AISummaryConfig;
+import com.eyetwin.entities.Community.ChatSummaryResult;
+import com.eyetwin.services.Community.ChatSummaryService;
 
 public class CommunityChatController {
 
@@ -37,12 +59,21 @@ public class CommunityChatController {
     @FXML private Label lblChannelDescription;
     @FXML private Label lblChannelStatus;
     @FXML private VBox messagesContainer;
+    @FXML private ScrollPane messagesScrollPane;
+
     @FXML private TextArea taNewMessage;
     @FXML private Button btnSend;
     @FXML private VBox composerBox;
     @FXML private Label lblComposerInfo;
 
+    @FXML private Button btnAttach;
+    @FXML private Button btnClearAttachments;
+    @FXML private Label lblAttachmentNames;
+
+    private final List<File> selectedAttachments = new ArrayList<>();
+    private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
     private final MessageServiceImpl messageService = new MessageServiceImpl();
+
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private Channel channel;
@@ -54,6 +85,20 @@ public class CommunityChatController {
     private boolean realtimeReady = false;
 
 
+    /// SUMMARY
+    @FXML private VBox summaryBannerBox;
+    @FXML private Label lblMissedMessages;
+    @FXML private Button btnSummarizeMissed;
+    @FXML private Label lblSummaryLoading;
+
+    @FXML private VBox summaryCardBox;
+    @FXML private Label lblSummaryTitle;
+    @FXML private Label lblSummaryOverview;
+    @FXML private VBox summaryKeyPointsBox;
+    @FXML private VBox summaryActionItemsBox;
+    @FXML private VBox summaryOpenQuestionsBox;
+
+    private final ChatSummaryService chatSummaryService = new ChatSummaryService();
 
     public void setChannel(Channel channel) {
         stopRealtimeChat();
@@ -61,7 +106,13 @@ public class CommunityChatController {
         this.channel = channel;
         refreshHeader();
         refreshComposerVisibility();
-        loadMessages();
+
+        hideSummaryBanner();
+        clearSummaryCard();
+
+        loadMessagesToBottom();
+        refreshMissedSummaryBanner();
+
         startRealtimeChat();
     }
 
@@ -69,60 +120,9 @@ public class CommunityChatController {
     public void initialize() {
         refreshHeader();
         refreshComposerVisibility();
+        hideSummaryBanner();
+        clearSummaryCard();
     }
-
-//    private void startRealtimeChat() {
-//        if (channel == null) return;
-//
-//        try {
-//            socketClient = new CommunityWebSocketClient(
-//                    URI.create(ChatWebSocketConfig.SERVER_URL),
-//                    new ChatSocketListener() {
-//                        @Override
-//                        public void onConnected() {
-//                            System.out.println("Realtime chat connected for channel " + channel.getId());
-//                        }
-//
-//                        @Override
-//                        public void onMessageReceived(SocketEnvelope envelope) {
-//                            if (envelope == null) return;
-//                            if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())) return;
-//                            if (envelope.getChannelId() == null) return;
-//                            if (!envelope.getChannelId().equals(channel.getId())) return;
-//
-//                            // Ignore my own echoed message from websocket
-//                            if (envelope.getUserEmail() != null
-//                                    && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
-//                                return;
-//                            }
-//
-//                            Platform.runLater(() -> appendRealtimeMessage(envelope));
-//                        }
-//
-//                        @Override
-//                        public void onDisconnected(String reason) {
-//                            System.out.println("Realtime chat disconnected: " + reason);
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//                    }
-//            );
-//
-//            socketClient.connectAndJoin(
-//                    channel.getId(),
-//                    getRealtimeUserId(),
-//                    getRealtimeUserName(),
-//                    getRealtimeUserEmail()
-//            );
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            showError("Failed to connect realtime chat: " + ex.getMessage());
-//        }
-//    }
 
     private void startRealtimeChat() {
         if (channel == null) return;
@@ -151,13 +151,20 @@ public class CommunityChatController {
                                 return;
                             }
 
-                            // Ignore my own echoed websocket event
                             if (envelope.getUserEmail() != null
                                     && envelope.getUserEmail().equalsIgnoreCase(getRealtimeUserEmail())) {
                                 return;
                             }
 
-                            Platform.runLater(() -> loadMessages());
+                            Platform.runLater(() -> {
+                                if (SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())) {
+                                    loadMessagesToBottom();
+                                    markCurrentChannelAsReadSilently();
+                                    hideSummaryBanner();
+                                } else {
+                                    loadMessagesPreservingViewport();
+                                }
+                            });
                         }
 
                         @Override
@@ -237,41 +244,6 @@ public class CommunityChatController {
                 : "guest@local";
     }
 
-    private void appendRealtimeMessage(SocketEnvelope envelope) {
-        if (messagesContainer == null) return;
-
-        removeEmptyStateIfNeeded();
-
-        Message message = new Message();
-        message.setChannel_id(envelope.getChannelId());
-        message.setContent(envelope.getContent());
-        message.setSender_name(envelope.getUserName());
-        message.setSender_email(envelope.getUserEmail());
-        message.setIs_deleted(false);
-
-        try {
-            if (envelope.getSentAt() != null && !envelope.getSentAt().isBlank()) {
-                message.setSentAt(Timestamp.valueOf(LocalDateTime.parse(envelope.getSentAt())));
-            } else {
-                message.setSentAt(new Timestamp(System.currentTimeMillis()));
-            }
-        } catch (Exception ex) {
-            message.setSentAt(new Timestamp(System.currentTimeMillis()));
-        }
-
-        messagesContainer.getChildren().add(buildMessageRow(message));
-        messagesContainer.requestLayout();
-    }
-
-    private void removeEmptyStateIfNeeded() {
-        if (messagesContainer == null) return;
-
-        if (messagesContainer.getChildren().size() == 1
-                && messagesContainer.getChildren().get(0) instanceof VBox) {
-            messagesContainer.getChildren().clear();
-        }
-    }
-
     private void refreshHeader() {
         if (channel == null) return;
 
@@ -327,7 +299,20 @@ public class CommunityChatController {
         }
     }
 
-    private void loadMessages() {
+    private void loadMessagesToBottom() {
+        loadMessagesInternal(true, null);
+    }
+
+    private void loadMessagesKeepingMessage(Integer messageId) {
+        loadMessagesInternal(false, messageId);
+    }
+
+    private void loadMessagesPreservingViewport() {
+        Integer anchorId = captureTopVisibleMessageId();
+        loadMessagesInternal(false, anchorId);
+    }
+
+    private void loadMessagesInternal(boolean scrollToBottomAfterLoad, Integer anchorMessageId) {
         if (channel == null || messagesContainer == null) return;
 
         messagesContainer.getChildren().clear();
@@ -353,6 +338,10 @@ public class CommunityChatController {
 
                 emptyBox.getChildren().addAll(title, subtitle);
                 messagesContainer.getChildren().add(emptyBox);
+
+                if (scrollToBottomAfterLoad) {
+                    scrollToBottom();
+                }
                 return;
             }
 
@@ -360,9 +349,94 @@ public class CommunityChatController {
                 messagesContainer.getChildren().add(buildMessageRow(message));
             }
 
+            if (scrollToBottomAfterLoad) {
+                scrollToBottom();
+            } else if (anchorMessageId != null) {
+                scrollToMessage(anchorMessageId);
+            }
+
         } catch (SQLException e) {
             showError("Failed to load messages: " + e.getMessage());
         }
+    }
+
+    private Integer captureTopVisibleMessageId() {
+        if (messagesScrollPane == null || messagesContainer == null || messagesContainer.getChildren().isEmpty()) {
+            return null;
+        }
+
+        messagesScrollPane.applyCss();
+        messagesScrollPane.layout();
+        messagesContainer.applyCss();
+        messagesContainer.layout();
+
+        double contentHeight = messagesContainer.getBoundsInLocal().getHeight();
+        double viewportHeight = messagesScrollPane.getViewportBounds().getHeight();
+        double maxScroll = Math.max(0, contentHeight - viewportHeight);
+        double currentY = messagesScrollPane.getVvalue() * maxScroll;
+
+        for (Node node : messagesContainer.getChildren()) {
+            Bounds bounds = node.getBoundsInParent();
+            if (bounds.getMaxY() >= currentY + 1) {
+                Object data = node.getUserData();
+                if (data instanceof Integer id) {
+                    return id;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void scrollToBottom() {
+        if (messagesScrollPane == null) return;
+
+        Platform.runLater(() -> {
+            messagesScrollPane.applyCss();
+            messagesScrollPane.layout();
+            messagesContainer.applyCss();
+            messagesContainer.layout();
+            messagesScrollPane.setVvalue(1.0);
+
+            Platform.runLater(() -> {
+                messagesScrollPane.applyCss();
+                messagesScrollPane.layout();
+                messagesContainer.applyCss();
+                messagesContainer.layout();
+                messagesScrollPane.setVvalue(1.0);
+            });
+        });
+    }
+
+    private void scrollToMessage(Integer messageId) {
+        if (messageId == null || messagesScrollPane == null || messagesContainer == null) return;
+
+        Platform.runLater(() -> {
+            messagesScrollPane.applyCss();
+            messagesScrollPane.layout();
+            messagesContainer.applyCss();
+            messagesContainer.layout();
+
+            Node target = null;
+            for (Node node : messagesContainer.getChildren()) {
+                if (messageId.equals(node.getUserData())) {
+                    target = node;
+                    break;
+                }
+            }
+
+            if (target == null) return;
+
+            double contentHeight = messagesContainer.getBoundsInLocal().getHeight();
+            double viewportHeight = messagesScrollPane.getViewportBounds().getHeight();
+            double targetY = target.getBoundsInParent().getMinY();
+
+            double desiredY = Math.max(0, targetY - 80);
+            double maxScroll = Math.max(1, contentHeight - viewportHeight);
+            double vValue = desiredY / maxScroll;
+
+            messagesScrollPane.setVvalue(Math.max(0, Math.min(1, vValue)));
+        });
     }
 
     private HBox buildMessageRow(Message message) {
@@ -372,6 +446,7 @@ public class CommunityChatController {
                 && message.getSender_email().equalsIgnoreCase(currentUser.getEmail());
 
         HBox row = new HBox();
+        row.setUserData(message.getId());
         row.setPadding(new Insets(4, 0, 4, 0));
         row.setAlignment(isMine ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
 
@@ -425,36 +500,47 @@ public class CommunityChatController {
                     actionMenuMessageId = message.getId();
                     deleteConfirmMessageId = null;
                 }
-                loadMessages();
+                loadMessagesKeepingMessage(message.getId());
             });
             top.getChildren().add(btnMenu);
         }
 
         bubble.getChildren().add(top);
 
-        if (editingMessageId != null && editingMessageId == message.getId()) {
+        if (editingMessageId != null && editingMessageId.equals(message.getId())) {
             bubble.getChildren().add(buildInlineEditBox(message));
         } else {
-            Label content = new Label(message.getDisplayContent());
-            content.setWrapText(true);
+            String visibleText = message.getDisplayContent();
+            boolean showText = visibleText != null && !visibleText.isBlank();
 
-            if (message.isIs_deleted()) {
-                content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
-            } else {
-                content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+            if (showText) {
+                Label content = new Label(visibleText);
+                content.setWrapText(true);
+
+                if (message.isIs_deleted()) {
+                    content.setStyle("-fx-text-fill: rgba(255,255,255,0.42); -fx-font-size: 13px; -fx-font-style: italic;");
+                } else {
+                    content.setStyle("-fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 13px;");
+                }
+
+                bubble.getChildren().add(content);
             }
 
-            bubble.getChildren().add(content);
+            if (!message.isIs_deleted() && message.hasAttachments()) {
+                for (MessageAttachment attachment : message.getAttachments()) {
+                    bubble.getChildren().add(buildAttachmentNode(attachment));
+                }
+            }
         }
 
         wrapper.getChildren().add(bubble);
 
-        if (isMine && !message.isIs_deleted() && actionMenuMessageId != null && actionMenuMessageId == message.getId()) {
-            wrapper.getChildren().add(buildMessageActionMenu(message, isMine));
+        if (isMine && !message.isIs_deleted() && actionMenuMessageId != null && actionMenuMessageId.equals(message.getId())) {
+            wrapper.getChildren().add(buildMessageActionMenu(message));
         }
 
-        if (isMine && !message.isIs_deleted() && deleteConfirmMessageId != null && deleteConfirmMessageId == message.getId()) {
-            wrapper.getChildren().add(buildInlineDeleteConfirm(message, isMine));
+        if (isMine && !message.isIs_deleted() && deleteConfirmMessageId != null && deleteConfirmMessageId.equals(message.getId())) {
+            wrapper.getChildren().add(buildInlineDeleteConfirm(message));
         }
 
         row.getChildren().add(wrapper);
@@ -529,7 +615,7 @@ public class CommunityChatController {
                     );
                 }
 
-                loadMessages();
+                loadMessagesKeepingMessage(message.getId());
 
             } catch (Exception ex) {
                 error.setText(ex.getMessage());
@@ -540,7 +626,7 @@ public class CommunityChatController {
 
         btnCancel.setOnAction(e -> {
             editingMessageId = null;
-            loadMessages();
+            loadMessagesKeepingMessage(message.getId());
         });
 
         actions.getChildren().addAll(btnSave, btnCancel);
@@ -548,7 +634,7 @@ public class CommunityChatController {
         return box;
     }
 
-    private VBox buildMessageActionMenu(Message message, boolean isMine) {
+    private VBox buildMessageActionMenu(Message message) {
         VBox menu = new VBox(6);
         menu.setPadding(new Insets(8));
         menu.setMaxWidth(170);
@@ -574,7 +660,7 @@ public class CommunityChatController {
             editingMessageId = message.getId();
             actionMenuMessageId = null;
             deleteConfirmMessageId = null;
-            loadMessages();
+            loadMessagesKeepingMessage(message.getId());
         });
 
         Button deleteBtn = new Button("🗑 Delete");
@@ -591,14 +677,14 @@ public class CommunityChatController {
         deleteBtn.setOnAction(e -> {
             actionMenuMessageId = null;
             deleteConfirmMessageId = message.getId();
-            loadMessages();
+            loadMessagesKeepingMessage(message.getId());
         });
 
         menu.getChildren().addAll(editBtn, deleteBtn);
         return menu;
     }
 
-    private VBox buildInlineDeleteConfirm(Message message, boolean isMine) {
+    private VBox buildInlineDeleteConfirm(Message message) {
         VBox confirmBox = new VBox(8);
         confirmBox.setPadding(new Insets(10));
         confirmBox.setMaxWidth(240);
@@ -641,7 +727,8 @@ public class CommunityChatController {
                     );
                 }
 
-                loadMessages();
+                loadMessagesKeepingMessage(message.getId());
+
             } catch (Exception ex) {
                 showError("Failed to delete message: " + ex.getMessage());
             }
@@ -658,7 +745,7 @@ public class CommunityChatController {
         );
         cancelBtn.setOnAction(e -> {
             deleteConfirmMessageId = null;
-            loadMessages();
+            loadMessagesKeepingMessage(message.getId());
         });
 
         actions.getChildren().addAll(deleteBtn, cancelBtn);
@@ -666,84 +753,150 @@ public class CommunityChatController {
         return confirmBox;
     }
 
-//    @FXML
-//    private void handleSendMessage() {
-//        if (channel == null) return;
-//
-//        try {
-//            if (!SessionManager.canWriteCommunityMessages()) {
-//                showError("Only a plain player can send messages.");
-//                return;
-//            }
-//
-//            String validation = CommunityValidator.validateMessageContent(taNewMessage.getText());
-//            if (validation != null) {
-//                showError(validation);
-//                return;
-//            }
-//
-//            messageService.sendMessage(channel.getId(), taNewMessage.getText(), SessionManager.getCurrentUser());
-//            taNewMessage.clear();
-//            editingMessageId = null;
-//            actionMenuMessageId = null;
-//            deleteConfirmMessageId = null;
-//            loadMessages();
-//
-//        } catch (Exception e) {
-//            showError("Failed to send message: " + e.getMessage());
-//        }
-//    }
+    @FXML
+    private void handleChooseAttachments() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choose attachments");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Allowed files",
+                        "*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp",
+                        "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx",
+                        "*.ppt", "*.pptx", "*.txt", "*.zip"
+                )
+        );
 
+        List<File> files = chooser.showOpenMultipleDialog(btnSend.getScene().getWindow());
+        if (files == null || files.isEmpty()) {
+            return;
+        }
 
+        try {
+            for (File file : files) {
+                CommunityFileValidator.validate(file);
+            }
 
-//    @FXML
-//    private void handleSendMessage() {
-//        if (channel == null) return;
-//
-//        try {
-//            if (!SessionManager.canWriteCommunityMessages()) {
-//                showError("Only a plain player can send messages.");
-//                return;
-//            }
-//
-//            String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
-//
-//            String validation = CommunityValidator.validateMessageContent(content);
-//            if (validation != null) {
-//                showError(validation);
-//                return;
-//            }
-//
-//            // 1) Save in database
-//            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
-//
-//            // 2) Reset UI state
-//            taNewMessage.clear();
-//            editingMessageId = null;
-//            actionMenuMessageId = null;
-//            deleteConfirmMessageId = null;
-//
-//            // 3) Send realtime event
-//            if (socketClient != null && socketClient.isOpen()) {
-//                socketClient.publishMessage(
-//                        channel.getId(),
-//                        getRealtimeUserId(),
-//                        getRealtimeUserName(),
-//                        getRealtimeUserEmail(),
-//                        content
-//                );
-//
-//                // Reload from DB so my own message has the real id
-//                loadMessages();
-//            } else {
-//                // fallback if socket is not connected
-//                loadMessages();
-//            }
-//
-//        } catch (Exception e) {
-//            showError("Failed to send message: " + e.getMessage());
-//        }
-//    }
+            selectedAttachments.clear();
+            selectedAttachments.addAll(files);
+            refreshAttachmentSelectionUi();
+
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleClearAttachments() {
+        selectedAttachments.clear();
+        refreshAttachmentSelectionUi();
+    }
+
+    private void refreshAttachmentSelectionUi() {
+        boolean hasFiles = !selectedAttachments.isEmpty();
+
+        if (lblAttachmentNames != null) {
+            lblAttachmentNames.setVisible(hasFiles);
+            lblAttachmentNames.setManaged(hasFiles);
+
+            if (!hasFiles) {
+                lblAttachmentNames.setText("");
+            } else if (selectedAttachments.size() == 1) {
+                lblAttachmentNames.setText(selectedAttachments.get(0).getName());
+            } else {
+                lblAttachmentNames.setText(selectedAttachments.size() + " files selected");
+            }
+        }
+
+        if (btnClearAttachments != null) {
+            btnClearAttachments.setVisible(hasFiles);
+            btnClearAttachments.setManaged(hasFiles);
+        }
+    }
+
+    private void setComposerBusy(boolean busy) {
+        if (taNewMessage != null) taNewMessage.setDisable(busy);
+        if (btnSend != null) btnSend.setDisable(busy);
+        if (btnAttach != null) btnAttach.setDisable(busy);
+        if (btnClearAttachments != null) btnClearAttachments.setDisable(busy);
+    }
+
+    private String formatBytes(int bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
+        return String.format("%.1f MB", bytes / 1024.0 / 1024.0);
+    }
+
+    private void openAttachment(String url) {
+        try {
+            if (url == null || url.isBlank()) {
+                throw new IllegalArgumentException("Attachment URL is empty.");
+            }
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception e) {
+            showError("Cannot open attachment: " + e.getMessage());
+        }
+    }
+
+    private Node buildAttachmentNode(MessageAttachment attachment) {
+        if (attachment.isImage()) {
+            VBox box = new VBox(6);
+            box.setPadding(new Insets(8));
+            box.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.04);" +
+                            "-fx-border-color: rgba(255,255,255,0.08);" +
+                            "-fx-border-radius: 10;" +
+                            "-fx-background-radius: 10;"
+            );
+
+            ImageView imageView = new ImageView();
+            Image image = new Image(attachment.getUrl(), false);
+            imageView.setImage(image);
+            imageView.setPreserveRatio(true);
+            imageView.setFitWidth(260);
+            imageView.setSmooth(true);
+            imageView.setStyle("-fx-cursor: hand;");
+            imageView.setOnMouseClicked(e -> openAttachment(attachment.getUrl()));
+
+            Hyperlink link = new Hyperlink(
+                    attachment.getOriginalName() != null ? attachment.getOriginalName() : "Open image"
+            );
+            link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
+            link.setOnAction(e -> openAttachment(attachment.getUrl()));
+
+            Label meta = new Label(
+                    (attachment.getMimeType() != null ? attachment.getMimeType() : "image")
+                            + " • " + formatBytes(attachment.getSize())
+            );
+            meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
+
+            box.getChildren().addAll(imageView, link, meta);
+            return box;
+        }
+
+        VBox box = new VBox(4);
+        box.setPadding(new Insets(10));
+        box.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.04);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;"
+        );
+
+        Hyperlink link = new Hyperlink(
+                attachment.getOriginalName() != null ? attachment.getOriginalName() : "Open attachment"
+        );
+        link.setStyle("-fx-text-fill: #ff8a7a; -fx-font-weight: bold;");
+        link.setOnAction(e -> openAttachment(attachment.getUrl()));
+
+        Label meta = new Label(
+                (attachment.getMimeType() != null ? attachment.getMimeType() : "file")
+                        + " • " + formatBytes(attachment.getSize())
+        );
+        meta.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 11px;");
+
+        box.getChildren().addAll(link, meta);
+        return box;
+    }
 
     @FXML
     private void handleSendMessage() {
@@ -757,57 +910,82 @@ public class CommunityChatController {
 
             String content = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
 
-            String validation = CommunityValidator.validateMessageContent(content);
+            String validation = CommunityValidator.validateMessageForSend(content, !selectedAttachments.isEmpty());
             if (validation != null) {
                 showError(validation);
                 return;
             }
 
-            // 1) Save in database
-            messageService.sendMessage(channel.getId(), content, SessionManager.getCurrentUser());
+            final String contentToSend = content;
+            final List<File> filesToUpload = new ArrayList<>(selectedAttachments);
 
-            // 2) Reset UI state
-            taNewMessage.clear();
-            editingMessageId = null;
-            actionMenuMessageId = null;
-            deleteConfirmMessageId = null;
+            setComposerBusy(true);
 
-            // 3) Publish realtime for other users
-            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
-                socketClient.publishMessage(
-                        channel.getId(),
-                        getRealtimeUserId(),
-                        getRealtimeUserName(),
-                        getRealtimeUserEmail(),
-                        content
-                );
-            }
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    List<MessageAttachment> uploadedAttachments = new ArrayList<>();
 
-            // 4) Always reload for sender so the sender gets the real DB row with real id
-            loadMessages();
+                    for (File file : filesToUpload) {
+                        MessageAttachment uploaded = cloudinaryUploadService.upload(file);
+                        uploadedAttachments.add(uploaded);
+                    }
+
+                    messageService.sendMessage(
+                            channel.getId(),
+                            contentToSend,
+                            SessionManager.getCurrentUser(),
+                            uploadedAttachments
+                    );
+
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                taNewMessage.clear();
+                selectedAttachments.clear();
+                editingMessageId = null;
+                actionMenuMessageId = null;
+                deleteConfirmMessageId = null;
+
+                refreshAttachmentSelectionUi();
+                setComposerBusy(false);
+
+                if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                    socketClient.publishMessage(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail(),
+                            contentToSend
+                    );
+                }
+
+                loadMessagesToBottom();
+                markCurrentChannelAsReadSilently();
+                hideSummaryBanner();
+            });
+
+            task.setOnFailed(event -> {
+                setComposerBusy(false);
+                Throwable ex = task.getException();
+                showError("Failed to send message: " + (ex != null ? ex.getMessage() : "Unknown error"));
+            });
+
+            Thread thread = new Thread(task, "community-chat-send-message");
+            thread.setDaemon(true);
+            thread.start();
 
         } catch (Exception e) {
+            setComposerBusy(false);
             showError("Failed to send message: " + e.getMessage());
         }
     }
 
-//    @FXML
-//    private void handleBack() {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
-//            Parent root = loader.load();
-//
-//            Stage stage = (Stage) lblChannelName.getScene().getWindow();
-//            stage.setScene(new Scene(root));
-//            stage.show();
-//
-//        } catch (IOException e) {
-//            showError("Failed to go back: " + e.getMessage());
-//        }
-//    }
-
     @FXML
     private void handleBack() {
+        markCurrentChannelAsReadSilently();
         stopRealtimeChat();
 
         try {
@@ -834,5 +1012,180 @@ public class CommunityChatController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void refreshMissedSummaryBanner() {
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser == null || channel == null) {
+            hideSummaryBanner();
+            return;
+        }
+
+        try {
+            int missedCount = chatSummaryService.getMissedCount(currentUser.getId(), channel.getId());
+
+            if (missedCount >= AISummaryConfig.getThreshold()) {
+                summaryBannerBox.setVisible(true);
+                summaryBannerBox.setManaged(true);
+                lblMissedMessages.setText("You missed " + missedCount + (missedCount == 1 ? " message" : " messages"));
+            } else {
+                hideSummaryBanner();
+            }
+        } catch (Exception e) {
+            hideSummaryBanner();
+        }
+    }
+
+    private void hideSummaryBanner() {
+        if (summaryBannerBox != null) {
+            summaryBannerBox.setVisible(false);
+            summaryBannerBox.setManaged(false);
+        }
+
+        if (lblSummaryLoading != null) {
+            lblSummaryLoading.setVisible(false);
+            lblSummaryLoading.setManaged(false);
+            lblSummaryLoading.setText("Generating summary...");
+        }
+
+        if (btnSummarizeMissed != null) {
+            btnSummarizeMissed.setDisable(false);
+        }
+    }
+
+    private void clearSummaryCard() {
+        if (summaryCardBox != null) {
+            summaryCardBox.setVisible(false);
+            summaryCardBox.setManaged(false);
+        }
+
+        if (lblSummaryTitle != null) {
+            lblSummaryTitle.setText("");
+        }
+
+        if (lblSummaryOverview != null) {
+            lblSummaryOverview.setText("");
+        }
+
+        clearSectionBox(summaryKeyPointsBox);
+        clearSectionBox(summaryActionItemsBox);
+        clearSectionBox(summaryOpenQuestionsBox);
+    }
+
+    private void clearSectionBox(VBox box) {
+        if (box != null) {
+            box.getChildren().clear();
+            box.setVisible(false);
+            box.setManaged(false);
+        }
+    }
+
+    @FXML
+    private void handleHideSummary() {
+        clearSummaryCard();
+    }
+
+    @FXML
+    private void handleSummarizeMissedMessages() {
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser == null || channel == null) {
+            return;
+        }
+
+        btnSummarizeMissed.setDisable(true);
+        lblSummaryLoading.setText("Generating summary...");
+        lblSummaryLoading.setVisible(true);
+        lblSummaryLoading.setManaged(true);
+
+        Task<ChatSummaryResult> task = new Task<>() {
+            @Override
+            protected ChatSummaryResult call() throws Exception {
+                return chatSummaryService.summarizeMissedMessages(
+                        currentUser.getId(),
+                        channel.getId(),
+                        channel.getName()
+                );
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            btnSummarizeMissed.setDisable(false);
+            lblSummaryLoading.setVisible(false);
+            lblSummaryLoading.setManaged(false);
+
+            ChatSummaryResult result = task.getValue();
+            if (result == null) {
+                showError("No missed messages to summarize.");
+                hideSummaryBanner();
+                clearSummaryCard();
+                return;
+            }
+
+            renderSummaryCard(result);
+            markCurrentChannelAsReadSilently();
+            hideSummaryBanner();
+        });
+
+        task.setOnFailed(event -> {
+            btnSummarizeMissed.setDisable(false);
+            Throwable ex = task.getException();
+
+            lblSummaryLoading.setText("Summary failed.");
+            showError("Failed to generate summary: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "community-chat-summary");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void renderSummaryCard(ChatSummaryResult result) {
+        if (result == null) return;
+
+        summaryCardBox.setVisible(true);
+        summaryCardBox.setManaged(true);
+
+        lblSummaryTitle.setText(result.getTitle() != null && !result.getTitle().isBlank()
+                ? result.getTitle()
+                : "Missed messages summary");
+
+        lblSummaryOverview.setText(result.getOverview() != null ? result.getOverview() : "");
+
+        renderBulletSection(summaryKeyPointsBox, "Key points", result.getKeyPoints());
+        renderBulletSection(summaryActionItemsBox, "Action items", result.getActionItems());
+        renderBulletSection(summaryOpenQuestionsBox, "Open questions", result.getOpenQuestions());
+    }
+
+    private void renderBulletSection(VBox targetBox, String sectionTitle, List<String> items) {
+        clearSectionBox(targetBox);
+
+        if (targetBox == null || items == null || items.isEmpty()) {
+            return;
+        }
+
+        targetBox.setVisible(true);
+        targetBox.setManaged(true);
+
+        Label title = new Label(sectionTitle);
+        title.setStyle("-fx-text-fill: #ff8a7a; -fx-font-size: 13px; -fx-font-weight: bold;");
+        targetBox.getChildren().add(title);
+
+        for (String item : items) {
+            Label bullet = new Label("• " + item);
+            bullet.setWrapText(true);
+            bullet.setStyle("-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 12px;");
+            targetBox.getChildren().add(bullet);
+        }
+    }
+
+    private void markCurrentChannelAsReadSilently() {
+        try {
+            User currentUser = SessionManager.getCurrentUser();
+            if (currentUser == null || channel == null) return;
+            chatSummaryService.markSeenUpToLatest(currentUser.getId(), channel.getId());
+        } catch (Exception ignored) {
+        }
     }
 }
