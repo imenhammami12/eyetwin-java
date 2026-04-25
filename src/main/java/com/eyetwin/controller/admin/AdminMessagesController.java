@@ -27,6 +27,10 @@ import com.eyetwin.entities.Community.ChatSummaryResult;
 import com.eyetwin.services.Community.ChatSummaryService;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
+import com.eyetwin.entities.Community.MessageAttachment;
+import java.awt.Desktop;
+import java.net.URI;
+import javafx.scene.control.Hyperlink;
 
 public class AdminMessagesController {
 
@@ -316,13 +320,15 @@ public class AdminMessagesController {
 
         top.getChildren().addAll(sender, email, spacer, date);
 
-        Label content = new Label(safe(message.getContent()));
+        Label content = new Label(buildConversationContentText(message));
         content.setWrapText(true);
         content.setStyle(
                 message.isIs_deleted()
                         ? "-fx-text-fill: rgba(255,255,255,0.72); -fx-font-size: 13px;"
                         : "-fx-text-fill: white; -fx-font-size: 13px;"
         );
+
+        VBox attachmentsBox = buildAttachmentSummaryBox(message);
 
         HBox bottom = new HBox(8);
         bottom.setAlignment(Pos.CENTER_LEFT);
@@ -342,7 +348,11 @@ public class AdminMessagesController {
             bottom.getChildren().add(moderated);
         }
 
-        card.getChildren().addAll(top, content, bottom);
+        card.getChildren().addAll(top, content);
+        if (attachmentsBox != null) {
+            card.getChildren().add(attachmentsBox);
+        }
+        card.getChildren().add(bottom);
 
         card.setOnMouseClicked(e -> {
             selectedMessage = message;
@@ -409,7 +419,7 @@ public class AdminMessagesController {
 
         Label id = text(String.valueOf(message.getId()));
 
-        Label content = text(message.getContent());
+        Label content = text(buildTableContentText(message));
         content.setWrapText(true);
         content.setMaxWidth(320);
 
@@ -473,6 +483,32 @@ public class AdminMessagesController {
         return row;
     }
 
+//    private void updateInspector(Message message) {
+//        if (message == null) {
+//            clearInspector();
+//            return;
+//        }
+//
+//        lblInspectorSender.setText("Sender: " + safe(message.getSender_name()));
+//        lblInspectorEmail.setText("Email: " + safe(message.getSender_email()));
+//        lblInspectorChannel.setText("Channel: " + safe(message.getChannelName()) + " (#" + message.getChannel_id() + ")");
+//        lblInspectorSentAt.setText("Sent at: " + (message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())));
+//        lblInspectorEditedAt.setText("Edited at: " + (message.getEditedAt() == null ? "-" : dateFormat.format(message.getEditedAt())));
+//
+//        String statusText = message.isIs_deleted() ? "Deleted" : "Active";
+//        if (isSevereMessage(message)) {
+//            statusText += " • Severe";
+//        } else if (isModeratedMessage(message)) {
+//            statusText += " • Moderated";
+//        }
+//        lblInspectorStatus.setText("Status: " + statusText);
+//
+//        lblInspectorContent.setText(buildInspectorContent(message));
+//
+//        btnInspectorDelete.setDisable(message.isIs_deleted());
+//        btnInspectorRestore.setDisable(!message.isIs_deleted());
+//    }
+
     private void updateInspector(Message message) {
         if (message == null) {
             clearInspector();
@@ -493,11 +529,57 @@ public class AdminMessagesController {
         }
         lblInspectorStatus.setText("Status: " + statusText);
 
-        lblInspectorContent.setText(safe(message.getContent()));
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        if (content.isBlank() && message.hasAttachments()) {
+            lblInspectorContent.setText("Attachment message");
+        } else {
+            lblInspectorContent.setText(safe(content));
+        }
+
+        if (message.hasAttachments()) {
+            VBox attachmentsLinks = new VBox(6);
+
+            Label attachmentsTitle = new Label("Attachments:");
+            attachmentsTitle.setStyle("-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 12px; -fx-font-weight: bold;");
+            attachmentsLinks.getChildren().add(attachmentsTitle);
+
+            for (MessageAttachment attachment : message.getAttachments()) {
+                String linkText = "• " + buildAttachmentLabel(attachment);
+                if (attachment.getSize() > 0) {
+                    linkText += " • " + formatAttachmentSize(attachment.getSize());
+                }
+
+                Hyperlink link = new Hyperlink(linkText);
+                link.setWrapText(true);
+                link.setStyle("-fx-text-fill: #9ecbff; -fx-font-size: 12px;");
+                link.setOnAction(e -> openAttachment(attachment));
+
+                attachmentsLinks.getChildren().add(link);
+            }
+
+            lblInspectorContent.setGraphic(attachmentsLinks);
+            lblInspectorContent.setContentDisplay(ContentDisplay.BOTTOM);
+            lblInspectorContent.setGraphicTextGap(10);
+        } else {
+            lblInspectorContent.setGraphic(null);
+        }
 
         btnInspectorDelete.setDisable(message.isIs_deleted());
         btnInspectorRestore.setDisable(!message.isIs_deleted());
     }
+
+//    private void clearInspector() {
+//        lblInspectorSender.setText("Sender: -");
+//        lblInspectorEmail.setText("Email: -");
+//        lblInspectorChannel.setText("Channel: -");
+//        lblInspectorSentAt.setText("Sent at: -");
+//        lblInspectorEditedAt.setText("Edited at: -");
+//        lblInspectorStatus.setText("Status: -");
+//        lblInspectorContent.setText("Select a message to inspect it.");
+//        btnInspectorDelete.setDisable(true);
+//        btnInspectorRestore.setDisable(true);
+//        selectedMessage = null;
+//    }
 
     private void clearInspector() {
         lblInspectorSender.setText("Sender: -");
@@ -507,9 +589,28 @@ public class AdminMessagesController {
         lblInspectorEditedAt.setText("Edited at: -");
         lblInspectorStatus.setText("Status: -");
         lblInspectorContent.setText("Select a message to inspect it.");
+        lblInspectorContent.setGraphic(null);
         btnInspectorDelete.setDisable(true);
         btnInspectorRestore.setDisable(true);
         selectedMessage = null;
+    }
+
+    private void openAttachment(MessageAttachment attachment) {
+        try {
+            if (attachment == null || attachment.getUrl() == null || attachment.getUrl().isBlank()) {
+                showError("Attachment URL not found.");
+                return;
+            }
+
+            if (!Desktop.isDesktopSupported()) {
+                showError("Opening links is not supported on this device.");
+                return;
+            }
+
+            Desktop.getDesktop().browse(URI.create(attachment.getUrl()));
+        } catch (Exception e) {
+            showError("Failed to open attachment: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -1002,5 +1103,184 @@ public class AdminMessagesController {
         a.setHeaderText(null);
         a.setContentText(message);
         a.showAndWait();
+    }
+
+    private String buildConversationContentText(Message message) {
+        if (message == null) {
+            return "-";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        if (!content.isBlank()) {
+            return content;
+        }
+
+        if (message.hasAttachments()) {
+            return "Attachment message";
+        }
+
+        return "-";
+    }
+
+    private String buildTableContentText(Message message) {
+        if (message == null) {
+            return "-";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+
+        if (message.hasAttachments()) {
+            String names = summarizeAttachmentNames(message.getAttachments());
+
+            if (content.isBlank()) {
+                return "Attachment message • " + names;
+            }
+
+            return content + " • " + names;
+        }
+
+        return content.isBlank() ? "-" : content;
+    }
+
+    private String buildInspectorContent(Message message) {
+        if (message == null) {
+            return "Select a message to inspect it.";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        StringBuilder sb = new StringBuilder();
+
+        if (!content.isBlank()) {
+            sb.append(content);
+        } else if (message.hasAttachments()) {
+            sb.append("Attachment message");
+        } else {
+            sb.append("-");
+        }
+
+        if (message.hasAttachments()) {
+            sb.append("\n\nAttachments:\n");
+            for (MessageAttachment attachment : message.getAttachments()) {
+                sb.append("• ").append(buildAttachmentLabel(attachment));
+
+                if (attachment.getSize() > 0) {
+                    sb.append(" • ").append(formatAttachmentSize(attachment.getSize()));
+                }
+
+                sb.append("\n");
+            }
+        }
+
+        return sb.toString().trim();
+    }
+
+//    private VBox buildAttachmentSummaryBox(Message message) {
+//        if (message == null || !message.hasAttachments()) {
+//            return null;
+//        }
+//
+//        VBox box = new VBox(5);
+//
+//        for (MessageAttachment attachment : message.getAttachments()) {
+//            Label item = new Label("📎 " + buildAttachmentLabel(attachment));
+//            item.setWrapText(true);
+//            item.setStyle(
+//                    "-fx-text-fill: rgba(255,255,255,0.82);" +
+//                            "-fx-font-size: 12px;" +
+//                            "-fx-background-color: rgba(255,255,255,0.04);" +
+//                            "-fx-border-color: rgba(255,255,255,0.06);" +
+//                            "-fx-border-radius: 10;" +
+//                            "-fx-background-radius: 10;" +
+//                            "-fx-padding: 6 10 6 10;"
+//            );
+//            box.getChildren().add(item);
+//        }
+//
+//        return box;
+//    }
+
+    private VBox buildAttachmentSummaryBox(Message message) {
+        if (message == null || !message.hasAttachments()) {
+            return null;
+        }
+
+        VBox box = new VBox(5);
+
+        for (MessageAttachment attachment : message.getAttachments()) {
+            Hyperlink item = new Hyperlink("📎 " + buildAttachmentLabel(attachment));
+            item.setWrapText(true);
+            item.setStyle(
+                    "-fx-text-fill: #9ecbff;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-background-color: rgba(255,255,255,0.04);" +
+                            "-fx-border-color: rgba(255,255,255,0.06);" +
+                            "-fx-border-radius: 10;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 6 10 6 10;"
+            );
+
+            item.setOnAction(e -> openAttachment(attachment));
+
+            box.getChildren().add(item);
+        }
+
+        return box;
+    }
+
+    private String summarizeAttachmentNames(List<MessageAttachment> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return "";
+        }
+
+        List<String> names = new java.util.ArrayList<>();
+        int limit = Math.min(2, attachments.size());
+
+        for (int i = 0; i < limit; i++) {
+            MessageAttachment attachment = attachments.get(i);
+            String name = attachment.getOriginalName() == null || attachment.getOriginalName().isBlank()
+                    ? "file"
+                    : attachment.getOriginalName();
+            names.add(name);
+        }
+
+        String joined = String.join(", ", names);
+
+        if (attachments.size() > 2) {
+            joined += " +" + (attachments.size() - 2) + " more";
+        }
+
+        return joined;
+    }
+
+    private String buildAttachmentLabel(MessageAttachment attachment) {
+        if (attachment == null) {
+            return "file";
+        }
+
+        String name = attachment.getOriginalName() == null || attachment.getOriginalName().isBlank()
+                ? "file"
+                : attachment.getOriginalName();
+
+        String mime = attachment.getMimeType() == null ? "" : attachment.getMimeType().trim();
+
+        if (mime.isBlank()) {
+            return name;
+        }
+
+        return name + " [" + mime + "]";
+    }
+
+    private String formatAttachmentSize(int bytes) {
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+
+        double kb = bytes / 1024.0;
+        if (kb < 1024) {
+            return String.format("%.0f KB", kb);
+        }
+
+        double mb = kb / 1024.0;
+        return String.format("%.1f MB", mb);
     }
 }

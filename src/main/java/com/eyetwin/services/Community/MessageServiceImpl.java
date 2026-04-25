@@ -97,7 +97,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
         return messages;
     }
@@ -201,7 +203,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
 
         return messages;
