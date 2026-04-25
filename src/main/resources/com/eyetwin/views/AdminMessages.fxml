@@ -148,11 +148,29 @@
                                                      -fx-background-radius: 14;
                                                      -fx-padding: 16;">
                                             <children>
-                                                <HBox alignment="CENTER_LEFT">
+                                                <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <children>
                                                         <Label fx:id="lblSelectedChannelTitle"
                                                                text="Select a channel"
                                                                style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                                                        <Region HBox.hgrow="ALWAYS" />
+
+                                                        <Label fx:id="lblChannelSummaryLoading"
+                                                               text="Generating summary..."
+                                                               visible="false"
+                                                               managed="false"
+                                                               style="-fx-text-fill: rgba(255,255,255,0.58); -fx-font-size: 12px;" />
+
+                                                        <Button fx:id="btnChannelSummary"
+                                                                text="Summary"
+                                                                onAction="#handleChannelSummary"
+                                                                disable="true"
+                                                                style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 10;
+                       -fx-padding: 8 16 8 16;" />
                                                     </children>
                                                 </HBox>
 
