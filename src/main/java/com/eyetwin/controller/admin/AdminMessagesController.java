@@ -31,6 +31,10 @@ import com.eyetwin.entities.Community.MessageAttachment;
 import java.awt.Desktop;
 import java.net.URI;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.input.MouseButton;
 
 public class AdminMessagesController {
 
@@ -66,6 +70,8 @@ public class AdminMessagesController {
 
     @FXML private Button btnChannelSummary;
     @FXML private Label lblChannelSummaryLoading;
+
+    @FXML private ScrollPane inspectorContentScroll;
 
     private final MessageServiceImpl messageService = new MessageServiceImpl();
     private final MessageModerationService moderationService = new MessageModerationService();
@@ -419,8 +425,7 @@ public class AdminMessagesController {
 
         Label id = text(String.valueOf(message.getId()));
 
-        Label content = text(buildTableContentText(message));
-        content.setWrapText(true);
+        VBox content = buildTableContentNode(message);
         content.setMaxWidth(320);
 
         String senderValue = safe(message.getSender_name()) + "\n" + safe(message.getSender_email());
@@ -483,32 +488,6 @@ public class AdminMessagesController {
         return row;
     }
 
-//    private void updateInspector(Message message) {
-//        if (message == null) {
-//            clearInspector();
-//            return;
-//        }
-//
-//        lblInspectorSender.setText("Sender: " + safe(message.getSender_name()));
-//        lblInspectorEmail.setText("Email: " + safe(message.getSender_email()));
-//        lblInspectorChannel.setText("Channel: " + safe(message.getChannelName()) + " (#" + message.getChannel_id() + ")");
-//        lblInspectorSentAt.setText("Sent at: " + (message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())));
-//        lblInspectorEditedAt.setText("Edited at: " + (message.getEditedAt() == null ? "-" : dateFormat.format(message.getEditedAt())));
-//
-//        String statusText = message.isIs_deleted() ? "Deleted" : "Active";
-//        if (isSevereMessage(message)) {
-//            statusText += " • Severe";
-//        } else if (isModeratedMessage(message)) {
-//            statusText += " • Moderated";
-//        }
-//        lblInspectorStatus.setText("Status: " + statusText);
-//
-//        lblInspectorContent.setText(buildInspectorContent(message));
-//
-//        btnInspectorDelete.setDisable(message.isIs_deleted());
-//        btnInspectorRestore.setDisable(!message.isIs_deleted());
-//    }
-
     private void updateInspector(Message message) {
         if (message == null) {
             clearInspector();
@@ -529,57 +508,48 @@ public class AdminMessagesController {
         }
         lblInspectorStatus.setText("Status: " + statusText);
 
+        VBox detailsBox = new VBox(10);
+        detailsBox.setFillWidth(true);
+
         String content = message.getContent() == null ? "" : message.getContent().trim();
-        if (content.isBlank() && message.hasAttachments()) {
-            lblInspectorContent.setText("Attachment message");
+        String visibleContent;
+
+        if (!content.isBlank()) {
+            visibleContent = content;
+        } else if (message.hasAttachments()) {
+            visibleContent = "Attachment message";
         } else {
-            lblInspectorContent.setText(safe(content));
+            visibleContent = "-";
         }
+
+        Label contentLabel = new Label(visibleContent);
+        contentLabel.setWrapText(true);
+        contentLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        if (inspectorContentScroll != null) {
+            contentLabel.maxWidthProperty().bind(inspectorContentScroll.widthProperty().subtract(40));
+        }
+
+        detailsBox.getChildren().add(contentLabel);
 
         if (message.hasAttachments()) {
-            VBox attachmentsLinks = new VBox(6);
-
             Label attachmentsTitle = new Label("Attachments:");
-            attachmentsTitle.setStyle("-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 12px; -fx-font-weight: bold;");
-            attachmentsLinks.getChildren().add(attachmentsTitle);
+            attachmentsTitle.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12px; -fx-font-weight: bold;");
+            detailsBox.getChildren().add(attachmentsTitle);
 
             for (MessageAttachment attachment : message.getAttachments()) {
-                String linkText = "• " + buildAttachmentLabel(attachment);
-                if (attachment.getSize() > 0) {
-                    linkText += " • " + formatAttachmentSize(attachment.getSize());
-                }
-
-                Hyperlink link = new Hyperlink(linkText);
-                link.setWrapText(true);
-                link.setStyle("-fx-text-fill: #9ecbff; -fx-font-size: 12px;");
-                link.setOnAction(e -> openAttachment(attachment));
-
-                attachmentsLinks.getChildren().add(link);
+                Hyperlink link = createAttachmentLink(attachment, true, 240);
+                detailsBox.getChildren().add(link);
             }
-
-            lblInspectorContent.setGraphic(attachmentsLinks);
-            lblInspectorContent.setContentDisplay(ContentDisplay.BOTTOM);
-            lblInspectorContent.setGraphicTextGap(10);
-        } else {
-            lblInspectorContent.setGraphic(null);
         }
+
+        lblInspectorContent.setText("");
+        lblInspectorContent.setGraphic(detailsBox);
+        lblInspectorContent.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
         btnInspectorDelete.setDisable(message.isIs_deleted());
         btnInspectorRestore.setDisable(!message.isIs_deleted());
     }
-
-//    private void clearInspector() {
-//        lblInspectorSender.setText("Sender: -");
-//        lblInspectorEmail.setText("Email: -");
-//        lblInspectorChannel.setText("Channel: -");
-//        lblInspectorSentAt.setText("Sent at: -");
-//        lblInspectorEditedAt.setText("Edited at: -");
-//        lblInspectorStatus.setText("Status: -");
-//        lblInspectorContent.setText("Select a message to inspect it.");
-//        btnInspectorDelete.setDisable(true);
-//        btnInspectorRestore.setDisable(true);
-//        selectedMessage = null;
-//    }
 
     private void clearInspector() {
         lblInspectorSender.setText("Sender: -");
@@ -590,11 +560,33 @@ public class AdminMessagesController {
         lblInspectorStatus.setText("Status: -");
         lblInspectorContent.setText("Select a message to inspect it.");
         lblInspectorContent.setGraphic(null);
+        lblInspectorContent.setContentDisplay(ContentDisplay.TEXT_ONLY);
         btnInspectorDelete.setDisable(true);
         btnInspectorRestore.setDisable(true);
         selectedMessage = null;
     }
 
+    private Hyperlink createAttachmentLink(MessageAttachment attachment, boolean includeMeta, double maxWidth) {
+        String text = buildAttachmentLabel(attachment);
+
+        if (includeMeta && attachment != null && attachment.getSize() > 0) {
+            text += " • " + formatAttachmentSize(attachment.getSize());
+        }
+
+        Hyperlink link = new Hyperlink(text);
+        link.setWrapText(true);
+        link.setMaxWidth(Double.MAX_VALUE);
+        link.setPrefWidth(maxWidth);
+        link.setStyle(
+                "-fx-text-fill: #9ecbff;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-underline: true;" +
+                        "-fx-padding: 2 0 2 0;"
+        );
+
+        link.setOnAction(e -> openAttachment(attachment));
+        return link;
+    }
     private void openAttachment(MessageAttachment attachment) {
         try {
             if (attachment == null || attachment.getUrl() == null || attachment.getUrl().isBlank()) {
@@ -1174,54 +1166,45 @@ public class AdminMessagesController {
         return sb.toString().trim();
     }
 
-//    private VBox buildAttachmentSummaryBox(Message message) {
-//        if (message == null || !message.hasAttachments()) {
-//            return null;
-//        }
-//
-//        VBox box = new VBox(5);
-//
-//        for (MessageAttachment attachment : message.getAttachments()) {
-//            Label item = new Label("📎 " + buildAttachmentLabel(attachment));
-//            item.setWrapText(true);
-//            item.setStyle(
-//                    "-fx-text-fill: rgba(255,255,255,0.82);" +
-//                            "-fx-font-size: 12px;" +
-//                            "-fx-background-color: rgba(255,255,255,0.04);" +
-//                            "-fx-border-color: rgba(255,255,255,0.06);" +
-//                            "-fx-border-radius: 10;" +
-//                            "-fx-background-radius: 10;" +
-//                            "-fx-padding: 6 10 6 10;"
-//            );
-//            box.getChildren().add(item);
-//        }
-//
-//        return box;
-//    }
-
     private VBox buildAttachmentSummaryBox(Message message) {
         if (message == null || !message.hasAttachments()) {
             return null;
         }
 
-        VBox box = new VBox(5);
+        VBox box = new VBox(8);
 
         for (MessageAttachment attachment : message.getAttachments()) {
-            Hyperlink item = new Hyperlink("📎 " + buildAttachmentLabel(attachment));
-            item.setWrapText(true);
-            item.setStyle(
-                    "-fx-text-fill: #9ecbff;" +
-                            "-fx-font-size: 12px;" +
-                            "-fx-background-color: rgba(255,255,255,0.04);" +
-                            "-fx-border-color: rgba(255,255,255,0.06);" +
-                            "-fx-border-radius: 10;" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-padding: 6 10 6 10;"
-            );
+            if (attachment != null && attachment.isImage() && attachment.getUrl() != null && !attachment.getUrl().isBlank()) {
+                VBox imageBlock = new VBox(6);
 
-            item.setOnAction(e -> openAttachment(attachment));
+                ImageView preview = new ImageView(new Image(attachment.getUrl(), true));
+                preview.setFitWidth(220);
+                preview.setFitHeight(150);
+                preview.setPreserveRatio(true);
+                preview.setSmooth(true);
+                preview.setStyle(
+                        "-fx-cursor: hand;" +
+                                "-fx-background-color: rgba(255,255,255,0.04);" +
+                                "-fx-border-color: rgba(255,255,255,0.08);" +
+                                "-fx-border-radius: 10;" +
+                                "-fx-background-radius: 10;"
+                );
 
-            box.getChildren().add(item);
+                preview.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) {
+                        openAttachment(attachment);
+                    }
+                });
+
+                Hyperlink openLink = createAttachmentLink(attachment, true, 220);
+
+                imageBlock.getChildren().addAll(preview, openLink);
+                box.getChildren().add(imageBlock);
+
+            } else {
+                Hyperlink item = createAttachmentLink(attachment, true, 260);
+                box.getChildren().add(item);
+            }
         }
 
         return box;
@@ -1282,5 +1265,35 @@ public class AdminMessagesController {
 
         double mb = kb / 1024.0;
         return String.format("%.1f MB", mb);
+    }
+
+    private VBox buildTableContentNode(Message message) {
+        VBox box = new VBox(5);
+        box.setFillWidth(true);
+
+        String rawContent = message == null || message.getContent() == null ? "" : message.getContent().trim();
+        String contentText;
+
+        if (!rawContent.isBlank()) {
+            contentText = rawContent;
+        } else if (message != null && message.hasAttachments()) {
+            contentText = "Attachment message";
+        } else {
+            contentText = "-";
+        }
+
+        Label contentLabel = text(contentText);
+        contentLabel.setWrapText(true);
+        contentLabel.setMaxWidth(320);
+        box.getChildren().add(contentLabel);
+
+        if (message != null && message.hasAttachments()) {
+            for (MessageAttachment attachment : message.getAttachments()) {
+                Hyperlink link = createAttachmentLink(attachment, true, 320);
+                box.getChildren().add(link);
+            }
+        }
+
+        return box;
     }
 }

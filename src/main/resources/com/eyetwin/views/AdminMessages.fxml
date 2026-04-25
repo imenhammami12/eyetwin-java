@@ -228,15 +228,28 @@
                                                 <Label text="Content"
                                                        style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;" />
 
-                                                <Label fx:id="lblInspectorContent"
-                                                       text="Select a message to inspect it."
-                                                       wrapText="true"
-                                                       style="-fx-text-fill: rgba(255,255,255,0.85);
-                                                              -fx-background-color: rgba(255,255,255,0.03);
-                                                              -fx-border-color: rgba(255,255,255,0.06);
-                                                              -fx-border-radius: 10;
-                                                              -fx-background-radius: 10;
-                                                              -fx-padding: 12;" />
+                                                <ScrollPane fx:id="inspectorContentScroll"
+                                                            fitToWidth="true"
+                                                            prefHeight="190"
+                                                            minHeight="190"
+                                                            hbarPolicy="NEVER"
+                                                            vbarPolicy="AS_NEEDED"
+                                                            style="-fx-background: transparent;
+                   -fx-background-color: transparent;
+                   -fx-border-color: rgba(255,255,255,0.06);
+                   -fx-background-radius: 12;
+                   -fx-border-radius: 12;">
+                                                    <content>
+                                                        <Label fx:id="lblInspectorContent"
+                                                               wrapText="true"
+                                                               maxWidth="260"
+                                                               style="-fx-text-fill: white;
+                      -fx-font-size: 13px;
+                      -fx-background-color: rgba(255,255,255,0.03);
+                      -fx-padding: 12;
+                      -fx-background-radius: 12;" />
+                                                    </content>
+                                                </ScrollPane>
 
                                                 <Region VBox.vgrow="ALWAYS"/>
 
