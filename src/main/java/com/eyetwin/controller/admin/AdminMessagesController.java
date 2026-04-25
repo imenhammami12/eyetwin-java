@@ -21,6 +21,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import com.eyetwin.services.Community.MessageModerationService;
+import com.eyetwin.services.Community.MessageModerationService;
 
 public class AdminMessagesController {
 
@@ -55,6 +57,7 @@ public class AdminMessagesController {
     @FXML private Button btnInspectorRestore;
 
     private final MessageServiceImpl messageService = new MessageServiceImpl();
+    private final MessageModerationService moderationService = new MessageModerationService();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     private Integer selectedChannelId = null;
@@ -76,7 +79,7 @@ public class AdminMessagesController {
             adminTopbarController.setTitle("Messages Management");
         }
 
-        cbStatus.getItems().addAll("all", "active", "deleted");
+        cbStatus.getItems().addAll("all", "active", "deleted", "moderated", "severe");
         cbStatus.setValue("all");
 
         cbSort.getItems().addAll("newest", "oldest");
@@ -143,23 +146,59 @@ public class AdminMessagesController {
 
         try {
             List<AdminChannelMessageStat> channels = messageService.findAdminChannelStats(tfSearch.getText());
+            List<AdminChannelMessageStat> visibleChannels = new java.util.ArrayList<>();
 
-            if (channels.isEmpty()) {
-                Label empty = new Label("No channels with messages.");
+            for (AdminChannelMessageStat item : channels) {
+                if (!isModeratedFilterSelected()) {
+                    visibleChannels.add(item);
+                    continue;
+                }
+
+                List<Message> moderatedMessages = getFilteredMessagesForChannel(item.getChannelId());
+                if (!moderatedMessages.isEmpty()) {
+                    int deletedCount = 0;
+                    for (Message message : moderatedMessages) {
+                        if (message.isIs_deleted()) {
+                            deletedCount++;
+                        }
+                    }
+
+                    item.setTotalMessages(moderatedMessages.size());
+                    item.setDeletedMessages(deletedCount);
+                    visibleChannels.add(item);
+                }
+            }
+
+            if (visibleChannels.isEmpty()) {
+                Label empty = new Label(isModeratedFilterSelected()
+                        ? "No channels with moderated messages."
+                        : "No channels with messages.");
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 13px;");
                 channelsContainer.getChildren().add(empty);
+
+                selectedChannelId = null;
+                selectedChannelName = null;
+                conversationContainer.getChildren().clear();
+                lblSelectedChannelTitle.setText("Conversation");
+                lblFound.setText("Found 0 messages");
+                clearInspector();
                 return;
             }
 
-            for (AdminChannelMessageStat item : channels) {
+            boolean selectedStillVisible = false;
+            for (AdminChannelMessageStat item : visibleChannels) {
+                if (selectedChannelId != null && selectedChannelId == item.getChannelId()) {
+                    selectedStillVisible = true;
+                }
                 channelsContainer.getChildren().add(buildChannelCard(item));
             }
 
-            if (selectedChannelId == null && !channels.isEmpty()) {
-                selectedChannelId = channels.get(0).getChannelId();
-                selectedChannelName = channels.get(0).getChannelName();
-                loadConversation(selectedChannelId, selectedChannelName);
+            if (selectedChannelId == null || !selectedStillVisible) {
+                selectedChannelId = visibleChannels.get(0).getChannelId();
+                selectedChannelName = visibleChannels.get(0).getChannelName();
             }
+
+            loadConversation(selectedChannelId, selectedChannelName);
 
         } catch (SQLException e) {
             showError("Failed to load channels: " + e.getMessage());
@@ -186,7 +225,10 @@ public class AdminMessagesController {
 
         HBox badges = new HBox(8);
 
-        Label total = badge(item.getTotalMessages() + " msgs", "#60a5fa");
+        Label total = badge(
+                item.getTotalMessages() + (isModeratedFilterSelected() ? " moderated" : " msgs"),
+                "#60a5fa"
+        );
         Label deleted = badge(item.getDeletedMessages() + " deleted", "#fb7185");
 
         badges.getChildren().addAll(total, deleted);
@@ -208,17 +250,18 @@ public class AdminMessagesController {
         lblSelectedChannelTitle.setText(channelName == null ? "Conversation" : channelName);
 
         try {
-            List<Message> messages = messageService.findAdminMessagesByChannel(
-                    channelId,
-                    tfSearch.getText(),
-                    cbStatus.getValue(),
-                    cbSort.getValue()
-            );
+            List<Message> messages = getFilteredMessagesForChannel(channelId);
 
             lblFound.setText("Found " + messages.size() + " messages");
 
             if (messages.isEmpty()) {
-                Label empty = new Label("No messages in this channel for the selected filters.");
+                Label empty = new Label(
+                        isSevereFilterSelected()
+                                ? "No severe moderated messages in this channel for the selected filters."
+                                : (isModeratedFilterSelected()
+                                ? "No moderated messages in this channel for the selected filters."
+                                : "No messages in this channel for the selected filters.")
+                );
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 14px;");
                 conversationContainer.getChildren().add(empty);
                 return;
@@ -280,6 +323,12 @@ public class AdminMessagesController {
             bottom.getChildren().add(edited);
         }
 
+        String moderationText = moderationBadgeText(message);
+        if (moderationText != null) {
+            Label moderated = badge(moderationText, moderationBadgeColor(message));
+            bottom.getChildren().add(moderated);
+        }
+
         card.getChildren().addAll(top, content, bottom);
 
         card.setOnMouseClicked(e -> {
@@ -297,11 +346,19 @@ public class AdminMessagesController {
         try {
             List<Message> messages = messageService.findAdminMessages(
                     tfSearch.getText(),
-                    cbStatus.getValue()
+                    resolveStatusForService()
             );
 
+            messages = filterMessagesForUi(messages);
+
             if (messages.isEmpty()) {
-                Label empty = new Label("No messages found.");
+                Label empty = new Label(
+                        isSevereFilterSelected()
+                                ? "No severe moderated messages found."
+                                : (isModeratedFilterSelected()
+                                ? "No moderated messages found."
+                                : "No messages found.")
+                );
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 14px;");
                 rowsContainer.getChildren().add(empty);
                 return;
@@ -333,7 +390,7 @@ public class AdminMessagesController {
                 fixedCol(180),
                 fixedCol(220),
                 fixedCol(170),
-                fixedCol(110),
+                fixedCol(130),
                 fixedCol(150)
         );
 
@@ -359,7 +416,13 @@ public class AdminMessagesController {
                 message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())
         );
 
-        Label status = statusBadge(message.isIs_deleted());
+        VBox statusBox = new VBox(6);
+        statusBox.getChildren().add(statusBadge(message.isIs_deleted()));
+
+        String moderationText = moderationBadgeText(message);
+        if (moderationText != null) {
+            statusBox.getChildren().add(badge(moderationText, moderationBadgeColor(message)));
+        }
 
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER_LEFT);
@@ -391,7 +454,7 @@ public class AdminMessagesController {
         row.add(sender, 2, 0);
         row.add(channel, 3, 0);
         row.add(sentAt, 4, 0);
-        row.add(status, 5, 0);
+        row.add(statusBox, 5, 0);
         row.add(actions, 6, 0);
 
         return row;
@@ -408,7 +471,15 @@ public class AdminMessagesController {
         lblInspectorChannel.setText("Channel: " + safe(message.getChannelName()) + " (#" + message.getChannel_id() + ")");
         lblInspectorSentAt.setText("Sent at: " + (message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())));
         lblInspectorEditedAt.setText("Edited at: " + (message.getEditedAt() == null ? "-" : dateFormat.format(message.getEditedAt())));
-        lblInspectorStatus.setText("Status: " + (message.isIs_deleted() ? "Deleted" : "Active"));
+
+        String statusText = message.isIs_deleted() ? "Deleted" : "Active";
+        if (isSevereMessage(message)) {
+            statusText += " • Severe";
+        } else if (isModeratedMessage(message)) {
+            statusText += " • Moderated";
+        }
+        lblInspectorStatus.setText("Status: " + statusText);
+
         lblInspectorContent.setText(safe(message.getContent()));
 
         btnInspectorDelete.setDisable(message.isIs_deleted());
@@ -619,6 +690,77 @@ public class AdminMessagesController {
         } catch (IOException e) {
             showError("Failed to open admin login: " + e.getMessage());
         }
+    }
+
+
+
+    /// ///////////// MODERATION BAD WORD DETECTION
+    private boolean isModeratedFilterSelected() {
+        return cbStatus != null && "moderated".equalsIgnoreCase(cbStatus.getValue());
+    }
+
+    private boolean isSevereFilterSelected() {
+        return cbStatus != null && "severe".equalsIgnoreCase(cbStatus.getValue());
+    }
+
+    private boolean isModeratedMessage(Message message) {
+        return message != null && moderationService.isModeratedContent(message.getContent());
+    }
+
+    private boolean isSevereMessage(Message message) {
+        return message != null && moderationService.isSevereModeratedContent(message.getContent());
+    }
+
+    private String resolveStatusForService() {
+        return (isModeratedFilterSelected() || isSevereFilterSelected()) ? "all" : cbStatus.getValue();
+    }
+
+    private List<Message> filterMessagesForUi(List<Message> messages) {
+        if (!isModeratedFilterSelected() && !isSevereFilterSelected()) {
+            return messages;
+        }
+
+        List<Message> filtered = new java.util.ArrayList<>();
+        for (Message message : messages) {
+            if (isSevereFilterSelected()) {
+                if (isSevereMessage(message)) {
+                    filtered.add(message);
+                }
+            } else if (isModeratedFilterSelected()) {
+                if (isModeratedMessage(message)) {
+                    filtered.add(message);
+                }
+            }
+        }
+        return filtered;
+    }
+
+    private List<Message> getFilteredMessagesForChannel(int channelId) throws SQLException {
+        List<Message> messages = messageService.findAdminMessagesByChannel(
+                channelId,
+                tfSearch.getText(),
+                resolveStatusForService(),
+                cbSort.getValue()
+        );
+
+        return filterMessagesForUi(messages);
+    }
+
+    private String moderationBadgeText(Message message) {
+        if (isSevereMessage(message)) {
+            return "Severe";
+        }
+        if (isModeratedMessage(message)) {
+            return "Moderated";
+        }
+        return null;
+    }
+
+    private String moderationBadgeColor(Message message) {
+        if (isSevereMessage(message)) {
+            return "#fb7185";
+        }
+        return "#f59e0b";
     }
 
     private void showError(String message) {

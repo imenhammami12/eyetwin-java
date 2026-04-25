@@ -52,6 +52,10 @@ import java.util.List;
 import com.eyetwin.config.AISummaryConfig;
 import com.eyetwin.entities.Community.ChatSummaryResult;
 import com.eyetwin.services.Community.ChatSummaryService;
+import com.eyetwin.entities.Community.MessageModerationResult;
+import com.eyetwin.services.Community.MessageModerationService;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class CommunityChatController {
 
@@ -73,6 +77,7 @@ public class CommunityChatController {
     private final List<File> selectedAttachments = new ArrayList<>();
     private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
     private final MessageServiceImpl messageService = new MessageServiceImpl();
+    private final MessageModerationService moderationService = new MessageModerationService();
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -600,6 +605,8 @@ public class CommunityChatController {
                     return;
                 }
 
+                MessageModerationResult moderationPreview = previewModeration(editArea.getText());
+
                 messageService.updateOwnMessage(message.getId(), editArea.getText(), SessionManager.getCurrentUser());
 
                 editingMessageId = null;
@@ -616,6 +623,7 @@ public class CommunityChatController {
                 }
 
                 loadMessagesKeepingMessage(message.getId());
+                showModerationHint(moderationPreview, true);
 
             } catch (Exception ex) {
                 error.setText(ex.getMessage());
@@ -916,6 +924,7 @@ public class CommunityChatController {
                 return;
             }
 
+            final MessageModerationResult moderationPreview = previewModeration(content);
             final String contentToSend = content;
             final List<File> filesToUpload = new ArrayList<>(selectedAttachments);
 
@@ -965,6 +974,7 @@ public class CommunityChatController {
                 loadMessagesToBottom();
                 markCurrentChannelAsReadSilently();
                 hideSummaryBanner();
+                showModerationHint(moderationPreview, false);
             });
 
             task.setOnFailed(event -> {
@@ -1004,6 +1014,35 @@ public class CommunityChatController {
     private String formatTimestamp(Timestamp timestamp) {
         if (timestamp == null) return "";
         return DATE_FMT.format(timestamp.toLocalDateTime());
+    }
+
+    private void showModerationHint(MessageModerationResult result, boolean editing) {
+        if (result == null || !result.wasModified() || lblComposerInfo == null) {
+            return;
+        }
+
+        String level = result.isSevere() ? "Severe moderation" : "Moderation";
+        String action = editing ? "edited message" : "message";
+
+        lblComposerInfo.setText(level + ": your " + action + " was cleaned automatically (" +
+                result.getMatchedCount() + " masked word" + (result.getMatchedCount() > 1 ? "s" : "") + ").");
+        lblComposerInfo.setStyle("-fx-text-fill: #f6d860; -fx-font-size: 12px; -fx-font-weight: bold;");
+        lblComposerInfo.setVisible(true);
+        lblComposerInfo.setManaged(true);
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(4));
+        pause.setOnFinished(event -> {
+            if (SessionManager.canWriteCommunityMessages()) {
+                lblComposerInfo.setText("");
+                lblComposerInfo.setVisible(false);
+                lblComposerInfo.setManaged(false);
+            }
+        });
+        pause.play();
+    }
+
+    private MessageModerationResult previewModeration(String content) {
+        return moderationService.moderate(content == null ? "" : content.trim());
     }
 
     private void showError(String message) {
