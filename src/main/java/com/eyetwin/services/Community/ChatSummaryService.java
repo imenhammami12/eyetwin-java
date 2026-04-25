@@ -108,6 +108,47 @@ public class ChatSummaryService {
         return result;
     }
 
+    public ChatSummaryResult summarizeChannelForAdmin(int channelId, String channelName) throws Exception {
+        List<Message> channelMessages = messageService.findByChannel(channelId);
+        channelMessages = filterMessagesForSummary(channelMessages);
+
+        if (channelMessages.isEmpty()) {
+            return null;
+        }
+
+        int fromMessageId = channelMessages.get(0).getId();
+        int toMessageId = channelMessages.get(channelMessages.size() - 1).getId();
+        int totalCount = channelMessages.size();
+
+        ChatSummaryResult result;
+
+        List<List<Message>> chunks = splitIntoChunks(channelMessages);
+
+        if (chunks.size() == 1) {
+            String transcript = buildTranscript(chunks.get(0));
+            result = getOllamaClient().summarizeMissedTranscript(channelName, totalCount, transcript);
+        } else {
+            List<ChatSummaryResult> chunkSummaries = new ArrayList<>();
+
+            for (List<Message> chunk : chunks) {
+                String transcript = buildTranscript(chunk);
+                ChatSummaryResult chunkSummary = getOllamaClient()
+                        .summarizeMissedTranscript(channelName, chunk.size(), transcript);
+                chunkSummaries.add(chunkSummary);
+            }
+
+            String chunkDigest = buildChunkDigest(chunkSummaries);
+            result = getOllamaClient().summarizeChunkSummaries(channelName, totalCount, chunkDigest);
+        }
+
+        result.setMissedCount(totalCount);
+        result.setFromMessageId(fromMessageId);
+        result.setToMessageId(toMessageId);
+        result.setCached(false);
+
+        return result;
+    }
+
     private List<Message> filterMessagesForSummary(List<Message> source) {
         List<Message> filtered = new ArrayList<>();
         for (Message message : source) {

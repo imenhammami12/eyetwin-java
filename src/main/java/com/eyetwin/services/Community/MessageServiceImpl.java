@@ -14,7 +14,11 @@ import java.util.List;
 import com.eyetwin.entities.Community.MessageAttachment;
 import java.sql.Statement;
 
+import com.eyetwin.entities.Community.MessageModerationResult;
+
 public class MessageServiceImpl implements IMessageService {
+
+    private final MessageModerationService moderationService = new MessageModerationService();
 
     private Connection getConnection() {
         Connection c = DatabaseConfig.getInstance().getCnx();
@@ -93,7 +97,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
         return messages;
     }
@@ -197,7 +203,9 @@ public class MessageServiceImpl implements IMessageService {
 
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            messages.add(mapMessage(rs));
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            messages.add(message);
         }
 
         return messages;
@@ -219,42 +227,6 @@ public class MessageServiceImpl implements IMessageService {
         return null;
     }
 
-//    @Override
-//    public void sendMessage(int channelId, String content, User player) throws SQLException {
-//        Channel channel = findChannelById(channelId);
-//        if (channel == null) {
-//            throw new IllegalArgumentException("Channel not found.");
-//        }
-//
-//        if (!Channel.STATUS_APPROVED.equalsIgnoreCase(channel.getStatus()) || !channel.isActive()) {
-//            throw new IllegalStateException("You cannot send a message to an unavailable channel.");
-//        }
-//
-//        String cleanContent = (content == null) ? "" : content.trim();
-//        if (cleanContent.isEmpty()) {
-//            throw new IllegalArgumentException("Message content cannot be empty.");
-//        }
-//
-//        String sql = """
-//            INSERT INTO message (content, sent_at, edited_at, is_deleted, sender_name, sender_email, channel_id)
-//            VALUES (?, ?, ?, ?, ?, ?, ?)
-//            """;
-//
-//        Timestamp now = new Timestamp(System.currentTimeMillis());
-//
-//        Connection c = getConnection();
-//        PreparedStatement ps = c.prepareStatement(sql);
-//        ps.setString(1, cleanContent);
-//        ps.setTimestamp(2, now);
-//        ps.setTimestamp(3, now);
-//        ps.setBoolean(4, false);
-//        ps.setString(5, player.getUsername());
-//        ps.setString(6, player.getEmail());
-//        ps.setInt(7, channelId);
-//        ps.executeUpdate();
-//    }
-
-
     @Override
     public void sendMessage(int channelId, String content, User player) throws SQLException {
         sendMessage(channelId, content, player, new ArrayList<>());
@@ -271,7 +243,10 @@ public class MessageServiceImpl implements IMessageService {
             throw new IllegalStateException("You cannot send a message to an unavailable channel.");
         }
 
-        String cleanContent = (content == null) ? "" : content.trim();
+        String rawContent = (content == null) ? "" : content.trim();
+        MessageModerationResult moderation = moderationService.moderate(rawContent);
+        String cleanContent = moderation.getMaskedContent();
+
         boolean hasAttachments = attachments != null && !attachments.isEmpty();
 
         if (cleanContent.isEmpty() && !hasAttachments) {
@@ -334,6 +309,10 @@ public class MessageServiceImpl implements IMessageService {
 
             c.commit();
 
+            if (moderation.wasModified()) {
+                System.out.println("[Moderation] Masked terms in new message: " + moderation.getMatchedTerms());
+            }
+
         } catch (Exception e) {
             c.rollback();
             throw new SQLException("Failed to send message with attachments: " + e.getMessage(), e);
@@ -358,7 +337,10 @@ public class MessageServiceImpl implements IMessageService {
             throw new IllegalStateException("Deleted messages cannot be edited.");
         }
 
-        String cleanContent = (newContent == null) ? "" : newContent.trim();
+        String rawContent = (newContent == null) ? "" : newContent.trim();
+        MessageModerationResult moderation = moderationService.moderate(rawContent);
+        String cleanContent = moderation.getMaskedContent();
+
         if (cleanContent.isEmpty()) {
             throw new IllegalArgumentException("Message content cannot be empty.");
         }
@@ -375,6 +357,9 @@ public class MessageServiceImpl implements IMessageService {
         ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
         ps.setInt(3, messageId);
         ps.executeUpdate();
+        if (moderation.wasModified()) {
+            System.out.println("[Moderation] Masked terms in edited message: " + moderation.getMatchedTerms());
+        }
     }
 
     @Override
