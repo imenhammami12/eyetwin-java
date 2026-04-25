@@ -23,6 +23,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import com.eyetwin.services.Community.MessageModerationService;
 import com.eyetwin.services.Community.MessageModerationService;
+import com.eyetwin.entities.Community.ChatSummaryResult;
+import com.eyetwin.services.Community.ChatSummaryService;
+import javafx.concurrent.Task;
+import javafx.scene.Node;
 
 public class AdminMessagesController {
 
@@ -56,13 +60,20 @@ public class AdminMessagesController {
     @FXML private Button btnInspectorDelete;
     @FXML private Button btnInspectorRestore;
 
+    @FXML private Button btnChannelSummary;
+    @FXML private Label lblChannelSummaryLoading;
+
     private final MessageServiceImpl messageService = new MessageServiceImpl();
     private final MessageModerationService moderationService = new MessageModerationService();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final ChatSummaryService chatSummaryService = new ChatSummaryService();
+
 
     private Integer selectedChannelId = null;
     private String selectedChannelName = null;
     private Message selectedMessage = null;
+
+
 
     @FXML
     public void initialize() {
@@ -91,6 +102,7 @@ public class AdminMessagesController {
         loadChannelSidebar();
         loadTableMessages();
         clearInspector();
+        updateChannelSummaryState();
     }
 
     @FXML
@@ -182,6 +194,7 @@ public class AdminMessagesController {
                 lblSelectedChannelTitle.setText("Conversation");
                 lblFound.setText("Found 0 messages");
                 clearInspector();
+                updateChannelSummaryState();
                 return;
             }
 
@@ -248,7 +261,7 @@ public class AdminMessagesController {
     private void loadConversation(int channelId, String channelName) {
         conversationContainer.getChildren().clear();
         lblSelectedChannelTitle.setText(channelName == null ? "Conversation" : channelName);
-
+        updateChannelSummaryState();
         try {
             List<Message> messages = getFilteredMessagesForChannel(channelId);
 
@@ -806,5 +819,188 @@ public class AdminMessagesController {
             case "#f6d860" -> "rgba(246,216,96,0.45)";
             default -> "rgba(255,255,255,0.20)";
         };
+    }
+
+
+    private void updateChannelSummaryState() {
+        if (btnChannelSummary != null) {
+            boolean hasChannel = selectedChannelId != null;
+            btnChannelSummary.setDisable(!hasChannel);
+
+            if (!hasChannel) {
+                btnChannelSummary.setText("Summary");
+            }
+        }
+
+        if (lblChannelSummaryLoading != null) {
+            lblChannelSummaryLoading.setVisible(false);
+            lblChannelSummaryLoading.setManaged(false);
+            lblChannelSummaryLoading.setText("Generating summary...");
+        }
+    }
+
+    @FXML
+    private void handleChannelSummary() {
+        if (selectedChannelId == null || selectedChannelName == null || selectedChannelName.isBlank()) {
+            showError("Select a channel first.");
+            return;
+        }
+
+        btnChannelSummary.setDisable(true);
+        btnChannelSummary.setText("Summarizing...");
+        lblChannelSummaryLoading.setText("Generating summary...");
+        lblChannelSummaryLoading.setVisible(true);
+        lblChannelSummaryLoading.setManaged(true);
+
+        final int channelId = selectedChannelId;
+        final String channelName = selectedChannelName;
+
+        Task<ChatSummaryResult> task = new Task<>() {
+            @Override
+            protected ChatSummaryResult call() throws Exception {
+                return chatSummaryService.summarizeChannelForAdmin(channelId, channelName);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            btnChannelSummary.setDisable(false);
+            btnChannelSummary.setText("Summary");
+            lblChannelSummaryLoading.setVisible(false);
+            lblChannelSummaryLoading.setManaged(false);
+
+            ChatSummaryResult result = task.getValue();
+            if (result == null) {
+                showInfo("No messages available to summarize in this channel.");
+                return;
+            }
+
+            showChannelSummaryDialog(channelName, result);
+        });
+
+        task.setOnFailed(event -> {
+            btnChannelSummary.setDisable(false);
+            btnChannelSummary.setText("Summary");
+            lblChannelSummaryLoading.setText("Summary failed.");
+
+            Throwable ex = task.getException();
+            showError("Failed to generate summary: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "admin-channel-summary");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void showChannelSummaryDialog(String channelName, ChatSummaryResult result) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Channel Summary");
+        dialog.setHeaderText(null);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        DialogPane pane = dialog.getDialogPane();
+        pane.setPrefWidth(760);
+        pane.setPrefHeight(620);
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #0d0618, #120820);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 14;" +
+                        "-fx-background-radius: 14;"
+        );
+
+        Label title = new Label(
+                result.getTitle() != null && !result.getTitle().isBlank()
+                        ? result.getTitle()
+                        : "Summary of " + channelName
+        );
+        title.setWrapText(true);
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+        Label channelMeta = new Label("Channel: " + channelName + " • Based on " + result.getMissedCount() + " messages");
+        channelMeta.setWrapText(true);
+        channelMeta.setStyle("-fx-text-fill: rgba(255,255,255,0.58); -fx-font-size: 12px;");
+
+        Label overviewTitle = new Label("Overview");
+        overviewTitle.setStyle("-fx-text-fill: #ff8a7a; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label overview = new Label(result.getOverview() != null ? result.getOverview() : "");
+        overview.setWrapText(true);
+        overview.setStyle(
+                "-fx-text-fill: rgba(255,255,255,0.86);" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.06);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 12;"
+        );
+
+        VBox content = new VBox(14);
+        content.setPadding(new Insets(18));
+        content.getChildren().addAll(title, channelMeta, overviewTitle, overview);
+
+        VBox keyPointsBox = buildSummarySection("Key points", result.getKeyPoints());
+        VBox actionsBox = buildSummarySection("Action items", result.getActionItems());
+        VBox questionsBox = buildSummarySection("Open questions", result.getOpenQuestions());
+
+        if (keyPointsBox != null) content.getChildren().add(keyPointsBox);
+        if (actionsBox != null) content.getChildren().add(actionsBox);
+        if (questionsBox != null) content.getChildren().add(questionsBox);
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        pane.setContent(scrollPane);
+
+        Node closeButton = pane.lookupButton(ButtonType.CLOSE);
+        if (closeButton != null) {
+            closeButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 8 16 8 16;"
+            );
+        }
+
+        dialog.showAndWait();
+    }
+
+    private VBox buildSummarySection(String sectionTitle, List<String> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+
+        VBox box = new VBox(8);
+
+        Label title = new Label(sectionTitle);
+        title.setStyle("-fx-text-fill: #ff8a7a; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        VBox bullets = new VBox(6);
+        bullets.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.06);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 12;"
+        );
+
+        for (String item : items) {
+            Label bullet = new Label("• " + item);
+            bullet.setWrapText(true);
+            bullet.setStyle("-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 12px;");
+            bullets.getChildren().add(bullet);
+        }
+
+        box.getChildren().addAll(title, bullets);
+        return box;
+    }
+
+    private void showInfo(String message) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle("Information");
+        a.setHeaderText(null);
+        a.setContentText(message);
+        a.showAndWait();
     }
 }
