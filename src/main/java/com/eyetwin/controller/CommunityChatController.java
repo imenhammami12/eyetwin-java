@@ -56,6 +56,11 @@ import com.eyetwin.entities.Community.MessageModerationResult;
 import com.eyetwin.services.Community.MessageModerationService;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import com.eyetwin.services.Community.AudioRecorderService;
+import com.eyetwin.services.Community.HuggingFaceSpeechToTextService;
+import com.eyetwin.services.Community.PiperTextToSpeechService;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class CommunityChatController {
 
@@ -73,6 +78,15 @@ public class CommunityChatController {
     @FXML private Button btnAttach;
     @FXML private Button btnClearAttachments;
     @FXML private Label lblAttachmentNames;
+
+    @FXML private Button btnRecordVoice;
+    @FXML private Button btnStopVoice;
+    @FXML private Label lblSpeechInfo;
+
+    private final AudioRecorderService audioRecorderService = new AudioRecorderService();
+    private final HuggingFaceSpeechToTextService speechToTextService = new HuggingFaceSpeechToTextService();
+    private final PiperTextToSpeechService textToSpeechService = new PiperTextToSpeechService();
+    private MediaPlayer ttsPlayer;
 
     private final List<File> selectedAttachments = new ArrayList<>();
     private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
@@ -127,6 +141,63 @@ public class CommunityChatController {
         refreshComposerVisibility();
         hideSummaryBanner();
         clearSummaryCard();
+        refreshSpeechUi();
+    }
+
+    private void refreshSpeechUi() {
+        boolean recording = audioRecorderService.isRecording();
+
+        if (btnRecordVoice != null) {
+            btnRecordVoice.setDisable(recording);
+        }
+
+        if (btnStopVoice != null) {
+            btnStopVoice.setDisable(!recording);
+        }
+
+        if (lblSpeechInfo != null && !recording && (lblSpeechInfo.getText() == null || lblSpeechInfo.getText().isBlank())) {
+            lblSpeechInfo.setVisible(false);
+            lblSpeechInfo.setManaged(false);
+        }
+    }
+
+    private void showSpeechInfo(String text) {
+        if (lblSpeechInfo == null) return;
+        lblSpeechInfo.setText(text);
+        lblSpeechInfo.setVisible(true);
+        lblSpeechInfo.setManaged(true);
+    }
+
+    private void hideSpeechInfoLater() {
+        if (lblSpeechInfo == null) return;
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(3));
+        pause.setOnFinished(event -> {
+            lblSpeechInfo.setText("");
+            lblSpeechInfo.setVisible(false);
+            lblSpeechInfo.setManaged(false);
+        });
+        pause.play();
+    }
+
+    private void stopSpeechPlayback() {
+        if (ttsPlayer != null) {
+            try {
+                ttsPlayer.stop();
+                ttsPlayer.dispose();
+            } catch (Exception ignored) {
+            }
+            ttsPlayer = null;
+        }
+    }
+
+    private void playSpeechFile(File audioFile) {
+        stopSpeechPlayback();
+
+        Media media = new Media(audioFile.toURI().toString());
+        ttsPlayer = new MediaPlayer(media);
+        ttsPlayer.setOnEndOfMedia(this::stopSpeechPlayback);
+        ttsPlayer.play();
     }
 
     private void startRealtimeChat() {
@@ -486,6 +557,21 @@ public class CommunityChatController {
         Label date = new Label(formatTimestamp(message.getSentAt()));
         date.setStyle("-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 10px;");
 
+
+        String speakableText = message.getContent() == null ? "" : message.getContent().trim();
+        if (!message.isIs_deleted() && !speakableText.isBlank()) {
+            Button btnSpeak = new Button("🔊");
+            btnSpeak.setStyle(
+                    "-fx-background-color: transparent;" +
+                            "-fx-text-fill: rgba(255,255,255,0.75);" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-padding: 0 6 0 6;"
+            );
+            btnSpeak.setOnAction(e -> handleSpeakMessage(message));
+            top.getChildren().add(btnSpeak);
+        }
+
         top.getChildren().addAll(sender, spacer, date);
 
         if (isMine && !message.isIs_deleted() && SessionManager.canWriteCommunityMessages()) {
@@ -550,6 +636,47 @@ public class CommunityChatController {
 
         row.getChildren().add(wrapper);
         return row;
+    }
+
+    private void handleSpeakMessage(Message message) {
+        try {
+            if (message == null || message.getContent() == null || message.getContent().trim().isBlank()) {
+                showError("Only text messages can be read aloud.");
+                return;
+            }
+
+            showSpeechInfo("Generating speech...");
+
+            Task<File> task = new Task<>() {
+                @Override
+                protected File call() throws Exception {
+                    return textToSpeechService.synthesizeToFile(message.getContent().trim());
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                try {
+                    File audioFile = task.getValue();
+                    playSpeechFile(audioFile);
+                    showSpeechInfo("Playing message audio.");
+                    hideSpeechInfoLater();
+                } catch (Exception ex) {
+                    showError("Failed to play message audio: " + ex.getMessage());
+                }
+            });
+
+            task.setOnFailed(event -> {
+                Throwable ex = task.getException();
+                showError("Failed to speak message: " + (ex != null ? ex.getMessage() : "Unknown error"));
+            });
+
+            Thread thread = new Thread(task, "community-tts");
+            thread.setDaemon(true);
+            thread.start();
+
+        } catch (Exception e) {
+            showError("Failed to speak message: " + e.getMessage());
+        }
     }
 
     private VBox buildInlineEditBox(Message message) {
@@ -826,6 +953,77 @@ public class CommunityChatController {
         if (btnSend != null) btnSend.setDisable(busy);
         if (btnAttach != null) btnAttach.setDisable(busy);
         if (btnClearAttachments != null) btnClearAttachments.setDisable(busy);
+        if (btnRecordVoice != null) btnRecordVoice.setDisable(busy || audioRecorderService.isRecording());
+        if (btnStopVoice != null) btnStopVoice.setDisable(busy || !audioRecorderService.isRecording());
+    }
+
+
+    @FXML
+    private void handleStartVoiceRecording() {
+        try {
+            if (!SessionManager.canWriteCommunityMessages()) {
+                showError("Only a plain player can send messages.");
+                return;
+            }
+
+            audioRecorderService.startRecording();
+            showSpeechInfo("Recording... click Stop when finished.");
+            refreshSpeechUi();
+
+        } catch (Exception e) {
+            showError("Failed to start recording: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleStopVoiceRecording() {
+        if (!audioRecorderService.isRecording()) {
+            return;
+        }
+
+        setComposerBusy(true);
+        showSpeechInfo("Transcribing voice...");
+
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                File audioFile = audioRecorderService.stopRecording();
+                return speechToTextService.transcribe(audioFile);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            setComposerBusy(false);
+            refreshSpeechUi();
+
+            String transcript = task.getValue() == null ? "" : task.getValue().trim();
+            if (transcript.isBlank()) {
+                showSpeechInfo("No speech detected.");
+                hideSpeechInfoLater();
+                return;
+            }
+
+            String existing = taNewMessage.getText() == null ? "" : taNewMessage.getText().trim();
+            if (existing.isBlank()) {
+                taNewMessage.setText(transcript);
+            } else {
+                taNewMessage.setText(existing + " " + transcript);
+            }
+
+            showSpeechInfo("Voice converted to text.");
+            hideSpeechInfoLater();
+        });
+
+        task.setOnFailed(event -> {
+            setComposerBusy(false);
+            refreshSpeechUi();
+            Throwable ex = task.getException();
+            showError("Failed to transcribe voice: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "community-stt");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private String formatBytes(int bytes) {
@@ -995,6 +1193,7 @@ public class CommunityChatController {
 
     @FXML
     private void handleBack() {
+        stopSpeechPlayback();
         markCurrentChannelAsReadSilently();
         stopRealtimeChat();
 
