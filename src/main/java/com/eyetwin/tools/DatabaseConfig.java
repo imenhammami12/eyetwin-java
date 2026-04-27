@@ -6,13 +6,12 @@ import java.sql.SQLException;
 
 public class DatabaseConfig {
 
-    private static final String URL =
-            "jdbc:mysql://127.0.0.1:3306/eyetwin_platform"
-                    + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/eyetwin_platform"
+            + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String LOGIN = "root";
-    private static final String PWD   = "";
+    private static final String PWD = "";
 
-    private static DatabaseConfig instance;  // private ✅
+    private static DatabaseConfig instance; // private ✅
 
     private Connection cnx;
 
@@ -22,8 +21,9 @@ public class DatabaseConfig {
             System.out.println("[DatabaseConfig] Connexion établie ✅");
         } catch (SQLException e) {
             System.err.println("[DatabaseConfig] ❌ Échec de la connexion à MySQL.");
-            System.err.println("Détails : " + e.getMessage());
-            System.err.println("Assurez-vous que MySQL tourne sur le port 3306 et que la base 'eyetwin_platform' existe.");
+            e.printStackTrace();
+            System.err.println(
+                    "Assurez-vous que MySQL tourne sur le port 3306 et que la base 'eyetwin' existe.");
         }
     }
 
@@ -49,7 +49,8 @@ public class DatabaseConfig {
         return cnx;
     }
 
-    // ── Alias statique — pour les classes qui appellent DatabaseConfig.getConnection() ──
+    // ── Alias statique — pour les classes qui appellent
+    // DatabaseConfig.getConnection() ──
     public static Connection getConnection() {
         return getInstance().getCnx();
     }

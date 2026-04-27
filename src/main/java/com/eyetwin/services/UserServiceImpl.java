@@ -19,7 +19,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  FIND BY EMAIL
+    // FIND BY EMAIL
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -27,10 +27,16 @@ public class UserServiceImpl implements IUserService {
         String sql = "SELECT * FROM `user` WHERE email = ?";
         try {
             Connection conn = getConnection();
+            if (conn == null) {
+                System.err
+                        .println("❌ findByEmail: Connection is NULL. Database might be down or credentials incorrect.");
+                return null;
+            }
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return mapUser(rs);
+            if (rs.next())
+                return mapUser(rs);
         } catch (SQLException e) {
             System.err.println("❌ findByEmail: " + e.getMessage());
         }
@@ -38,7 +44,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  FIND BY ID
+    // FIND BY ID
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -49,7 +55,8 @@ public class UserServiceImpl implements IUserService {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return mapUser(rs);
+            if (rs.next())
+                return mapUser(rs);
         } catch (SQLException e) {
             System.err.println("❌ findById: " + e.getMessage());
         }
@@ -57,7 +64,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  FIND BY USERNAME
+    // FIND BY USERNAME
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -68,7 +75,8 @@ public class UserServiceImpl implements IUserService {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return mapUser(rs);
+            if (rs.next())
+                return mapUser(rs);
         } catch (SQLException e) {
             System.err.println("❌ findByUsername: " + e.getMessage());
         }
@@ -76,7 +84,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  EMAIL EXISTS
+    // EMAIL EXISTS
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -94,7 +102,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  GET ALL USERS
+    // GET ALL USERS
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -105,7 +113,8 @@ public class UserServiceImpl implements IUserService {
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) users.add(mapUser(rs));
+            while (rs.next())
+                users.add(mapUser(rs));
         } catch (SQLException e) {
             System.err.println("❌ getAllUsers: " + e.getMessage());
         }
@@ -113,7 +122,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  SAVE — inscription
+    // SAVE — inscription
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -127,7 +136,7 @@ public class UserServiceImpl implements IUserService {
             PreparedStatement stmt = conn.prepareStatement(sql);
             String username = email.split("@")[0]
                     .replaceAll("[^a-zA-Z0-9]", "_")
-                    + "_" + (int)(Math.random() * 9000 + 1000);
+                    + "_" + (int) (Math.random() * 9000 + 1000);
             stmt.setString(1, email);
             stmt.setString(2, username);
             stmt.setString(3, "[\"ROLE_USER\"]");
@@ -143,7 +152,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  UPDATE — mise à jour complète
+    // UPDATE — mise à jour complète
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -166,12 +175,14 @@ public class UserServiceImpl implements IUserService {
             stmt.setString(i++, user.getAccountStatus());
             stmt.setInt(i++, user.getCoinBalance());
             stmt.setTimestamp(i++, user.getLastLogin() != null
-                    ? Timestamp.valueOf(user.getLastLogin()) : null);
+                    ? Timestamp.valueOf(user.getLastLogin())
+                    : null);
             stmt.setString(i++, user.getTotpSecret());
             stmt.setBoolean(i++, user.isTotpEnabled());
             stmt.setString(i++, user.getBackupCodesJson());
             stmt.setTimestamp(i++, user.getTotpEnabledAt() != null
-                    ? Timestamp.valueOf(user.getTotpEnabledAt()) : null);
+                    ? Timestamp.valueOf(user.getTotpEnabledAt())
+                    : null);
             stmt.setString(i++, user.getPhone());
             stmt.setString(i++, user.getTelegramChatId());
             stmt.setString(i++, user.getFaceDescriptor());
@@ -185,7 +196,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  SAVE PROFILE PICTURE
+    // SAVE PROFILE PICTURE
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -208,7 +219,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  LOGIN
+    // LOGIN
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -221,20 +232,24 @@ public class UserServiceImpl implements IUserService {
             throw new IllegalArgumentException("Password is required.");
 
         User user = findByEmail(email.toLowerCase().trim());
-        if (user == null) return null;
+        if (user == null)
+            return null;
 
         String hash = user.getPassword();
         if (hash != null && hash.startsWith("$2y$"))
             hash = "$2a$" + hash.substring(4);
-        if (!BCrypt.checkpw(password, hash)) return null;
+        if (!BCrypt.checkpw(password, hash))
+            return null;
 
         String status = user.getAccountStatus();
-        if (status == null || status.isBlank()) return null;
+        if (status == null || status.isBlank())
+            return null;
         switch (status.toLowerCase()) {
-            case "active"    -> {}
-            case "banned"    -> throw new IllegalStateException("Your account has been banned.");
+            case "active" -> {
+            }
+            case "banned" -> throw new IllegalStateException("Your account has been banned.");
             case "suspended" -> throw new IllegalStateException("Your account is suspended.");
-            default          -> throw new IllegalStateException("Account not active: " + status);
+            default -> throw new IllegalStateException("Account not active: " + status);
         }
 
         SessionManager.setCurrentUser(user);
@@ -243,7 +258,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  REGISTER
+    // REGISTER
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -265,14 +280,15 @@ public class UserServiceImpl implements IUserService {
                     "Password must contain uppercase, lowercase and a number.");
 
         String normalizedEmail = email.toLowerCase().trim();
-        if (emailExists(normalizedEmail)) return false;
+        if (emailExists(normalizedEmail))
+            return false;
 
         String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
         return save(fullName.trim(), normalizedEmail, hashed);
     }
 
     // ════════════════════════════════════════════════════════════
-    //  VERIFY PASSWORD
+    // VERIFY PASSWORD
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -286,8 +302,7 @@ public class UserServiceImpl implements IUserService {
             if (rs.next()) {
                 String stored = rs.getString("password");
                 return at.favre.lib.crypto.bcrypt.BCrypt.verifyer()
-                        .verify(plainPassword.toCharArray(), stored)
-                        .verified;
+                        .verify(plainPassword.toCharArray(), stored).verified;
             }
         } catch (SQLException e) {
             System.err.println("❌ verifyPassword: " + e.getMessage());
@@ -296,7 +311,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  LOGOUT
+    // LOGOUT
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -305,13 +320,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  RBAC HELPERS
+    // RBAC HELPERS
     // ════════════════════════════════════════════════════════════
 
     @Override
     public boolean hasRole(String role) {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return false;
+        if (user == null)
+            return false;
         return user.getRolesJson() != null && user.getRolesJson().contains(role);
     }
 
@@ -331,19 +347,19 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  ADMIN — CREATE USER
+    // ADMIN — CREATE USER
     // ════════════════════════════════════════════════════════════
 
     @Override
     public void adminCreateUser(String fullName, String username,
-                                String email, String plainPassword,
-                                String role) throws Exception {
+            String email, String plainPassword,
+            String role) throws Exception {
         if (findByUsername(username) != null)
             throw new Exception("Username \"" + username + "\" est déjà pris.");
         if (emailExists(email))
             throw new Exception("Email \"" + email + "\" est déjà enregistré.");
 
-        String hashed   = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+        String hashed = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         String rolesJson = role.equals("ROLE_USER")
                 ? "[\"ROLE_USER\"]"
                 : "[\"" + role + "\",\"ROLE_USER\"]";
@@ -367,7 +383,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  ADMIN — UPDATE ROLE
+    // ADMIN — UPDATE ROLE
     // ════════════════════════════════════════════════════════════
 
     @Override
@@ -389,17 +405,23 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  ADMIN — SUSPEND / BAN / ACTIVATE / DELETE
+    // ADMIN — SUSPEND / BAN / ACTIVATE / DELETE
     // ════════════════════════════════════════════════════════════
 
     @Override
-    public void suspendUser(int userId) throws Exception { updateStatus(userId, "suspended"); }
+    public void suspendUser(int userId) throws Exception {
+        updateStatus(userId, "suspended");
+    }
 
     @Override
-    public void banUser(int userId) throws Exception { updateStatus(userId, "banned"); }
+    public void banUser(int userId) throws Exception {
+        updateStatus(userId, "banned");
+    }
 
     @Override
-    public void activateUser(int userId) throws Exception { updateStatus(userId, "active"); }
+    public void activateUser(int userId) throws Exception {
+        updateStatus(userId, "active");
+    }
 
     private void updateStatus(int userId, String status) throws Exception {
         String sql = "UPDATE `user` SET account_status = ? WHERE id = ?";
@@ -428,23 +450,23 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  GET TEAM MEMBERSHIPS
+    // GET TEAM MEMBERSHIPS
     // ════════════════════════════════════════════════════════════
 
     @Override
     public List<TeamMembership> getTeamMemberships(int userId) {
         List<TeamMembership> list = new ArrayList<>();
         String sql = """
-            SELECT tm.id, tm.team_id, tm.user_id, tm.role, tm.status,
-                   tm.invited_at, tm.joined_at,
-                   t.id AS t_id, t.name AS t_name, t.description AS t_desc,
-                   t.logo AS t_logo, t.is_active AS t_active,
-                   t.max_members AS t_max, t.owner_id AS t_owner_id
-            FROM team_membership tm
-            INNER JOIN team t ON t.id = tm.team_id
-            WHERE tm.user_id = ?
-            ORDER BY tm.joined_at DESC
-            """;
+                SELECT tm.id, tm.team_id, tm.user_id, tm.role, tm.status,
+                       tm.invited_at, tm.joined_at,
+                       t.id AS t_id, t.name AS t_name, t.description AS t_desc,
+                       t.logo AS t_logo, t.is_active AS t_active,
+                       t.max_members AS t_max, t.owner_id AS t_owner_id
+                FROM team_membership tm
+                INNER JOIN team t ON t.id = tm.team_id
+                WHERE tm.user_id = ?
+                ORDER BY tm.joined_at DESC
+                """;
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -456,16 +478,24 @@ public class UserServiceImpl implements IUserService {
                 m.setTeamId(rs.getInt("team_id"));
                 m.setUserId(rs.getInt("user_id"));
 
-                try { m.setRole(MemberRole.fromValue(rs.getString("role"))); }
-                catch (Exception e) { m.setRole(MemberRole.MEMBER); }
+                try {
+                    m.setRole(MemberRole.fromValue(rs.getString("role")));
+                } catch (Exception e) {
+                    m.setRole(MemberRole.MEMBER);
+                }
 
-                try { m.setStatus(MembershipStatus.fromValue(rs.getString("status"))); }
-                catch (Exception e) { m.setStatus(MembershipStatus.INACTIVE); }
+                try {
+                    m.setStatus(MembershipStatus.fromValue(rs.getString("status")));
+                } catch (Exception e) {
+                    m.setStatus(MembershipStatus.INACTIVE);
+                }
 
                 Timestamp invitedAt = rs.getTimestamp("invited_at");
-                Timestamp joinedAt  = rs.getTimestamp("joined_at");
-                if (invitedAt != null) m.setInvitedAt(invitedAt.toLocalDateTime());
-                if (joinedAt  != null) m.setJoinedAt(joinedAt.toLocalDateTime());
+                Timestamp joinedAt = rs.getTimestamp("joined_at");
+                if (invitedAt != null)
+                    m.setInvitedAt(invitedAt.toLocalDateTime());
+                if (joinedAt != null)
+                    m.setJoinedAt(joinedAt.toLocalDateTime());
 
                 Team team = new Team();
                 team.setId(rs.getInt("t_id"));
@@ -486,7 +516,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     // ════════════════════════════════════════════════════════════
-    //  MAPPING ResultSet → User
+    // MAPPING ResultSet → User
     // ════════════════════════════════════════════════════════════
 
     private User mapUser(ResultSet rs) throws SQLException {
@@ -503,17 +533,20 @@ public class UserServiceImpl implements IUserService {
         user.setCoinBalance(rs.getInt("coin_balance"));
 
         Timestamp createdAt = rs.getTimestamp("created_at");
-        if (createdAt != null) user.setCreatedAt(createdAt.toLocalDateTime());
+        if (createdAt != null)
+            user.setCreatedAt(createdAt.toLocalDateTime());
 
         Timestamp lastLogin = rs.getTimestamp("last_login");
-        if (lastLogin != null) user.setLastLogin(lastLogin.toLocalDateTime());
+        if (lastLogin != null)
+            user.setLastLogin(lastLogin.toLocalDateTime());
 
         user.setTotpSecret(rs.getString("totp_secret"));
         user.setIsTotpEnabled(rs.getBoolean("is_totp_enabled"));
         user.setBackupCodesJson(rs.getString("backup_codes_json"));
 
         Timestamp totpEnabledAt = rs.getTimestamp("totp_enabled_at");
-        if (totpEnabledAt != null) user.setTotpEnabledAt(totpEnabledAt.toLocalDateTime());
+        if (totpEnabledAt != null)
+            user.setTotpEnabledAt(totpEnabledAt.toLocalDateTime());
 
         user.setPhone(rs.getString("phone"));
         user.setTelegramChatId(rs.getString("telegram_chat_id"));
