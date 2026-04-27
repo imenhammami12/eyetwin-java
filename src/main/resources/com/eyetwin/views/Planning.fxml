@@ -59,7 +59,7 @@
                         <HBox spacing="20" alignment="CENTER_LEFT">
                             <Button text="← Back to Home" onAction="#handleBackToDashboard"
                                     style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.6); -fx-cursor: hand;"/>
-                            <Label text="Available Sessions"
+                            <Label fx:id="listTitleLabel" text="Available Sessions"
                                    style="-fx-font-family: 'Arial Black'; -fx-font-size: 28; -fx-text-fill: white;"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <HBox spacing="12" alignment="CENTER_RIGHT">
@@ -67,7 +67,15 @@
                                     <graphic>
                                         <HBox spacing="8" alignment="CENTER">
                                             <ImageView fitWidth="18" fitHeight="18"><Image url="@../assets/img/brain_icon.png"/></ImageView>
-                                            <Label text="AI COACHING ADVISOR" style="-fx-text-fill: #e8372a; -fx-font-weight: bold; -fx-font-size: 11;"/>
+                                             <Label text="AI COACHING ADVISOR" style="-fx-text-fill: #e8372a; -fx-font-weight: bold; -fx-font-size: 11;"/>
+                                        </HBox>
+                                    </graphic>
+                                </Button>
+                                <Button onAction="#handleShowCalendar" styleClass="btn-outline-indigo">
+                                    <graphic>
+                                        <HBox spacing="8" alignment="CENTER">
+                                            <Label text="📅" style="-fx-font-size: 14;"/>
+                                            <Label text="CALENDRIER" style="-fx-text-fill: #e8372a; -fx-font-weight: bold; -fx-font-size: 11;"/>
                                         </HBox>
                                     </graphic>
                                 </Button>
@@ -131,6 +139,7 @@
                                    style="-fx-text-fill: #ff6b2b; -fx-font-size: 18; -fx-font-weight: bold;"/>
                             <VBox fx:id="myHistoryList" spacing="15"/>
                         </VBox>
+
                     </VBox>
 
                     <VBox fx:id="viewCreate" visible="false" managed="false" spacing="16"
@@ -428,6 +437,59 @@
                                 </HBox>
                             </VBox>
                         </HBox>
+                    </StackPane>
+
+                    <!-- Calendar modal -->
+                    <StackPane fx:id="calendarOverlay" visible="false" managed="false" styleClass="calendar-overlay">
+                        <VBox styleClass="calendar-modal" maxWidth="1200" maxHeight="750">
+                            <!-- Header -->
+                            <HBox styleClass="calendar-header" alignment="CENTER_LEFT" spacing="20">
+                                <Button text="‹" onAction="#handleCalendarPrev" styleClass="calendar-nav-btn"/>
+                                <Label fx:id="calendarTitle" text="Mars 2026" styleClass="calendar-title" prefWidth="250" alignment="CENTER"/>
+                                <Button text="›" onAction="#handleCalendarNext" styleClass="calendar-nav-btn"/>
+                                
+                                <Button text="Aujourd'hui" onAction="#handleCalendarToday" styleClass="calendar-nav-btn"/>
+                                
+                                <Region HBox.hgrow="ALWAYS"/>
+                                
+                                <HBox spacing="0" style="-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 10; -fx-padding: 4;">
+                                    <Button fx:id="btnMonthView" text="Mois" onAction="#handleSetMonthView" styleClass="calendar-nav-btn" style="-fx-background-radius: 8 0 0 8;"/>
+                                    <Button fx:id="btnWeekView" text="Semaine" onAction="#handleSetWeekView" styleClass="calendar-nav-btn" style="-fx-background-radius: 0 8 8 0;"/>
+                                </HBox>
+                                
+                                <Button text="✕" onAction="#handleCloseCalendar" styleClass="fe-chat-close2"/>
+                            </HBox>
+                            
+                            <!-- Filters -->
+                            <HBox fx:id="calendarFilterRow" spacing="10" style="-fx-padding: 15 20; -fx-border-color: rgba(255,255,255,0.05); -fx-border-width: 0 0 1 0;">
+                                <Button text="Tous" onAction="#handleCalendarFilterAll" styleClass="calendar-filter-chip, calendar-filter-chip-active"/>
+                                <Button text="MOBA" onAction="#handleCalendarFilterType" styleClass="calendar-filter-chip"/>
+                                <Button text="Stratégie" onAction="#handleCalendarFilterType" styleClass="calendar-filter-chip"/>
+                                <Button text="FPS" onAction="#handleCalendarFilterType" styleClass="calendar-filter-chip"/>
+                                <Button text="RPG" onAction="#handleCalendarFilterType" styleClass="calendar-filter-chip"/>
+                                <Button text="Sport" onAction="#handleCalendarFilterType" styleClass="calendar-filter-chip"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="calendarSessionCount" text="0 sessions" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-weight: bold;"/>
+                            </HBox>
+                            
+                            <!-- Main Content -->
+                            <HBox VBox.vgrow="ALWAYS">
+                                <!-- Grid Area -->
+                                <StackPane HBox.hgrow="ALWAYS" styleClass="calendar-grid-container">
+                                    <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+                                        <GridPane fx:id="calendarGrid" styleClass="calendar-grid"/>
+                                    </ScrollPane>
+                                </StackPane>
+                                
+                                <!-- Sidebar -->
+                                <VBox styleClass="calendar-sidebar" spacing="20">
+                                    <Label fx:id="sidebarTitle" text="PROCHAINES SESSIONS" styleClass="calendar-sidebar-title"/>
+                                    <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                                        <VBox fx:id="calendarSidebarList" spacing="15"/>
+                                    </ScrollPane>
+                                </VBox>
+                            </HBox>
+                        </VBox>
                     </StackPane>
 
                     <!-- Chatbot enabled on this page -->

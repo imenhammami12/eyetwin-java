@@ -18,6 +18,7 @@ module org.example.eyetwinjava {
     requires stripe.java;
 
     requires jdk.httpserver;
+    requires com.gluonhq.maps;
     requires javafx.media;
     requires uk.co.caprica.vlcj;
 

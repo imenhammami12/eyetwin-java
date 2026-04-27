@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leaflet Map</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #0f172a;
+            overflow: hidden;
+        }
+
+        #map {
+            background: #1e293b;
+        }
+
+        .leaflet-container {
+            background: #1e293b;
+        }
+
+        .leaflet-bar a {
+            background-color: #1e293b !important;
+            color: #94a3b8 !important;
+            border-bottom: 1px solid #334155 !important;
+        }
+
+        .leaflet-bar a:hover {
+            background-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        var map;
+        var marker;
+
+        /**
+         * Called from JavaFX with explicit pixel dimensions.
+         * @param {string} address  - existing address to search, or ""
+         * @param {number} w        - pixel width of the WebView (from Java)
+         * @param {number} h        - pixel height of the WebView (from Java)
+         */
+        function initMap(address, w, h) {
+            console.log("initMap: " + w + "x" + h + " addr=" + address);
+
+            // Destroy previous instance if it exists
+            if (map) { map.remove(); map = null; marker = null; }
+
+            // Apply exact pixel size to the container
+            var mapDiv = document.getElementById('map');
+            mapDiv.style.width = (w > 0 ? w : 600) + 'px';
+            mapDiv.style.height = (h > 0 ? h : 330) + 'px';
+            document.body.style.width = mapDiv.style.width;
+            document.body.style.height = mapDiv.style.height;
+
+            map = L.map('map', { zoomControl: true, tap: false })
+                .setView([36.8065, 10.1815], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            marker = L.marker([36.8065, 10.1815], { draggable: true }).addTo(map);
+
+            map.on('click', function (e) {
+                marker.setLatLng(e.latlng);
+                reverseGeocode(e.latlng.lat, e.latlng.lng);
+            });
+
+            marker.on('dragend', function () {
+                var pos = marker.getLatLng();
+                reverseGeocode(pos.lat, pos.lng);
+            });
+
+            // Single invalidateSize call after a short delay
+            setTimeout(function () {
+                map.invalidateSize(true);
+                if (address && address !== "Online" && address !== "") {
+                    searchLocation(address);
+                }
+            }, 200);
+        }
+
+        function reverseGeocode(lat, lng) {
+            fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng)
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var addr = data.display_name;
+                    marker.bindPopup(addr).openPopup();
+                    if (window.javaConnector) {
+                        window.javaConnector.onLocationSelected(addr, lat, lng);
+                    }
+                })
+                .catch(function () {
+                    if (window.javaConnector) {
+                        window.javaConnector.onLocationSelected(lat + ', ' + lng, lat, lng);
+                    }
+                });
+        }
+
+        function searchLocation(query) {
+            fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query))
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data && data.length > 0) {
+                        var first = data[0];
+                        var lat = parseFloat(first.lat);
+                        var lng = parseFloat(first.lon);
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng], 15);
+                        marker.bindPopup(first.display_name).openPopup();
+                        if (window.javaConnector) {
+                            window.javaConnector.onLocationSelected(first.display_name, lat, lng);
+                        }
+                    }
+                });
+        }
+
+        function refreshMap() {
+            if (map) map.invalidateSize(true);
+        }
+    </script>
+</body>
+
+</html>
