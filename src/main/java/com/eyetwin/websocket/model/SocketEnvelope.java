@@ -84,6 +84,7 @@ public class SocketEnvelope {
     public static final String TYPE_NEW_MESSAGE = "NEW_MESSAGE";
     public static final String TYPE_EDIT_MESSAGE = "EDIT_MESSAGE";
     public static final String TYPE_DELETE_MESSAGE = "DELETE_MESSAGE";
+    public static final String TYPE_REACTION_CHANGED = "REACTION_CHANGED";
 
     public static final String TYPE_SUBSCRIBE = "SUBSCRIBE";
     public static final String TYPE_UNSUBSCRIBE = "UNSUBSCRIBE";
@@ -91,6 +92,8 @@ public class SocketEnvelope {
     public static final String TYPE_NOTIFICATION_CHANGED = "NOTIFICATION_CHANGED";
     public static final String TYPE_ACCESS_CHANGED = "ACCESS_CHANGED";
     public static final String TYPE_COMMUNITY_CHANGED = "COMMUNITY_CHANGED";
+
+
 
     private String type;
     private Integer channelId;

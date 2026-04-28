@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3c230b31-3345-4fb7-a143-6cd0043eb989" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/config/GiphyConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/GiphyPickerController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/GiphyGif.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/GiphyApiService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/GiphyPicker.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/giphy.properties.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/CommunityChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/CommunityChat.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/CommunityChat.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/entities/Community/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/IMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/interfaces/Community/IMessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/MessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/Community/MessageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/client/CommunityWebSocketClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/model/SocketEnvelope.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/websocket/server/CommunityWebSocketServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +53,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.completion&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.CommunityWebSocketServerLauncher">
+  <component name="RunManager" selected="Application.MainApp">
     <list>
       <item itemvalue="Application.MainApp" />
       <item itemvalue="Application.CommunityWebSocketServerLauncher" />

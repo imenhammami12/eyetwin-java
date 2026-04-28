@@ -454,4 +454,22 @@ public class CommunityWebSocketClient extends WebSocketClient {
         envelope.setSentAt(LocalDateTime.now().toString());
         return envelope;
     }
+
+    public void publishReactionEvent(int channelId, int userId, String userName, String userEmail) {
+        if (!ensureConnected()) {
+            return;
+        }
+
+        SocketEnvelope envelope = buildEnvelope(
+                SocketEnvelope.TYPE_REACTION_CHANGED,
+                "chat:" + channelId,
+                channelId,
+                userId,
+                userName,
+                userEmail,
+                null
+        );
+
+        send(gson.toJson(envelope));
+    }
 }

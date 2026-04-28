@@ -23,7 +23,9 @@ public interface IMessageService {
     void adminDeleteMessage(int messageId, User admin) throws SQLException;
     void adminRestoreMessage(int messageId, User admin) throws SQLException;
 
-
+    List<Message> findByChannelForUser(int channelId, User viewer) throws SQLException;
+    void toggleReaction(int messageId, String reactionType, User user) throws SQLException;
+    Message findByIdForUser(int id, User viewer) throws SQLException;
 
     /// SUMMARY
     List<Message> findMessagesAfter(int channelId, int messageId) throws SQLException;
