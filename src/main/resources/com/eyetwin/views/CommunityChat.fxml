@@ -278,6 +278,17 @@
                        -fx-border-radius: 10;
                        -fx-padding: 10 16 10 16;
                        -fx-cursor: hand;" />
+                                <Button fx:id="btnGif"
+                                        text="GIF"
+                                        onAction="#handleOpenGifPicker"
+                                        style="-fx-background-color: rgba(255,255,255,0.08);
+               -fx-border-color: rgba(255,255,255,0.12);
+               -fx-text-fill: white;
+               -fx-font-weight: bold;
+               -fx-background-radius: 10;
+               -fx-border-radius: 10;
+               -fx-padding: 10 16 10 16;
+               -fx-cursor: hand;" />
 
                                 <Button fx:id="btnRecordVoice"
                                         text="🎤 Record"

@@ -62,6 +62,8 @@ import com.eyetwin.services.Community.PiperTextToSpeechService;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import com.eyetwin.entities.Community.GiphyGif;
+
 public class CommunityChatController {
 
     @FXML private Label lblChannelName;
@@ -116,6 +118,9 @@ public class CommunityChatController {
     @FXML private VBox summaryKeyPointsBox;
     @FXML private VBox summaryActionItemsBox;
     @FXML private VBox summaryOpenQuestionsBox;
+
+    /// GIPHY
+    @FXML private Button btnGif;
 
     private final ChatSummaryService chatSummaryService = new ChatSummaryService();
 
@@ -952,9 +957,104 @@ public class CommunityChatController {
         if (taNewMessage != null) taNewMessage.setDisable(busy);
         if (btnSend != null) btnSend.setDisable(busy);
         if (btnAttach != null) btnAttach.setDisable(busy);
+        if (btnGif != null) btnGif.setDisable(busy);
         if (btnClearAttachments != null) btnClearAttachments.setDisable(busy);
         if (btnRecordVoice != null) btnRecordVoice.setDisable(busy || audioRecorderService.isRecording());
         if (btnStopVoice != null) btnStopVoice.setDisable(busy || !audioRecorderService.isRecording());
+    }
+
+    @FXML
+    private void handleOpenGifPicker() {
+        try {
+            if (!SessionManager.canWriteCommunityMessages()) {
+                showError("Only a plain player can send messages.");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/GiphyPicker.fxml"));
+            Parent root = loader.load();
+
+            GiphyPickerController controller = loader.getController();
+            controller.setOnGifSelected(this::sendGifMessage);
+
+            Stage popup = new Stage();
+            popup.setTitle("Choose GIF");
+            popup.setScene(new Scene(root));
+            popup.setWidth(700);
+            popup.setHeight(620);
+            popup.setMinWidth(650);
+            popup.setMinHeight(560);
+            popup.initOwner((Stage) lblChannelName.getScene().getWindow());
+            popup.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to open GIF picker: " + e);
+        }
+    }
+
+    private void sendGifMessage(GiphyGif gif) {
+        if (gif == null || channel == null) {
+            return;
+        }
+
+        setComposerBusy(true);
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                MessageAttachment gifAttachment = new MessageAttachment();
+                gifAttachment.setOriginalName(
+                        (gif.getTitle() == null || gif.getTitle().isBlank() ? "giphy" : gif.getTitle()) + ".gif"
+                );
+                gifAttachment.setStoredName("giphy-" + gif.getId() + ".gif");
+                gifAttachment.setMimeType("image/gif");
+                gifAttachment.setSize(0);
+                gifAttachment.setUrl(gif.getSendUrl());
+                gifAttachment.setPublicId("giphy:" + gif.getId());
+                gifAttachment.setCloudResourceType("image");
+
+                List<MessageAttachment> attachments = new ArrayList<>();
+                attachments.add(gifAttachment);
+
+                messageService.sendMessage(
+                        channel.getId(),
+                        "",
+                        SessionManager.getCurrentUser(),
+                        attachments
+                );
+
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            setComposerBusy(false);
+
+            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                socketClient.publishMessage(
+                        channel.getId(),
+                        getRealtimeUserId(),
+                        getRealtimeUserName(),
+                        getRealtimeUserEmail(),
+                        "[GIF]"
+                );
+            }
+
+            loadMessagesToBottom();
+            markCurrentChannelAsReadSilently();
+            hideSummaryBanner();
+        });
+
+        task.setOnFailed(event -> {
+            setComposerBusy(false);
+            Throwable ex = task.getException();
+            showError("Failed to send GIF: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "community-send-gif");
+        thread.setDaemon(true);
+        thread.start();
     }
 
 
