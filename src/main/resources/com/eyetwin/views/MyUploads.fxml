@@ -2,6 +2,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.MyUploadsController"
@@ -266,6 +267,82 @@
                                          style="-fx-font-family:'Arial Black'; -fx-font-size:34; -fx-text-fill:#e8372a; -fx-font-weight:bold;"/>
                                      <Label text="Needs update" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:10;"/>
                                  </VBox>
+                                </GridPane>
+
+                                <HBox spacing="18" style="-fx-padding:6 0 0 0;">
+                                    <VBox HBox.hgrow="ALWAYS" spacing="8"
+                                          style="-fx-background-color:rgba(12,18,40,0.75); -fx-border-color:rgba(76,211,227,0.22);
+                                                 -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:18;">
+                                        <Label text="Status Distribution" style="-fx-text-fill:white; -fx-font-size:14; -fx-font-weight:bold;"/>
+                                        <PieChart fx:id="statusPieChart" labelsVisible="false" legendVisible="true"
+                                                  style="-fx-background-color:transparent; -fx-clockwise:true; -fx-pie-label-visible:false;"
+                                                  prefHeight="260"/>
+                                    </VBox>
+
+                                    <VBox HBox.hgrow="ALWAYS" spacing="8"
+                                          style="-fx-background-color:rgba(12,18,40,0.75); -fx-border-color:rgba(255,165,0,0.22);
+                                                 -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:18;">
+                                        <Label text="Volume &amp; Reach" style="-fx-text-fill:white; -fx-font-size:14; -fx-font-weight:bold;"/>
+                                        <BarChart fx:id="performanceBarChart" legendVisible="false" categoryGap="18" barGap="6"
+                                                  style="-fx-background-color:transparent;" prefHeight="260">
+                                            <xAxis>
+                                                <CategoryAxis side="BOTTOM"/>
+                                            </xAxis>
+                                            <yAxis>
+                                                <NumberAxis side="LEFT" autoRanging="true" forceZeroInRange="true"/>
+                                            </yAxis>
+                                        </BarChart>
+                                    </VBox>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" spacing="14"
+                                      style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.20);
+                                             -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:16 18 16 18;">
+                                    <Label text="🪙" style="-fx-font-size:26;"/>
+                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                        <Label text="Views to Coins" style="-fx-text-fill:white; -fx-font-size:14; -fx-font-weight:bold;"/>
+                                        <Label text="Every 50 views on one of your guides or clips earns you +10 coins automatically."
+                                               style="-fx-text-fill:rgba(255,255,255,0.72); -fx-font-size:11;"/>
+                                        <Label text="Rewards are counted per upload, so each content piece can generate its own coin bonus."
+                                               style="-fx-text-fill:rgba(255,255,255,0.45); -fx-font-size:10;"/>
+                                    </VBox>
+                                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                                        <Label text="50 views" style="-fx-text-fill:#4cd3e3; -fx-font-size:18; -fx-font-weight:bold;"/>
+                                        <Label text="= +10 coins" style="-fx-text-fill:#00e676; -fx-font-size:18; -fx-font-weight:bold;"/>
+                                    </VBox>
+                                </HBox>
+
+                                <GridPane hgap="14" vgap="14" style="-fx-padding:2 0 0 0;">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+
+                                    <VBox spacing="6" style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.25); -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10; -fx-padding:14;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <Label text="Approval Rate" style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:10;"/>
+                                        <Label fx:id="kpiApprovalRate" text="0%" style="-fx-font-family:'Arial Black'; -fx-font-size:24; -fx-text-fill:#4cd3e3;"/>
+                                        <Label text="Approved / total uploads" style="-fx-text-fill:rgba(255,255,255,0.38); -fx-font-size:9;"/>
+                                    </VBox>
+
+                                    <VBox spacing="6" style="-fx-background-color:rgba(0,230,118,0.08); -fx-border-color:rgba(0,230,118,0.25); -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10; -fx-padding:14;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <Label text="Avg Views / Upload" style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:10;"/>
+                                        <Label fx:id="kpiAvgViews" text="0.0" style="-fx-font-family:'Arial Black'; -fx-font-size:24; -fx-text-fill:#00e676;"/>
+                                        <Label text="Total views / total uploads" style="-fx-text-fill:rgba(255,255,255,0.38); -fx-font-size:9;"/>
+                                    </VBox>
+
+                                    <VBox spacing="6" style="-fx-background-color:rgba(255,193,7,0.08); -fx-border-color:rgba(255,193,7,0.25); -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10; -fx-padding:14;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                        <Label text="Published Impact" style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:10;"/>
+                                        <Label fx:id="kpiPublishedImpact" text="0.0" style="-fx-font-family:'Arial Black'; -fx-font-size:24; -fx-text-fill:#ffc107;"/>
+                                        <Label text="Views / approved guides" style="-fx-text-fill:rgba(255,255,255,0.38); -fx-font-size:9;"/>
+                                    </VBox>
+
+                                    <VBox spacing="6" style="-fx-background-color:rgba(232,55,42,0.08); -fx-border-color:rgba(232,55,42,0.25); -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10; -fx-padding:14;" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                        <Label text="Quality Score" style="-fx-text-fill:rgba(255,255,255,0.55); -fx-font-size:10;"/>
+                                        <Label fx:id="kpiQualityScore" text="0" style="-fx-font-family:'Arial Black'; -fx-font-size:24; -fx-text-fill:#ff6b6b;"/>
+                                        <Label text="Business score / 100" style="-fx-text-fill:rgba(255,255,255,0.38); -fx-font-size:9;"/>
+                                    </VBox>
                                 </GridPane>
                             </VBox>
                            </ScrollPane>

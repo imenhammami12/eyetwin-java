@@ -514,9 +514,19 @@ public class AdminGuidesController {
                 editBtn.setOnAction(e -> {
                     GuideVideo guide = getTableRow() != null ? getTableRow().getItem() : null;
                     if (guide == null) return;
+                    String previousStatus = safe(guide.getStatus()).toLowerCase(Locale.ROOT);
                     GuideVideo updated = openGuideDialog(guide);
                     if (updated != null) {
                         guideVideoRepository.update(updated);
+                        String newStatus = safe(updated.getStatus()).toLowerCase(Locale.ROOT);
+                        boolean decisionChanged = !previousStatus.equals(newStatus)
+                                && ("approved".equals(newStatus) || "rejected".equals(newStatus));
+                        if (decisionChanged) {
+                            String reason = "rejected".equals(newStatus)
+                                    ? "Your guide was reviewed and needs improvements before publication."
+                                    : null;
+                            notifyUploaderAboutGuideDecision(updated, newStatus, reason);
+                        }
                         refreshAll();
                     }
                 });
@@ -527,6 +537,7 @@ public class AdminGuidesController {
                         guide.setStatus("approved");
                         guide.setApprovedAt(LocalDateTime.now());
                         guideVideoRepository.update(guide);
+                        notifyUploaderAboutGuideDecision(guide, "approved", null);
                         refreshAll();
                     }
                 });
@@ -537,6 +548,7 @@ public class AdminGuidesController {
                         guide.setStatus("rejected");
                         guide.setApprovedAt(null);
                         guideVideoRepository.update(guide);
+                        notifyUploaderAboutGuideDecision(guide, "rejected", "Please review title, content quality, or video relevance.");
                         refreshAll();
                     }
                 });
@@ -926,6 +938,31 @@ public class AdminGuidesController {
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Open video error", e.getMessage());
         }
+    }
+
+    private void notifyUploaderAboutGuideDecision(GuideVideo guide, String decision, String reason) {
+        if (guide == null || guide.getUploadedBy() == null) {
+            return;
+        }
+
+        String uploaderEmail = guide.getUploadedBy().getEmail();
+        if (uploaderEmail == null || uploaderEmail.isBlank()) {
+            return;
+        }
+
+        String uploaderName = guide.getUploadedBy().getFullName();
+        if (uploaderName == null || uploaderName.isBlank()) {
+            uploaderName = safe(guide.getUploadedBy().getUsername());
+        }
+
+        EmailService.getInstance().sendGuideDecisionEmail(
+                uploaderEmail,
+                uploaderName,
+                guide.getTitle(),
+                decision,
+                guide.getGame() != null ? guide.getGame().getName() : null,
+                reason
+        );
     }
 
     private void showVideoViewer(String url, String title) {

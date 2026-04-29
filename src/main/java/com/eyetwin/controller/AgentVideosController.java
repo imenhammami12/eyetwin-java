@@ -358,6 +358,19 @@ public class AgentVideosController {
     private void openVideoModal(GuideVideo video) {
         if (videoModalOverlay == null) return;
 
+        // Count a view and trigger uploader coin rewards by threshold in background.
+        if (video != null && video.getId() != null) {
+            new Thread(() -> {
+                int awarded = guideVideoRepository.incrementViewAndRewardUploader(video.getId());
+                Platform.runLater(() -> {
+                    video.setViews(video.getViews() + 1);
+                    if (awarded > 0) {
+                        System.out.println("[AgentVideos] Reward granted to uploader: +" + awarded + " coins");
+                    }
+                });
+            }, "GuideViewReward").start();
+        }
+
         stopActivePlayer();
 
         if (modalTitleLabel != null) modalTitleLabel.setText(video.getTitle());

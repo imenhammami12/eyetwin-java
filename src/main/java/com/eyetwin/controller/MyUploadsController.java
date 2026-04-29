@@ -6,9 +6,13 @@ import com.eyetwin.repository.GuideVideoRepository;
 import com.eyetwin.tools.SessionManager;
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -27,6 +31,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class MyUploadsController {
@@ -63,6 +68,12 @@ public class MyUploadsController {
     @FXML private Label statApproved;
     @FXML private Label statPending;
     @FXML private Label statRejected;
+    @FXML private PieChart statusPieChart;
+    @FXML private BarChart<String, Number> performanceBarChart;
+    @FXML private Label kpiApprovalRate;
+    @FXML private Label kpiAvgViews;
+    @FXML private Label kpiPublishedImpact;
+    @FXML private Label kpiQualityScore;
 
     // Header stats (quick view)
     @FXML private Label headerTotalUploads;
@@ -327,6 +338,15 @@ public class MyUploadsController {
         int pending = (int) allUploads.stream().filter(g -> "pending".equalsIgnoreCase(g.getStatus())).count();
         int rejected = (int) allUploads.stream().filter(g -> "rejected".equalsIgnoreCase(g.getStatus())).count();
 
+        double approvalRate = total > 0 ? (approved * 100.0) / total : 0.0;
+        double avgViews = total > 0 ? (views * 1.0) / total : 0.0;
+        double publishedImpact = approved > 0 ? (views * 1.0) / approved : 0.0;
+
+        // Business-oriented quality score balancing moderation success and audience reach.
+        double engagementNormalized = Math.min(100.0, avgViews * 10.0);
+        double penalty = Math.min(100.0, (pending * 6.0) + (rejected * 10.0));
+        int qualityScore = (int) Math.max(0.0, Math.min(100.0, (approvalRate * 0.55) + (engagementNormalized * 0.45) - (penalty * 0.15)));
+
         // Update stats tab
         if (statTotalUploads != null) statTotalUploads.setText(String.valueOf(total));
         if (statTotalViews != null) statTotalViews.setText(String.valueOf(views));
@@ -334,11 +354,42 @@ public class MyUploadsController {
         if (statPending != null) statPending.setText(String.valueOf(pending));
         if (statRejected != null) statRejected.setText(String.valueOf(rejected));
 
+        if (kpiApprovalRate != null) kpiApprovalRate.setText(String.format(Locale.US, "%.1f%%", approvalRate));
+        if (kpiAvgViews != null) kpiAvgViews.setText(String.format(Locale.US, "%.1f", avgViews));
+        if (kpiPublishedImpact != null) kpiPublishedImpact.setText(String.format(Locale.US, "%.1f", publishedImpact));
+        if (kpiQualityScore != null) kpiQualityScore.setText(String.valueOf(qualityScore));
+
+        updateCharts(approved, pending, rejected, total, views);
+
         // Update header quick stats
         if (headerTotalUploads != null) headerTotalUploads.setText(String.valueOf(total));
         if (headerApproved != null) headerApproved.setText(String.valueOf(approved));
         if (headerPending != null) headerPending.setText(String.valueOf(pending));
         if (headerViews != null) headerViews.setText(String.valueOf(views));
+    }
+
+    private void updateCharts(int approved, int pending, int rejected, int total, int views) {
+        if (statusPieChart != null) {
+            statusPieChart.setData(FXCollections.observableArrayList(
+                    new PieChart.Data("Approved", approved),
+                    new PieChart.Data("Pending", pending),
+                    new PieChart.Data("Rejected", rejected)
+            ));
+            statusPieChart.setLegendVisible(true);
+            statusPieChart.setLabelsVisible(false);
+            statusPieChart.setClockwise(true);
+        }
+
+        if (performanceBarChart != null) {
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.getData().add(new XYChart.Data<>("Uploads", total));
+            series.getData().add(new XYChart.Data<>("Views", views));
+            series.getData().add(new XYChart.Data<>("Approved", approved));
+            series.getData().add(new XYChart.Data<>("Pending", pending));
+            series.getData().add(new XYChart.Data<>("Rejected", rejected));
+            performanceBarChart.getData().setAll(series);
+            performanceBarChart.setAnimated(false);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════

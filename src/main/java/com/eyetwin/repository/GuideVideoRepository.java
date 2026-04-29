@@ -50,6 +50,9 @@ import java.util.List;
  */
 public class GuideVideoRepository {
 
+    private static final int VIEWS_PER_COIN_REWARD = 50;
+    private static final int COINS_PER_REWARD_STEP = 10;
+
     @FunctionalInterface
     private interface SqlBinder {
         void bind(PreparedStatement ps) throws SQLException;
@@ -304,6 +307,75 @@ public class GuideVideoRepository {
             }
         } catch (SQLException e) {
             System.err.println("[GuideVideoRepository] saveLike error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Increments guide views by 1 and awards coins to uploader whenever a view threshold is crossed.
+     * Example with defaults: every 50 views => +10 coins.
+     *
+     * @return coins awarded on this increment (0 if no threshold crossed or data unavailable)
+     */
+    public int incrementViewAndRewardUploader(Integer guideId) {
+        if (guideId == null) return 0;
+
+        String lockSql = "SELECT views, uploaded_by_id FROM guide_video WHERE id = ? FOR UPDATE";
+        String updateViewsSql = "UPDATE guide_video SET views = ? WHERE id = ?";
+        String updateCoinsSql = "UPDATE user SET coin_balance = coin_balance + ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            if (conn == null) return 0;
+
+            conn.setAutoCommit(false);
+            try {
+                int oldViews;
+                Integer uploaderId;
+
+                try (PreparedStatement ps = conn.prepareStatement(lockSql)) {
+                    ps.setInt(1, guideId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            conn.rollback();
+                            conn.setAutoCommit(true);
+                            return 0;
+                        }
+                        oldViews = rs.getInt("views");
+                        uploaderId = rs.getInt("uploaded_by_id");
+                        if (rs.wasNull()) uploaderId = null;
+                    }
+                }
+
+                int newViews = oldViews + 1;
+                try (PreparedStatement ps = conn.prepareStatement(updateViewsSql)) {
+                    ps.setInt(1, newViews);
+                    ps.setInt(2, guideId);
+                    ps.executeUpdate();
+                }
+
+                int oldSteps = oldViews / VIEWS_PER_COIN_REWARD;
+                int newSteps = newViews / VIEWS_PER_COIN_REWARD;
+                int crossedSteps = Math.max(0, newSteps - oldSteps);
+                int awardedCoins = crossedSteps * COINS_PER_REWARD_STEP;
+
+                if (awardedCoins > 0 && uploaderId != null) {
+                    try (PreparedStatement ps = conn.prepareStatement(updateCoinsSql)) {
+                        ps.setInt(1, awardedCoins);
+                        ps.setInt(2, uploaderId);
+                        ps.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+                conn.setAutoCommit(true);
+                return awardedCoins;
+            } catch (SQLException e) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                throw e;
+            }
+        } catch (SQLException e) {
+            System.err.println("[GuideVideoRepository] incrementViewAndRewardUploader error: " + e.getMessage());
+            return 0;
         }
     }
 
