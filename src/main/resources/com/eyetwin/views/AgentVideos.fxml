@@ -103,16 +103,16 @@
                        style="-fx-background-color: rgba(0,0,0,0.95);"
                        visible="false"
                        onMouseClicked="#closeVideoModal">
-                <VBox maxWidth="900" spacing="0"
+                                                                      <VBox maxWidth="900" spacing="0"
                       style="-fx-background-color:#000; -fx-border-radius:14; -fx-background-radius:14;
                              -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.9),40,0,0,0);"
-                      onMouseClicked="#closeVideoModal">
+                                                                             onMouseClicked="#consumeMouseEvent">
                     <!-- Modal header -->
-                    <HBox alignment="CENTER_LEFT" spacing="0"
+                       <HBox alignment="CENTER_LEFT" spacing="0"
                           style="-fx-background-color:rgba(255,0,0,0.04);
                                  -fx-border-color:rgba(255,255,255,0.08) transparent transparent transparent;
                                  -fx-border-width:0 0 1 0; -fx-padding:18 18 18 18;"
-                          onMouseClicked="e -> e.consume()">
+                              onMouseClicked="#consumeMouseEvent">
                         <Label fx:id="modalTitleLabel" text=""
                                style="-fx-text-fill:white; -fx-font-size:16; -fx-font-weight:bold;"
                                HBox.hgrow="ALWAYS"/>
@@ -123,9 +123,9 @@
                                        -fx-cursor:hand;"/>
                     </HBox>
                     <!-- Media area -->
-                    <VBox fx:id="mediaContainer" alignment="CENTER" spacing="12"
+                       <VBox fx:id="mediaContainer" alignment="CENTER" spacing="12"
                           minHeight="200" style="-fx-padding:20 20 20 20; -fx-background-color:#000;"
-                          onMouseClicked="e -> e.consume()"/>
+                              onMouseClicked="#consumeMouseEvent"/>
                 </VBox>
             </StackPane>
 

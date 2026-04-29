@@ -3,10 +3,13 @@ package com.eyetwin.controller;
 import com.eyetwin.entities.Agent;
 import com.eyetwin.entities.Game;
 import com.eyetwin.entities.GuideVideo;
+import com.eyetwin.entities.User;
 import com.eyetwin.repository.AgentRepository;
 import com.eyetwin.repository.GameRepository;
 import com.eyetwin.repository.GuideVideoRepository;
 import com.eyetwin.services.CloudinaryUploader;
+import com.eyetwin.services.EmailService;
+import com.eyetwin.services.UserServiceImpl;
 import com.eyetwin.tools.SessionManager;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -22,6 +25,9 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class GuideUploadController {
@@ -58,6 +64,7 @@ public class GuideUploadController {
     private final AgentRepository       agentRepo        = new AgentRepository();
     private final GuideVideoRepository  guideVideoRepo   = new GuideVideoRepository();
     private final CloudinaryUploader    cloudinaryUploader = new CloudinaryUploader();
+    private final UserServiceImpl       userService      = new UserServiceImpl();
 
     private boolean isEdit = false;
     private GuideVideo guideToEdit;
@@ -250,6 +257,9 @@ public class GuideUploadController {
                     Platform.runLater(() -> updateProgress("Uploading video to Cloudinary..."));
                     var uploadResult = cloudinaryUploader.uploadVideo(selectedVideoFile);
                     if (uploadResult != null && uploadResult.containsKey("secure_url")) {
+                        System.out.println("[GuideUploadController] Cloudinary upload result:");
+                        System.out.println("  - secure_url: " + uploadResult.get("secure_url"));
+                        System.out.println("  - public_id: " + uploadResult.get("public_id"));
                         guide.setVideoUrl((String) uploadResult.get("secure_url"));
                     } else {
                         Platform.runLater(() -> {
@@ -266,26 +276,66 @@ public class GuideUploadController {
                 // Thumbnail
                 if (selectedThumbnailFile != null) {
                     Platform.runLater(() -> updateProgress("Saving thumbnail..."));
-                    String dest = System.getProperty("user.dir") + "/public/uploads/guides/"
-                            + "thumb_" + System.currentTimeMillis() + "_" + selectedThumbnailFile.getName();
-                    java.nio.file.Files.copy(selectedThumbnailFile.toPath(),
-                            java.nio.file.Path.of(dest),
-                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                    guide.setThumbnail("/uploads/guides/" + java.nio.file.Path.of(dest).getFileName());
+                    Path uploadDir = Path.of(System.getProperty("user.dir"), "public", "uploads", "guides");
+                    Files.createDirectories(uploadDir);
+
+                    String fileName = "thumb_" + System.currentTimeMillis() + "_" + selectedThumbnailFile.getName();
+                    Path destination = uploadDir.resolve(fileName);
+
+                    Files.copy(selectedThumbnailFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+                    guide.setThumbnail("/uploads/guides/" + fileName);
                 }
 
                 // Status & author
                 if (!isEdit) {
-                    guide.setUploadedBy(SessionManager.getCurrentUser());
+                    User currentUser = SessionManager.getCurrentUser();
+                    if (currentUser == null) {
+                        Platform.runLater(() -> {
+                            hideProgress();
+                            showError(videoError, "Erreur : Utilisateur non authentifié. Veuillez vous reconnecter.");
+                            submitBtn.setDisable(false);
+                        });
+                        return;
+                    }
+                    guide.setUploadedBy(currentUser);
                     guide.setStatus("pending");
+                    System.out.println("[GuideUploadController] Setting uploadedBy to: " + currentUser.getUsername() + " (ID: " + currentUser.getId() + ")");
+                }
+
+                // Validate required fields before persistence
+                if (guide.getGame() == null) {
+                    Platform.runLater(() -> {
+                        hideProgress();
+                        showError(gameError, "Erreur : Veuillez sélectionner un jeu.");
+                        submitBtn.setDisable(false);
+                    });
+                    return;
                 }
 
                 // Persist
+                System.out.println("[GuideUploadController] About to save guide: " + guide.getTitle());
                 Platform.runLater(() -> updateProgress(isEdit ? "Updating guide..." : "Saving guide..."));
                 if (isEdit) {
                     guideVideoRepo.update(guide);
+                    System.out.println("[GuideUploadController] Guide updated");
                 } else {
-                    guideVideoRepo.save(guide);
+                    GuideVideo savedGuide = guideVideoRepo.save(guide);
+                    System.out.println("[GuideUploadController] Guide saved with ID: " + (savedGuide != null ? savedGuide.getId() : "null"));
+                    
+                    if (savedGuide == null || savedGuide.getId() == null) {
+                        Platform.runLater(() -> {
+                            hideProgress();
+                            showError(videoError, "Erreur : Échec de la sauvegarde du guide en base de données.");
+                            submitBtn.setDisable(false);
+                        });
+                        return;
+                    }
+                    
+                    guide = savedGuide;  // Use the saved guide with ID
+                }
+
+                if (!isEdit) {
+                    notifyAdminsAboutPendingGuide(guide);
                 }
 
                 Platform.runLater(() -> {
@@ -305,6 +355,38 @@ public class GuideUploadController {
                 });
             }
         }).start();
+    }
+
+    private void notifyAdminsAboutPendingGuide(GuideVideo guide) {
+        User uploader = guide != null ? guide.getUploadedBy() : null;
+        if (uploader == null) {
+            return;
+        }
+
+        List<User> admins = userService.getAllUsers().stream()
+                .filter(user -> user != null && user.getEmail() != null && !user.getEmail().isBlank())
+                .filter(user -> user.isAdmin() || user.isSuperAdmin())
+                .toList();
+
+        if (admins.isEmpty()) {
+            return;
+        }
+
+        String uploaderName = uploader.getFullName() != null && !uploader.getFullName().isBlank()
+                ? uploader.getFullName()
+                : uploader.getUsername();
+
+        String gameName = guide.getGame() != null ? guide.getGame().getName() : null;
+        String agentName = guide.getAgent() != null ? guide.getAgent().getName() : null;
+
+        admins.forEach(admin -> EmailService.getInstance().sendGuideApprovalRequestEmail(
+                admin.getEmail(),
+                uploaderName,
+                uploader.getEmail(),
+                guide.getTitle(),
+                gameName,
+                agentName,
+                guide.getMap()));
     }
 
     // ═══════════════════════════════════════════

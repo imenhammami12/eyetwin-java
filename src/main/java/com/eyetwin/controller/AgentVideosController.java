@@ -21,12 +21,16 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AgentVideosController {
 
@@ -361,23 +365,23 @@ public class AgentVideosController {
 
         String url = video.getVideoUrl();
         boolean isLocal = url != null && url.startsWith("/uploads/guide-videos/");
+        boolean isCloudinary = isCloudinaryMediaUrl(url);
+        boolean isCloudflare = isCloudflareStream(url);
 
-        if (isLocal && url != null) {
-            // Local video player
-            try {
-                Media media = new Media("file://" + url);
-                activePlayer = new MediaPlayer(media);
-                MediaView mediaView = new MediaView(activePlayer);
-                mediaView.setFitWidth(720);
-                mediaView.setPreserveRatio(true);
-                mediaContainer.getChildren().add(mediaView);
-                activePlayer.play();
-            } catch (Exception e) {
-                showFallbackLink(url);
+        if ((isLocal || isCloudinary) && url != null) {
+            if (!playWithMediaPlayer(toLocalFileMediaUrl(url), null)) {
+                showEmbeddedVideoFallback(url);
+            }
+        } else if (isCloudflare) {
+            String hlsUrl = toCloudflareHlsUrl(url);
+            String mp4Url = toCloudflareMp4Url(url);
+            if (!playWithMediaCandidates(List.of(hlsUrl, mp4Url), url)) {
+                showEmbeddedVideoFallback(url);
             }
         } else {
-            // External link fallback (WebView not always available; open in browser)
-            showFallbackLink(url);
+            if (!playWithMediaPlayer(url, url)) {
+                showEmbeddedVideoFallback(url);
+            }
         }
 
         videoModalOverlay.setVisible(true);
@@ -387,17 +391,282 @@ public class AgentVideosController {
         ft.play();
     }
 
-    private void showFallbackLink(String url) {
-        if (mediaContainer == null) return;
-        Label lbl = new Label("Ouvrir dans le navigateur:");
-        lbl.setStyle("-fx-text-fill: #aeb8c9; -fx-font-size: 13;");
-        Hyperlink link = new Hyperlink(url);
-        link.setStyle("-fx-text-fill: #4cd3e3; -fx-font-size: 13;");
-        link.setOnAction(e -> {
-            try { java.awt.Desktop.getDesktop().browse(new java.net.URI(url)); } catch (Exception ex) {}
-        });
-        mediaContainer.getChildren().addAll(lbl, link);
+    private boolean playWithMediaPlayer(String mediaUrl, String fallbackUrl) {
+        if (mediaContainer == null || mediaUrl == null || mediaUrl.isBlank()) return false;
+
+        try {
+            Media media = new Media(mediaUrl);
+            activePlayer = new MediaPlayer(media);
+
+            MediaView mediaView = new MediaView(activePlayer);
+            mediaView.setFitWidth(860);
+            mediaView.setPreserveRatio(true);
+
+            Label loading = new Label("Chargement de la video...");
+            loading.setStyle("-fx-text-fill: #aeb8c9; -fx-font-size: 13;");
+
+            activePlayer.setOnReady(() -> {
+                mediaContainer.getChildren().setAll(mediaView);
+                activePlayer.play();
+            });
+
+            activePlayer.setOnError(() -> {
+                stopActivePlayer();
+                if (fallbackUrl != null && !fallbackUrl.isBlank()) {
+                    showEmbeddedVideoFallback(fallbackUrl);
+                } else {
+                    Label err = new Label("Impossible de lire cette video dans le lecteur interne.");
+                    err.setStyle("-fx-text-fill: #ff8a8a; -fx-font-size: 13;");
+                    mediaContainer.getChildren().setAll(err);
+                }
+            });
+
+            mediaContainer.getChildren().setAll(loading);
+            return true;
+        } catch (Exception e) {
+            stopActivePlayer();
+            return false;
+        }
     }
+
+    private boolean playWithMediaCandidates(List<String> mediaUrls, String fallbackUrl) {
+        if (mediaContainer == null || mediaUrls == null) return false;
+
+        List<String> candidates = mediaUrls.stream()
+                .filter(u -> u != null && !u.isBlank())
+                .distinct()
+                .toList();
+
+        if (candidates.isEmpty()) {
+            return false;
+        }
+
+        Label loading = new Label("Chargement de la video...");
+        loading.setStyle("-fx-text-fill: #aeb8c9; -fx-font-size: 13;");
+        mediaContainer.getChildren().setAll(loading);
+
+        attemptPlayCandidate(candidates, 0, fallbackUrl);
+        return true;
+    }
+
+    private void attemptPlayCandidate(List<String> candidates, int index, String fallbackUrl) {
+        if (mediaContainer == null) return;
+
+        if (index >= candidates.size()) {
+            if (fallbackUrl != null && !fallbackUrl.isBlank()) {
+                showEmbeddedVideoFallback(fallbackUrl);
+            } else {
+                Label err = new Label("Impossible de lire cette video.");
+                err.setStyle("-fx-text-fill: #ff8a8a; -fx-font-size: 13;");
+                mediaContainer.getChildren().setAll(err);
+            }
+            return;
+        }
+
+        try {
+            stopActivePlayer();
+
+            Media media = new Media(candidates.get(index));
+            activePlayer = new MediaPlayer(media);
+
+            MediaView mediaView = new MediaView(activePlayer);
+            mediaView.setFitWidth(860);
+            mediaView.setPreserveRatio(true);
+
+            activePlayer.setOnReady(() -> {
+                mediaContainer.getChildren().setAll(mediaView);
+                activePlayer.play();
+            });
+
+            activePlayer.setOnError(() -> {
+                stopActivePlayer();
+                attemptPlayCandidate(candidates, index + 1, fallbackUrl);
+            });
+
+        } catch (Exception e) {
+            attemptPlayCandidate(candidates, index + 1, fallbackUrl);
+        }
+    }
+
+    private String toLocalFileMediaUrl(String relativeUploadPath) {
+        String normalized = relativeUploadPath.replace("/", java.io.File.separator);
+        if (normalized.startsWith(java.io.File.separator)) {
+            normalized = normalized.substring(1);
+        }
+        java.io.File file = new java.io.File(System.getProperty("user.dir"), normalized);
+        return file.toURI().toString();
+    }
+
+    private boolean isCloudinaryMediaUrl(String url) {
+        if (url == null) return false;
+        String lower = url.toLowerCase(Locale.ROOT);
+        return lower.contains("res.cloudinary.com") || lower.contains("cloudinary.com");
+    }
+
+    private boolean isCloudflareStream(String url) {
+        if (url == null) return false;
+        String lower = url.toLowerCase(Locale.ROOT);
+        return lower.contains("videodelivery.net");
+    }
+
+    private String toCloudflareHlsUrl(String url) {
+        if (url == null || url.isBlank()) return url;
+        String id = extractCloudflareVideoId(url);
+        if (id == null || id.isBlank()) return url;
+        return "https://videodelivery.net/" + id + "/manifest/video.m3u8";
+    }
+
+    private String toCloudflareMp4Url(String url) {
+        if (url == null || url.isBlank()) return url;
+        String id = extractCloudflareVideoId(url);
+        if (id == null || id.isBlank()) return url;
+        return "https://videodelivery.net/" + id + "/downloads/default.mp4";
+    }
+
+    private String extractCloudflareVideoId(String url) {
+        try {
+            java.net.URI uri = java.net.URI.create(url.trim());
+            String path = uri.getPath();
+            if (path == null || path.isBlank()) return null;
+            String[] parts = path.split("/");
+            for (String part : parts) {
+                if (part != null && !part.isBlank()) {
+                    return part;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private void showEmbeddedVideoFallback(String url) {
+        if (mediaContainer == null) return;
+
+        if (url == null || url.isBlank()) {
+            Label lbl = new Label("Aucune source vidéo disponible");
+            lbl.setStyle("-fx-text-fill: #aeb8c9; -fx-font-size: 13;");
+            mediaContainer.getChildren().add(lbl);
+            return;
+        }
+
+        WebView webView = new WebView();
+        webView.setPrefSize(720, 405);
+        webView.setMinSize(720, 405);
+        webView.setMaxSize(960, 540);
+        webView.setStyle("-fx-background-color: black;");
+
+        WebEngine engine = webView.getEngine();
+        engine.setJavaScriptEnabled(true);
+
+                String embedUrl = normalizeEmbedUrl(url);
+                String html;
+
+                if (isCloudinaryMediaUrl(url) || url.toLowerCase(Locale.ROOT).endsWith(".mp4")) {
+                    html = """
+                                <!doctype html>
+                                <html>
+                                    <head>
+                                        <meta charset=\"utf-8\" />
+                                        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+                                        <style>
+                                            html, body {
+                                                margin: 0;
+                                                padding: 0;
+                                                width: 100%%;
+                                                height: 100%%;
+                                                background: #000;
+                                                overflow: hidden;
+                                            }
+                                            .wrap {
+                                                position: absolute;
+                                                inset: 0;
+                                            }
+                                            video {
+                                                width: 100%%;
+                                                height: 100%%;
+                                                object-fit: contain;
+                                                background: #000;
+                                            }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class=\"wrap\">
+                                            <video controls autoplay playsinline>
+                                                <source src=\"%s\" type=\"video/mp4\" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    </body>
+                                </html>
+                                """.formatted(escapeHtml(embedUrl));
+                } else {
+                    html = """
+                                <!doctype html>
+                                <html>
+                                    <head>
+                                        <meta charset=\"utf-8\" />
+                                        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+                                        <style>
+                                            html, body {
+                                                margin: 0;
+                                                padding: 0;
+                                                width: 100%%;
+                                                height: 100%%;
+                                                background: #000;
+                                                overflow: hidden;
+                                            }
+                                            .wrap {
+                                                position: absolute;
+                                                inset: 0;
+                                            }
+                                            iframe {
+                                                border: 0;
+                                                width: 100%%;
+                                                height: 100%%;
+                                                display: block;
+                                                background: #000;
+                                            }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class=\"wrap\">
+                                            <iframe
+                                                src=\"%s\"
+                                                allow=\"autoplay; fullscreen; picture-in-picture; encrypted-media\"
+                                                allowfullscreen
+                                                referrerpolicy=\"strict-origin-when-cross-origin\"></iframe>
+                                        </div>
+                                    </body>
+                                </html>
+                                """.formatted(escapeHtml(embedUrl));
+                }
+
+                engine.loadContent(html, "text/html");
+
+        mediaContainer.getChildren().add(webView);
+    }
+
+        private String normalizeEmbedUrl(String url) {
+                String clean = url.trim();
+                String lower = clean.toLowerCase(Locale.ROOT);
+
+                if (lower.contains("iframe.videodelivery.net") && !lower.contains("autoplay=")) {
+                        if (clean.contains("?")) {
+                                return clean + "&autoplay=true";
+                        }
+                        return clean + "?autoplay=true";
+                }
+
+                return clean;
+        }
+
+        private String escapeHtml(String value) {
+                return value
+                                .replace("&", "&amp;")
+                                .replace("\"", "&quot;")
+                                .replace("<", "&lt;")
+                                .replace(">", "&gt;");
+        }
 
     @FXML
     public void closeVideoModal() {
@@ -410,6 +679,13 @@ public class AgentVideosController {
             if (mediaContainer != null) mediaContainer.getChildren().clear();
         });
         ft.play();
+    }
+
+    @FXML
+    public void consumeMouseEvent(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
     }
 
     private void stopActivePlayer() {

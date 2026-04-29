@@ -20,6 +20,7 @@ public class AdminSidebarController {
     @FXML private Button navPlanning;
     @FXML private Button navTournaments;
     @FXML private Button navVideos;
+    @FXML private Button navGuides;
     @FXML private Button navCoachApps;
     @FXML private Button navChannels;
     @FXML private Button navComplaints;
@@ -57,7 +58,7 @@ public class AdminSidebarController {
 
     public void setActivePage(String page) {
         Button[] all = { navDashboard, navUsers, navPlanning, navTournaments,
-                navVideos, navCoachApps, navChannels, navComplaints,
+                navVideos, navGuides, navCoachApps, navChannels, navComplaints,
                 navMessages, navTeams, navAuditLogs };
         for (Button b : all)
             if (b != null) b.setStyle(STYLE_INACTIVE);
@@ -68,6 +69,7 @@ public class AdminSidebarController {
             case "planning"    -> navPlanning;
             case "tournaments" -> navTournaments;
             case "videos"      -> navVideos;
+            case "guides"      -> navGuides;
             case "coachapps"   -> navCoachApps;
             case "channels"    -> navChannels;
             case "complaints"  -> navComplaints;
@@ -103,6 +105,7 @@ public class AdminSidebarController {
     @FXML public void goToPlanning()          { navigateTo("AdminPlanning.fxml"); }
     @FXML public void goToTournaments()       { navigateTo("AdminTournaments.fxml"); }
     @FXML public void goToVideos()            { navigateTo("AdminVideos.fxml"); }
+    @FXML public void goToGuides()            { navigateTo("AdminGuides.fxml"); }
     @FXML public void goToCoachApplications() { navigateTo("AdminCoachApplications.fxml"); }
     @FXML public void goToChannels()          { navigateTo("AdminChannels.fxml"); }
     @FXML public void goToComplaints()        { navigateTo("AdminComplaints.fxml"); }

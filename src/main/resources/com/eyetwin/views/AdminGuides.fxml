@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.admin.AdminGuidesController"
+            prefWidth="1280" prefHeight="800"
+            style="-fx-background-color: #0d0618;"
+            stylesheets="@../assets/css/admin-gaming.css">
+
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+
+    <top>
+        <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:#0d0618;-fx-background:#0d0618;-fx-border-color:transparent;">
+            <content>
+                <VBox spacing="18" style="-fx-padding:28 32 30 32; -fx-background-color:#0d0618;">
+
+                    <HBox spacing="16">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:22;">
+                            <Label text="Games" style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;-fx-font-weight:bold;"/>
+                            <Label fx:id="gamesCountLabel" text="0" style="-fx-text-fill:white;-fx-font-size:30;-fx-font-weight:bold;"/>
+                            <Button text="+ Add Game" onAction="#addGame"
+                                    style="-fx-background-color:rgba(79,172,254,0.16);-fx-border-color:rgba(79,172,254,0.45);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:22;">
+                            <Label text="Agents" style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;-fx-font-weight:bold;"/>
+                            <Label fx:id="agentsCountLabel" text="0" style="-fx-text-fill:white;-fx-font-size:30;-fx-font-weight:bold;"/>
+                            <Button text="+ Add Agent" onAction="#addAgent"
+                                    style="-fx-background-color:rgba(67,233,123,0.16);-fx-border-color:rgba(67,233,123,0.45);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:22;">
+                            <Label text="Guides" style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;-fx-font-weight:bold;"/>
+                            <Label fx:id="guidesCountLabel" text="0" style="-fx-text-fill:white;-fx-font-size:30;-fx-font-weight:bold;"/>
+                            <Button text="+ Add Guide" onAction="#addGuide"
+                                    style="-fx-background-color:rgba(255,60,100,0.16);-fx-border-color:rgba(255,60,100,0.45);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,193,7,0.16);-fx-border-radius:16;-fx-background-radius:16;-fx-border-width:1;-fx-padding:22;">
+                            <Label text="Pending" style="-fx-text-fill:rgba(255,255,255,0.6);-fx-font-size:12;-fx-font-weight:bold;"/>
+                            <Label fx:id="pendingCountLabel" text="0" style="-fx-text-fill:white;-fx-font-size:30;-fx-font-weight:bold;"/>
+                            <Button text="Review Pending" onAction="#showPendingTab"
+                                    style="-fx-background-color:rgba(255,193,7,0.16);-fx-border-color:rgba(255,193,7,0.45);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Button text="Dashboard" onAction="#showDashboardTab"
+                                style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-padding:10 16;"/>
+                        <Button text="Games" onAction="#showGamesTab"
+                                style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-padding:10 16;"/>
+                        <Button text="Agents" onAction="#showAgentsTab"
+                                style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-padding:10 16;"/>
+                        <Button text="Videos" onAction="#showGuidesTab"
+                                style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-padding:10 16;"/>
+                        <Button text="Pending" onAction="#showPendingTab"
+                                style="-fx-background-color:rgba(255,255,255,0.05);-fx-border-color:rgba(255,255,255,0.12);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-padding:10 16;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh" onAction="#refreshAll"
+                                style="-fx-background-color:rgba(79,172,254,0.18);-fx-border-color:rgba(79,172,254,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                    </HBox>
+
+                    <TabPane fx:id="guideTabPane" tabClosingPolicy="UNAVAILABLE"
+                             style="-fx-background-color:transparent;"
+                             VBox.vgrow="ALWAYS">
+                        <tabs>
+                            <Tab fx:id="dashboardTab" text="Dashboard">
+                                <content>
+                                    <VBox spacing="14" style="-fx-padding:20; -fx-background-color:rgba(255,255,255,0.03); -fx-background-radius:16;">
+                                        <Label text="Guide Admin Dashboard" style="-fx-text-fill:white;-fx-font-size:20;-fx-font-weight:bold;"/>
+                                        <Label text="Manage games, agents and guide videos from one JavaFX workspace. Approve or reject submissions, or open a guide directly from the table." style="-fx-text-fill:rgba(255,255,255,0.6);-fx-wrap-text:true;"/>
+                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                            <Button text="Go to Games" onAction="#showGamesTab"
+                                                    style="-fx-background-color:rgba(79,172,254,0.18);-fx-border-color:rgba(79,172,254,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                            <Button text="Go to Agents" onAction="#showAgentsTab"
+                                                    style="-fx-background-color:rgba(67,233,123,0.16);-fx-border-color:rgba(67,233,123,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                            <Button text="Go to Videos" onAction="#showGuidesTab"
+                                                    style="-fx-background-color:rgba(255,60,100,0.16);-fx-border-color:rgba(255,60,100,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                            <Button text="Go to Pending" onAction="#showPendingTab"
+                                                    style="-fx-background-color:rgba(255,193,7,0.16);-fx-border-color:rgba(255,193,7,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                        </HBox>
+                                    </VBox>
+                                </content>
+                            </Tab>
+
+                            <Tab fx:id="gamesTab" text="Games">
+                                <content>
+                                    <VBox spacing="12" style="-fx-padding:18;">
+                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                            <TextField fx:id="gameSearchField" promptText="Search games..." HBox.hgrow="ALWAYS"
+                                                       style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-prompt-text-fill:rgba(255,255,255,0.35);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <Button text="+ Add Game" onAction="#addGame"
+                                                    style="-fx-background-color:rgba(79,172,254,0.18);-fx-border-color:rgba(79,172,254,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                        </HBox>
+                                        <TableView fx:id="gamesTable" prefHeight="520">
+                                            <columns>
+                                                <TableColumn fx:id="gameNameCol" text="Name" prefWidth="180"/>
+                                                <TableColumn fx:id="gameSlugCol" text="Slug" prefWidth="160"/>
+                                                <TableColumn fx:id="gameColorCol" text="Color" prefWidth="120"/>
+                                                <TableColumn fx:id="gameDescriptionCol" text="Description" prefWidth="360"/>
+                                                <TableColumn fx:id="gameCreatedCol" text="Created" prefWidth="140"/>
+                                                <TableColumn fx:id="gameActionsCol" text="Actions" prefWidth="160"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
+                                </content>
+                            </Tab>
+
+                            <Tab fx:id="agentsTab" text="Agents">
+                                <content>
+                                    <VBox spacing="12" style="-fx-padding:18;">
+                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                            <TextField fx:id="agentSearchField" promptText="Search agents..." HBox.hgrow="ALWAYS"
+                                                       style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-prompt-text-fill:rgba(255,255,255,0.35);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <Button text="+ Add Agent" onAction="#addAgent"
+                                                    style="-fx-background-color:rgba(67,233,123,0.16);-fx-border-color:rgba(67,233,123,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                        </HBox>
+                                        <TableView fx:id="agentsTable" prefHeight="520">
+                                            <columns>
+                                                <TableColumn fx:id="agentNameCol" text="Name" prefWidth="180"/>
+                                                <TableColumn fx:id="agentSlugCol" text="Slug" prefWidth="160"/>
+                                                <TableColumn fx:id="agentGameCol" text="Game" prefWidth="180"/>
+                                                <TableColumn fx:id="agentCreatedCol" text="Created" prefWidth="140"/>
+                                                <TableColumn fx:id="agentActionsCol" text="Actions" prefWidth="160"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
+                                </content>
+                            </Tab>
+
+                            <Tab fx:id="guidesTab" text="Videos">
+                                <content>
+                                    <VBox spacing="12" style="-fx-padding:18;">
+                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                            <TextField fx:id="guideSearchField" promptText="Search title, uploader, game or agent..." HBox.hgrow="ALWAYS"
+                                                       style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-prompt-text-fill:rgba(255,255,255,0.35);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <ComboBox fx:id="guideStatusFilter" prefWidth="160"
+                                                      style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <ComboBox fx:id="guideGameFilter" prefWidth="200"
+                                                      style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <Button text="+ Add Guide" onAction="#addGuide"
+                                                    style="-fx-background-color:rgba(255,60,100,0.16);-fx-border-color:rgba(255,60,100,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                        </HBox>
+                                        <TableView fx:id="guidesTable" prefHeight="520">
+                                            <columns>
+                                                <TableColumn fx:id="guideTitleCol" text="Title" prefWidth="200"/>
+                                                <TableColumn fx:id="guideGameCol" text="Game" prefWidth="150"/>
+                                                <TableColumn fx:id="guideAgentCol" text="Agent" prefWidth="140"/>
+                                                <TableColumn fx:id="guideUploaderCol" text="Uploader" prefWidth="140"/>
+                                                <TableColumn fx:id="guideStatusCol" text="Status" prefWidth="110"/>
+                                                <TableColumn fx:id="guideCreatedCol" text="Created" prefWidth="140"/>
+                                                <TableColumn fx:id="guideActionsCol" text="Actions" prefWidth="260"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
+                                </content>
+                            </Tab>
+
+                            <Tab fx:id="pendingTab" text="Pending">
+                                <content>
+                                    <VBox spacing="12" style="-fx-padding:18;">
+                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                            <TextField fx:id="pendingSearchField" promptText="Search pending guides..." HBox.hgrow="ALWAYS"
+                                                       style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-prompt-text-fill:rgba(255,255,255,0.35);-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <ComboBox fx:id="pendingGameFilter" prefWidth="220"
+                                                      style="-fx-background-color:#160a22;-fx-text-fill:white;-fx-border-color:rgba(255,255,255,0.1);-fx-border-radius:10;-fx-background-radius:10;"/>
+                                            <Button text="Review Guides" onAction="#showGuidesTab"
+                                                    style="-fx-background-color:rgba(255,193,7,0.16);-fx-border-color:rgba(255,193,7,0.35);-fx-border-radius:10;-fx-background-radius:10;-fx-text-fill:white;-fx-font-weight:bold;"/>
+                                        </HBox>
+                                        <TableView fx:id="pendingTable" prefHeight="520">
+                                            <columns>
+                                                <TableColumn fx:id="pendingTitleCol" text="Title" prefWidth="220"/>
+                                                <TableColumn fx:id="pendingGameCol" text="Game" prefWidth="150"/>
+                                                <TableColumn fx:id="pendingAgentCol" text="Agent" prefWidth="140"/>
+                                                <TableColumn fx:id="pendingUploaderCol" text="Uploader" prefWidth="140"/>
+                                                <TableColumn fx:id="pendingCreatedCol" text="Created" prefWidth="140"/>
+                                                <TableColumn fx:id="pendingActionsCol" text="Actions" prefWidth="280"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
+                                </content>
+                            </Tab>
+                        </tabs>
+                    </TabPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

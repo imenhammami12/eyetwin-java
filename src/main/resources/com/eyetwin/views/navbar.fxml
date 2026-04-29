@@ -49,10 +49,12 @@
                        -fx-mark-color: rgba(255,255,255,0.3);
                        -fx-cursor: hand;">
         <items>
-            <MenuItem fx:id="menuUpload"  text="⬆  Uploader"  onAction="#goToVideos"/>
-            <MenuItem fx:id="menuMyClips" text="🎬  My Clips"  onAction="#goToClips"/>
+            <MenuItem fx:id="menuMyUploads" text="📤  My Uploads"   onAction="#goToMyUploads"/>
             <SeparatorMenuItem/>
-            <MenuItem fx:id="menuGuides"  text="📖  Guides"    onAction="#goToGuides"/>
+            <MenuItem fx:id="menuUpload"    text="⬆  Uploader"     onAction="#goToVideos"/>
+            <MenuItem fx:id="menuMyClips"   text="🎬  My Clips"     onAction="#goToClips"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="menuGuides"    text="📖  Guides"       onAction="#goToGuides"/>
         </items>
     </MenuButton>
 

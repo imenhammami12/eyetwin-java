@@ -15,6 +15,38 @@ import java.util.List;
 /**
  * JDBC repository for GuideVideo.
  * Provides the methods used by guide-related controllers.
+ *
+ * Table SQL definition:
+ * ┌──────────────────────────────────────────────────────────────────────┐
+ * │ CREATE TABLE guide_video (                                           │
+ * │   id                INT AUTO_INCREMENT PRIMARY KEY,                  │
+ * │   title             VARCHAR(255) NOT NULL,                           │
+ * │   description       TEXT,                                            │
+ * │   video_url         VARCHAR(500) NOT NULL,                           │
+ * │   thumbnail         VARCHAR(500),                                    │
+ * │   map               VARCHAR(100) DEFAULT 'All',                      │
+ * │   likes             INT NOT NULL DEFAULT 0,                          │
+ * │   views             INT NOT NULL DEFAULT 0,                          │
+ * │   status            VARCHAR(50) NOT NULL DEFAULT 'pending',          │
+ * │   created_at        DATETIME NOT NULL,                               │
+ * │   approved_at       DATETIME,                                        │
+ * │   uploaded_by_id    INT NOT NULL,                                    │
+ * │   game_id           INT,                                             │
+ * │   agent_id          INT,                                             │
+ * │   FOREIGN KEY (uploaded_by_id) REFERENCES user(id),                  │
+ * │   FOREIGN KEY (game_id) REFERENCES game(id),                         │
+ * │   FOREIGN KEY (agent_id) REFERENCES agent(id)                        │
+ * │ );                                                                    │
+ * │                                                                        │
+ * │ CREATE TABLE guide_video_like (                                       │
+ * │   id                INT AUTO_INCREMENT PRIMARY KEY,                  │
+ * │   guide_video_id    INT NOT NULL,                                    │
+ * │   user_id           INT NOT NULL,                                    │
+ * │   UNIQUE KEY (guide_video_id, user_id),                              │
+ * │   FOREIGN KEY (guide_video_id) REFERENCES guide_video(id),           │
+ * │   FOREIGN KEY (user_id) REFERENCES user(id)                          │
+ * │ );                                                                    │
+ * └──────────────────────────────────────────────────────────────────────┘
  */
 public class GuideVideoRepository {
 
@@ -70,7 +102,88 @@ public class GuideVideoRepository {
         });
     }
 
+    public List<GuideVideo> findAll() {
+        String sql = """
+            SELECT g.id, g.title, g.description, g.video_url, g.thumbnail, g.map,
+                   g.likes, g.views, g.status, g.created_at, g.approved_at,
+                   g.uploaded_by_id, g.game_id, g.agent_id,
+                   u.username AS uploader_username,
+                   gm.name AS game_name,
+                   a.name AS agent_name,
+                   a.image AS agent_image
+            FROM guide_video g
+            LEFT JOIN user u ON u.id = g.uploaded_by_id
+            LEFT JOIN game gm ON gm.id = g.game_id
+            LEFT JOIN agent a ON a.id = g.agent_id
+            ORDER BY g.created_at DESC
+            """;
+
+        return queryGuides(sql, ps -> {});
+    }
+
+    public List<GuideVideo> findByStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return findAll();
+        }
+
+        String sql = """
+            SELECT g.id, g.title, g.description, g.video_url, g.thumbnail, g.map,
+                   g.likes, g.views, g.status, g.created_at, g.approved_at,
+                   g.uploaded_by_id, g.game_id, g.agent_id,
+                   u.username AS uploader_username,
+                   gm.name AS game_name,
+                   a.name AS agent_name,
+                   a.image AS agent_image
+            FROM guide_video g
+            LEFT JOIN user u ON u.id = g.uploaded_by_id
+            LEFT JOIN game gm ON gm.id = g.game_id
+            LEFT JOIN agent a ON a.id = g.agent_id
+            WHERE g.status = ?
+            ORDER BY g.created_at DESC
+            """;
+
+        return queryGuides(sql, ps -> ps.setString(1, status));
+    }
+
+    public List<GuideVideo> findPending() {
+        return findByStatus("pending");
+    }
+
+    public GuideVideo findById(int id) {
+        String sql = """
+            SELECT g.id, g.title, g.description, g.video_url, g.thumbnail, g.map,
+                   g.likes, g.views, g.status, g.created_at, g.approved_at,
+                   g.uploaded_by_id, g.game_id, g.agent_id,
+                   u.username AS uploader_username,
+                   gm.name AS game_name,
+                   a.name AS agent_name,
+                   a.image AS agent_image
+            FROM guide_video g
+            LEFT JOIN user u ON u.id = g.uploaded_by_id
+            LEFT JOIN game gm ON gm.id = g.game_id
+            LEFT JOIN agent a ON a.id = g.agent_id
+            WHERE g.id = ?
+            """;
+
+        List<GuideVideo> guides = queryGuides(sql, ps -> ps.setInt(1, id));
+        return guides.isEmpty() ? null : guides.get(0);
+    }
+
     public GuideVideo save(GuideVideo guide) {
+        System.out.println("[GuideVideoRepository] save() called for guide: " + (guide != null ? guide.getTitle() : "null"));
+        
+        if (guide == null) {
+            System.err.println("[GuideVideoRepository] save error: guide is null");
+            return null;
+        }
+        
+        System.out.println("[GuideVideoRepository] Guide details:");
+        System.out.println("  - Title: " + guide.getTitle());
+        System.out.println("  - Status: " + guide.getStatus());
+        System.out.println("  - UploadedBy: " + (guide.getUploadedBy() != null ? guide.getUploadedBy().getId() : "NULL"));
+        System.out.println("  - Game: " + (guide.getGame() != null ? guide.getGame().getId() : "NULL"));
+        System.out.println("  - VideoUrl: " + guide.getVideoUrl());
+        
         String sql = """
             INSERT INTO guide_video
                 (title, description, video_url, thumbnail, map, likes, views, status,
@@ -81,17 +194,32 @@ public class GuideVideoRepository {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            if (conn == null) {
+                System.err.println("[GuideVideoRepository] save error: Database connection is null");
+                return guide;
+            }
+            
+            System.out.println("[GuideVideoRepository] Database connection established, preparing statement...");
             bindGuideWrite(ps, guide, false);
-            ps.executeUpdate();
+            
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("[GuideVideoRepository] Insert executed, rows affected: " + rowsAffected);
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    setIntegerProperty(guide, "setId", keys.getInt(1));
+                    int generatedId = keys.getInt(1);
+                    setIntegerProperty(guide, "setId", generatedId);
+                    System.out.println("[GuideVideoRepository] Guide saved successfully with ID: " + generatedId);
+                } else {
+                    System.err.println("[GuideVideoRepository] Warning: No generated key returned");
                 }
             }
 
         } catch (SQLException e) {
             System.err.println("[GuideVideoRepository] save error: " + e.getMessage());
+            System.err.println("[GuideVideoRepository] SQL State: " + e.getSQLState());
+            System.err.println("[GuideVideoRepository] Error Code: " + e.getErrorCode());
+            e.printStackTrace();
         }
 
         return guide;

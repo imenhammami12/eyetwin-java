@@ -308,4 +308,69 @@ public class EmailService {
             }
         }, "EmailSender").start();
     }
+
+    public void sendGuideApprovalRequestEmail(String toEmail,
+                                              String uploaderName,
+                                              String uploaderEmail,
+                                              String guideTitle,
+                                              String gameName,
+                                              String agentName,
+                                              String guideMap) {
+        String safeUploaderName = escapeHtml(uploaderName != null ? uploaderName : "Unknown user");
+        String safeUploaderEmail = escapeHtml(uploaderEmail != null ? uploaderEmail : "unknown@example.com");
+        String safeGuideTitle = escapeHtml(guideTitle != null ? guideTitle : "Untitled guide");
+        String safeGameName = escapeHtml(gameName != null ? gameName : "Unknown game");
+        String safeAgentName = escapeHtml(agentName != null ? agentName : "-");
+        String safeGuideMap = escapeHtml(guideMap != null ? guideMap : "All");
+        int year = java.time.LocalDate.now().getYear();
+
+        String html = "<!DOCTYPE html><html lang='en'><head>"
+                + "<meta charset='UTF-8'>"
+                + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                + "</head>"
+                + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0' style='max-width:560px;width:100%;background:#0d0618;border-radius:18px;overflow:hidden;border:1px solid rgba(79,172,254,0.25);'>"
+                + "<tr><td height='5' style='background:linear-gradient(to right,#4facfe,#00f2fe,#ff3c64);font-size:0;line-height:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;background:#0d0618;'>"
+                + "<div style='width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);margin:0 auto 18px;line-height:68px;font-size:24px;font-weight:bold;color:white;text-align:center;'>&#128276;</div>"
+                + "<h1 style='margin:0 0 10px;color:white;font-size:22px;font-weight:700;'>New guide waiting for approval</h1>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.50);font-size:13px;line-height:1.7;'>A user has uploaded a new guide and it is now pending admin review.</p>"
+                + "</td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' style='background:#160a22;border-radius:12px;border:1px solid rgba(79,172,254,0.20);overflow:hidden;'>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Guide title</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGuideTitle + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Uploaded by</td><td align='right' style='color:#4facfe;font-size:13px;font-weight:700;'>" + safeUploaderName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Uploader email</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeUploaderEmail + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Game</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGameName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Agent</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeAgentName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Map</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGuideMap + "</td></tr></table></td></tr>"
+                + "</table></td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'><p style='margin:0;color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;'>Open the admin panel and approve or reject the guide once it has been reviewed.</p></td></tr>"
+                + "<tr><td style='padding:18px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.20);'><p style='margin:0 0 5px;color:rgba(255,255,255,0.25);font-size:11px;'>&#169; " + year + " EyeTwin E-Sport Platform</p></td></tr>"
+                + "</table>"
+                + "</td></tr></table>"
+                + "</body></html>";
+
+        new Thread(() -> {
+            try {
+                sendHtml(toEmail,
+                        "New guide pending approval: " + guideTitle,
+                        html);
+            } catch (Exception e) {
+                System.err.println("[EmailService] Guide approval email failed: " + e.getMessage());
+            }
+        }, "GuideApprovalEmail").start();
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) return "";
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
 }

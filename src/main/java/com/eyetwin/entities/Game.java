@@ -1,11 +1,16 @@
 package com.eyetwin.entities;
 
+import java.time.LocalDateTime;
+
 public class Game {
 
     private int id;
     private String name;
+    private String slug;
+    private String color;
     private String description;
     private String icon;
+    private LocalDateTime createdAt;
 
     public int getId() {
         return id;
@@ -23,6 +28,22 @@ public class Game {
         this.name = name;
     }
 
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -37,6 +58,14 @@ public class Game {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override

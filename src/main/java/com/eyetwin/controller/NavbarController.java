@@ -184,6 +184,7 @@ public class NavbarController {
     @FXML public void goToVideos()   { navigateTo("GamesSelection.fxml"); }
     @FXML public void goToClips()    { navigateTo("GamesSelection.fxml"); }
     @FXML public void goToGuides()   { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToMyUploads() { navigateTo("MyUploads.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTournois() { navigateTo("Tournois.fxml"); }
     @FXML public void goToProfile()  { navigateTo("UserProfile.fxml"); }
