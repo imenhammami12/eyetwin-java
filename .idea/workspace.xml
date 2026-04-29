@@ -5,33 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="37c02466-cdf2-4345-b8e8-27dc6f948a14" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.edit.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eyetwin-java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/StripeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TournoiServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/services/TournoiServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/cv/1749145229501-10-1775038553153.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-15-1775499367342.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-16-1775499892081.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/cv/migration-authentification-admin-symfony-vers-java---claude-17-1775501709471.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-0b16403a-f969-4bc9-8342-09ef1fcf296f.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-20c7a9c8-05cc-4f8f-a3dd-8c964742aef8.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-89c1fdce-fb82-4ba8-b21c-38d6819cf933.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/plannings/planning-a56d59bd-15a0-4b26-a665-bf216303c769.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1774644768894.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1775032983914.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_10_1775227852624.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/profiles/profile_1_1775316197260.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_22c4818a9dbd4015b19407e69534ba7e.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_25c8d15c9fae4fa0b3ef8f55f5b6b0f3.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_36a5883029264ea49567698bdaf7fe4c.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/teams/logo_771fa3f6a8d641e5a4321bbe06e3f6ee.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiFormController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/eyetwin/controller/admin/TournoiFormController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/TournoiForm.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/TournoiForm.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/admin/tournoi/tournoi-form.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/eyetwin/views/admin/tournoi/tournoi-form.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,36 +49,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.CommunityWebSocketServerLauncher.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.eyetwin [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.eyetwin [compile].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.eyetwin [org.apache.maven.plugins:maven-clean-plugin:2.5:clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.eyetwin [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.eyetwin [package].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;gestion__tournoi__match&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/DELL/Documents/GitHub/eyetwin-java&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.CommunityWebSocketServerLauncher.executor": "Run",
+    "Application.MainApp.executor": "Run",
+    "Maven.eyetwin [clean].executor": "Run",
+    "Maven.eyetwin [compile].executor": "Run",
+    "Maven.eyetwin [org.apache.maven.plugins:maven-clean-plugin:2.5:clean].executor": "Run",
+    "Maven.eyetwin [org.apache.maven.plugins:maven-install-plugin:3.1.2:install].executor": "Run",
+    "Maven.eyetwin [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "Maven.eyetwin [package].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/DELL/Documents/GitHub/eyetwin-java",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\LENOVO\Desktop\eyetwin-java\src\main\java\com\eyetwin\services" />
@@ -184,6 +169,8 @@
       <workItem from="1776824816641" duration="27000" />
       <workItem from="1776824853237" duration="84000" />
       <workItem from="1776830417405" duration="3668000" />
+      <workItem from="1776895929814" duration="1606000" />
+      <workItem from="1777414023149" duration="5956000" />
     </task>
     <servers />
   </component>

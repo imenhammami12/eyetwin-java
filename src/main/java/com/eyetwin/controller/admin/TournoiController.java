@@ -21,6 +21,8 @@ import com.eyetwin.entities.*;
 import com.eyetwin.interfaces.*;
 import com.eyetwin.services.*;
 import com.eyetwin.tools.SessionManager;
+import com.eyetwin.tools.TournamentWebServer;
+import com.eyetwin.tools.QRCodeGenerator;
 import javafx.application.Platform;
 import java.io.File;
 import java.io.IOException;
@@ -82,6 +84,9 @@ public class TournoiController {
             btnAdd.setVisible(isStaff);
             btnAdd.setManaged(isStaff);
         }
+
+        // Start Web Server for QR Codes
+        TournamentWebServer.start();
 
         refreshGrid();
     }
@@ -165,7 +170,11 @@ public class TournoiController {
         btnDetails.getStyleClass().add("card-btn-details");
         btnDetails.setOnAction(e -> openDetail(t));
 
-        HBox btnRow = new HBox(6, btnDetails);
+        Button btnQr = new Button("📱 QR");
+        btnQr.setStyle("-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-border-color: #3b82f6; -fx-border-radius: 4; -fx-cursor: hand;");
+        btnQr.setOnAction(e -> showQRCode(t));
+
+        HBox btnRow = new HBox(6, btnDetails, btnQr);
         btnRow.getStyleClass().add("card-btn-row");
         btnRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -230,6 +239,38 @@ public class TournoiController {
         ph.setAlignment(Pos.CENTER);
         ph.setPrefSize(w, h);
         return ph;
+    }
+
+    private void showQRCode(Tournoi t) {
+        String url = TournamentWebServer.getBaseUrl() + "/tournoi?id=" + t.getId();
+        Image qrImage = QRCodeGenerator.generateQRCodeImage(url, 250, 250);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("QR Code - " + t.getNom());
+        alert.setHeaderText("Scanner avec votre téléphone");
+        
+        if (qrImage != null) {
+            ImageView imageView = new ImageView(qrImage);
+            
+            VBox content = new VBox(10);
+            content.setAlignment(Pos.CENTER);
+            content.getChildren().add(imageView);
+            
+            TextField urlField = new TextField(url);
+            urlField.setEditable(false);
+            urlField.setStyle("-fx-background-color: #151828; -fx-text-fill: #94a3b8; -fx-border-color: #3b82f6;");
+            content.getChildren().add(urlField);
+            
+            alert.getDialogPane().setContent(content);
+        } else {
+            alert.setContentText("Erreur lors de la génération du QR Code.");
+        }
+        
+        // Simple dark theme for the dialog
+        alert.getDialogPane().setStyle("-fx-background-color: #0b1220;");
+        alert.getDialogPane().lookupAll(".label").forEach(node -> node.setStyle("-fx-text-fill: #f8fafc;"));
+        
+        alert.showAndWait();
     }
 
     // ─── Modals ───────────────────────────────────────────────────────────────

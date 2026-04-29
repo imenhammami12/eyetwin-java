@@ -10,6 +10,7 @@ import com.eyetwin.entities.Tournoi;
 import com.eyetwin.entities.TypeTournoi;
 import com.eyetwin.services.TournoiServiceImpl;
 import com.eyetwin.interfaces.ITournoiService;
+import com.eyetwin.services.GeminiService;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -33,8 +34,10 @@ public class TournoiFormController {
     @FXML private Label errImage;
     @FXML private Label errType;
     @FXML private Label errPrix;
+    @FXML private Button btnGenerateAI;
 
     private ITournoiService tournoiService = new TournoiServiceImpl();
+    private GeminiService geminiService = new GeminiService();
     private Tournoi existingTournoi = null;
     private Runnable onSavedCallback = null;
 
@@ -148,6 +151,36 @@ public class TournoiFormController {
         if (f != null) {
             txtImage.setText(f.getAbsolutePath());
         }
+    }
+
+    @FXML
+    void onGenerateAIDescription(ActionEvent event) {
+        String name = txtNom.getText().trim();
+        String type = cbType.getValue() != null ? cbType.getValue().toString() : "Générique";
+        double price = 0;
+        try {
+            if (!txtPrix.getText().isEmpty()) {
+                price = Double.parseDouble(txtPrix.getText());
+            }
+        } catch (NumberFormatException e) {}
+
+        if (name.isEmpty()) {
+            setError(errNom, "Saisissez un nom pour aider l'IA.");
+            return;
+        }
+
+        btnGenerateAI.setDisable(true);
+        btnGenerateAI.setText("✨ Génération...");
+        clearErrors();
+
+        geminiService.generateTournamentDescription(name, type, price)
+            .thenAccept(description -> {
+                javafx.application.Platform.runLater(() -> {
+                    txtDescription.setText(description);
+                    btnGenerateAI.setDisable(false);
+                    btnGenerateAI.setText("✨ Générer avec IA");
+                });
+            });
     }
 
     @FXML void onSave(ActionEvent event) {

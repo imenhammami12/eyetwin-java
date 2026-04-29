@@ -55,8 +55,12 @@
 
         <!-- Description -->
         <VBox spacing="5">
-            <Label text="DESCRIPTION" styleClass="form-label"/>
-            <TextField fx:id="txtDescription" styleClass="form-input-wide" promptText="Short description of the tournament"/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="DESCRIPTION" styleClass="form-label"/>
+                <Button fx:id="btnGenerateAI" onAction="#onGenerateAIDescription" text="✨ Générer avec IA" 
+                        style="-fx-font-size: 10px; -fx-padding: 2 8; -fx-background-radius: 10; -fx-background-color: rgba(230,57,70,0.15); -fx-text-fill: #e63946; -fx-border-color: rgba(230,57,70,0.4); -fx-border-width: 1; -fx-cursor: hand;"/>
+            </HBox>
+            <TextField fx:id="txtDescription" styleClass="form-input-wide" promptText="Laissez l'IA écrire une description épique..."/>
             <Label fx:id="errDescription" styleClass="error-label" visible="false" managed="false"/>
         </VBox>
 
