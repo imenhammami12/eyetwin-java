@@ -32,7 +32,7 @@ public class CycleGANGeneratorController {
 
     // Update this when your Colab tunnel restarts
     private static final String DEFAULT_API_URL =
-            "https://witty-humans-smoke.loca.lt/transform";
+            "https://fine-spoons-refuse.loca.lt/transform";
 
     private File   selectedFile;
     private byte[] resultBytes;
