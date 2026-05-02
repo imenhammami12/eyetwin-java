@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.media.MediaView?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.eyetwin.controller.LiveManageController"
@@ -9,7 +8,7 @@
             styleClass="live-root"
             prefWidth="1280" prefHeight="800">
 
-    <!-- ✅ ToggleGroup déclaré ici, PAS dans le HBox -->
+    <!-- ToggleGroup declared here, NOT inside an HBox -->
     <fx:define>
         <ToggleGroup fx:id="captureToggleGroup"/>
     </fx:define>
@@ -54,34 +53,33 @@
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <Label text="Capture Source"
                                style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
-                        <Label fx:id="ffmpegStatusLabel" text="○ Idle"
+                        <Label fx:id="ffmpegStatusLabel" text="Idle"
                                style="-fx-text-fill: rgba(255,255,255,0.45); -fx-font-weight: 800;"/>
                     </HBox>
 
-                    <!-- ✅ ToggleGroup référencé avec $, mais pas redéclaré ici -->
+                    <!-- ToggleGroup referenced with $, not redeclared here -->
                     <HBox spacing="10">
-                        <ToggleButton fx:id="modeScreen" text="🖥  Screen"
+                        <ToggleButton fx:id="modeScreen" text="Screen"
                                       toggleGroup="$captureToggleGroup" selected="true"
                                       style="-fx-background-color: rgba(158,177,255,0.15);
                                              -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
                                              -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
-                        <ToggleButton fx:id="modeWebcam" text="📷  Webcam"
+                        <ToggleButton fx:id="modeWebcam" text="Webcam"
                                       toggleGroup="$captureToggleGroup"
                                       style="-fx-background-color: rgba(158,177,255,0.15);
                                              -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
                                              -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
-                        <ToggleButton fx:id="modeFile" text="🎬  Video File"
+                        <ToggleButton fx:id="modeFile" text="Video File"
                                       toggleGroup="$captureToggleGroup"
                                       style="-fx-background-color: rgba(158,177,255,0.15);
                                              -fx-text-fill: #9eb1ff; -fx-font-weight: 700;
                                              -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"/>
-                        <!-- ❌ <ToggleGroup fx:id="captureToggleGroup"/> SUPPRIMÉ d'ici -->
                     </HBox>
 
                     <!-- File picker (only visible in File mode) -->
                     <HBox fx:id="filePickerBox" visible="false" managed="false"
                           spacing="10" alignment="CENTER_LEFT">
-                        <Button text="📁  Choose File" onAction="#handlePickFile"
+                        <Button text="Choose File" onAction="#handlePickFile"
                                 style="-fx-background-color: rgba(255,255,255,0.08);
                                        -fx-text-fill: white; -fx-background-radius: 8;
                                        -fx-padding: 8 16; -fx-cursor: hand;"/>
@@ -91,12 +89,12 @@
 
                     <!-- Start / Stop buttons -->
                     <HBox spacing="10">
-                        <Button fx:id="ffmpegStartButton" text="▶  Start Capture"
+                        <Button fx:id="ffmpegStartButton" text="Start Capture"
                                 onAction="#handleFfmpegStart"
                                 style="-fx-background-color: #00e676; -fx-text-fill: #080810;
                                        -fx-font-weight: 900; -fx-font-size: 13;
                                        -fx-background-radius: 8; -fx-padding: 10 22; -fx-cursor: hand;"/>
-                        <Button fx:id="ffmpegStopButton" text="■  Stop Capture"
+                        <Button fx:id="ffmpegStopButton" text="Stop Capture"
                                 onAction="#handleFfmpegStop" visible="false" managed="false"
                                 style="-fx-background-color: #ff5252; -fx-text-fill: white;
                                        -fx-font-weight: 900; -fx-font-size: 13;
@@ -116,7 +114,6 @@
                 <VBox fx:id="previewBox" spacing="10" visible="false" managed="false" styleClass="watch-card">
                     <Label text="Live Preview"
                            style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: 800;"/>
-                    <!-- ✅ Rien ici — VLC injecte son ImageView dynamiquement -->
                 </VBox>
 
                 <!-- Stats row -->
@@ -155,7 +152,7 @@
                                        style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: #70d0a0;
                                               -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 6;
                                               -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13;"/>
-                            <Button fx:id="copyRtmpButton" text="⎘ Copy" onAction="#copyRtmp"
+                            <Button fx:id="copyRtmpButton" text="Copy" onAction="#copyRtmp"
                                     style="-fx-background-color: rgba(112,208,160,0.15); -fx-text-fill: #70d0a0;
                                            -fx-border-color: rgba(112,208,160,0.4); -fx-border-radius: 6;
                                            -fx-background-radius: 6; -fx-padding: 8 14; -fx-cursor: hand;
@@ -170,7 +167,7 @@
                                        style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;
                                               -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 6;
                                               -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13;"/>
-                            <Button fx:id="copyKeyButton" text="⎘ Copy" onAction="#copyStreamKey"
+                            <Button fx:id="copyKeyButton" text="Copy" onAction="#copyStreamKey"
                                     style="-fx-background-color: rgba(158,177,255,0.15); -fx-text-fill: #9eb1ff;
                                            -fx-border-color: rgba(158,177,255,0.4); -fx-border-radius: 6;
                                            -fx-background-radius: 6; -fx-padding: 8 14; -fx-cursor: hand;
@@ -184,8 +181,4 @@
             </VBox>
         </ScrollPane>
     </center>
-<<<<<<< HEAD
 </BorderPane>
-=======
-</BorderPane>
->>>>>>> c0d307966d22da5a8da0770b255c6346203a0809

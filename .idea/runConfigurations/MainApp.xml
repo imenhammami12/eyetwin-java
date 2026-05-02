@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MainApp" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="com.eyetwin.MainApp" />
-    <module name="eyetwin" />
+    <module name="eyetwin-java" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

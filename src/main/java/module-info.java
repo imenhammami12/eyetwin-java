@@ -20,6 +20,12 @@ module org.example.eyetwinjava {
     requires jdk.httpserver;
     requires javafx.media;
     requires uk.co.caprica.vlcj;
+    requires com.gluonhq.maps;
+    requires javafx.swing;
+    requires com.google.zxing.javase;
+    requires com.google.zxing;
+    requires com.google.gson;
+    requires org.java_websocket;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
