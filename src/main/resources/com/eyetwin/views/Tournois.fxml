@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.eyetwin.controller.admin.TournoiController"
+            style="-fx-background-color: #0a0514;">
+    <stylesheets>
+        <URL value="@../styles/gaming-theme.css"/>
+    </stylesheets>
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <left>
+        <fx:include source="AdminSidebar.fxml" fx:id="adminSidebar"/>
+    </left>
+
+    <center>
+        <VBox fx:id="contentBox" style="-fx-background-color: #0a0514;">
+            <fx:include source="AdminTopbar.fxml" fx:id="adminTopbar"/>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <StackPane>
+                    <!-- 1. Tournament List View -->
+                    <VBox fx:id="listView" spacing="16" style="-fx-padding: 24;">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <VBox spacing="3">
+                                <Label text="Tournaments" styleClass="page-title" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                                <Label text="Manage and view all arena tournaments" styleClass="page-subtitle" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 13px;"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="statsLabel" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 12px;"/>
+                            <Button fx:id="btnAdd" text="＋  Add Tournament" onAction="#onOpenAddForm"
+                                    style="-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);
+                                           -fx-text-fill: white; -fx-background-radius: 10;
+                                           -fx-padding: 10 22; -fx-cursor: hand; -fx-font-weight: bold;
+                                           -fx-effect: dropshadow(gaussian, rgba(255,60,100,0.45), 14, 0, 0, 4);"/>
+                        </HBox>
+                        
+                        <FlowPane fx:id="tournoiGrid" hgap="20" vgap="20" styleClass="card-flow">
+                            <padding>
+                                <Insets top="10" right="0" bottom="20" left="0"/>
+                            </padding>
+                        </FlowPane>
+                    </VBox>
+
+                    <!-- 2. Tournament Detail View (Initially Hidden) -->
+                    <VBox fx:id="detailsView" visible="false" spacing="20" style="-fx-padding: 24;">
+                        <Button text="←  Back to List" onAction="#onBackToList" styleClass="btn-close" style="-fx-padding: 8 16;"/>
+                        
+                        <VBox spacing="10">
+                            <Label fx:id="detailNameLabel" styleClass="page-title" text="Tournament Name"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label fx:id="detailTypeLabel" styleClass="card-badge" text="TYPE"/>
+                                <Label fx:id="detailDateLabel" styleClass="page-subtitle" text="Date Range"/>
+                            </HBox>
+                        </VBox>
+
+                        <Separator style="-fx-opacity: 0.1;"/>
+
+                        <VBox spacing="15">
+                            <Label text="Associated Matches" styleClass="page-title" style="-fx-font-size: 18px;"/>
+                            <FlowPane fx:id="detailMatchGrid" hgap="15" vgap="15" styleClass="card-flow"/>
+                            <Label fx:id="noMatchesLabel" text="No matches scheduled for this tournament." visible="false" managed="false" style="-fx-text-fill: #555566; -fx-font-style: italic;"/>
+                        </VBox>
+                    </VBox>
+                </StackPane>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

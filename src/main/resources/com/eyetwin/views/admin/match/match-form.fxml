@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox styleClass="modal-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.eyetwin.controller.admin.MatchFormController">
+    <stylesheets><URL value="@../../../styles/gaming-theme.css"/></stylesheets>
+
+    <!-- Header -->
+    <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="⚔" style="-fx-font-size:18px;-fx-text-fill:#e63946;"/>
+        <VBox spacing="2">
+            <Label fx:id="formTitle" text="Add Match" styleClass="modal-title"/>
+            <Label fx:id="formSubtitle" text="Fill in the match details" styleClass="modal-subtitle"/>
+        </VBox>
+    </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="modal-body" spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Row 1: Teams + Score -->
+        <HBox spacing="20">
+            <VBox spacing="5">
+                <Label text="TEAM 1" styleClass="form-label"/>
+                <TextField fx:id="txtEquipe1" styleClass="form-input" promptText="Team name"/>
+                <Label fx:id="errEquipe1" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="TEAM 2" styleClass="form-label"/>
+                <TextField fx:id="txtEquipe2" styleClass="form-input" promptText="Team name"/>
+                <Label fx:id="errEquipe2" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="SCORE" styleClass="form-label"/>
+                <TextField fx:id="txtScore" styleClass="form-input" promptText="e.g. 3" prefWidth="100"/>
+                <Label fx:id="errScore" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+
+        <!-- Row 2: Date + Prix + Tournament -->
+        <HBox spacing="20">
+            <VBox spacing="5">
+                <Label text="MATCH DATE" styleClass="form-label"/>
+                <DatePicker fx:id="dpDate" styleClass="form-datepicker"/>
+                <Label fx:id="errDate" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="PRIZE (DT)" styleClass="form-label"/>
+                <TextField fx:id="txtPrix" styleClass="form-input" promptText="e.g. 200"/>
+                <Label fx:id="errPrix" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="TOURNAMENT" styleClass="form-label"/>
+                <ComboBox fx:id="cbTournoi" styleClass="form-combo" promptText="Choose tournoi"/>
+                <Label fx:id="errTournoiId" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+
+        <!-- Row 3: Mode + Location -->
+        <HBox spacing="20">
+            <VBox spacing="5">
+                <Label text="PLAY MODE" styleClass="form-label"/>
+                <TextField fx:id="txtMode" styleClass="form-input" promptText="En Ligne / LAN"/>
+                <Label fx:id="errMode" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+            <VBox spacing="5">
+                <Label text="LOCATION" styleClass="form-label"/>
+                <TextField fx:id="txtLocalisation" styleClass="form-input-wide" promptText="City, Country"/>
+                <Label fx:id="errLocalisation" styleClass="error-label" visible="false" managed="false"/>
+            </VBox>
+        </HBox>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="modal-footer" alignment="CENTER_RIGHT" spacing="12">
+        <Button text="Cancel" onAction="#onCancel" styleClass="btn-cancel"/>
+        <Button text="💾  Save Match" onAction="#onSave" styleClass="btn-save"/>
+    </HBox>
+</VBox>

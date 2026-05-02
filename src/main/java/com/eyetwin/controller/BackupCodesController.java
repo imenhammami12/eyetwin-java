@@ -99,7 +99,7 @@ public class BackupCodesController {
     private HBox buildCodeRow(String code) {
         HBox row = new HBox(10);
         row.setStyle(
-                "-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);" +
+                "-fx-background-color: linear-gradient(to bottom right, #1a1f2e, #0b111f);" +
                         "-fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 12; " +
                         "-fx-background-radius: 12; -fx-padding: 12 15 12 15; " +
                         "-fx-alignment: CENTER_LEFT; -fx-cursor: hand;"
@@ -116,7 +116,7 @@ public class BackupCodesController {
 
         Button copyBtn = new Button("⎘");
         copyBtn.setStyle(
-                "-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a); " +
+                "-fx-background-color: linear-gradient(to bottom right, #ff0000, #c6019a); " +
                         "-fx-text-fill: white; -fx-border-radius: 8; -fx-background-radius: 8; " +
                         "-fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 13;"
         );
@@ -126,7 +126,7 @@ public class BackupCodesController {
             Clipboard.getSystemClipboard().setContent(content);
             copyBtn.setText("✓");
             copyBtn.setStyle(
-                    "-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4); " +
+                    "-fx-background-color: linear-gradient(to bottom right, #4cd3e3, #00bcd4); " +
                             "-fx-text-fill: white; -fx-border-radius: 8; -fx-background-radius: 8; " +
                             "-fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 13;"
             );
@@ -135,7 +135,7 @@ public class BackupCodesController {
                 Platform.runLater(() -> {
                     copyBtn.setText("⎘");
                     copyBtn.setStyle(
-                            "-fx-background-color: linear-gradient(135deg, #ff0000, #c6019a); " +
+                            "-fx-background-color: linear-gradient(to bottom right, #ff0000, #c6019a); " +
                                     "-fx-text-fill: white; -fx-border-radius: 8; -fx-background-radius: 8; " +
                                     "-fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 13;"
                     );
@@ -151,7 +151,7 @@ public class BackupCodesController {
                 + "-fx-effect: dropshadow(gaussian, rgba(255,0,0,0.3), 20, 0, 5, 0);"
         ));
         row.setOnMouseExited(e -> row.setStyle(
-                "-fx-background-color: linear-gradient(135deg, #1a1f2e, #0b111f);" +
+                "-fx-background-color: linear-gradient(to bottom right, #1a1f2e, #0b111f);" +
                         "-fx-border-color: rgba(255,0,0,0.2); -fx-border-radius: 12; " +
                         "-fx-background-radius: 12; -fx-padding: 12 15 12 15; " +
                         "-fx-alignment: CENTER_LEFT; -fx-cursor: hand;"
@@ -238,9 +238,9 @@ public class BackupCodesController {
         if (toastLabel == null || toastBox == null) return;
         toastLabel.setText(msg);
         toastBox.setStyle(isError
-                ? "-fx-background-color: linear-gradient(135deg, #f44a40, #ff0000); " +
+                ? "-fx-background-color: linear-gradient(to bottom right, #f44a40, #ff0000); " +
                 "-fx-padding: 18 28; -fx-background-radius: 12;"
-                : "-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4); " +
+                : "-fx-background-color: linear-gradient(to bottom right, #4cd3e3, #00bcd4); " +
                 "-fx-padding: 18 28; -fx-background-radius: 12;"
         );
         show(toastBox);

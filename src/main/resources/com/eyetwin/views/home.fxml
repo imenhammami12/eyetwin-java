@@ -74,7 +74,11 @@
                         <HBox fx:id="heroCTAGuest" spacing="14" alignment="CENTER_LEFT"
                               visible="true" managed="true">
                             <Button text="⚡  Get Started" onAction="#goToRegister"
+<<<<<<< HEAD
                                     style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
+=======
+                                    style="-fx-background-color: linear-gradient(to bottom right,#b02b20,#e8372a,#ff4d3d);
+>>>>>>> c0d307966d22da5a8da0770b255c6346203a0809
                                            -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:13;
                                            -fx-background-radius:9; -fx-padding: 14 28 14 28;
                                            -fx-cursor: hand;
@@ -327,7 +331,11 @@
                            style="-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size:14;"/>
                     <HBox alignment="CENTER" spacing="16">
                         <Button text="⚡  Create Free Account" onAction="#goToRegister"
+<<<<<<< HEAD
                                 style="-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
+=======
+                                style="-fx-background-color: linear-gradient(to bottom right,#b02b20,#e8372a,#ff4d3d);
+>>>>>>> c0d307966d22da5a8da0770b255c6346203a0809
                                        -fx-text-fill: white; -fx-font-weight:bold; -fx-font-size:13;
                                        -fx-background-radius:9; -fx-padding: 14 30 14 30;
                                        -fx-cursor: hand;
@@ -376,4 +384,8 @@
             </VBox>
         </ScrollPane>
     </center>
+<<<<<<< HEAD
 </BorderPane>
+=======
+</BorderPane>
+>>>>>>> c0d307966d22da5a8da0770b255c6346203a0809

@@ -241,8 +241,13 @@ public class PlanningServiceImpl implements IPlanningService {
         Planning p = new Planning();
         p.setIdPlanning(rs.getInt("IDplanning"));
         p.setImage(rs.getString("image"));
-        p.setDate(rs.getDate("date").toLocalDate());
-        p.setTime(rs.getTime("time").toLocalTime());
+        
+        Date d = rs.getDate("date");
+        if (d != null) p.setDate(d.toLocalDate());
+        
+        Time t = rs.getTime("time");
+        if (t != null) p.setTime(t.toLocalTime());
+        
         p.setLocalisation(rs.getString("localisation"));
         p.setDescription(rs.getString("description"));
         p.setNeedPartner(rs.getBoolean("need_partner"));

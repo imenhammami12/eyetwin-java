@@ -21,6 +21,20 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import com.eyetwin.services.Community.MessageModerationService;
+import com.eyetwin.services.Community.MessageModerationService;
+import com.eyetwin.entities.Community.ChatSummaryResult;
+import com.eyetwin.services.Community.ChatSummaryService;
+import javafx.concurrent.Task;
+import javafx.scene.Node;
+import com.eyetwin.entities.Community.MessageAttachment;
+import java.awt.Desktop;
+import java.net.URI;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.input.MouseButton;
 
 public class AdminMessagesController {
 
@@ -54,12 +68,22 @@ public class AdminMessagesController {
     @FXML private Button btnInspectorDelete;
     @FXML private Button btnInspectorRestore;
 
+    @FXML private Button btnChannelSummary;
+    @FXML private Label lblChannelSummaryLoading;
+
+    @FXML private ScrollPane inspectorContentScroll;
+
     private final MessageServiceImpl messageService = new MessageServiceImpl();
+    private final MessageModerationService moderationService = new MessageModerationService();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final ChatSummaryService chatSummaryService = new ChatSummaryService();
+
 
     private Integer selectedChannelId = null;
     private String selectedChannelName = null;
     private Message selectedMessage = null;
+
+
 
     @FXML
     public void initialize() {
@@ -76,7 +100,7 @@ public class AdminMessagesController {
             adminTopbarController.setTitle("Messages Management");
         }
 
-        cbStatus.getItems().addAll("all", "active", "deleted");
+        cbStatus.getItems().addAll("all", "active", "deleted", "moderated", "severe");
         cbStatus.setValue("all");
 
         cbSort.getItems().addAll("newest", "oldest");
@@ -88,6 +112,7 @@ public class AdminMessagesController {
         loadChannelSidebar();
         loadTableMessages();
         clearInspector();
+        updateChannelSummaryState();
     }
 
     @FXML
@@ -143,23 +168,60 @@ public class AdminMessagesController {
 
         try {
             List<AdminChannelMessageStat> channels = messageService.findAdminChannelStats(tfSearch.getText());
+            List<AdminChannelMessageStat> visibleChannels = new java.util.ArrayList<>();
 
-            if (channels.isEmpty()) {
-                Label empty = new Label("No channels with messages.");
+            for (AdminChannelMessageStat item : channels) {
+                if (!isModeratedFilterSelected()) {
+                    visibleChannels.add(item);
+                    continue;
+                }
+
+                List<Message> moderatedMessages = getFilteredMessagesForChannel(item.getChannelId());
+                if (!moderatedMessages.isEmpty()) {
+                    int deletedCount = 0;
+                    for (Message message : moderatedMessages) {
+                        if (message.isIs_deleted()) {
+                            deletedCount++;
+                        }
+                    }
+
+                    item.setTotalMessages(moderatedMessages.size());
+                    item.setDeletedMessages(deletedCount);
+                    visibleChannels.add(item);
+                }
+            }
+
+            if (visibleChannels.isEmpty()) {
+                Label empty = new Label(isModeratedFilterSelected()
+                        ? "No channels with moderated messages."
+                        : "No channels with messages.");
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 13px;");
                 channelsContainer.getChildren().add(empty);
+
+                selectedChannelId = null;
+                selectedChannelName = null;
+                conversationContainer.getChildren().clear();
+                lblSelectedChannelTitle.setText("Conversation");
+                lblFound.setText("Found 0 messages");
+                clearInspector();
+                updateChannelSummaryState();
                 return;
             }
 
-            for (AdminChannelMessageStat item : channels) {
+            boolean selectedStillVisible = false;
+            for (AdminChannelMessageStat item : visibleChannels) {
+                if (selectedChannelId != null && selectedChannelId == item.getChannelId()) {
+                    selectedStillVisible = true;
+                }
                 channelsContainer.getChildren().add(buildChannelCard(item));
             }
 
-            if (selectedChannelId == null && !channels.isEmpty()) {
-                selectedChannelId = channels.get(0).getChannelId();
-                selectedChannelName = channels.get(0).getChannelName();
-                loadConversation(selectedChannelId, selectedChannelName);
+            if (selectedChannelId == null || !selectedStillVisible) {
+                selectedChannelId = visibleChannels.get(0).getChannelId();
+                selectedChannelName = visibleChannels.get(0).getChannelName();
             }
+
+            loadConversation(selectedChannelId, selectedChannelName);
 
         } catch (SQLException e) {
             showError("Failed to load channels: " + e.getMessage());
@@ -186,7 +248,10 @@ public class AdminMessagesController {
 
         HBox badges = new HBox(8);
 
-        Label total = badge(item.getTotalMessages() + " msgs", "#60a5fa");
+        Label total = badge(
+                item.getTotalMessages() + (isModeratedFilterSelected() ? " moderated" : " msgs"),
+                "#60a5fa"
+        );
         Label deleted = badge(item.getDeletedMessages() + " deleted", "#fb7185");
 
         badges.getChildren().addAll(total, deleted);
@@ -206,19 +271,20 @@ public class AdminMessagesController {
     private void loadConversation(int channelId, String channelName) {
         conversationContainer.getChildren().clear();
         lblSelectedChannelTitle.setText(channelName == null ? "Conversation" : channelName);
-
+        updateChannelSummaryState();
         try {
-            List<Message> messages = messageService.findAdminMessagesByChannel(
-                    channelId,
-                    tfSearch.getText(),
-                    cbStatus.getValue(),
-                    cbSort.getValue()
-            );
+            List<Message> messages = getFilteredMessagesForChannel(channelId);
 
             lblFound.setText("Found " + messages.size() + " messages");
 
             if (messages.isEmpty()) {
-                Label empty = new Label("No messages in this channel for the selected filters.");
+                Label empty = new Label(
+                        isSevereFilterSelected()
+                                ? "No severe moderated messages in this channel for the selected filters."
+                                : (isModeratedFilterSelected()
+                                ? "No moderated messages in this channel for the selected filters."
+                                : "No messages in this channel for the selected filters.")
+                );
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 14px;");
                 conversationContainer.getChildren().add(empty);
                 return;
@@ -260,13 +326,15 @@ public class AdminMessagesController {
 
         top.getChildren().addAll(sender, email, spacer, date);
 
-        Label content = new Label(safe(message.getContent()));
+        Label content = new Label(buildConversationContentText(message));
         content.setWrapText(true);
         content.setStyle(
                 message.isIs_deleted()
                         ? "-fx-text-fill: rgba(255,255,255,0.72); -fx-font-size: 13px;"
                         : "-fx-text-fill: white; -fx-font-size: 13px;"
         );
+
+        VBox attachmentsBox = buildAttachmentSummaryBox(message);
 
         HBox bottom = new HBox(8);
         bottom.setAlignment(Pos.CENTER_LEFT);
@@ -280,7 +348,17 @@ public class AdminMessagesController {
             bottom.getChildren().add(edited);
         }
 
-        card.getChildren().addAll(top, content, bottom);
+        String moderationText = moderationBadgeText(message);
+        if (moderationText != null) {
+            Label moderated = badge(moderationText, moderationBadgeColor(message));
+            bottom.getChildren().add(moderated);
+        }
+
+        card.getChildren().addAll(top, content);
+        if (attachmentsBox != null) {
+            card.getChildren().add(attachmentsBox);
+        }
+        card.getChildren().add(bottom);
 
         card.setOnMouseClicked(e -> {
             selectedMessage = message;
@@ -297,11 +375,19 @@ public class AdminMessagesController {
         try {
             List<Message> messages = messageService.findAdminMessages(
                     tfSearch.getText(),
-                    cbStatus.getValue()
+                    resolveStatusForService()
             );
 
+            messages = filterMessagesForUi(messages);
+
             if (messages.isEmpty()) {
-                Label empty = new Label("No messages found.");
+                Label empty = new Label(
+                        isSevereFilterSelected()
+                                ? "No severe moderated messages found."
+                                : (isModeratedFilterSelected()
+                                ? "No moderated messages found."
+                                : "No messages found.")
+                );
                 empty.setStyle("-fx-text-fill: rgba(255,255,255,0.45); -fx-font-size: 14px;");
                 rowsContainer.getChildren().add(empty);
                 return;
@@ -333,14 +419,13 @@ public class AdminMessagesController {
                 fixedCol(180),
                 fixedCol(220),
                 fixedCol(170),
-                fixedCol(110),
+                fixedCol(130),
                 fixedCol(150)
         );
 
         Label id = text(String.valueOf(message.getId()));
 
-        Label content = text(message.getContent());
-        content.setWrapText(true);
+        VBox content = buildTableContentNode(message);
         content.setMaxWidth(320);
 
         String senderValue = safe(message.getSender_name()) + "\n" + safe(message.getSender_email());
@@ -359,7 +444,13 @@ public class AdminMessagesController {
                 message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())
         );
 
-        Label status = statusBadge(message.isIs_deleted());
+        VBox statusBox = new VBox(6);
+        statusBox.getChildren().add(statusBadge(message.isIs_deleted()));
+
+        String moderationText = moderationBadgeText(message);
+        if (moderationText != null) {
+            statusBox.getChildren().add(badge(moderationText, moderationBadgeColor(message)));
+        }
 
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER_LEFT);
@@ -391,7 +482,7 @@ public class AdminMessagesController {
         row.add(sender, 2, 0);
         row.add(channel, 3, 0);
         row.add(sentAt, 4, 0);
-        row.add(status, 5, 0);
+        row.add(statusBox, 5, 0);
         row.add(actions, 6, 0);
 
         return row;
@@ -408,8 +499,53 @@ public class AdminMessagesController {
         lblInspectorChannel.setText("Channel: " + safe(message.getChannelName()) + " (#" + message.getChannel_id() + ")");
         lblInspectorSentAt.setText("Sent at: " + (message.getSentAt() == null ? "-" : dateFormat.format(message.getSentAt())));
         lblInspectorEditedAt.setText("Edited at: " + (message.getEditedAt() == null ? "-" : dateFormat.format(message.getEditedAt())));
-        lblInspectorStatus.setText("Status: " + (message.isIs_deleted() ? "Deleted" : "Active"));
-        lblInspectorContent.setText(safe(message.getContent()));
+
+        String statusText = message.isIs_deleted() ? "Deleted" : "Active";
+        if (isSevereMessage(message)) {
+            statusText += " • Severe";
+        } else if (isModeratedMessage(message)) {
+            statusText += " • Moderated";
+        }
+        lblInspectorStatus.setText("Status: " + statusText);
+
+        VBox detailsBox = new VBox(10);
+        detailsBox.setFillWidth(true);
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        String visibleContent;
+
+        if (!content.isBlank()) {
+            visibleContent = content;
+        } else if (message.hasAttachments()) {
+            visibleContent = "Attachment message";
+        } else {
+            visibleContent = "-";
+        }
+
+        Label contentLabel = new Label(visibleContent);
+        contentLabel.setWrapText(true);
+        contentLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        if (inspectorContentScroll != null) {
+            contentLabel.maxWidthProperty().bind(inspectorContentScroll.widthProperty().subtract(40));
+        }
+
+        detailsBox.getChildren().add(contentLabel);
+
+        if (message.hasAttachments()) {
+            Label attachmentsTitle = new Label("Attachments:");
+            attachmentsTitle.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 12px; -fx-font-weight: bold;");
+            detailsBox.getChildren().add(attachmentsTitle);
+
+            for (MessageAttachment attachment : message.getAttachments()) {
+                Hyperlink link = createAttachmentLink(attachment, true, 240);
+                detailsBox.getChildren().add(link);
+            }
+        }
+
+        lblInspectorContent.setText("");
+        lblInspectorContent.setGraphic(detailsBox);
+        lblInspectorContent.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
         btnInspectorDelete.setDisable(message.isIs_deleted());
         btnInspectorRestore.setDisable(!message.isIs_deleted());
@@ -423,9 +559,50 @@ public class AdminMessagesController {
         lblInspectorEditedAt.setText("Edited at: -");
         lblInspectorStatus.setText("Status: -");
         lblInspectorContent.setText("Select a message to inspect it.");
+        lblInspectorContent.setGraphic(null);
+        lblInspectorContent.setContentDisplay(ContentDisplay.TEXT_ONLY);
         btnInspectorDelete.setDisable(true);
         btnInspectorRestore.setDisable(true);
         selectedMessage = null;
+    }
+
+    private Hyperlink createAttachmentLink(MessageAttachment attachment, boolean includeMeta, double maxWidth) {
+        String text = buildAttachmentLabel(attachment);
+
+        if (includeMeta && attachment != null && attachment.getSize() > 0) {
+            text += " • " + formatAttachmentSize(attachment.getSize());
+        }
+
+        Hyperlink link = new Hyperlink(text);
+        link.setWrapText(true);
+        link.setMaxWidth(Double.MAX_VALUE);
+        link.setPrefWidth(maxWidth);
+        link.setStyle(
+                "-fx-text-fill: #9ecbff;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-underline: true;" +
+                        "-fx-padding: 2 0 2 0;"
+        );
+
+        link.setOnAction(e -> openAttachment(attachment));
+        return link;
+    }
+    private void openAttachment(MessageAttachment attachment) {
+        try {
+            if (attachment == null || attachment.getUrl() == null || attachment.getUrl().isBlank()) {
+                showError("Attachment URL not found.");
+                return;
+            }
+
+            if (!Desktop.isDesktopSupported()) {
+                showError("Opening links is not supported on this device.");
+                return;
+            }
+
+            Desktop.getDesktop().browse(URI.create(attachment.getUrl()));
+        } catch (Exception e) {
+            showError("Failed to open attachment: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -621,6 +798,77 @@ public class AdminMessagesController {
         }
     }
 
+
+
+    /// ///////////// MODERATION BAD WORD DETECTION
+    private boolean isModeratedFilterSelected() {
+        return cbStatus != null && "moderated".equalsIgnoreCase(cbStatus.getValue());
+    }
+
+    private boolean isSevereFilterSelected() {
+        return cbStatus != null && "severe".equalsIgnoreCase(cbStatus.getValue());
+    }
+
+    private boolean isModeratedMessage(Message message) {
+        return message != null && moderationService.isModeratedContent(message.getContent());
+    }
+
+    private boolean isSevereMessage(Message message) {
+        return message != null && moderationService.isSevereModeratedContent(message.getContent());
+    }
+
+    private String resolveStatusForService() {
+        return (isModeratedFilterSelected() || isSevereFilterSelected()) ? "all" : cbStatus.getValue();
+    }
+
+    private List<Message> filterMessagesForUi(List<Message> messages) {
+        if (!isModeratedFilterSelected() && !isSevereFilterSelected()) {
+            return messages;
+        }
+
+        List<Message> filtered = new java.util.ArrayList<>();
+        for (Message message : messages) {
+            if (isSevereFilterSelected()) {
+                if (isSevereMessage(message)) {
+                    filtered.add(message);
+                }
+            } else if (isModeratedFilterSelected()) {
+                if (isModeratedMessage(message)) {
+                    filtered.add(message);
+                }
+            }
+        }
+        return filtered;
+    }
+
+    private List<Message> getFilteredMessagesForChannel(int channelId) throws SQLException {
+        List<Message> messages = messageService.findAdminMessagesByChannel(
+                channelId,
+                tfSearch.getText(),
+                resolveStatusForService(),
+                cbSort.getValue()
+        );
+
+        return filterMessagesForUi(messages);
+    }
+
+    private String moderationBadgeText(Message message) {
+        if (isSevereMessage(message)) {
+            return "Severe";
+        }
+        if (isModeratedMessage(message)) {
+            return "Moderated";
+        }
+        return null;
+    }
+
+    private String moderationBadgeColor(Message message) {
+        if (isSevereMessage(message)) {
+            return "#fb7185";
+        }
+        return "#f59e0b";
+    }
+
     private void showError(String message) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle("Error");
@@ -664,5 +912,388 @@ public class AdminMessagesController {
             case "#f6d860" -> "rgba(246,216,96,0.45)";
             default -> "rgba(255,255,255,0.20)";
         };
+    }
+
+
+    private void updateChannelSummaryState() {
+        if (btnChannelSummary != null) {
+            boolean hasChannel = selectedChannelId != null;
+            btnChannelSummary.setDisable(!hasChannel);
+
+            if (!hasChannel) {
+                btnChannelSummary.setText("Summary");
+            }
+        }
+
+        if (lblChannelSummaryLoading != null) {
+            lblChannelSummaryLoading.setVisible(false);
+            lblChannelSummaryLoading.setManaged(false);
+            lblChannelSummaryLoading.setText("Generating summary...");
+        }
+    }
+
+    @FXML
+    private void handleChannelSummary() {
+        if (selectedChannelId == null || selectedChannelName == null || selectedChannelName.isBlank()) {
+            showError("Select a channel first.");
+            return;
+        }
+
+        btnChannelSummary.setDisable(true);
+        btnChannelSummary.setText("Summarizing...");
+        lblChannelSummaryLoading.setText("Generating summary...");
+        lblChannelSummaryLoading.setVisible(true);
+        lblChannelSummaryLoading.setManaged(true);
+
+        final int channelId = selectedChannelId;
+        final String channelName = selectedChannelName;
+
+        Task<ChatSummaryResult> task = new Task<>() {
+            @Override
+            protected ChatSummaryResult call() throws Exception {
+                return chatSummaryService.summarizeChannelForAdmin(channelId, channelName);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            btnChannelSummary.setDisable(false);
+            btnChannelSummary.setText("Summary");
+            lblChannelSummaryLoading.setVisible(false);
+            lblChannelSummaryLoading.setManaged(false);
+
+            ChatSummaryResult result = task.getValue();
+            if (result == null) {
+                showInfo("No messages available to summarize in this channel.");
+                return;
+            }
+
+            showChannelSummaryDialog(channelName, result);
+        });
+
+        task.setOnFailed(event -> {
+            btnChannelSummary.setDisable(false);
+            btnChannelSummary.setText("Summary");
+            lblChannelSummaryLoading.setText("Summary failed.");
+
+            Throwable ex = task.getException();
+            showError("Failed to generate summary: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "admin-channel-summary");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void showChannelSummaryDialog(String channelName, ChatSummaryResult result) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Channel Summary");
+        dialog.setHeaderText(null);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        DialogPane pane = dialog.getDialogPane();
+        pane.setPrefWidth(760);
+        pane.setPrefHeight(620);
+        pane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #0d0618, #120820);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 14;" +
+                        "-fx-background-radius: 14;"
+        );
+
+        Label title = new Label(
+                result.getTitle() != null && !result.getTitle().isBlank()
+                        ? result.getTitle()
+                        : "Summary of " + channelName
+        );
+        title.setWrapText(true);
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+        Label channelMeta = new Label("Channel: " + channelName + " • Based on " + result.getMissedCount() + " messages");
+        channelMeta.setWrapText(true);
+        channelMeta.setStyle("-fx-text-fill: rgba(255,255,255,0.58); -fx-font-size: 12px;");
+
+        Label overviewTitle = new Label("Overview");
+        overviewTitle.setStyle("-fx-text-fill: #ff8a7a; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label overview = new Label(result.getOverview() != null ? result.getOverview() : "");
+        overview.setWrapText(true);
+        overview.setStyle(
+                "-fx-text-fill: rgba(255,255,255,0.86);" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.06);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 12;"
+        );
+
+        VBox content = new VBox(14);
+        content.setPadding(new Insets(18));
+        content.getChildren().addAll(title, channelMeta, overviewTitle, overview);
+
+        VBox keyPointsBox = buildSummarySection("Key points", result.getKeyPoints());
+        VBox actionsBox = buildSummarySection("Action items", result.getActionItems());
+        VBox questionsBox = buildSummarySection("Open questions", result.getOpenQuestions());
+
+        if (keyPointsBox != null) content.getChildren().add(keyPointsBox);
+        if (actionsBox != null) content.getChildren().add(actionsBox);
+        if (questionsBox != null) content.getChildren().add(questionsBox);
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        pane.setContent(scrollPane);
+
+        Node closeButton = pane.lookupButton(ButtonType.CLOSE);
+        if (closeButton != null) {
+            closeButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #ff3c64, #c0132f);" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 10;" +
+                            "-fx-padding: 8 16 8 16;"
+            );
+        }
+
+        dialog.showAndWait();
+    }
+
+    private VBox buildSummarySection(String sectionTitle, List<String> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+
+        VBox box = new VBox(8);
+
+        Label title = new Label(sectionTitle);
+        title.setStyle("-fx-text-fill: #ff8a7a; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        VBox bullets = new VBox(6);
+        bullets.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-border-color: rgba(255,255,255,0.06);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 12;"
+        );
+
+        for (String item : items) {
+            Label bullet = new Label("• " + item);
+            bullet.setWrapText(true);
+            bullet.setStyle("-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 12px;");
+            bullets.getChildren().add(bullet);
+        }
+
+        box.getChildren().addAll(title, bullets);
+        return box;
+    }
+
+    private void showInfo(String message) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle("Information");
+        a.setHeaderText(null);
+        a.setContentText(message);
+        a.showAndWait();
+    }
+
+    private String buildConversationContentText(Message message) {
+        if (message == null) {
+            return "-";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        if (!content.isBlank()) {
+            return content;
+        }
+
+        if (message.hasAttachments()) {
+            return "Attachment message";
+        }
+
+        return "-";
+    }
+
+    private String buildTableContentText(Message message) {
+        if (message == null) {
+            return "-";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+
+        if (message.hasAttachments()) {
+            String names = summarizeAttachmentNames(message.getAttachments());
+
+            if (content.isBlank()) {
+                return "Attachment message • " + names;
+            }
+
+            return content + " • " + names;
+        }
+
+        return content.isBlank() ? "-" : content;
+    }
+
+    private String buildInspectorContent(Message message) {
+        if (message == null) {
+            return "Select a message to inspect it.";
+        }
+
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+        StringBuilder sb = new StringBuilder();
+
+        if (!content.isBlank()) {
+            sb.append(content);
+        } else if (message.hasAttachments()) {
+            sb.append("Attachment message");
+        } else {
+            sb.append("-");
+        }
+
+        if (message.hasAttachments()) {
+            sb.append("\n\nAttachments:\n");
+            for (MessageAttachment attachment : message.getAttachments()) {
+                sb.append("• ").append(buildAttachmentLabel(attachment));
+
+                if (attachment.getSize() > 0) {
+                    sb.append(" • ").append(formatAttachmentSize(attachment.getSize()));
+                }
+
+                sb.append("\n");
+            }
+        }
+
+        return sb.toString().trim();
+    }
+
+    private VBox buildAttachmentSummaryBox(Message message) {
+        if (message == null || !message.hasAttachments()) {
+            return null;
+        }
+
+        VBox box = new VBox(8);
+
+        for (MessageAttachment attachment : message.getAttachments()) {
+            if (attachment != null && attachment.isImage() && attachment.getUrl() != null && !attachment.getUrl().isBlank()) {
+                VBox imageBlock = new VBox(6);
+
+                ImageView preview = new ImageView(new Image(attachment.getUrl(), true));
+                preview.setFitWidth(220);
+                preview.setFitHeight(150);
+                preview.setPreserveRatio(true);
+                preview.setSmooth(true);
+                preview.setStyle(
+                        "-fx-cursor: hand;" +
+                                "-fx-background-color: rgba(255,255,255,0.04);" +
+                                "-fx-border-color: rgba(255,255,255,0.08);" +
+                                "-fx-border-radius: 10;" +
+                                "-fx-background-radius: 10;"
+                );
+
+                preview.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY) {
+                        openAttachment(attachment);
+                    }
+                });
+
+                Hyperlink openLink = createAttachmentLink(attachment, true, 220);
+
+                imageBlock.getChildren().addAll(preview, openLink);
+                box.getChildren().add(imageBlock);
+
+            } else {
+                Hyperlink item = createAttachmentLink(attachment, true, 260);
+                box.getChildren().add(item);
+            }
+        }
+
+        return box;
+    }
+
+    private String summarizeAttachmentNames(List<MessageAttachment> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return "";
+        }
+
+        List<String> names = new java.util.ArrayList<>();
+        int limit = Math.min(2, attachments.size());
+
+        for (int i = 0; i < limit; i++) {
+            MessageAttachment attachment = attachments.get(i);
+            String name = attachment.getOriginalName() == null || attachment.getOriginalName().isBlank()
+                    ? "file"
+                    : attachment.getOriginalName();
+            names.add(name);
+        }
+
+        String joined = String.join(", ", names);
+
+        if (attachments.size() > 2) {
+            joined += " +" + (attachments.size() - 2) + " more";
+        }
+
+        return joined;
+    }
+
+    private String buildAttachmentLabel(MessageAttachment attachment) {
+        if (attachment == null) {
+            return "file";
+        }
+
+        String name = attachment.getOriginalName() == null || attachment.getOriginalName().isBlank()
+                ? "file"
+                : attachment.getOriginalName();
+
+        String mime = attachment.getMimeType() == null ? "" : attachment.getMimeType().trim();
+
+        if (mime.isBlank()) {
+            return name;
+        }
+
+        return name + " [" + mime + "]";
+    }
+
+    private String formatAttachmentSize(int bytes) {
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+
+        double kb = bytes / 1024.0;
+        if (kb < 1024) {
+            return String.format("%.0f KB", kb);
+        }
+
+        double mb = kb / 1024.0;
+        return String.format("%.1f MB", mb);
+    }
+
+    private VBox buildTableContentNode(Message message) {
+        VBox box = new VBox(5);
+        box.setFillWidth(true);
+
+        String rawContent = message == null || message.getContent() == null ? "" : message.getContent().trim();
+        String contentText;
+
+        if (!rawContent.isBlank()) {
+            contentText = rawContent;
+        } else if (message != null && message.hasAttachments()) {
+            contentText = "Attachment message";
+        } else {
+            contentText = "-";
+        }
+
+        Label contentLabel = text(contentText);
+        contentLabel.setWrapText(true);
+        contentLabel.setMaxWidth(320);
+        box.getChildren().add(contentLabel);
+
+        if (message != null && message.hasAttachments()) {
+            for (MessageAttachment attachment : message.getAttachments()) {
+                Hyperlink link = createAttachmentLink(attachment, true, 320);
+                box.getChildren().add(link);
+            }
+        }
+
+        return box;
     }
 }

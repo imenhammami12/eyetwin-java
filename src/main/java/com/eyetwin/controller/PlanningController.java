@@ -41,6 +41,11 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.time.YearMonth;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class PlanningController {
 
@@ -162,6 +167,23 @@ public class PlanningController {
 
     private File createSelectedImageFile;
     private File editSelectedImageFile;
+
+    // ── Calendar Modal ────────────────────────────────────────
+    @FXML private StackPane calendarOverlay;
+    @FXML private Label calendarTitle;
+    @FXML private GridPane calendarGrid;
+    @FXML private VBox calendarSidebarList;
+    @FXML private Label calendarSessionCount;
+    @FXML private Button btnMonthView;
+    @FXML private Button btnWeekView;
+    @FXML private HBox calendarFilterRow;
+    @FXML private Label sidebarTitle;
+
+    // ── Calendar state ────────────────────────────────────────
+    private LocalDate currentCalendarDate = LocalDate.now();
+    private String calendarViewType = "MONTH"; 
+    private String calendarTypeFilter = "ALL";
+    private List<Planning> calendarSessions = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -1300,6 +1322,9 @@ public class PlanningController {
     }
 
     // ─────────────────────────────────────────────
+    //  MATCHMAKING
+    // ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     //  AI COACH + CHATBOT
     // ─────────────────────────────────────────────
     @FXML
@@ -1434,5 +1459,334 @@ public class PlanningController {
         if (dot < 0) return "jpg";
         return name.substring(dot + 1).toLowerCase();
     }
+
+    // ══════════════════════════════════════════════════════════
+    // CALENDAR LOGIC
+    // ══════════════════════════════════════════════════════════
+
+    @FXML
+    public void handleShowCalendar() {
+        if (calendarOverlay == null) return;
+        setVisibleManaged(calendarOverlay, true);
+        currentCalendarDate = LocalDate.now();
+        calendarTypeFilter = "ALL";
+        updateFilterChips(null); // Reset chips to "Tous"
+        loadCalendarData();
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleCloseCalendar() {
+        setVisibleManaged(calendarOverlay, false);
+    }
+
+    private void loadCalendarData() {
+        try {
+            calendarSessions = planningService.getAllPlannings();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            calendarSessions = new ArrayList<>();
+        }
+    }
+
+    @FXML
+    public void handleCalendarPrev() {
+        if ("MONTH".equals(calendarViewType)) {
+            currentCalendarDate = currentCalendarDate.minusMonths(1);
+        } else {
+            currentCalendarDate = currentCalendarDate.minusWeeks(1);
+        }
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleCalendarNext() {
+        if ("MONTH".equals(calendarViewType)) {
+            currentCalendarDate = currentCalendarDate.plusMonths(1);
+        } else {
+            currentCalendarDate = currentCalendarDate.plusWeeks(1);
+        }
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleCalendarToday() {
+        currentCalendarDate = LocalDate.now();
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleSetMonthView() {
+        calendarViewType = "MONTH";
+        btnMonthView.getStyleClass().add("calendar-nav-btn-active");
+        btnWeekView.getStyleClass().remove("calendar-nav-btn-active");
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleSetWeekView() {
+        calendarViewType = "WEEK";
+        btnWeekView.getStyleClass().add("calendar-nav-btn-active");
+        btnMonthView.getStyleClass().remove("calendar-nav-btn-active");
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleCalendarFilterAll() {
+        calendarTypeFilter = "ALL";
+        updateFilterChips(null);
+        renderCalendar();
+    }
+
+    @FXML
+    public void handleCalendarFilterType(javafx.event.ActionEvent event) {
+        Button btn = (Button) event.getSource();
+        calendarTypeFilter = btn.getText().toUpperCase();
+        updateFilterChips(btn);
+        renderCalendar();
+    }
+
+    private void updateFilterChips(Button activeBtn) {
+        for (Node n : calendarFilterRow.getChildren()) {
+            if (n instanceof Button) {
+                n.getStyleClass().remove("calendar-filter-chip-active");
+            }
+        }
+        if (activeBtn != null) {
+            activeBtn.getStyleClass().add("calendar-filter-chip-active");
+        } else {
+            ((Button)calendarFilterRow.getChildren().get(0)).getStyleClass().add("calendar-filter-chip-active");
+        }
+    }
+
+    private void renderCalendar() {
+        if (calendarSessions == null || calendarSessions.isEmpty()) {
+            loadCalendarData();
+        }
+        if ("MONTH".equals(calendarViewType)) {
+            renderMonthView();
+        } else {
+            renderWeekView();
+        }
+        updateSidebar();
+    }
+
+    private boolean sessionMatchesFilter(Planning s) {
+        if ("ALL".equals(calendarTypeFilter)) return true;
+        if (s.getType() == null) return false;
+        
+        String type = normalizeString(s.getType());
+        String filter = normalizeString(calendarTypeFilter);
+        
+        return type.equals(filter);
+    }
+
+    private String normalizeString(String input) {
+        if (input == null) return "";
+        return input.toUpperCase()
+            .replace("É", "E")
+            .replace("È", "E")
+            .replace("Ê", "E")
+            .replace("Ë", "E")
+            .replace("À", "A")
+            .replace("Ô", "O")
+            .trim();
+    }
+
+    private void renderMonthView() {
+        calendarGrid.getChildren().clear();
+        calendarGrid.getRowConstraints().clear();
+        calendarGrid.getColumnConstraints().clear();
+
+        YearMonth ym = YearMonth.from(currentCalendarDate);
+        calendarTitle.setText(ym.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
+
+        // Day headers
+        String[] days = {"LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"};
+        for (int i = 0; i < 7; i++) {
+            Label h = new Label(days[i]);
+            h.getStyleClass().add("calendar-day-header");
+            h.setMaxWidth(Double.MAX_VALUE);
+            calendarGrid.add(h, i, 0);
+        }
+
+        LocalDate firstOfMonth = ym.atDay(1);
+        int dayOfW = firstOfMonth.getDayOfWeek().getValue(); // 1=Mon, 7=Sun
+        LocalDate start = firstOfMonth.minusDays(dayOfW - 1);
+
+        for (int row = 1; row <= 6; row++) {
+            for (int col = 0; col < 7; col++) {
+                final LocalDate date = start;
+                VBox cell = new VBox(5);
+                cell.getStyleClass().add("calendar-day-cell");
+                if (date.equals(LocalDate.now())) cell.getStyleClass().add("calendar-day-cell-today");
+                
+                Label lbl = new Label(String.valueOf(date.getDayOfMonth()));
+                lbl.getStyleClass().add("calendar-day-num");
+                if (date.getMonth() != ym.getMonth()) lbl.getStyleClass().add("calendar-day-num-other");
+                if (date.equals(LocalDate.now())) lbl.getStyleClass().add("calendar-day-num-today");
+                
+                cell.getChildren().add(lbl);
+
+                // Sessions for this day
+                List<Planning> daySessions = calendarSessions.stream()
+                        .filter(s -> s.getDate() != null && s.getDate().equals(date))
+                        .filter(this::sessionMatchesFilter)
+                        .collect(Collectors.toList());
+
+                for (Planning s : daySessions.stream().limit(3).collect(Collectors.toList())) {
+                    Label chip = new Label(s.getType());
+                    chip.getStyleClass().add("calendar-session-chip");
+                    if (s.getType() != null) {
+                        String typeClass = "dot-" + normalizeString(s.getType()).toLowerCase();
+                        chip.getStyleClass().add(typeClass);
+                    }
+                    cell.getChildren().add(chip);
+                }
+                
+                if (daySessions.size() > 3) {
+                    Label more = new Label("+" + (daySessions.size() - 3) + " plus...");
+                    more.setStyle("-fx-text-fill: rgba(255,255,255,0.3); -fx-font-size: 9; -fx-padding: 0 5;");
+                    cell.getChildren().add(more);
+                }
+
+                cell.setOnMouseClicked(e -> {
+                    currentCalendarDate = date;
+                    updateSidebar();
+                });
+
+                calendarGrid.add(cell, col, row);
+                start = start.plusDays(1);
+            }
+        }
+    }
+
+    private void renderWeekView() {
+        calendarGrid.getChildren().clear();
+        calendarGrid.getRowConstraints().clear();
+        calendarGrid.getColumnConstraints().clear();
+
+        LocalDate monday = currentCalendarDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate sunday = monday.plusDays(6);
+        calendarTitle.setText(monday.getDayOfMonth() + " - " + sunday.getDayOfMonth() + " " + monday.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale.FRENCH)));
+
+        // Column 0 for hours
+        calendarGrid.getColumnConstraints().add(new ColumnConstraints(50));
+        for (int i = 0; i < 7; i++) {
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setHgrow(Priority.ALWAYS);
+            cc.setPercentWidth(100.0 / 7.0);
+            calendarGrid.getColumnConstraints().add(cc);
+        }
+
+        // Headers
+        for (int i = 0; i < 7; i++) {
+            LocalDate d = monday.plusDays(i);
+            VBox hBox = new VBox(2);
+            hBox.setAlignment(Pos.CENTER);
+            hBox.getStyleClass().add("calendar-day-header");
+            Label dayName = new Label(d.format(DateTimeFormatter.ofPattern("EEE", Locale.FRENCH)).toUpperCase());
+            Label dayNum = new Label(String.valueOf(d.getDayOfMonth()));
+            dayNum.setStyle("-fx-font-size: 16; -fx-font-weight: 900;");
+            if (d.equals(LocalDate.now())) dayNum.setStyle("-fx-text-fill: #e8372a;");
+            hBox.getChildren().addAll(dayName, dayNum);
+            calendarGrid.add(hBox, i + 1, 0);
+        }
+
+        // Hourly rows (8:00 to 22:00)
+        for (int h = 8; h <= 22; h++) {
+            Label timeLbl = new Label(h + ":00");
+            timeLbl.setStyle("-fx-text-fill: rgba(255,255,255,0.2); -fx-font-size: 10; -fx-padding: 10 5;");
+            calendarGrid.add(timeLbl, 0, h - 7);
+
+            for (int d = 0; d < 7; d++) {
+                LocalDate date = monday.plusDays(d);
+                final int hour = h;
+                VBox slot = new VBox(2);
+                slot.getStyleClass().add("calendar-day-cell");
+                slot.setMinHeight(60);
+                
+                List<Planning> sessions = calendarSessions.stream()
+                        .filter(s -> s.getDate() != null && s.getDate().equals(date))
+                        .filter(s -> s.getTime() != null && s.getTime().getHour() == hour)
+                        .filter(this::sessionMatchesFilter)
+                        .collect(Collectors.toList());
+
+                for (Planning s : sessions) {
+                    VBox sessBox = new VBox(2);
+                    sessBox.getStyleClass().add("calendar-mini-card");
+                    sessBox.setStyle("-fx-padding: 4; -fx-background-color: rgba(232,55,42,0.1);");
+                    Label title = new Label(snip(s.getDescription(), 15));
+                    title.setStyle("-fx-text-fill: white; -fx-font-size: 9; -fx-font-weight: bold;");
+                    sessBox.getChildren().add(title);
+                    slot.getChildren().add(sessBox);
+                }
+
+                slot.setOnMouseClicked(e -> {
+                    currentCalendarDate = date;
+                    updateSidebar();
+                });
+                calendarGrid.add(slot, d + 1, h - 7);
+            }
+        }
+    }
+
+    private void updateSidebar() {
+        calendarSidebarList.getChildren().clear();
+        sidebarTitle.setText("SESSIONS DU " + currentCalendarDate.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.FRENCH)).toUpperCase());
+
+        List<Planning> filtered = calendarSessions.stream()
+                .filter(s -> s.getDate() != null && s.getDate().equals(currentCalendarDate))
+                .filter(this::sessionMatchesFilter)
+                .collect(Collectors.toList());
+
+        calendarSessionCount.setText(filtered.size() + " sessions");
+
+        if (filtered.isEmpty()) {
+            Label empty = new Label("Aucune session prévue");
+            empty.setStyle("-fx-text-fill: rgba(255,255,255,0.2); -fx-font-style: italic; -fx-padding: 20;");
+            calendarSidebarList.getChildren().add(empty);
+            return;
+        }
+
+        for (Planning p : filtered) {
+            VBox card = new VBox(10);
+            card.getStyleClass().add("calendar-mini-card");
+            
+            HBox top = new HBox(10);
+            top.setAlignment(Pos.CENTER_LEFT);
+            
+            Label time = new Label(p.getTime().format(TIME_FMT));
+            time.setStyle("-fx-text-fill: #ff4d3d; -fx-font-weight: bold; -fx-font-size: 13;");
+            
+            Label type = new Label(p.getType());
+            type.getStyleClass().add("fe-pill");
+            if (p.getType() != null) {
+                String typeClass = "dot-" + normalizeString(p.getType()).toLowerCase();
+                type.getStyleClass().add(typeClass);
+            }
+            
+            top.getChildren().addAll(time, type);
+            
+            Label desc = new Label(p.getDescription());
+            desc.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;");
+            desc.setWrapText(true);
+            
+            Label loc = new Label("📍 " + p.getLocalisation());
+            loc.setStyle("-fx-text-fill: rgba(255,255,255,0.4); -fx-font-size: 11;");
+            
+            Button btn = new Button("Rejoindre");
+            btn.getStyleClass().add("red-btn");
+            btn.setMaxWidth(Double.MAX_VALUE);
+            btn.setOnAction(e -> {
+                selectedPlanning = p;
+                openJoinModal(p);
+            });
+            
+            card.getChildren().addAll(top, desc, loc, btn);
+            calendarSidebarList.getChildren().add(card);
+        }
+    }
 }
+
 

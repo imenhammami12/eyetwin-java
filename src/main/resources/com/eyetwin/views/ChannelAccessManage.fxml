@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.ChannelAccessManageController"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            style="-fx-background: transparent; -fx-background-color: transparent;">
+
+    <content>
+        <VBox spacing="18"
+              prefWidth="860"
+              style="-fx-background-color: linear-gradient(to bottom, #050816, #070b1f);
+                     -fx-padding: 24;">
+
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="lblChannelName"
+                               text="Private Channel Access"
+                               style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Button text="Close"
+                                onAction="#handleClose"
+                                style="-fx-background-color: rgba(255,255,255,0.08);
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 10;
+                                       -fx-padding: 10 16 10 16;" />
+                    </children>
+                </HBox>
+
+                <Label text="Pending Join Requests"
+                       style="-fx-text-fill: #ff8b6e; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                <ScrollPane fitToWidth="true"
+                            prefHeight="240"
+                            minHeight="240"
+                            hbarPolicy="NEVER"
+                            vbarPolicy="AS_NEEDED"
+                            style="-fx-background: transparent; -fx-background-color: transparent;">
+                    <content>
+                        <VBox fx:id="pendingRequestsContainer"
+                              spacing="12"
+                              fillWidth="true" />
+                    </content>
+                </ScrollPane>
+
+                <Separator style="-fx-background-color: rgba(255,255,255,0.10);" />
+
+                <Label text="Generate QR Invitation"
+                       style="-fx-text-fill: #ff8b6e; -fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                <ScrollPane fitToWidth="true"
+                            prefHeight="420"
+                            hbarPolicy="NEVER"
+                            vbarPolicy="AS_NEEDED"
+                            style="-fx-background: transparent; -fx-background-color: transparent;">
+                    <content>
+                        <HBox spacing="24" alignment="TOP_LEFT">
+                            <children>
+
+                                <VBox spacing="12" prefWidth="260">
+                                    <children>
+                                        <Label text="Mode" style="-fx-text-fill: white;" />
+                                        <ComboBox fx:id="cbInviteMode" prefWidth="260" />
+
+                                        <Label text="Max Uses (optional)" style="-fx-text-fill: white;" />
+                                        <TextField fx:id="tfMaxUses"
+                                                   promptText="Leave empty for unlimited"
+                                                   prefWidth="260" />
+
+                                        <Label text="Expires At (optional)" style="-fx-text-fill: white;" />
+                                        <DatePicker fx:id="dpExpiresAt" prefWidth="260" />
+
+                                        <Button text="Generate Invite"
+                                                onAction="#handleGenerateInvite"
+                                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                                                       -fx-text-fill: white;
+                                                       -fx-font-weight: bold;
+                                                       -fx-background-radius: 10;
+                                                       -fx-padding: 10 16 10 16;" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10" prefWidth="500">
+                                    <children>
+                                        <Label text="Invite Token" style="-fx-text-fill: white;" />
+
+                                        <TextArea fx:id="lblInviteToken"
+                                                  editable="false"
+                                                  wrapText="true"
+                                                  prefRowCount="2"
+                                                  style="-fx-control-inner-background: #14192b;
+                                                         -fx-background-color: #14192b;
+                                                         -fx-text-fill: white;
+                                                         -fx-background-radius: 10;
+                                                         -fx-border-radius: 10;
+                                                         -fx-border-color: rgba(255,255,255,0.08);" />
+
+                                        <HBox spacing="8">
+                                            <children>
+                                                <Button text="Copy Token"
+                                                        onAction="#handleCopyToken"
+                                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                                                               -fx-text-fill: white;
+                                                               -fx-font-weight: bold;
+                                                               -fx-background-radius: 8;" />
+
+                                                <Button text="Download QR"
+                                                        onAction="#handleDownloadQr"
+                                                        style="-fx-background-color: rgba(255,255,255,0.08);
+                                                               -fx-text-fill: white;
+                                                               -fx-font-weight: bold;
+                                                               -fx-background-radius: 8;" />
+                                            </children>
+                                        </HBox>
+
+                                        <Label fx:id="lblInviteInfo"
+                                               wrapText="true"
+                                               style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 12px;" />
+
+                                        <StackPane style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10;">
+                                            <children>
+                                                <ImageView fx:id="imgQrCode"
+                                                           fitWidth="280"
+                                                           fitHeight="280"
+                                                           preserveRatio="true" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

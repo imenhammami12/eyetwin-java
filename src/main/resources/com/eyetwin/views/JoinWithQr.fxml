@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.eyetwin.controller.JoinWithQrController"
+      spacing="14"
+      prefWidth="460"
+      style="-fx-background-color: #080810; -fx-padding: 18;">
+
+    <children>
+        <HBox>
+            <children>
+                <Label text="Join With QR Invite"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button text="Close"
+                        onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+            </children>
+        </HBox>
+
+        <Label text="Paste invite token or load a QR image."
+               style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 12px;" />
+
+        <TextField fx:id="tfInviteToken" promptText="Invite token" />
+
+        <HBox spacing="8">
+            <children>
+                <Button text="Load QR Image"
+                        onAction="#handleLoadQrImage"
+                        style="-fx-background-color: rgba(255,255,255,0.08);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+
+                <Button text="Join"
+                        onAction="#handleJoinWithInvite"
+                        style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;" />
+            </children>
+        </HBox>
+
+        <Label fx:id="lblJoinResult"
+               wrapText="true"
+               style="-fx-text-fill: #ff8a7a; -fx-font-size: 12px;" />
+    </children>
+</VBox>

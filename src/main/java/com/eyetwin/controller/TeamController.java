@@ -900,7 +900,7 @@ public class TeamController {
 
         StackPane banner = new StackPane();
         banner.setMinHeight(110); banner.setMaxHeight(110); banner.setPrefHeight(110);
-        banner.setStyle("-fx-background-color:linear-gradient(135deg,#1a0308,#12050e);-fx-background-radius:8;");
+        banner.setStyle("-fx-background-color:linear-gradient(to bottom right,#1a0308,#12050e);-fx-background-radius:8;");
 
         String logoPath = team.getLogo();
         if (logoPath != null && !logoPath.isBlank()) {

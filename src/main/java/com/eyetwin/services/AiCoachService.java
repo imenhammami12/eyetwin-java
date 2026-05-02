@@ -34,6 +34,11 @@ public class AiCoachService {
                     return "Veuillez vous connecter pour recevoir des recommandations personnalisées.";
                 }
 
+                String apiKey = GroqConfig.apiKey();
+                if (apiKey == null || apiKey.isBlank()) {
+                    return "Configuration manquante : clé Groq absente (GROQ_API_KEY).";
+                }
+
                 String planningContext = buildPlanningContext();
                 String userHistoryContext = buildUserHistoryContext(user);
 
@@ -69,7 +74,7 @@ public class AiCoachService {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(GroqConfig.API_URL))
                         .header("Content-Type", "application/json")
-                        .header("Authorization", "Bearer " + GroqConfig.API_KEY)
+                        .header("Authorization", "Bearer " + apiKey)
                         .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
                         .build();
 
@@ -81,6 +86,10 @@ public class AiCoachService {
                             .getJSONObject(0)
                             .getJSONObject("message")
                             .getString("content");
+                } else if (response.statusCode() == 401 || response.statusCode() == 403) {
+                    String body = response.body() == null ? "" : response.body().trim();
+                    if (body.length() > 600) body = body.substring(0, 600) + "...";
+                    return "Clé Groq invalide ou non autorisée (Code: " + response.statusCode() + "). Détail: " + body;
                 } else {
                     return "Désolé, l'IA de coaching rencontre une erreur technique (Code: " + response.statusCode() + ").";
                 }

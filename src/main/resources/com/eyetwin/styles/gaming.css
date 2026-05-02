@@ -476,7 +476,7 @@ TextArea.input-gaming:focused .content {
     -fx-translate-y: -4;
 }
 .feat-card-highlight {
-    -fx-background-color: linear-gradient(135deg, rgba(30,4,8,0.95), rgba(8,8,20,0.95));
+    -fx-background-color: linear-gradient(to bottom right, rgba(30,4,8,0.95), rgba(8,8,20,0.95));
     -fx-border-color: rgba(232,55,42,0.25);
     -fx-border-radius: 14;
     -fx-background-radius: 14;
@@ -790,7 +790,7 @@ TextArea.input-gaming:focused .content {
 .red-btn:hover,
 .red-btn:focused,
 .red-btn:pressed {
-    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d);
+    -fx-background-color: linear-gradient(to bottom right, #b02b20, #e8372a, #ff4d3d);
     -fx-text-fill: white;
     -fx-background-radius: 9;
 }
@@ -799,7 +799,7 @@ Button.red-btn:hover,
 Button.red-btn:focused,
 Button.red-btn:pressed,
 Button.red-btn:armed {
-    -fx-background-color: linear-gradient(135deg, #b02b20, #e8372a, #ff4d3d) !important;
+    -fx-background-color: linear-gradient(to bottom right, #b02b20, #e8372a, #ff4d3d) !important;
     -fx-text-fill: white;
     -fx-background-radius: 9;
     -fx-border-color: transparent;
@@ -1020,3 +1020,140 @@ Button.red-btn:armed {
 .fe-chat-send2:hover {
     -fx-background-color: rgba(232,55,42,0.95);
 }
+
+/* ══════════════════════════════════════════════════════
+   CALENDAR FEATURE
+══════════════════════════════════════════════════════ */
+.calendar-overlay {
+    -fx-background-color: rgba(0,0,0,0.75);
+    -fx-padding: 40;
+}
+.calendar-modal {
+    -fx-background-color: #13131a;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 50, 0, 0, 15);
+}
+.calendar-header {
+    -fx-padding: 20;
+    -fx-border-color: rgba(255,255,255,0.05);
+    -fx-border-width: 0 0 1 0;
+}
+.calendar-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 24;
+}
+.calendar-nav-btn {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+}
+.calendar-nav-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+}
+.calendar-grid-container {
+    -fx-background-color: #13131a;
+}
+.calendar-grid {
+    -fx-padding: 10;
+}
+.calendar-day-header {
+    -fx-text-fill: rgba(255,255,255,0.4);
+    -fx-font-weight: bold;
+    -fx-font-size: 11;
+    -fx-alignment: center;
+    -fx-padding: 10 0;
+}
+.calendar-day-cell {
+    -fx-border-color: rgba(255,255,255,0.03);
+    -fx-border-width: 0.5;
+    -fx-min-width: 100;
+    -fx-min-height: 100;
+}
+.calendar-day-cell:hover {
+    -fx-background-color: rgba(255,255,255,0.02);
+}
+.calendar-day-cell-today {
+    -fx-background-color: rgba(232,55,42,0.03);
+}
+.calendar-day-num {
+    -fx-text-fill: rgba(255,255,255,0.6);
+    -fx-font-weight: bold;
+    -fx-padding: 8;
+}
+.calendar-day-num-today {
+    -fx-text-fill: #e8372a;
+}
+.calendar-day-num-other {
+    -fx-text-fill: rgba(255,255,255,0.15);
+}
+.calendar-session-chip {
+    -fx-background-color: rgba(139,92,246,0.15);
+    -fx-text-fill: #a78bfa;
+    -fx-font-size: 9;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 2 6;
+    -fx-margin: 2 0;
+}
+.calendar-sidebar {
+    -fx-background-color: #1a1a24;
+    -fx-padding: 24;
+    -fx-pref-width: 380;
+    -fx-border-color: rgba(255,255,255,0.05);
+    -fx-border-width: 0 0 0 1;
+}
+.calendar-filter-chip {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-text-fill: rgba(255,255,255,0.5);
+    -fx-font-weight: bold;
+    -fx-font-size: 11;
+    -fx-background-radius: 999;
+    -fx-padding: 7 16;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 999;
+}
+.calendar-filter-chip:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: white;
+}
+.calendar-filter-chip-active {
+    -fx-background-color: rgba(232,55,42,0.15);
+    -fx-text-fill: #ff4d3d;
+    -fx-border-color: rgba(232,55,42,0.4);
+}
+.calendar-sidebar-title {
+    -fx-text-fill: rgba(255,255,255,0.3);
+    -fx-font-weight: 900;
+    -fx-font-size: 11;
+    -fx-letter-spacing: 1.5;
+}
+.calendar-mini-card {
+    -fx-background-color: rgba(255,255,255,0.02);
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 12;
+}
+.calendar-mini-card:hover {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-border-color: rgba(255,255,255,0.12);
+}
+
+/* Specific type colors for dots/labels */
+.dot-moba      { -fx-background-color: #8b5cf6; }
+.dot-fps       { -fx-background-color: #ef4444; }
+.dot-strategie { -fx-background-color: #10b981; }
+.dot-rpg       { -fx-background-color: #f59e0b; }
+.dot-sport     { -fx-background-color: #3b82f6; }
+
+.text-moba      { -fx-text-fill: #a78bfa; }
+.text-fps       { -fx-text-fill: #f87171; }
+.text-strategie { -fx-text-fill: #34d399; }
+.text-rpg       { -fx-text-fill: #fbbf24; }
+.text-sport     { -fx-text-fill: #60a5fa; }

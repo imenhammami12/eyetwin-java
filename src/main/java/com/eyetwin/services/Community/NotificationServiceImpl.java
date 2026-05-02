@@ -4,6 +4,7 @@ import com.eyetwin.entities.Community.AppNotification;
 import com.eyetwin.entities.Community.Channel;
 import com.eyetwin.interfaces.Community.INotificationService;
 import com.eyetwin.tools.DatabaseConfig;
+
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,7 @@ public class NotificationServiceImpl implements INotificationService {
         return DatabaseConfig.getInstance().getCnx();
     }
 
-    @Override
-    public void createChannelApprovedNotification(Channel channel, int targetUserId) throws SQLException {
+    private void createNotification(String type, String message, String link, int targetUserId) throws SQLException {
         String sql = """
             INSERT INTO notification (type, message, is_read, created_at, link, `read`, user_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -28,35 +28,68 @@ public class NotificationServiceImpl implements INotificationService {
 
         Connection c = getConnection();
         PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, AppNotification.CHANNEL_APPROVED);
-        ps.setString(2, "Your channel \"" + channel.getName() + "\" has been approved by an admin. It is now visible in the community.");
+        ps.setString(1, type);
+        ps.setString(2, message);
         ps.setBoolean(3, false);
         ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-        ps.setString(5, "/channels/" + channel.getId());
+        ps.setString(5, link);
         ps.setBoolean(6, false);
         ps.setInt(7, targetUserId);
         ps.executeUpdate();
     }
 
     @Override
-    public void createChannelRejectedNotification(Channel channel, int targetUserId, String reason) throws SQLException {
-        String sql = """
-            INSERT INTO notification (type, message, is_read, created_at, link, `read`, user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
+    public void createChannelApprovedNotification(Channel channel, int targetUserId) throws SQLException {
+        createNotification(
+                AppNotification.CHANNEL_APPROVED,
+                "Your channel \"" + channel.getName() + "\" has been approved by an admin. It is now visible in the community.",
+                "/channels/" + channel.getId(),
+                targetUserId
+        );
+    }
 
+    @Override
+    public void createChannelRejectedNotification(Channel channel, int targetUserId, String reason) throws SQLException {
         String finalReason = (reason == null || reason.trim().isEmpty()) ? "No reason provided." : reason.trim();
 
-        Connection c = getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, AppNotification.CHANNEL_REJECTED);
-        ps.setString(2, "Your channel \"" + channel.getName() + "\" has been rejected by an admin. Reason: " + finalReason);
-        ps.setBoolean(3, false);
-        ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-        ps.setString(5, "/channels");
-        ps.setBoolean(6, false);
-        ps.setInt(7, targetUserId);
-        ps.executeUpdate();
+        createNotification(
+                AppNotification.CHANNEL_REJECTED,
+                "Your channel \"" + channel.getName() + "\" has been rejected by an admin. Reason: " + finalReason,
+                "/channels",
+                targetUserId
+        );
+    }
+
+    @Override
+    public void createChannelJoinRequestedNotification(Channel channel, int ownerUserId, String requesterDisplay) throws SQLException {
+        createNotification(
+                AppNotification.CHANNEL_JOIN_REQUESTED,
+                requesterDisplay + " requested to join your private channel \"" + channel.getName() + "\".",
+                "/community/access/" + channel.getId(),
+                ownerUserId
+        );
+    }
+
+    @Override
+    public void createChannelJoinApprovedNotification(Channel channel, int targetUserId) throws SQLException {
+        createNotification(
+                AppNotification.CHANNEL_JOIN_APPROVED,
+                "Your request to join \"" + channel.getName() + "\" was approved. You can open the channel now.",
+                "/channels/" + channel.getId(),
+                targetUserId
+        );
+    }
+
+    @Override
+    public void createChannelJoinDeniedNotification(Channel channel, int targetUserId, String reason) throws SQLException {
+        String finalReason = (reason == null || reason.trim().isEmpty()) ? "No reason provided." : reason.trim();
+
+        createNotification(
+                AppNotification.CHANNEL_JOIN_DENIED,
+                "Your request to join \"" + channel.getName() + "\" was denied. Reason: " + finalReason,
+                "/channels",
+                targetUserId
+        );
     }
 
     @Override

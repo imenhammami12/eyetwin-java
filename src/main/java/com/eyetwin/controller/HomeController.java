@@ -20,7 +20,7 @@ public class HomeController {
     // ── Hero CTA ──
     @FXML private HBox heroCTAGuest;
     @FXML private HBox heroCTAUser;
-    @FXML private Button uploadVideoBtn;      // ADD THIS
+    @FXML private Button uploadVideoBtn;
     @FXML private Button eventRegisterBtn;
 
     // ── Stats bar ──
@@ -31,8 +31,8 @@ public class HomeController {
     @FXML private Label statChannels;
 
     // ── Event section ──
-    @FXML private Label  eventTeams;
-    @FXML private Label  eventTournaments;
+    @FXML private Label eventTeams;
+    @FXML private Label eventTournaments;
 
     // ── CTA bottom (guest) ──
     @FXML private VBox ctaBottomGuest;
@@ -62,12 +62,10 @@ public class HomeController {
             eventRegisterBtn.setOnAction(e -> navigateTo("Tournois.fxml"));
     }
 
-
     private void forceRedButton(Button btn) {
         if (btn == null) return;
 
         Platform.runLater(() -> {
-            // Cherche le StackPane interne du bouton et force sa couleur
             btn.setBackground(new javafx.scene.layout.Background(
                     new javafx.scene.layout.BackgroundFill(
                             new javafx.scene.paint.LinearGradient(
@@ -138,25 +136,23 @@ public class HomeController {
     }
 
     // ════════════════════════════════════════════
-    //  NAVIGATION (buttons dans home.fxml uniquement)
+    //  NAVIGATION
     // ════════════════════════════════════════════
     @FXML public void goToRegister() { navigateTo("register.fxml"); }
     @FXML public void goToLogin()    { navigateTo("login.fxml"); }
     @FXML public void goToVideos()   { navigateTo("Videos.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
-    @FXML public void goToChannels() { navigateTo("Community.fxml");}
+    @FXML public void goToChannels() { navigateTo("Community.fxml"); }
     @FXML public void goToLive()     { navigateTo("Live.fxml"); }
 
     private void navigateTo(String fxml) {
-        // Délègue à la navbar qui a déjà la logique complète
-        navbarController.navigateTo(fxml);  // rendre public dans NavbarController
+        navbarController.navigateTo(fxml);
     }
 
     // ════════════════════════════════════════════
     //  HELPERS
     // ════════════════════════════════════════════
-
     private static final String RED_BTN =
             "-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);" +
                     "-fx-text-fill: white;" +
@@ -171,7 +167,6 @@ public class HomeController {
     private void styleRedBtn(Button btn) {
         if (btn == null) return;
         btn.setStyle(RED_BTN);
-        // Re-apply on every state change so Modena can't override hover/focus
         btn.skinProperty().addListener((obs, o, n) -> btn.setStyle(RED_BTN));
         btn.hoverProperty().addListener((obs, o, n) -> btn.setStyle(RED_BTN));
         btn.pressedProperty().addListener((obs, o, n) -> btn.setStyle(RED_BTN));

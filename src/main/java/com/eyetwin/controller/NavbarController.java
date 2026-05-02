@@ -29,12 +29,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 
-
 public class NavbarController {
     private final NotificationServiceImpl notificationService = new NotificationServiceImpl();
     private static final SimpleDateFormat NOTIF_DATE_FMT = new SimpleDateFormat("dd/MM HH:mm");
 
     private static final String NAVBAR_POPUP_CSS = "/com/eyetwin/assets/css/navbar-popups.css";
+
     // ── Zones ──
     @FXML private HBox loggedInZone;
     @FXML private HBox guestZone;
@@ -61,7 +61,6 @@ public class NavbarController {
     // ── Uploader / Highlights ──
     @FXML private MenuButton navUploaderMenu;
     @FXML private Label      navHighlights;
-
 
     @FXML private Label navHome;
     @FXML private Label navPlanning;
@@ -130,7 +129,7 @@ public class NavbarController {
     }
 
     // ════════════════════════════════════════════
-    //  NOTIFICATIONS — appelable depuis l'extérieur
+    //  NOTIFICATIONS
     // ════════════════════════════════════════════
     public void updateNotifBadge(int unreadCount) {
         if (navNotifBadge == null) return;
@@ -242,7 +241,6 @@ public class NavbarController {
             Stage  stage = resolveStage();
             if (stage == null) return;
 
-            // ── Copier les stylesheets de la scène courante ──
             Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
             Scene currentScene = stage.getScene();
             if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
@@ -255,6 +253,7 @@ public class NavbarController {
             e.printStackTrace();
         }
     }
+
     private Stage resolveStage() {
         for (javafx.scene.Node n : new javafx.scene.Node[]{
                 loggedInZone, guestZone, navProfileMenu, navNotifMenu
@@ -312,7 +311,6 @@ public class NavbarController {
         if (user == null || navNotifMenu == null) return;
 
         try {
-            // keep only fixed items first
             navNotifMenu.getItems().clear();
 
             if (notifHeaderItem == null) {
@@ -341,12 +339,6 @@ public class NavbarController {
                 }
             }
 
-//           navNotifMenu.getItems().add(new SeparatorMenuItem());
-//
-//            MenuItem markInfo = new MenuItem("Recent notifications");
-//            markInfo.setDisable(true);
-//            navNotifMenu.getItems().add(markInfo);
-
             updateNotifBadge(unreadCount);
 
         } catch (SQLException e) {
@@ -373,10 +365,8 @@ public class NavbarController {
             System.err.println("[NavbarController] Failed to mark notification as read: " + e.getMessage());
         }
 
-        // reload badge/menu after click
         loadNotifications(user);
 
-        // basic navigation
         if (notif.getType() != null) {
             switch (notif.getType()) {
                 case AppNotification.CHANNEL_APPROVED, AppNotification.CHANNEL_REJECTED -> goToCommunity();
@@ -398,23 +388,10 @@ public class NavbarController {
     }
 
     private void styleStaticMenuItems() {
-        if (notifHeaderItem != null) {
-            notifHeaderItem.getStyleClass().add("notif-header-item");
-        }
-
-        if (profileHeaderItem != null) {
-            profileHeaderItem.getStyleClass().add("profile-header-item");
-        }
-
-        if (profileStatsItem != null) {
-            profileStatsItem.getStyleClass().add("profile-stats-item");
-        }
-
-        if (profileAdminItem != null) {
-            profileAdminItem.getStyleClass().add("admin-item");
-        }
-
-        // logout item is not fx:id in your current file, so we leave it unless you want to add one later
+        if (notifHeaderItem != null)  notifHeaderItem.getStyleClass().add("notif-header-item");
+        if (profileHeaderItem != null) profileHeaderItem.getStyleClass().add("profile-header-item");
+        if (profileStatsItem != null)  profileStatsItem.getStyleClass().add("profile-stats-item");
+        if (profileAdminItem != null)  profileAdminItem.getStyleClass().add("admin-item");
     }
 
     private CustomMenuItem buildNotificationMenuItem(AppNotification notif) {
@@ -516,14 +493,8 @@ public class NavbarController {
 
                 if (!hasRealNotifications) {
                     navNotifMenu.getItems().clear();
-
-                    if (notifHeaderItem != null) {
-                        navNotifMenu.getItems().add(notifHeaderItem);
-                    }
-
-                    if (notifEmptyItem != null) {
-                        navNotifMenu.getItems().add(notifEmptyItem);
-                    }
+                    if (notifHeaderItem != null) navNotifMenu.getItems().add(notifHeaderItem);
+                    if (notifEmptyItem  != null) navNotifMenu.getItems().add(notifEmptyItem);
                 }
             }
 

@@ -141,7 +141,7 @@ public class TwoFactorEnableController {
         if (copySecretBtn != null) {
             copySecretBtn.setText("✓ Copied!");
             copySecretBtn.setStyle(copySecretBtn.getStyle() +
-                "-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);");
+                "-fx-background-color: linear-gradient(to bottom right, #4cd3e3, #00bcd4);");
 
             // Reset after 2 sec
             new Thread(() -> {
@@ -149,7 +149,7 @@ public class TwoFactorEnableController {
                 Platform.runLater(() -> {
                     copySecretBtn.setText("⎘  Copy Secret Key");
                     copySecretBtn.setStyle(copySecretBtn.getStyle()
-                        .replace("-fx-background-color: linear-gradient(135deg, #4cd3e3, #00bcd4);", ""));
+                        .replace("-fx-background-color: linear-gradient(to bottom right, #4cd3e3, #00bcd4);", ""));
                 });
             }).start();
         }

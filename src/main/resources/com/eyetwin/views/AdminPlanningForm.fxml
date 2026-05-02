@@ -49,24 +49,21 @@
                             </VBox>
 
                             <!-- Row 1: type + level -->
-                            <GridPane hgap="14" vgap="10">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="50"/>
-                                    <ColumnConstraints percentWidth="50"/>
-                                </columnConstraints>
+                            <VBox spacing="18">
+                                <!-- Row 1: type + level -->
+                                <HBox spacing="14">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="GAME TYPE *" styleClass="form-label"/>
+                                        <ComboBox fx:id="typeCombo" promptText="Select type" maxWidth="Infinity"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="SKILL LEVEL *" styleClass="form-label"/>
+                                        <ComboBox fx:id="levelCombo" promptText="Select level" maxWidth="Infinity"/>
+                                    </VBox>
+                                </HBox>
 
-                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label text="GAME TYPE *" styleClass="form-label"/>
-                                    <ComboBox fx:id="typeCombo" promptText="Select type"/>
-                                </VBox>
-
-                                <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label text="SKILL LEVEL *" styleClass="form-label"/>
-                                    <ComboBox fx:id="levelCombo" promptText="Select level"/>
-                                </VBox>
-
-                                <!-- Row 2: location -->
-                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                <!-- Row 2: location mode -->
+                                <VBox spacing="6">
                                     <Label text="LOCATION MODE *" styleClass="form-label"/>
                                     <HBox spacing="18" alignment="CENTER_LEFT" styleClass="toggle-row">
                                         <RadioButton fx:id="onlineRadio" text="Online"/>
@@ -74,35 +71,39 @@
                                     </HBox>
                                 </VBox>
 
-                                <!-- Location details (no map for now) -->
-                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                <!-- Location details with Map -->
+                                <VBox fx:id="mapContainer" spacing="10" opacity="0" maxHeight="0" managed="false">
                                     <Label text="LOCATION DETAILS *" styleClass="form-label"/>
-                                    <TextField fx:id="locationDetailsField" promptText="Enter address (On Site)"/>
-                                    <Label text="Map is temporarily disabled. Enter address manually when On Site is selected."
-                                           styleClass="muted-label"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <TextField fx:id="locationDetailsField" promptText="Enter address or site details..." HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="searchLocationBtn" text="Search" onAction="#handleSearchLocation" styleClass="outline-btn" />
+                                    </HBox>
+                                    <!-- MapView will be injected here -->
+                                    <Label text="Specify the address or pick it on the map" styleClass="muted-label"/>
                                 </VBox>
 
                                 <!-- Row 3: date + time -->
-                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                    <Label text="DATE *" styleClass="form-label"/>
-                                    <DatePicker fx:id="datePicker" promptText="dd/MM/yyyy"/>
-                                </VBox>
-
-                                <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                    <Label text="TIME *" styleClass="form-label"/>
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <TextField fx:id="timeField" editable="false" promptText="--:-- --" HBox.hgrow="ALWAYS"/>
-                                        <Button fx:id="timePickerBtn" text="🕒" onAction="#handlePickTime" styleClass="outline-btn"
-                                                style="-fx-padding: 6 10; -fx-font-size: 12;"/>
-                                    </HBox>
-                                </VBox>
+                                <HBox spacing="14">
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="DATE *" styleClass="form-label"/>
+                                        <DatePicker fx:id="datePicker" promptText="dd/MM/yyyy" maxWidth="Infinity"/>
+                                    </VBox>
+                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                        <Label text="TIME *" styleClass="form-label"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <TextField fx:id="timeField" editable="false" promptText="--:-- --" HBox.hgrow="ALWAYS"/>
+                                            <Button fx:id="timePickerBtn" text="🕒" onAction="#handlePickTime" styleClass="outline-btn"
+                                                    style="-fx-padding: 6 10; -fx-font-size: 12;"/>
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
 
                                 <!-- Row 4: description -->
-                                <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
+                                <VBox spacing="6">
                                     <Label text="DESCRIPTION *" styleClass="form-label"/>
-                                    <TextArea fx:id="descriptionArea" promptText="Session details, goals, prerequisites..." prefRowCount="4"/>
+                                    <TextArea fx:id="descriptionArea" promptText="Session details, goals, prerequisites..." prefRowCount="4" wrapText="true"/>
                                 </VBox>
-                            </GridPane>
+                            </VBox>
 
                             <!-- Need partner -->
                             <VBox spacing="8" styleClass="toggle-row">

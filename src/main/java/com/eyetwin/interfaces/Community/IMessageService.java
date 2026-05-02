@@ -6,6 +6,8 @@ import  com.eyetwin.entities.Community.AdminChannelMessageStat;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.eyetwin.entities.Community.MessageAttachment;
+
 public interface IMessageService {
     List<Message> findByChannel(int channelId) throws SQLException;
     List<Message> findAdminMessages(String search, String status) throws SQLException;
@@ -14,10 +16,17 @@ public interface IMessageService {
     Message findById(int id) throws SQLException;
 
     void sendMessage(int channelId, String content, User player) throws SQLException;
+    void sendMessage(int channelId, String content, User player, List<MessageAttachment> attachments) throws SQLException;
     void updateOwnMessage(int messageId, String newContent, User player) throws SQLException;
     void softDeleteOwnMessage(int messageId, User player) throws SQLException;
 
     void adminDeleteMessage(int messageId, User admin) throws SQLException;
     void adminRestoreMessage(int messageId, User admin) throws SQLException;
 
+
+
+    /// SUMMARY
+    List<Message> findMessagesAfter(int channelId, int messageId) throws SQLException;
+    Message findLatestMessageInChannel(int channelId) throws SQLException;
+    int countMessagesAfter(int channelId, int messageId) throws SQLException;
 }

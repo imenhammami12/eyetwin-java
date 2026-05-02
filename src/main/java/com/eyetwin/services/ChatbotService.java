@@ -26,14 +26,20 @@ public class ChatbotService {
         final String q = question == null ? "" : question.trim();
         return CompletableFuture.supplyAsync(() -> {
             String lang = detectLanguage(q);
-            String apiKey = GroqConfig.API_KEY;
+            String apiKey = GroqConfig.apiKey();
 
             // Priorité absolue à Groq si la clé est dispo (comme Symfony)
             if (apiKey != null && !apiKey.isBlank()) {
                 try {
                     return getGroqResponse(q, apiKey, lang);
                 } catch (Exception e) {
-                    // fallback rules
+                    // fallback rules + message utile si problème d'auth
+                    String msg = e.getMessage() == null ? "" : e.getMessage();
+                    if (msg.contains("status=401") || msg.contains("status=403")) {
+                        return "en".equals(lang)
+                                ? "Groq authentication failed. Please verify GROQ_API_KEY."
+                                : "Échec d’authentification Groq. Vérifiez la clé GROQ_API_KEY.";
+                    }
                     return getRuleBasedResponse(q.toLowerCase(), lang);
                 }
             }
@@ -84,7 +90,9 @@ public class ChatbotService {
 
         HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
         if (res.statusCode() != 200) {
-            throw new IllegalStateException("Groq API request failed (status=" + res.statusCode() + ")");
+            String body = res.body() == null ? "" : res.body().trim();
+            if (body.length() > 600) body = body.substring(0, 600) + "...";
+            throw new IllegalStateException("Groq API request failed (status=" + res.statusCode() + ", body=" + body + ")");
         }
 
         JSONObject json = new JSONObject(res.body());

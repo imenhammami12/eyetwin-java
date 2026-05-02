@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="root-pane"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.eyetwin.controller.admin.TournoiController">
+    <stylesheets><URL value="@../../../styles/gaming-theme.css"/></stylesheets>
+
+    <left>
+        <VBox styleClass="sidebar">
+            <HBox style="-fx-padding:22 15 22 20;-fx-alignment:CENTER_LEFT;" spacing="8">
+                <Label text="⚔" style="-fx-font-size:22px;-fx-text-fill:#e63946;"/>
+                <Label text="ARENA" style="-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:white;"/>
+            </HBox>
+            <Separator styleClass="sidebar-sep"/>
+            <Label text="NAVIGATION" style="-fx-text-fill:#333344;-fx-font-size:10px;-fx-font-weight:bold;-fx-padding:14 0 6 25;"/>
+            <Button text="🏆   Tournaments" onAction="#onGoToTournois" styleClass="nav-btn-active" prefWidth="220"/>
+            <Button text="⚔   Matches"      onAction="#onGoToMatches"  styleClass="nav-btn"        prefWidth="220"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator styleClass="sidebar-sep"/>
+            <Button text="🚪   Logout" onAction="#onLogout" styleClass="logout-btn" prefWidth="220"/>
+            <Label text="EyeTwin Platform v1.0" styleClass="sidebar-footer"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox styleClass="main-content">
+            <HBox styleClass="content-header" alignment="CENTER_LEFT" spacing="15">
+                <VBox spacing="3">
+                    <Label text="Tournaments" styleClass="page-title"/>
+                    <Label text="Manage all tournaments in the platform" styleClass="page-subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statsLabel" style="-fx-text-fill:#444455;-fx-font-size:12px;"/>
+                <Button text="＋  Add Tournament" onAction="#onOpenAddForm" styleClass="btn-add"/>
+            </HBox>
+            <ScrollPane VBox.vgrow="ALWAYS" styleClass="card-grid-scroll" fitToWidth="true">
+                <FlowPane fx:id="tournoiGrid" styleClass="card-flow"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

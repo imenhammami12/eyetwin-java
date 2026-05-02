@@ -24,6 +24,8 @@ module org.example.eyetwinjava {
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
     opens com.eyetwin.controller.admin to javafx.fxml;
+    opens com.eyetwin.entities to com.google.gson, javafx.base, javafx.fxml;
+    opens com.eyetwin.websocket.model to com.google.gson;
 
     exports com.eyetwin;
     exports com.eyetwin.config;
@@ -32,5 +34,4 @@ module org.example.eyetwinjava {
     exports com.eyetwin.entities;
     exports com.eyetwin.controller;
     exports com.eyetwin.interfaces;
-
 }

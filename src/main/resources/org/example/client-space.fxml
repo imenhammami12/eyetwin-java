@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="root-pane"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controllers.ClientSpaceController">
+    <stylesheets><URL value="@gaming-theme.css"/></stylesheets>
+
+    <left>
+        <VBox styleClass="sidebar">
+            <HBox style="-fx-padding:22 15 22 20;-fx-alignment:CENTER_LEFT;" spacing="8">
+                <Label text="⚔" style="-fx-font-size:22px;-fx-text-fill:#e63946;"/>
+                <Label text="ARENA" style="-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:white;"/>
+            </HBox>
+            <Separator styleClass="sidebar-sep"/>
+            <Label text="CLIENT ACCOUNT" style="-fx-text-fill:#333344;-fx-font-size:10px;-fx-font-weight:bold;-fx-padding:14 0 6 25;"/>
+            <Button fx:id="dashBtn" text="🏠   Dashboard" onAction="#showDashboard" styleClass="nav-btn-active" prefWidth="220"/>
+            <Button fx:id="tournoisBtn" text="🏆   Tournaments" onAction="#showTournaments" styleClass="nav-btn" prefWidth="220"/>
+            <Button fx:id="matchesBtn" text="⚔   Matches" onAction="#showMatches" styleClass="nav-btn" prefWidth="220"/>
+            
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator styleClass="sidebar-sep"/>
+            <Button text="🚪   Logout" onAction="#onLogout" styleClass="logout-btn" prefWidth="220"/>
+            <Label text="EyeTwin Platform v1.0" styleClass="sidebar-footer"/>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="contentArea" styleClass="main-content">
+            <!-- Dashboard View -->
+            <VBox fx:id="dashboardView" alignment="TOP_CENTER" spacing="50">
+                <padding>
+                    <javafx.geometry.Insets top="100" right="20" bottom="20" left="20"/>
+                </padding>
+                <VBox alignment="CENTER" spacing="15">
+                    <Label text="Welcome to espace client" style="-fx-font-size:36px;-fx-font-weight:bold;-fx-text-fill:white;"/>
+                    <Label text="Select a category from the sidebar to explore." style="-fx-font-size:16px;-fx-text-fill:#888899;"/>
+                </VBox>
+                <HBox alignment="CENTER" spacing="20">
+                    <VBox onMouseClicked="#showTournaments" styleClass="data-card" prefWidth="250" prefHeight="150" alignment="CENTER" spacing="10">
+                        <Label text="🏆" style="-fx-font-size:40px;"/>
+                        <Label text="Available Tournaments" styleClass="card-name"/>
+                        <Label text="Check the latest events" styleClass="card-meta"/>
+                    </VBox>
+                    <VBox onMouseClicked="#showMatches" styleClass="data-card" prefWidth="250" prefHeight="150" alignment="CENTER" spacing="10">
+                        <Label text="🔥" style="-fx-font-size:40px;"/>
+                        <Label text="Live Matches" styleClass="card-name"/>
+                        <Label text="Watch ongoing battles" styleClass="card-meta"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Explorer View (Hidden by default) -->
+            <VBox fx:id="explorerView" visible="false">
+                <HBox styleClass="content-header" alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="3">
+                        <Label fx:id="viewTitle" text="Explore" styleClass="page-title"/>
+                        <Label fx:id="viewSubtitle" text="Browse available items" styleClass="page-subtitle"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="statsLabel" style="-fx-text-fill:#444455;-fx-font-size:12px;"/>
+                </HBox>
+                <ScrollPane VBox.vgrow="ALWAYS" styleClass="card-grid-scroll" fitToWidth="true">
+                    <FlowPane fx:id="clientGrid" styleClass="card-flow"/>
+                </ScrollPane>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

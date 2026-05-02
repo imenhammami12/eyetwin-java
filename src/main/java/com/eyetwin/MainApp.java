@@ -38,5 +38,40 @@ public class MainApp extends Application {
 
     public static Stage getPrimaryStage() { return primaryStage; }
 
-    public static void main(String[] args) { launch(args); }
-}
+    public static void main(String[] args) {
+        try {
+            // J'ai commenté ces lignes pour empêcher les tests CRUD console 
+            // de s'exécuter à chaque démarrage, permettant ainsi à l'interface GUI de se lancer.
+            /*
+            System.out.println("====== TEST CRUD TOURNOI & MATCHES (Console) ======");
+            com.eyetwin.interfaces.ITournoiService tournoiService = new com.eyetwin.services.TournoiServiceImpl();
+            com.eyetwin.interfaces.IMatchService matchService = new com.eyetwin.services.MatchServiceImpl();
+
+            // 1. Ajouter un Tournoi
+            com.eyetwin.entities.Tournoi tournoi = new com.eyetwin.entities.Tournoi(
+                    0, "Tournoi Test Console", new java.sql.Date(System.currentTimeMillis()), 
+                    new java.sql.Date(System.currentTimeMillis() + 86400000L), "Test depuis MainApp", 
+                    "test.img", "SOLO", 150.0
+            );
+            tournoiService.add(tournoi);
+            
+            // 2. Récupérer et Afficher les Tournois
+            java.util.List<com.eyetwin.entities.Tournoi> tournois = tournoiService.getAll();
+            System.out.println("Tournois en base :");
+            for (com.eyetwin.entities.Tournoi t : tournois) {
+                System.out.println(" - " + t);
+            }
+
+            // ... (suite des tests)
+            */
+
+            System.out.println("🚀 Lancement de l'application EyeTwin...");
+            launch(args); 
+            
+        } catch (Exception e) {
+            System.err.println("❌ Erreur fatale lors du démarrage : " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+}
