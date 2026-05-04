@@ -42,17 +42,16 @@ public class LoginController {
     private boolean    captchaPassed = false;
     private boolean    captchaReady  = false;
     private JavaBridge javaBridge    = null;
+
     // ─────────────────────────────────────────────
     @FXML
     public void initialize() {
-        // 1. Charger l'email sauvegardé au démarrage
         String savedEmail = RememberMeService.load();
         if (savedEmail != null) {
             emailField.setText(savedEmail);
             if (rememberMeCheckBox != null) rememberMeCheckBox.setSelected(true);
         }
 
-        // 2. Attacher le listener APRÈS l'initialisation de la checkbox
         if (rememberMeCheckBox != null) {
             rememberMeCheckBox.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
                 if (wasSelected && !isNowSelected) {
@@ -144,7 +143,7 @@ public class LoginController {
     }
 
     // ─────────────────────────────────────────────
-    //  LOGIN — avec 2FA + Trusted Device
+    //  LOGIN
     // ─────────────────────────────────────────────
     @FXML
     public void handleLogin() {
@@ -155,7 +154,6 @@ public class LoginController {
         System.out.println("handleLogin() — captchaPassed=" + captchaPassed
                 + " | token=" + captchaToken);
 
-        // 1. Vérifier le captcha
         if (!captchaPassed || captchaToken == null) {
             errorLabel.setText("Please complete the gaming verification.");
             return;
@@ -172,35 +170,34 @@ public class LoginController {
         boolean remember = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
 
         try {
-            // 2. Vérifier email + password
             User user = authService.login(email, password);
             if (user == null) {
                 errorLabel.setText("Invalid email or password.");
                 return;
             }
 
-            // 3. Sauvegarder Remember Me
             RememberMeService.save(email, remember);
 
-            // 4. ✅ Vérifier 2FA
+            // ✅ Toujours set le currentUser AVANT de naviguer
+            SessionManager.setCurrentUser(user);
+
+            System.out.println("[Login] Rôles : " + user.getRolesJson());
+            System.out.println("[Login] isAdmin (SessionManager) : " + SessionManager.isAdmin());
+
             if (twoFactorService.isTwoFactorEnabled(user)) {
 
-                // ✅ Vérifier si l'appareil est de confiance → skip 2FA
                 if (SessionManager.isTrustedDevice(user.getId())) {
-                    System.out.println("[Login] Appareil de confiance détecté → login direct");
+                    System.out.println("[Login] Appareil de confiance → login direct");
                     SessionManager.completeTwoFactorLogin(user, false);
-                    navigateAfterLogin(user);
+                    navigateAfterLogin();
                     return;
                 }
 
-                // Appareil non trusted → afficher la page 2FA
                 System.out.println("[Login] 2FA activé → TwoFactorVerify");
                 navigateTo2FA(user);
 
             } else {
-                // Pas de 2FA → login direct
-                SessionManager.setCurrentUser(user);
-                navigateAfterLogin(user);
+                navigateAfterLogin();
             }
 
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -209,12 +206,17 @@ public class LoginController {
     }
 
     // ─────────────────────────────────────────────
-    //  Navigation après login réussi
+    //  Navigation après login — utilise SessionManager
     // ─────────────────────────────────────────────
-    private void navigateAfterLogin(User user) {
-        if (user.isAdmin()) {
-            MainApp.navigateTo("/com/eyetwin/views/Admin.fxml", "Admin");
+    private void navigateAfterLogin() {
+        System.out.println("[Login] navigateAfterLogin — isAdmin=" + SessionManager.isAdmin()
+                + " | roles=" + SessionManager.getCurrentUser().getRolesJson());
+
+        if (SessionManager.isAdmin()) {
+            System.out.println("[Login] → home.fxml");
+            MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
         } else {
+            System.out.println("[Login] → home.fxml");
             MainApp.navigateTo("/com/eyetwin/views/home.fxml", "Home");
         }
     }
