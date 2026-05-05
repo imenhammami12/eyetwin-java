@@ -1,11 +1,20 @@
 package com.eyetwin.controller;
 
+import com.eyetwin.config.AISummaryConfig;
 import com.eyetwin.entities.Community.Channel;
+import com.eyetwin.entities.Community.ChatSummaryResult;
+import com.eyetwin.entities.Community.GiphyGif;
 import com.eyetwin.entities.Community.Message;
 import com.eyetwin.entities.Community.MessageAttachment;
+import com.eyetwin.entities.Community.MessageModerationResult;
 import com.eyetwin.entities.User;
+import com.eyetwin.services.Community.AudioRecorderService;
+import com.eyetwin.services.Community.ChatSummaryService;
 import com.eyetwin.services.Community.CloudinaryUploadService;
+import com.eyetwin.services.Community.HuggingFaceSpeechToTextService;
+import com.eyetwin.services.Community.MessageModerationService;
 import com.eyetwin.services.Community.MessageServiceImpl;
+import com.eyetwin.services.Community.PiperTextToSpeechService;
 import com.eyetwin.tools.CommunityFileValidator;
 import com.eyetwin.tools.CommunityValidator;
 import com.eyetwin.tools.SessionManager;
@@ -13,6 +22,7 @@ import com.eyetwin.websocket.ChatWebSocketConfig;
 import com.eyetwin.websocket.client.ChatSocketListener;
 import com.eyetwin.websocket.client.CommunityWebSocketClient;
 import com.eyetwin.websocket.model.SocketEnvelope;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -36,8 +46,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -48,19 +61,6 @@ import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.eyetwin.config.AISummaryConfig;
-import com.eyetwin.entities.Community.ChatSummaryResult;
-import com.eyetwin.services.Community.ChatSummaryService;
-import com.eyetwin.entities.Community.MessageModerationResult;
-import com.eyetwin.services.Community.MessageModerationService;
-import javafx.animation.PauseTransition;
-import javafx.util.Duration;
-import com.eyetwin.services.Community.AudioRecorderService;
-import com.eyetwin.services.Community.HuggingFaceSpeechToTextService;
-import com.eyetwin.services.Community.PiperTextToSpeechService;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 
 public class CommunityChatController {
 
@@ -83,28 +83,6 @@ public class CommunityChatController {
     @FXML private Button btnStopVoice;
     @FXML private Label lblSpeechInfo;
 
-    private final AudioRecorderService audioRecorderService = new AudioRecorderService();
-    private final HuggingFaceSpeechToTextService speechToTextService = new HuggingFaceSpeechToTextService();
-    private final PiperTextToSpeechService textToSpeechService = new PiperTextToSpeechService();
-    private MediaPlayer ttsPlayer;
-
-    private final List<File> selectedAttachments = new ArrayList<>();
-    private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
-    private final MessageServiceImpl messageService = new MessageServiceImpl();
-    private final MessageModerationService moderationService = new MessageModerationService();
-
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-    private Channel channel;
-    private Integer editingMessageId = null;
-    private Integer actionMenuMessageId = null;
-    private Integer deleteConfirmMessageId = null;
-
-    private CommunityWebSocketClient socketClient;
-    private boolean realtimeReady = false;
-
-
-    /// SUMMARY
     @FXML private VBox summaryBannerBox;
     @FXML private Label lblMissedMessages;
     @FXML private Button btnSummarizeMissed;
@@ -117,7 +95,30 @@ public class CommunityChatController {
     @FXML private VBox summaryActionItemsBox;
     @FXML private VBox summaryOpenQuestionsBox;
 
+    @FXML private Button btnGif;
+
+    private final AudioRecorderService audioRecorderService = new AudioRecorderService();
+    private final HuggingFaceSpeechToTextService speechToTextService = new HuggingFaceSpeechToTextService();
+    private final PiperTextToSpeechService textToSpeechService = new PiperTextToSpeechService();
+    private final CloudinaryUploadService cloudinaryUploadService = new CloudinaryUploadService();
+    private final MessageServiceImpl messageService = new MessageServiceImpl();
+    private final MessageModerationService moderationService = new MessageModerationService();
     private final ChatSummaryService chatSummaryService = new ChatSummaryService();
+
+    private MediaPlayer ttsPlayer;
+
+    private final List<File> selectedAttachments = new ArrayList<>();
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private Channel channel;
+    private Integer editingMessageId = null;
+    private Integer actionMenuMessageId = null;
+    private Integer deleteConfirmMessageId = null;
+    private Integer reactionPickerMessageId = null;
+
+    private CommunityWebSocketClient socketClient;
+    private boolean realtimeReady = false;
 
     public void setChannel(Channel channel) {
         stopRealtimeChat();
@@ -223,7 +224,8 @@ public class CommunityChatController {
 
                             if (!SocketEnvelope.TYPE_NEW_MESSAGE.equals(envelope.getType())
                                     && !SocketEnvelope.TYPE_EDIT_MESSAGE.equals(envelope.getType())
-                                    && !SocketEnvelope.TYPE_DELETE_MESSAGE.equals(envelope.getType())) {
+                                    && !SocketEnvelope.TYPE_DELETE_MESSAGE.equals(envelope.getType())
+                                    && !SocketEnvelope.TYPE_REACTION_CHANGED.equals(envelope.getType())) {
                                 return;
                             }
 
@@ -237,6 +239,8 @@ public class CommunityChatController {
                                     loadMessagesToBottom();
                                     markCurrentChannelAsReadSilently();
                                     hideSummaryBanner();
+                                } else if (SocketEnvelope.TYPE_REACTION_CHANGED.equals(envelope.getType())) {
+                                    loadMessagesPreservingViewport();
                                 } else {
                                     loadMessagesPreservingViewport();
                                 }
@@ -394,7 +398,7 @@ public class CommunityChatController {
         messagesContainer.getChildren().clear();
 
         try {
-            List<Message> messages = messageService.findByChannel(channel.getId());
+            List<Message> messages = messageService.findByChannelForUser(channel.getId(), SessionManager.getCurrentUser());
 
             if (messages.isEmpty()) {
                 VBox emptyBox = new VBox(8);
@@ -557,7 +561,6 @@ public class CommunityChatController {
         Label date = new Label(formatTimestamp(message.getSentAt()));
         date.setStyle("-fx-text-fill: rgba(255,255,255,0.38); -fx-font-size: 10px;");
 
-
         String speakableText = message.getContent() == null ? "" : message.getContent().trim();
         if (!message.isIs_deleted() && !speakableText.isBlank()) {
             Button btnSpeak = new Button("🔊");
@@ -622,6 +625,10 @@ public class CommunityChatController {
                     bubble.getChildren().add(buildAttachmentNode(attachment));
                 }
             }
+
+            if (!message.isIs_deleted()) {
+                bubble.getChildren().add(buildReactionUi(message));
+            }
         }
 
         wrapper.getChildren().add(bubble);
@@ -636,6 +643,220 @@ public class CommunityChatController {
 
         row.getChildren().add(wrapper);
         return row;
+    }
+
+    private VBox buildReactionUi(Message message) {
+        VBox box = new VBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setPadding(new Insets(4, 0, 0, 0));
+
+        HBox summary = buildReactionSummary(message);
+        if (!summary.getChildren().isEmpty()) {
+            box.getChildren().add(summary);
+        }
+
+        if (reactionPickerMessageId != null && reactionPickerMessageId.equals(message.getId())) {
+            box.getChildren().add(buildReactionPicker(message));
+        } else {
+            box.getChildren().add(buildReactionLauncher(message));
+        }
+
+        return box;
+    }
+
+    private HBox buildReactionSummary(Message message) {
+        HBox row = new HBox(6);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        addReactionChip(row, message, Message.REACTION_LIKE);
+        addReactionChip(row, message, Message.REACTION_LOVE);
+        addReactionChip(row, message, Message.REACTION_HAHA);
+        addReactionChip(row, message, Message.REACTION_ANGRY);
+
+        return row;
+    }
+
+    private void addReactionChip(HBox row, Message message, String reactionType) {
+        int count = message.getReactionCount(reactionType);
+        if (count <= 0) {
+            return;
+        }
+
+        boolean selected = message.isUserReaction(reactionType);
+
+        HBox chip = new HBox(5);
+        chip.setAlignment(Pos.CENTER_LEFT);
+        chip.setPadding(new Insets(4, 8, 4, 6));
+        chip.setStyle(
+                selected
+                        ? "-fx-background-color: rgba(232,55,42,0.16);" +
+                        "-fx-border-color: rgba(232,55,42,0.32);" +
+                        "-fx-border-radius: 18;" +
+                        "-fx-background-radius: 18;"
+                        : "-fx-background-color: rgba(255,255,255,0.05);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-border-radius: 18;" +
+                        "-fx-background-radius: 18;"
+        );
+
+        Label countLabel = new Label(String.valueOf(count));
+        countLabel.setStyle("-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold;");
+
+        chip.getChildren().addAll(buildReactionIconView(reactionType, 16), countLabel);
+        row.getChildren().add(chip);
+    }
+
+    private HBox buildReactionPicker(Message message) {
+        HBox picker = new HBox(8);
+        picker.setAlignment(Pos.CENTER_LEFT);
+        picker.setPadding(new Insets(6, 8, 6, 8));
+        picker.setStyle(
+                "-fx-background-color: rgba(20,24,33,0.96);" +
+                        "-fx-border-color: rgba(255,255,255,0.10);" +
+                        "-fx-border-radius: 24;" +
+                        "-fx-background-radius: 24;"
+        );
+
+        picker.getChildren().add(buildReactionIconButton(message, Message.REACTION_LOVE));
+        picker.getChildren().add(buildReactionIconButton(message, Message.REACTION_HAHA));
+        picker.getChildren().add(buildReactionIconButton(message, Message.REACTION_ANGRY));
+        picker.getChildren().add(buildReactionIconButton(message, Message.REACTION_LIKE));
+
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: rgba(255,255,255,0.70);" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+        closeBtn.setOnAction(e -> {
+            reactionPickerMessageId = null;
+            loadMessagesKeepingMessage(message.getId());
+        });
+
+        picker.getChildren().add(closeBtn);
+        return picker;
+    }
+
+    private Button buildReactionIconButton(Message message, String reactionType) {
+        Button button = new Button();
+        button.setGraphic(buildReactionIconView(reactionType, 24));
+        button.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-padding: 2;" +
+                        "-fx-cursor: hand;"
+        );
+
+        button.setOnMouseEntered(e -> {
+            button.setScaleX(1.15);
+            button.setScaleY(1.15);
+        });
+
+        button.setOnMouseExited(e -> {
+            button.setScaleX(1.0);
+            button.setScaleY(1.0);
+        });
+
+        button.setOnAction(e -> handleToggleReaction(message, reactionType));
+        return button;
+    }
+
+    private Button buildReactionLauncher(Message message) {
+        String iconType = message.getUserReaction() != null ? message.getUserReaction() : Message.REACTION_LIKE;
+
+        Button button = new Button(message.getUserReaction() != null ? "Reacted" : "React");
+        button.setGraphic(buildReactionIconView(iconType, 16));
+        button.setStyle(
+                message.getUserReaction() != null
+                        ? "-fx-background-color: rgba(232,55,42,0.16);" +
+                        "-fx-border-color: rgba(232,55,42,0.28);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-border-radius: 18;" +
+                        "-fx-background-radius: 18;" +
+                        "-fx-padding: 5 10 5 10;" +
+                        "-fx-cursor: hand;"
+                        : "-fx-background-color: rgba(255,255,255,0.04);" +
+                        "-fx-border-color: rgba(255,255,255,0.08);" +
+                        "-fx-text-fill: rgba(255,255,255,0.88);" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-border-radius: 18;" +
+                        "-fx-background-radius: 18;" +
+                        "-fx-padding: 5 10 5 10;" +
+                        "-fx-cursor: hand;"
+        );
+
+        button.setOnAction(e -> {
+            reactionPickerMessageId = message.getId();
+            loadMessagesKeepingMessage(message.getId());
+        });
+
+        return button;
+    }
+
+    private ImageView buildReactionIconView(String reactionType, double size) {
+        String path = switch (reactionType.toUpperCase()) {
+            case "LOVE" -> "/com/eyetwin/assets/reactions/love.png";
+            case "HAHA" -> "/com/eyetwin/assets/reactions/haha.png";
+            case "ANGRY" -> "/com/eyetwin/assets/reactions/angry.png";
+            default -> "/com/eyetwin/assets/reactions/like.png";
+        };
+
+        ImageView view = new ImageView(new Image(getClass().getResourceAsStream(path)));
+        view.setFitWidth(size);
+        view.setFitHeight(size);
+        view.setPreserveRatio(true);
+        view.setSmooth(true);
+        return view;
+    }
+
+    private void handleToggleReaction(Message message, String reactionType) {
+        try {
+            if (!SessionManager.canWriteCommunityMessages()) {
+                showError("Only a plain player can react to messages.");
+                return;
+            }
+
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    messageService.toggleReaction(message.getId(), reactionType, SessionManager.getCurrentUser());
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(event -> {
+                reactionPickerMessageId = null;
+
+                if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                    socketClient.publishReactionEvent(
+                            channel.getId(),
+                            getRealtimeUserId(),
+                            getRealtimeUserName(),
+                            getRealtimeUserEmail()
+                    );
+                }
+
+                refreshSingleMessageRow(message.getId());
+            });
+
+            task.setOnFailed(event -> {
+                reactionPickerMessageId = null;
+                Throwable ex = task.getException();
+                showError("Failed to update reaction: " + (ex != null ? ex.getMessage() : "Unknown error"));
+            });
+
+            Thread thread = new Thread(task, "community-message-reaction");
+            thread.setDaemon(true);
+            thread.start();
+
+        } catch (Exception e) {
+            reactionPickerMessageId = null;
+            showError("Failed to update reaction: " + e.getMessage());
+        }
     }
 
     private void handleSpeakMessage(Message message) {
@@ -739,6 +960,7 @@ public class CommunityChatController {
                 editingMessageId = null;
                 actionMenuMessageId = null;
                 deleteConfirmMessageId = null;
+                reactionPickerMessageId = null;
 
                 if (socketClient != null && socketClient.isOpen()) {
                     socketClient.publishEditEvent(
@@ -795,6 +1017,7 @@ public class CommunityChatController {
             editingMessageId = message.getId();
             actionMenuMessageId = null;
             deleteConfirmMessageId = null;
+            reactionPickerMessageId = null;
             loadMessagesKeepingMessage(message.getId());
         });
 
@@ -812,6 +1035,7 @@ public class CommunityChatController {
         deleteBtn.setOnAction(e -> {
             actionMenuMessageId = null;
             deleteConfirmMessageId = message.getId();
+            reactionPickerMessageId = null;
             loadMessagesKeepingMessage(message.getId());
         });
 
@@ -852,6 +1076,7 @@ public class CommunityChatController {
                 deleteConfirmMessageId = null;
                 actionMenuMessageId = null;
                 editingMessageId = null;
+                reactionPickerMessageId = null;
 
                 if (socketClient != null && socketClient.isOpen()) {
                     socketClient.publishDeleteEvent(
@@ -952,11 +1177,106 @@ public class CommunityChatController {
         if (taNewMessage != null) taNewMessage.setDisable(busy);
         if (btnSend != null) btnSend.setDisable(busy);
         if (btnAttach != null) btnAttach.setDisable(busy);
+        if (btnGif != null) btnGif.setDisable(busy);
         if (btnClearAttachments != null) btnClearAttachments.setDisable(busy);
         if (btnRecordVoice != null) btnRecordVoice.setDisable(busy || audioRecorderService.isRecording());
         if (btnStopVoice != null) btnStopVoice.setDisable(busy || !audioRecorderService.isRecording());
     }
 
+    @FXML
+    private void handleOpenGifPicker() {
+        try {
+            if (!SessionManager.canWriteCommunityMessages()) {
+                showError("Only a plain player can send messages.");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/GiphyPicker.fxml"));
+            Parent root = loader.load();
+
+            GiphyPickerController controller = loader.getController();
+            controller.setOnGifSelected(this::sendGifMessage);
+
+            Stage popup = new Stage();
+            popup.setTitle("Choose GIF");
+            popup.setScene(new Scene(root));
+            popup.setWidth(700);
+            popup.setHeight(620);
+            popup.setMinWidth(650);
+            popup.setMinHeight(560);
+            popup.initOwner((Stage) lblChannelName.getScene().getWindow());
+            popup.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to open GIF picker: " + e);
+        }
+    }
+
+    private void sendGifMessage(GiphyGif gif) {
+        if (gif == null || channel == null) {
+            return;
+        }
+
+        setComposerBusy(true);
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                MessageAttachment gifAttachment = new MessageAttachment();
+                gifAttachment.setOriginalName(
+                        (gif.getTitle() == null || gif.getTitle().isBlank() ? "giphy" : gif.getTitle()) + ".gif"
+                );
+                gifAttachment.setStoredName("giphy-" + gif.getId() + ".gif");
+                gifAttachment.setMimeType("image/gif");
+                gifAttachment.setSize(0);
+                gifAttachment.setUrl(gif.getSendUrl());
+                gifAttachment.setPublicId("giphy:" + gif.getId());
+                gifAttachment.setCloudResourceType("image");
+
+                List<MessageAttachment> attachments = new ArrayList<>();
+                attachments.add(gifAttachment);
+
+                messageService.sendMessage(
+                        channel.getId(),
+                        "",
+                        SessionManager.getCurrentUser(),
+                        attachments
+                );
+
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            setComposerBusy(false);
+            reactionPickerMessageId = null;
+
+            if (socketClient != null && socketClient.isOpen() && realtimeReady) {
+                socketClient.publishMessage(
+                        channel.getId(),
+                        getRealtimeUserId(),
+                        getRealtimeUserName(),
+                        getRealtimeUserEmail(),
+                        "[GIF]"
+                );
+            }
+
+            loadMessagesToBottom();
+            markCurrentChannelAsReadSilently();
+            hideSummaryBanner();
+        });
+
+        task.setOnFailed(event -> {
+            setComposerBusy(false);
+            Throwable ex = task.getException();
+            showError("Failed to send GIF: " + (ex != null ? ex.getMessage() : "Unknown error"));
+        });
+
+        Thread thread = new Thread(task, "community-send-gif");
+        thread.setDaemon(true);
+        thread.start();
+    }
 
     @FXML
     private void handleStartVoiceRecording() {
@@ -1155,6 +1475,7 @@ public class CommunityChatController {
                 editingMessageId = null;
                 actionMenuMessageId = null;
                 deleteConfirmMessageId = null;
+                reactionPickerMessageId = null;
 
                 refreshAttachmentSelectionUi();
                 setComposerBusy(false);
@@ -1424,6 +1745,29 @@ public class CommunityChatController {
             if (currentUser == null || channel == null) return;
             chatSummaryService.markSeenUpToLatest(currentUser.getId(), channel.getId());
         } catch (Exception ignored) {
+        }
+    }
+
+    private void refreshSingleMessageRow(int messageId) {
+        try {
+            Message freshMessage = messageService.findByIdForUser(messageId, SessionManager.getCurrentUser());
+            if (freshMessage == null) {
+                loadMessagesPreservingViewport();
+                return;
+            }
+
+            for (int i = 0; i < messagesContainer.getChildren().size(); i++) {
+                Node node = messagesContainer.getChildren().get(i);
+                if (node.getUserData() instanceof Integer id && id == messageId) {
+                    messagesContainer.getChildren().set(i, buildMessageRow(freshMessage));
+                    return;
+                }
+            }
+
+            loadMessagesPreservingViewport();
+
+        } catch (Exception e) {
+            showError("Failed to refresh reaction: " + e.getMessage());
         }
     }
 }

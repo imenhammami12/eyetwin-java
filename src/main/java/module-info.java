@@ -27,10 +27,19 @@ module org.example.eyetwinjava {
     requires com.google.gson;
     requires org.java_websocket;
 
+    requires com.google.gson;
+    requires org.java_websocket;
+
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
+    requires javafx.swing;
+
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
     opens com.eyetwin.controller.admin to javafx.fxml;
     opens com.eyetwin.entities to com.google.gson, javafx.base, javafx.fxml;
+    opens com.eyetwin.websocket.model to com.google.gson;
+
     opens com.eyetwin.websocket.model to com.google.gson;
 
     exports com.eyetwin;

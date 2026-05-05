@@ -33,15 +33,60 @@ public class MessageServiceImpl implements IMessageService {
         return c;
     }
 
+//    @Override
+//    public List<Message> findByChannel(int channelId) throws SQLException {
+//        List<Message> messages = new ArrayList<>();
+//
+//        String sql = """
+//            SELECT * FROM message
+//            WHERE channel_id = ?
+//            ORDER BY sent_at ASC, id ASC
+//            """;
+//
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setInt(1, channelId);
+//
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            Message message = mapMessage(rs);
+//            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+//            messages.add(message);
+//        }
+//        return messages;
+//    }
+
+    @Override
+    public Message findByIdForUser(int id, User viewer) throws SQLException {
+        String sql = "SELECT * FROM message WHERE id = ?";
+        Connection c = getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Message message = mapMessage(rs);
+            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            loadReactionState(message, viewer, c);
+            return message;
+        }
+        return null;
+    }
+
     @Override
     public List<Message> findByChannel(int channelId) throws SQLException {
+        return findByChannelForUser(channelId, null);
+    }
+
+    @Override
+    public List<Message> findByChannelForUser(int channelId, User viewer) throws SQLException {
         List<Message> messages = new ArrayList<>();
 
         String sql = """
-            SELECT * FROM message
-            WHERE channel_id = ?
-            ORDER BY sent_at ASC, id ASC
-            """;
+        SELECT * FROM message
+        WHERE channel_id = ?
+        ORDER BY sent_at ASC, id ASC
+        """;
 
         Connection c = getConnection();
         PreparedStatement ps = c.prepareStatement(sql);
@@ -51,6 +96,7 @@ public class MessageServiceImpl implements IMessageService {
         while (rs.next()) {
             Message message = mapMessage(rs);
             message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            loadReactionState(message, viewer, c);
             messages.add(message);
         }
         return messages;
@@ -211,6 +257,22 @@ public class MessageServiceImpl implements IMessageService {
         return messages;
     }
 
+//    @Override
+//    public Message findById(int id) throws SQLException {
+//        String sql = "SELECT * FROM message WHERE id = ?";
+//        Connection c = getConnection();
+//        PreparedStatement ps = c.prepareStatement(sql);
+//        ps.setInt(1, id);
+//
+//        ResultSet rs = ps.executeQuery();
+//        if (rs.next()) {
+//            Message message = mapMessage(rs);
+//            message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+//            return message;
+//        }
+//        return null;
+//    }
+
     @Override
     public Message findById(int id) throws SQLException {
         String sql = "SELECT * FROM message WHERE id = ?";
@@ -222,9 +284,137 @@ public class MessageServiceImpl implements IMessageService {
         if (rs.next()) {
             Message message = mapMessage(rs);
             message.setAttachments(loadAttachmentsForMessage(message.getId(), c));
+            loadReactionState(message, null, c);
             return message;
         }
         return null;
+    }
+
+    @Override
+    public void toggleReaction(int messageId, String reactionType, User user) throws SQLException {
+        if (user == null) {
+            throw new SecurityException("You must be connected to react.");
+        }
+
+        assertReactionType(reactionType);
+
+        Message existing = findById(messageId);
+        if (existing == null) {
+            throw new IllegalArgumentException("Message not found.");
+        }
+
+        if (existing.isIs_deleted()) {
+            throw new IllegalStateException("You cannot react to a deleted message.");
+        }
+
+        Connection c = getConnection();
+        boolean oldAutoCommit = c.getAutoCommit();
+        c.setAutoCommit(false);
+
+        try {
+            PreparedStatement checkPs = c.prepareStatement("""
+            SELECT id, reaction_type
+            FROM message_reaction
+            WHERE message_id = ? AND user_id = ?
+        """);
+            checkPs.setInt(1, messageId);
+            checkPs.setInt(2, user.getId());
+
+            ResultSet rs = checkPs.executeQuery();
+
+            if (rs.next()) {
+                int reactionId = rs.getInt("id");
+                String currentReaction = rs.getString("reaction_type");
+
+                if (currentReaction != null && currentReaction.equalsIgnoreCase(reactionType)) {
+                    PreparedStatement deletePs = c.prepareStatement("""
+                    DELETE FROM message_reaction
+                    WHERE id = ?
+                """);
+                    deletePs.setInt(1, reactionId);
+                    deletePs.executeUpdate();
+                } else {
+                    PreparedStatement updatePs = c.prepareStatement("""
+                    UPDATE message_reaction
+                    SET reaction_type = ?, created_at = ?
+                    WHERE id = ?
+                """);
+                    updatePs.setString(1, reactionType);
+                    updatePs.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+                    updatePs.setInt(3, reactionId);
+                    updatePs.executeUpdate();
+                }
+            } else {
+                PreparedStatement insertPs = c.prepareStatement("""
+                INSERT INTO message_reaction (message_id, user_id, reaction_type, created_at)
+                VALUES (?, ?, ?, ?)
+            """);
+                insertPs.setInt(1, messageId);
+                insertPs.setInt(2, user.getId());
+                insertPs.setString(3, reactionType);
+                insertPs.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                insertPs.executeUpdate();
+            }
+
+            c.commit();
+
+        } catch (Exception e) {
+            c.rollback();
+            throw new SQLException("Failed to toggle reaction: " + e.getMessage(), e);
+        } finally {
+            c.setAutoCommit(oldAutoCommit);
+        }
+    }
+
+    private void assertReactionType(String reactionType) {
+        if (reactionType == null) {
+            throw new IllegalArgumentException("Reaction type is required.");
+        }
+
+        String clean = reactionType.trim().toUpperCase();
+
+        if (!Message.REACTION_LIKE.equals(clean)
+                && !Message.REACTION_HAHA.equals(clean)
+                && !Message.REACTION_LOVE.equals(clean)
+                && !Message.REACTION_ANGRY.equals(clean)) {
+            throw new IllegalArgumentException("Unsupported reaction type.");
+        }
+    }
+
+    private void loadReactionState(Message message, User viewer, Connection c) throws SQLException {
+        PreparedStatement summaryPs = c.prepareStatement("""
+        SELECT
+            SUM(CASE WHEN reaction_type = 'LIKE' THEN 1 ELSE 0 END) AS like_count,
+            SUM(CASE WHEN reaction_type = 'HAHA' THEN 1 ELSE 0 END) AS haha_count,
+            SUM(CASE WHEN reaction_type = 'LOVE' THEN 1 ELSE 0 END) AS love_count,
+            SUM(CASE WHEN reaction_type = 'ANGRY' THEN 1 ELSE 0 END) AS angry_count
+        FROM message_reaction
+        WHERE message_id = ?
+    """);
+        summaryPs.setInt(1, message.getId());
+
+        ResultSet summaryRs = summaryPs.executeQuery();
+        if (summaryRs.next()) {
+            message.setLikeCount(summaryRs.getInt("like_count"));
+            message.setHahaCount(summaryRs.getInt("haha_count"));
+            message.setLoveCount(summaryRs.getInt("love_count"));
+            message.setAngryCount(summaryRs.getInt("angry_count"));
+        }
+
+        if (viewer != null) {
+            PreparedStatement userPs = c.prepareStatement("""
+            SELECT reaction_type
+            FROM message_reaction
+            WHERE message_id = ? AND user_id = ?
+        """);
+            userPs.setInt(1, message.getId());
+            userPs.setInt(2, viewer.getId());
+
+            ResultSet userRs = userPs.executeQuery();
+            if (userRs.next()) {
+                message.setUserReaction(userRs.getString("reaction_type"));
+            }
+        }
     }
 
     @Override

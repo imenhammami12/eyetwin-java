@@ -154,7 +154,7 @@ public class HomeController {
     //  HELPERS
     // ════════════════════════════════════════════
     private static final String RED_BTN =
-            "-fx-background-color: linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);" +
+            "-fx-background-color: linear-gradient(to bottom right,#b02b20,#e8372a,#ff4d3d);" +
                     "-fx-text-fill: white;" +
                     "-fx-font-weight: bold;" +
                     "-fx-font-size: 13px;" +

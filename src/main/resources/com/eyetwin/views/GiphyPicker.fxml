@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.GiphyPickerController"
+            style="-fx-background-color: linear-gradient(to bottom, #0d0618, #120820);">
+
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <children>
+                        <Label text="Search GIFs"
+                               style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Button text="Close"
+                                onAction="#handleClose"
+                                style="-fx-background-color: rgba(255,255,255,0.08);
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 8;" />
+                    </children>
+                </HBox>
+
+                <HBox spacing="8">
+                    <children>
+                        <TextField fx:id="tfSearch"
+                                   promptText="Search a GIF..."
+                                   HBox.hgrow="ALWAYS"
+                                   onAction="#handleSearch"
+                                   style="-fx-background-color: #14192b;
+                                          -fx-text-fill: white;
+                                          -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                          -fx-background-radius: 8;
+                                          -fx-border-radius: 8;
+                                          -fx-border-color: rgba(255,255,255,0.08);" />
+
+                        <Button fx:id="btnSearch"
+                                text="Search"
+                                onAction="#handleSearch"
+                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff5a36);
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 8;" />
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblStatus"
+                       text="Searching..."
+                       style="-fx-text-fill: rgba(255,255,255,0.60); -fx-font-size: 12px;" />
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background: transparent; -fx-background-color: transparent;">
+            <content>
+                <TilePane fx:id="tileResults"
+                          hgap="12"
+                          vgap="12"
+                          prefColumns="3">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16" />
+                    </padding>
+                </TilePane>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+            <children>
+                <Label text="Powered by GIPHY"
+                       style="-fx-text-fill: rgba(255,255,255,0.60); -fx-font-size: 11px;" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

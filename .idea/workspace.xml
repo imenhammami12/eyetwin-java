@@ -90,6 +90,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.CommunityWebSocketServerLauncher" />
+      <item itemvalue="Application.MainApp" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.MainApp" />
