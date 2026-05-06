@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.MyGuidesController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #0a0e27;"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color:#0a0e27; -fx-background:#0a0e27; -fx-border-color:transparent;">
+            <VBox spacing="0" style="-fx-background-color:#0a0e27; -fx-padding:30 30 60 30;">
+
+                <!-- HEADER -->
+                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding:0 0 28 0;">
+                    <Label text="My Guides"
+                           style="-fx-font-family:'Arial Black'; -fx-font-size:34; -fx-font-weight:bold; -fx-text-fill:white;"
+                           HBox.hgrow="ALWAYS"/>
+                    <Button text="+ Upload New Guide" onAction="#goToUpload"
+                            style="-fx-background-color:linear-gradient(135deg,#b02b20,#e8372a,#ff4d3d);
+                                   -fx-border-color:transparent; -fx-border-radius:8; -fx-background-radius:8;
+                                   -fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:13;
+                                   -fx-padding:12 22 12 22; -fx-cursor:hand;
+                                   -fx-effect:dropshadow(gaussian,rgba(232,55,42,0.35),16,0,0,4);"/>
+                </HBox>
+
+                <!-- EMPTY STATE -->
+                <VBox fx:id="emptyState" alignment="CENTER" spacing="16"
+                      style="-fx-padding:80 0 80 0;" visible="false" managed="false">
+                    <Label text="🎬" style="-fx-font-size:60; -fx-text-fill:rgba(76,211,227,0.3);"/>
+                    <Label text="No guides yet" style="-fx-text-fill:white; -fx-font-size:22; -fx-font-weight:bold;"/>
+                    <Label text="Start sharing your gaming knowledge with the community!"
+                           style="-fx-text-fill:#aeb8c9; -fx-font-size:14;"/>
+                </VBox>
+
+                <!-- STATS + GRID SECTION -->
+                <VBox fx:id="statsAndGridSection" spacing="0">
+                    <!-- Stats -->
+                    <HBox spacing="16" style="-fx-padding:0 0 16 0;">
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.2);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:18;">
+                            <Label text="Total" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:11;"/>
+                            <Label fx:id="totalLabel" text="0" style="-fx-text-fill:#4cd3e3; -fx-font-size:26; -fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.2);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:18;">
+                            <Label text="Visible" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:11;"/>
+                            <Label fx:id="visibleLabel" text="0" style="-fx-text-fill:#4cd3e3; -fx-font-size:26; -fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.2);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:18;">
+                            <Label text="Approved" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:11;"/>
+                            <Label fx:id="approvedLabel" text="0" style="-fx-text-fill:#4cd3e3; -fx-font-size:26; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Toolbar -->
+                    <HBox spacing="12" style="-fx-padding:0 0 6 0;">
+                        <TextField fx:id="searchField" promptText="Search by title, map..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color:rgba(255,255,255,0.03);
+                                          -fx-border-color:rgba(76,211,227,0.2); -fx-border-width:1;
+                                          -fx-border-radius:10; -fx-background-radius:10;
+                                          -fx-padding:12 16 12 16; -fx-text-fill:white; -fx-font-size:13;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                        <ComboBox fx:id="statusFilter"
+                                  style="-fx-background-color:rgba(26,31,46,0.9); -fx-border-color:rgba(76,211,227,0.2);
+                                         -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10;
+                                         -fx-text-fill:#4cd3e3; -fx-min-width:140;"/>
+                        <ComboBox fx:id="gameFilter"
+                                  style="-fx-background-color:rgba(26,31,46,0.9); -fx-border-color:rgba(76,211,227,0.2);
+                                         -fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10;
+                                         -fx-text-fill:#4cd3e3; -fx-min-width:140;"/>
+                    </HBox>
+                    <Label fx:id="resultsNote" text="0 guide(s)"
+                           style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:2 0 12 0;"/>
+
+                    <!-- Cards grid -->
+                    <FlowPane fx:id="guidesGrid" hgap="20" vgap="20"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

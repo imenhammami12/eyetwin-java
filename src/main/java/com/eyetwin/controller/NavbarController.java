@@ -1,5 +1,6 @@
 package com.eyetwin.controller;
 
+import com.eyetwin.entities.Game;
 import com.eyetwin.entities.User;
 import com.eyetwin.tools.SessionManager;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.lang.reflect.Method;
 
 import com.eyetwin.entities.Community.AppNotification;
 import com.eyetwin.services.Community.NotificationServiceImpl;
@@ -28,21 +30,13 @@ import javafx.scene.layout.Region;
 
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
-import java.net.URI;
 
-import com.eyetwin.websocket.ChatWebSocketConfig;
-import com.eyetwin.websocket.client.ChatSocketListener;
-import com.eyetwin.websocket.client.CommunityWebSocketClient;
-import com.eyetwin.websocket.model.SocketEnvelope;
 
 public class NavbarController {
     private final NotificationServiceImpl notificationService = new NotificationServiceImpl();
     private static final SimpleDateFormat NOTIF_DATE_FMT = new SimpleDateFormat("dd/MM HH:mm");
 
     private static final String NAVBAR_POPUP_CSS = "/com/eyetwin/assets/css/navbar-popups.css";
-
-    private CommunityWebSocketClient notifRealtimeClient;
-
     // ── Zones ──
     @FXML private HBox loggedInZone;
     @FXML private HBox guestZone;
@@ -76,23 +70,10 @@ public class NavbarController {
     @FXML private Label navTournois;
     @FXML private Label navTeams;
     @FXML private Label navCommunity;
-    @FXML private Label navLive;
 
     // ════════════════════════════════════════════
     //  INITIALIZE
     // ════════════════════════════════════════════
-//    @FXML
-//    public void initialize() {
-//        User user = SessionManager.getCurrentUser();
-//        if (user != null) setupLoggedIn(user);
-//        else              setupGuest();
-//
-//        Platform.runLater(() -> {
-//            attachNavbarCssToScene();
-//            styleStaticMenuItems();
-//        });
-//    }
-
     @FXML
     public void initialize() {
         User user = SessionManager.getCurrentUser();
@@ -103,16 +84,6 @@ public class NavbarController {
             attachNavbarCssToScene();
             styleStaticMenuItems();
         });
-
-        if (navNotifMenu != null) {
-            navNotifMenu.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (oldScene != null && newScene == null) {
-                    stopRealtimeNotifications();
-                } else if (newScene != null && SessionManager.getCurrentUser() != null) {
-                    Platform.runLater(() -> startRealtimeNotifications(SessionManager.getCurrentUser()));
-                }
-            });
-        }
     }
 
     // ════════════════════════════════════════════
@@ -150,7 +121,6 @@ public class NavbarController {
         loadNotifications(user);
         show(navUploaderMenu);
         show(navHighlights);
-        startRealtimeNotifications(user);
     }
 
     private void setupGuest() {
@@ -210,14 +180,15 @@ public class NavbarController {
     @FXML public void goHome()       { navigateTo("home.fxml"); }
     @FXML public void goToLogin()    { navigateTo("login.fxml"); }
     @FXML public void goToRegister() { navigateTo("register.fxml"); }
-    @FXML public void goToVideos()   { navigateTo("Videos.fxml"); }
-    @FXML public void goToClips()    { navigateTo("Clips.fxml"); }
-    @FXML public void goToGuides()   { navigateTo("Guides.fxml"); }
+    // Legacy menu targets (Videos/Clips/Guides) now point to the guides selection module.
+    @FXML public void goToVideos()   { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToClips()    { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToGuides()   { navigateTo("GamesSelection.fxml"); }
+    @FXML public void goToMyUploads() { navigateTo("MyUploads.fxml"); }
     @FXML public void goToPlanning() { navigateTo("Planning.fxml"); }
     @FXML public void goToTournois() { navigateTo("Tournois.fxml"); }
     @FXML public void goToProfile()  { navigateTo("UserProfile.fxml"); }
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
-    @FXML public void goToLive()     { navigateTo("Live.fxml"); }
     @FXML public void goToCoins()    { navigateTo("Coins.fxml"); }
     @FXML public void goToSupport()  { navigateTo("Support.fxml"); }
 
@@ -237,15 +208,8 @@ public class NavbarController {
         navigateTo("TwoFactor.fxml");
     }
 
-//    @FXML
-//    public void handleLogout() {
-//        SessionManager.logout();
-//        navigateTo("login.fxml");
-//    }
-
     @FXML
     public void handleLogout() {
-        stopRealtimeNotifications();
         SessionManager.logout();
         navigateTo("login.fxml");
     }
@@ -261,8 +225,6 @@ public class NavbarController {
     }
 
     public void navigateTo(String fxml) {
-        stopRealtimeNotifications();
-
         String[] paths = {
                 "/com/eyetwin/views/" + fxml,
                 "/com/eyetwin/view/"  + fxml,
@@ -314,7 +276,6 @@ public class NavbarController {
         if (navTournois  != null) navTournois.setStyle(inactive);
         if (navTeams     != null) navTeams.setStyle(inactive);
         if (navCommunity != null) navCommunity.setStyle(inactive);
-        if (navLive      != null) navLive.setStyle(inactive);
 
         switch (page) {
             case "home"      -> { if (navHome      != null) navHome.setStyle(active); }
@@ -322,14 +283,12 @@ public class NavbarController {
             case "tournois"  -> { if (navTournois  != null) navTournois.setStyle(active); }
             case "teams"     -> { if (navTeams     != null) navTeams.setStyle(active); }
             case "community" -> { if (navCommunity != null) navCommunity.setStyle(active); }
-            case "live"      -> { if (navLive      != null) navLive.setStyle(active); }
             case "support"   -> {}
         }
     }
 
     @FXML
     private void goToCommunity() {
-        stopRealtimeNotifications();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/eyetwin/views/Community.fxml"));
             Parent root = loader.load();
@@ -628,61 +587,77 @@ public class NavbarController {
         return clean.substring(0, max - 1) + "…";
     }
 
+    public void navigateToWithData(String fxml, String dataKey, Object payload) {
+        String[] paths = {
+                "/com/eyetwin/views/" + fxml,
+                "/com/eyetwin/view/"  + fxml,
+                "/com/eyetwin/"       + fxml
+        };
 
-    private void startRealtimeNotifications(User user) {
-        if (user == null) return;
-        if (notifRealtimeClient != null && notifRealtimeClient.isOpen()) return;
+        URL url = null;
+        for (String path : paths) {
+            url = getClass().getResource(path);
+            if (url != null) break;
+        }
 
-        String roomKey = "notif:" + user.getId();
+        if (url == null) {
+            System.err.println("[NavbarController] FXML not found: " + fxml);
+            return;
+        }
 
-        notifRealtimeClient = new CommunityWebSocketClient(
-                URI.create(ChatWebSocketConfig.SERVER_URL),
-                new ChatSocketListener() {
-                    @Override
-                    public void onConnected() {
-                    }
+        try {
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
 
-                    @Override
-                    public void onMessageReceived(SocketEnvelope envelope) {
-                        if (envelope == null || envelope.getType() == null) return;
+            Object controller = loader.getController();
+            if (controller != null && payload != null) {
+                injectData(controller, payload, dataKey);
+            }
 
-                        if (SocketEnvelope.TYPE_NOTIFICATION_CHANGED.equals(envelope.getType())
-                                && roomKey.equals(envelope.getRoomKey())) {
-                            Platform.runLater(() -> loadNotifications(user));
-                        }
-                    }
+            Stage stage = resolveStage();
+            if (stage == null) return;
 
-                    @Override
-                    public void onDisconnected(String reason) {
-                    }
+            Scene newScene = new Scene(root, stage.getWidth(), stage.getHeight());
+            Scene currentScene = stage.getScene();
+            if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+                newScene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
 
-                    @Override
-                    public void onError(Exception ex) {
-                    }
-                }
-        );
-
-        if (notifRealtimeClient.ensureConnected()) {
-            notifRealtimeClient.subscribeRoom(roomKey);
+            stage.setScene(newScene);
+        } catch (IOException e) {
+            System.err.println("[NavbarController] Error loading with data: " + fxml);
+            e.printStackTrace();
         }
     }
 
-    private void stopRealtimeNotifications() {
-        if (notifRealtimeClient == null) return;
+    private void injectData(Object controller, Object payload, String dataKey) {
+        Class<?> payloadClass = payload.getClass();
 
         try {
-            User user = SessionManager.getCurrentUser();
-            if (user != null) {
-                notifRealtimeClient.unsubscribeRoom("notif:" + user.getId());
+            Method exact = controller.getClass().getMethod("initData", payloadClass);
+            exact.invoke(controller, payload);
+            return;
+        } catch (Exception ignored) {
+            // Try compatible overloads below.
+        }
+
+        for (Method method : controller.getClass().getMethods()) {
+            if (!"initData".equals(method.getName()) || method.getParameterCount() != 1) {
+                continue;
             }
-        } catch (Exception ignored) {
+
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.isAssignableFrom(payloadClass)) {
+                try {
+                    method.invoke(controller, payload);
+                    return;
+                } catch (Exception ignored) {
+                    // Try next overload.
+                }
+            }
         }
 
-        try {
-            notifRealtimeClient.close();
-        } catch (Exception ignored) {
-        }
-
-        notifRealtimeClient = null;
+        System.err.println("[NavbarController] No compatible initData(...) for key '" + dataKey + "' and payload "
+                + payloadClass.getSimpleName());
     }
 }

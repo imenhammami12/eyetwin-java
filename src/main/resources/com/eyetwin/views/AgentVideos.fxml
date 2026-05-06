@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.eyetwin.controller.AgentVideosController"
+            stylesheets="@../styles/gaming.css"
+            style="-fx-background-color: #0a0e27;"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <fx:include source="navbar.fxml" fx:id="navbar"/>
+    </top>
+
+    <center>
+        <!-- MODAL OVERLAY (hidden by default, z-order on top) -->
+        <StackPane>
+
+            <!-- MAIN SCROLL -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color:#0a0e27; -fx-background:#0a0e27; -fx-border-color:transparent;">
+                <VBox spacing="0" style="-fx-background-color:#0a0e27;">
+
+                    <!-- AGENT HEADER BAR -->
+                    <HBox alignment="CENTER_LEFT" spacing="28" style="-fx-padding:30 30 0 30;">
+                        <HBox alignment="CENTER_LEFT" spacing="18" HBox.hgrow="ALWAYS">
+                            <!-- Agent avatar -->
+                            <StackPane prefWidth="85" prefHeight="85" minWidth="85" minHeight="85"
+                                       style="-fx-border-color:rgba(76,211,227,0.4); -fx-border-width:2;
+                                              -fx-border-radius:12; -fx-background-radius:12;
+                                              -fx-background-color:rgba(0,0,0,0.4);">
+                                <ImageView fx:id="agentHeaderImage" fitWidth="85" fitHeight="85"
+                                           preserveRatio="false" smooth="true"/>
+                            </StackPane>
+                            <VBox spacing="6">
+                                <Label fx:id="agentNameLabel" text="Agent"
+                                       style="-fx-font-family:'Arial Black'; -fx-font-size:40; -fx-font-weight:bold; -fx-text-fill:white;"/>
+                                <Label fx:id="gameNameLabel" text=""
+                                       style="-fx-text-fill:#4cd3e3; -fx-font-size:12; -fx-font-weight:bold;"/>
+                            </VBox>
+                        </HBox>
+                        <Button text="← Agents" onAction="#goBackToAgents"
+                                style="-fx-background-color:rgba(76,211,227,0.1); -fx-border-color:rgba(76,211,227,0.3);
+                                       -fx-border-width:2; -fx-border-radius:10; -fx-background-radius:10;
+                                       -fx-text-fill:#4cd3e3; -fx-font-weight:bold; -fx-padding:10 18 10 18; -fx-cursor:hand;"/>
+                        <Button text="↑ Jeux" onAction="#goBackToGames"
+                                style="-fx-background-color:rgba(76,211,227,0.1); -fx-border-color:rgba(76,211,227,0.3);
+                                       -fx-border-width:2; -fx-border-radius:10; -fx-background-radius:10;
+                                       -fx-text-fill:#4cd3e3; -fx-font-weight:bold; -fx-padding:10 18 10 18; -fx-cursor:hand;"/>
+                    </HBox>
+
+                    <!-- STATS -->
+                    <HBox spacing="16" style="-fx-padding:20 30 8 30;">
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,0,0,0.08); -fx-border-color:rgba(255,0,0,0.18);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:16;">
+                            <Label text="Guides Total" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:10; -fx-font-weight:bold;"/>
+                            <Label fx:id="guidesTotalLabel" text="0" style="-fx-text-fill:#ff0000; -fx-font-size:24; -fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(76,211,227,0.08); -fx-border-color:rgba(76,211,227,0.18);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:16;">
+                            <Label text="Visible" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:10; -fx-font-weight:bold;"/>
+                            <Label fx:id="guidesVisibleLabel" text="0" style="-fx-text-fill:#4cd3e3; -fx-font-size:24; -fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:rgba(255,0,0,0.08); -fx-border-color:rgba(255,0,0,0.18);
+                                     -fx-border-width:1; -fx-border-radius:14; -fx-background-radius:14; -fx-padding:16;">
+                            <Label text="Total Likes" style="-fx-text-fill:rgba(255,255,255,0.4); -fx-font-size:10; -fx-font-weight:bold;"/>
+                            <Label fx:id="guidesLikesLabel" text="0" style="-fx-text-fill:#ff0000; -fx-font-size:24; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- FILTER ROW -->
+                    <HBox spacing="14" alignment="CENTER_LEFT" style="-fx-padding:8 30 6 30;">
+                        <Label text="🗺 Map" style="-fx-text-fill:#aeb8c9; -fx-font-weight:bold; -fx-font-size:12;"/>
+                        <ComboBox fx:id="mapFilter"
+                                  style="-fx-background-color:rgba(26,31,46,0.9); -fx-border-color:rgba(76,211,227,0.3);
+                                         -fx-border-width:2; -fx-border-radius:10; -fx-background-radius:10;
+                                         -fx-text-fill:#4cd3e3; -fx-font-weight:bold; -fx-min-width:180;"/>
+                        <TextField fx:id="searchField" promptText="Rechercher un guide..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color:rgba(255,255,255,0.03);
+                                          -fx-border-color:rgba(76,211,227,0.25); -fx-border-width:1;
+                                          -fx-border-radius:10; -fx-background-radius:10;
+                                          -fx-padding:12 18 12 18; -fx-text-fill:white; -fx-font-size:13;
+                                          -fx-prompt-text-fill:rgba(255,255,255,0.3);"/>
+                    </HBox>
+                    <Label fx:id="resultsNote" text="0 vidéo(s)"
+                           style="-fx-text-fill:rgba(255,255,255,0.35); -fx-font-size:12; -fx-padding:2 30 10 30;"/>
+
+                    <!-- VIDEOS GRID -->
+                    <FlowPane fx:id="videosGrid" hgap="20" vgap="20"
+                              style="-fx-padding: 0 30 60 30;"/>
+
+                </VBox>
+            </ScrollPane>
+
+            <!-- VIDEO MODAL OVERLAY -->
+            <StackPane fx:id="videoModalOverlay"
+                       style="-fx-background-color: rgba(0,0,0,0.95);"
+                       visible="false"
+                       onMouseClicked="#closeVideoModal">
+                                                                      <VBox maxWidth="900" spacing="0"
+                      style="-fx-background-color:#000; -fx-border-radius:14; -fx-background-radius:14;
+                             -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.9),40,0,0,0);"
+                                                                             onMouseClicked="#consumeMouseEvent">
+                    <!-- Modal header -->
+                       <HBox alignment="CENTER_LEFT" spacing="0"
+                          style="-fx-background-color:rgba(255,0,0,0.04);
+                                 -fx-border-color:rgba(255,255,255,0.08) transparent transparent transparent;
+                                 -fx-border-width:0 0 1 0; -fx-padding:18 18 18 18;"
+                              onMouseClicked="#consumeMouseEvent">
+                        <Label fx:id="modalTitleLabel" text=""
+                               style="-fx-text-fill:white; -fx-font-size:16; -fx-font-weight:bold;"
+                               HBox.hgrow="ALWAYS"/>
+                        <Button text="✕" onAction="#closeVideoModal"
+                                style="-fx-background-color:rgba(76,211,227,0.1); -fx-border-color:rgba(76,211,227,0.3);
+                                       -fx-border-width:2; -fx-border-radius:8; -fx-background-radius:8;
+                                       -fx-text-fill:#4cd3e3; -fx-font-size:16; -fx-pref-width:40; -fx-pref-height:40;
+                                       -fx-cursor:hand;"/>
+                    </HBox>
+                    <!-- Media area -->
+                       <VBox fx:id="mediaContainer" alignment="CENTER" spacing="12"
+                          minHeight="200" style="-fx-padding:20 20 20 20; -fx-background-color:#000;"
+                              onMouseClicked="#consumeMouseEvent"/>
+                </VBox>
+            </StackPane>
+
+        </StackPane>
+    </center>
+</BorderPane>

@@ -1,7 +1,5 @@
 package com.eyetwin.services;
 
-import com.eyetwin.entities.Tournoi;
-import com.eyetwin.entities.User;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import java.util.Properties;
@@ -10,10 +8,10 @@ public class EmailService {
 
     private static final String SMTP_HOST    = "smtp.gmail.com";
     private static final int    SMTP_PORT    = 587;
-    private static final String SMTP_USER    = "ferferferfer1288@gmail.com";
-    private static final String SMTP_PASSWORD= "znpf mula zqdg stll";
+    private static final String SMTP_USER    = "hammami.imen200@gmail.com";
+    private static final String SMTP_PASSWORD= "rvacppycaatyxprc";
     private static final String FROM_NAME    = "E-Sport Platform";
-    private static final String FROM_EMAIL   = "ferferferfer1288@gmail.com";
+    private static final String FROM_EMAIL   = "hammami.imen200@gmail.com";
     private static final String PLATFORM_URL = "https://eye2win-metamind.onrender.com";
     private static final String LOGO_URL     =
             "https://eye2win-metamind.onrender.com/assets/img/eyetwin-logo.png";
@@ -311,39 +309,132 @@ public class EmailService {
         }, "EmailSender").start();
     }
 
-    public void sendTournamentRegistrationEmail(User user, Tournoi tournoi) {
+    public void sendGuideApprovalRequestEmail(String toEmail,
+                                              String uploaderName,
+                                              String uploaderEmail,
+                                              String guideTitle,
+                                              String gameName,
+                                              String agentName,
+                                              String guideMap) {
+        String safeUploaderName = escapeHtml(uploaderName != null ? uploaderName : "Unknown user");
+        String safeUploaderEmail = escapeHtml(uploaderEmail != null ? uploaderEmail : "unknown@example.com");
+        String safeGuideTitle = escapeHtml(guideTitle != null ? guideTitle : "Untitled guide");
+        String safeGameName = escapeHtml(gameName != null ? gameName : "Unknown game");
+        String safeAgentName = escapeHtml(agentName != null ? agentName : "-");
+        String safeGuideMap = escapeHtml(guideMap != null ? guideMap : "All");
         int year = java.time.LocalDate.now().getYear();
-        String html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'></head>"
+
+        String html = "<!DOCTYPE html><html lang='en'><head>"
+                + "<meta charset='UTF-8'>"
+                + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                + "</head>"
                 + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
-                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'><tr><td align='center'>"
-                + "<table width='560' cellpadding='0' cellspacing='0' border='0' style='max-width:560px;width:100%;background:#0d0618;border-radius:18px;overflow:hidden;border:1px solid rgba(255,60,100,0.25);'>"
-                + "<tr><td height='5' style='background:linear-gradient(to right,#ff3c64,#a78bfa,#4facfe);font-size:0;line-height:0;'>&nbsp;</td></tr>"
-                + "<tr><td style='background:#1a0a22;padding:22px 32px;border-bottom:1px solid rgba(255,60,100,0.20);'>"
-                + "<table width='100%'><tr><td><img src='" + LOGO_URL + "' alt='EyeTwin' height='38'/></td>"
-                + "<td align='right' style='color:rgba(255,255,255,0.28);font-size:10px;'>CONFIRMATION</td></tr></table></td></tr>"
-                + "<tr><td style='padding:36px 32px 24px;text-align:center;'>"
-                + "<div style='font-size:48px;margin-bottom:20px;'>🏆</div>"
-                + "<h1 style='margin:0 0 10px;color:white;font-size:22px;'>Registration Confirmed!</h1>"
-                + "<p style='color:rgba(255,255,255,0.6);font-size:14px;'>You are now officially registered for <strong>" + tournoi.getNom() + "</strong>.</p></td></tr>"
-                + "<tr><td style='padding:0 32px 24px;'><table width='100%' style='background:#160a22;border-radius:12px;border:1px solid rgba(255,60,100,0.2);'>"
-                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Tournament</td>"
-                + "<td align='right' style='padding:15px;color:white;font-weight:bold;'>" + tournoi.getNom() + "</td></tr>"
-                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Start Date</td>"
-                + "<td align='right' style='padding:15px;color:#4facfe;font-weight:bold;'>" + tournoi.getDateDebut() + "</td></tr>"
-                + "<tr><td style='padding:15px;color:rgba(255,255,255,0.4);font-size:12px;'>Amount Paid</td>"
-                + "<td align='right' style='padding:15px;color:#ff3c64;font-weight:bold;'>" + tournoi.getPrix() + " EUR</td></tr>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0' style='max-width:560px;width:100%;background:#0d0618;border-radius:18px;overflow:hidden;border:1px solid rgba(79,172,254,0.25);'>"
+                + "<tr><td height='5' style='background:linear-gradient(to right,#4facfe,#00f2fe,#ff3c64);font-size:0;line-height:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='padding:36px 32px 24px;text-align:center;background:#0d0618;'>"
+                + "<div style='width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);margin:0 auto 18px;line-height:68px;font-size:24px;font-weight:bold;color:white;text-align:center;'>&#128276;</div>"
+                + "<h1 style='margin:0 0 10px;color:white;font-size:22px;font-weight:700;'>New guide waiting for approval</h1>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.50);font-size:13px;line-height:1.7;'>A user has uploaded a new guide and it is now pending admin review.</p>"
+                + "</td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' style='background:#160a22;border-radius:12px;border:1px solid rgba(79,172,254,0.20);overflow:hidden;'>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Guide title</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGuideTitle + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Uploaded by</td><td align='right' style='color:#4facfe;font-size:13px;font-weight:700;'>" + safeUploaderName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Uploader email</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeUploaderEmail + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Game</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGameName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Agent</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeAgentName + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;'><table width='100%'><tr><td style='color:rgba(255,255,255,0.40);font-size:12px;'>Map</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGuideMap + "</td></tr></table></td></tr>"
                 + "</table></td></tr>"
-                + "<tr><td align='center' style='padding:0 32px 36px;'><p style='color:rgba(255,255,255,0.5);font-size:13px;'>Prepare your gear, warrior. Victory awaits!</p></td></tr>"
-                + "<tr><td style='padding:18px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.20);'>"
-                + "<p style='margin:0;color:rgba(255,255,255,0.25);font-size:11px;'>&#169; " + year + " EyeTwin Platform</p></td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'><p style='margin:0;color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;'>Open the admin panel and approve or reject the guide once it has been reviewed.</p></td></tr>"
+                + "<tr><td style='padding:18px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.20);'><p style='margin:0 0 5px;color:rgba(255,255,255,0.25);font-size:11px;'>&#169; " + year + " EyeTwin E-Sport Platform</p></td></tr>"
+                + "</table>"
+                + "</td></tr></table>"
+                + "</body></html>";
+
+        new Thread(() -> {
+            try {
+                sendHtml(toEmail,
+                        "New guide pending approval: " + guideTitle,
+                        html);
+            } catch (Exception e) {
+                System.err.println("[EmailService] Guide approval email failed: " + e.getMessage());
+            }
+        }, "GuideApprovalEmail").start();
+    }
+
+    public void sendGuideDecisionEmail(String toEmail,
+                                       String uploaderName,
+                                       String guideTitle,
+                                       String decision,
+                                       String gameName,
+                                       String reason) {
+        if (toEmail == null || toEmail.isBlank()) {
+            return;
+        }
+
+        String normalizedDecision = decision == null ? "pending" : decision.toLowerCase();
+        boolean approved = "approved".equals(normalizedDecision);
+        String accent = approved ? "#00e676" : "#ff6b6b";
+        String title = approved ? "Your guide has been approved" : "Your guide has been rejected";
+        String decisionLabel = approved ? "APPROVED" : "REJECTED";
+        String icon = approved ? "✅" : "❌";
+
+        String safeName = escapeHtml(uploaderName != null ? uploaderName : "Player");
+        String safeGuide = escapeHtml(guideTitle != null ? guideTitle : "Untitled guide");
+        String safeGame = escapeHtml(gameName != null ? gameName : "Unknown game");
+        String safeReason = escapeHtml(reason != null ? reason : "No additional reason provided.");
+        int year = java.time.LocalDate.now().getYear();
+
+        String html = "<!DOCTYPE html><html lang='en'><head>"
+                + "<meta charset='UTF-8'>"
+                + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+                + "</head>"
+                + "<body style='margin:0;padding:0;background:#0a0514;font-family:Arial,sans-serif;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background:#0a0514;padding:32px 16px;'>"
+                + "<tr><td align='center'>"
+                + "<table width='560' cellpadding='0' cellspacing='0' border='0' style='max-width:560px;width:100%;background:#0d0618;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,0.18);'>"
+                + "<tr><td height='5' style='background:" + accent + ";font-size:0;line-height:0;'>&nbsp;</td></tr>"
+                + "<tr><td style='padding:34px 32px 18px;text-align:center;'>"
+                + "<div style='font-size:34px;line-height:1;'>" + icon + "</div>"
+                + "<h1 style='margin:10px 0 8px;color:white;font-size:23px;font-weight:700;'>" + title + "</h1>"
+                + "<p style='margin:0;color:rgba(255,255,255,0.55);font-size:13px;'>Hi " + safeName + ", moderation has reviewed your submission.</p>"
+                + "</td></tr>"
+                + "<tr><td style='padding:0 32px 24px;'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0' style='background:#160a22;border-radius:12px;border:1px solid rgba(255,255,255,0.10);overflow:hidden;'>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.45);font-size:12px;'>Guide</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGuide + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.06);'><table width='100%'><tr><td style='color:rgba(255,255,255,0.45);font-size:12px;'>Game</td><td align='right' style='color:white;font-size:13px;font-weight:700;'>" + safeGame + "</td></tr></table></td></tr>"
+                + "<tr><td style='padding:13px 20px;'><table width='100%'><tr><td style='color:rgba(255,255,255,0.45);font-size:12px;'>Decision</td><td align='right' style='color:" + accent + ";font-size:13px;font-weight:700;'>" + decisionLabel + "</td></tr></table></td></tr>"
+                + "</table></td></tr>"
+                + (approved ? "" : "<tr><td style='padding:0 32px 24px;'><div style='background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.28);border-radius:10px;padding:14px;color:rgba(255,255,255,0.75);font-size:12px;'><strong style='color:#ff8f8f;'>Reason:</strong> " + safeReason + "</div></td></tr>")
+                + "<tr><td style='padding:0 32px 26px;'><p style='margin:0;color:rgba(255,255,255,0.50);font-size:12px;line-height:1.7;'>"
+                + (approved
+                ? "Your content is now visible to the community. Keep sharing high quality clips and guides."
+                : "You can edit your guide and submit an improved version at any time from My Uploads.")
+                + "</p></td></tr>"
+                + "<tr><td style='padding:16px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.20);'><p style='margin:0;color:rgba(255,255,255,0.24);font-size:11px;'>&#169; " + year + " EyeTwin E-Sport Platform</p></td></tr>"
                 + "</table></td></tr></table></body></html>";
 
         new Thread(() -> {
             try {
-                sendHtml(user.getEmail(), "🏆 Registration Confirmed: " + tournoi.getNom(), html);
+                String subject = approved
+                        ? "Guide approved: " + (guideTitle != null ? guideTitle : "Your guide")
+                        : "Guide rejected: " + (guideTitle != null ? guideTitle : "Your guide");
+                sendHtml(toEmail, subject, html);
             } catch (Exception e) {
-                System.err.println("[EmailService] ❌ Failed to send registration email: " + e.getMessage());
+                System.err.println("[EmailService] Guide decision email failed: " + e.getMessage());
             }
-        }, "EmailSender").start();
+        }, "GuideDecisionEmail").start();
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) return "";
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }
