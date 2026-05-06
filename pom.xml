@@ -75,8 +75,19 @@
       <version>20240303</version>
     </dependency>
 
+    <!-- Gson for WebSocket serialization -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
 
-
+    <!-- WebSocket -->
+    <dependency>
+      <groupId>org.java-websocket</groupId>
+      <artifactId>Java-WebSocket</artifactId>
+      <version>1.5.4</version>
+    </dependency>
 
     <dependency>
       <groupId>at.favre.lib</groupId>

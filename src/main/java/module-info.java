@@ -19,6 +19,8 @@ module org.example.eyetwinjava {
 
     requires jdk.httpserver;
     requires javafx.media;
+    requires com.google.gson;
+    requires org.java_websocket;
 
     opens com.eyetwin to javafx.fxml;
     opens com.eyetwin.controller to javafx.fxml;
