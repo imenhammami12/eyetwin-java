@@ -64,7 +64,7 @@ public class AdminReviewsController {
     private void setupTable() {
         if (reviewsTable != null) {
             reviewsTable.setItems(rows);
-            reviewsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            reviewsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             // Sentiment column contains 2 stacked controls → needs taller rows
             reviewsTable.setFixedCellSize(96);
         }

@@ -428,6 +428,56 @@ public class EmailService {
         }, "GuideDecisionEmail").start();
     }
 
+    public void sendTournamentRegistrationEmail(Object user, Object tournoi) {
+        // Stub implementation for tournament registration email
+        // This method can be expanded with full email formatting if needed
+        try {
+            String userName = "Player";
+            String userEmail = "unknown@example.com";
+            String tournamentName = "Tournament";
+            
+            // Try to extract information from user and tournoi objects
+            if (user != null) {
+                try {
+                    java.lang.reflect.Method getEmail = user.getClass().getMethod("getEmail");
+                    Object emailObj = getEmail.invoke(user);
+                    if (emailObj != null) userEmail = emailObj.toString();
+                    
+                    java.lang.reflect.Method getUsername = user.getClass().getMethod("getUsername");
+                    Object usernameObj = getUsername.invoke(user);
+                    if (usernameObj != null) userName = usernameObj.toString();
+                } catch (Exception ignored) {}
+            }
+            
+            if (tournoi != null) {
+                try {
+                    java.lang.reflect.Method getTitle = tournoi.getClass().getMethod("getTitre");
+                    Object titleObj = getTitle.invoke(tournoi);
+                    if (titleObj != null) tournamentName = titleObj.toString();
+                } catch (Exception ignored) {}
+            }
+            
+            final String finalUserEmail = userEmail;
+            final String finalUserName = userName;
+            final String finalTournamentName = tournamentName;
+            
+            new Thread(() -> {
+                try {
+                    String html = "<!DOCTYPE html><html><body>"
+                            + "<p>Bienvenue " + escapeHtml(finalUserName) + ",</p>"
+                            + "<p>Votre inscription au tournoi <strong>" + escapeHtml(finalTournamentName) + "</strong> a été confirmée.</p>"
+                            + "<p>Merci de votre participation!</p>"
+                            + "</body></html>";
+                    sendHtml(finalUserEmail, "Inscription confirmée: " + finalTournamentName, html);
+                } catch (Exception e) {
+                    System.err.println("[EmailService] Tournament registration email failed: " + e.getMessage());
+                }
+            }, "TournamentRegistrationEmail").start();
+        } catch (Exception e) {
+            System.err.println("[EmailService] Error in sendTournamentRegistrationEmail: " + e.getMessage());
+        }
+    }
+
     private String escapeHtml(String value) {
         if (value == null) return "";
         return value

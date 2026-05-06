@@ -19,6 +19,7 @@ module org.example.eyetwinjava {
 
     requires jdk.httpserver;
     requires javafx.media;
+    requires javafx.swing;
     requires com.google.gson;
     requires org.java_websocket;
     requires com.google.zxing;

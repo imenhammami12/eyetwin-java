@@ -324,7 +324,7 @@ public class AdminGuidesController {
 
         List<User> admins = userService.getAllUsers().stream()
                 .filter(user -> user != null && user.getEmail() != null && !user.getEmail().isBlank())
-                .filter(user -> user.isAdmin() || user.isSuperAdmin())
+                .filter(user -> user.isAdmin() || SessionManager.isSuperAdmin())
                 .toList();
 
         if (admins.isEmpty()) {

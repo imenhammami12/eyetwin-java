@@ -26,15 +26,16 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface;
-import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat;
+// VLCJ imports commented out - VLCJ is an unnamed module not accessible via module-info
+// import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+// import uk.co.caprica.vlcj.player.base.MediaPlayer;
+// import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
+// import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
@@ -84,8 +85,9 @@ public class LiveManageController {
     // ─────────────────────────────────────────────────────────────────────────
 
     // ── Ajouter ces champs dans la classe ────────────────────────────────────
-    private MediaPlayerFactory    vlcFactory;
-    private EmbeddedMediaPlayer   vlcPlayer;
+    // VLCJ fields commented out - VLCJ is an unnamed module not accessible
+    // private MediaPlayerFactory    vlcFactory;
+    // private EmbeddedMediaPlayer   vlcPlayer;
     private PixelBuffer<ByteBuffer> pixelBuffer;
     private WritableImage           vlcImage;
     private ImageView               vlcImageView;

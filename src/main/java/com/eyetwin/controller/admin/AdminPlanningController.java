@@ -88,7 +88,7 @@ public class AdminPlanningController {
         if (planningTable == null) return;
 
         // Match Symfony screenshot: no horizontal scroll, everything visible
-        planningTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        planningTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         planningTable.setFixedCellSize(70);
 
         if (colActivity != null) {

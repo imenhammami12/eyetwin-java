@@ -104,6 +104,7 @@ public class AdminSidebarController {
     @FXML public void goToUsers()             { navigateTo("AdminUsers.fxml"); }
     @FXML public void goToPlanning()          { navigateTo("AdminPlanning.fxml"); }
     @FXML public void goToTournaments()       { navigateTo("AdminTournaments.fxml"); }
+    @FXML public void goToMatches()           { navigateTo("Matches.fxml"); }
     @FXML public void goToVideos()            { navigateTo("AdminVideos.fxml"); }
     @FXML public void goToGuides()            { navigateTo("AdminGuides.fxml"); }
     @FXML public void goToCoachApplications() { navigateTo("AdminCoachApplications.fxml"); }

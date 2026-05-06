@@ -6,9 +6,9 @@ import com.eyetwin.entities.PlanningLevel;
 import com.eyetwin.entities.PlanningType;
 import com.eyetwin.services.PlanningServiceImpl;
 import com.eyetwin.tools.SessionManager;
-import com.gluonhq.maps.MapLayer;
-import com.gluonhq.maps.MapPoint;
-import com.gluonhq.maps.MapView;
+// import com.gluonhq.maps.MapLayer;
+// import com.gluonhq.maps.MapPoint;
+// import com.gluonhq.maps.MapView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
@@ -92,9 +92,9 @@ public class AdminPlanningFormController {
     @FXML
     private VBox mapContainer;
     // GluonMaps native map (replaces WebView)
-    private MapView mapView;
-    private MarkerLayer markerLayer;
-    private MapPoint currentMarker;
+    // private MapView mapView;
+    // private MarkerLayer markerLayer;
+    // private MapPoint currentMarker;
 
     private final PlanningServiceImpl planningService = new PlanningServiceImpl();
 
@@ -116,7 +116,7 @@ public class AdminPlanningFormController {
         setupCombos();
         setupLocationToggle();
         setupUpload();
-        setupMap();
+        // setupMap(); // Commented: Gluon Maps dependency not available
 
         editing = SessionManager.getSelectedPlanning();
         if (editing == null) {
@@ -197,96 +197,22 @@ public class AdminPlanningFormController {
         }
     }
 
+    // Stub methods (Gluon Maps dependency not available)
     private void setupMap() {
-        if (mapContainer == null)
-            return;
-
-        // Create the native GluonMaps MapView
-        mapView = new MapView();
-        mapView.setPrefHeight(330);
-        mapView.setMinHeight(330);
-
-        // Default center: Tunis
-        MapPoint tunis = new MapPoint(36.8065, 10.1815);
-        mapView.flyTo(0, tunis, 0.1);
-        mapView.setZoom(13);
-
-        // Create a draggable-ish marker layer
-        markerLayer = new MarkerLayer();
-        mapView.addLayer(markerLayer);
-
-        // Click on map → place marker + reverse geocode
-        mapView.setOnMouseClicked(e -> {
-            MapPoint clicked = mapView.getMapPosition(e.getX(), e.getY());
-            if (clicked != null) {
-                currentMarker = clicked;
-                markerLayer.setMarker(clicked);
-                reverseGeocode(clicked.getLatitude(), clicked.getLongitude());
-            }
-        });
-
-        // Add MapView to the container (first child, after label)
-        // Insert after the HBox (index 1 in mapContainer children)
-        Platform.runLater(() -> {
-            if (!mapContainer.getChildren().contains(mapView)) {
-                // Insert before the hint label (last child)
-                int lastIdx = mapContainer.getChildren().size();
-                mapContainer.getChildren().add(Math.max(0, lastIdx - 1), mapView);
-            }
-        });
+        // Stub: Map feature disabled due to missing Gluon Maps dependency
     }
 
-    /** Move the map marker to the given address by geocoding it. */
     private void geocodeAndMoveMarker(String address) {
-        new Thread(() -> {
-            try {
-                String encoded = URLEncoder.encode(address, StandardCharsets.UTF_8);
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest req = HttpRequest.newBuilder()
-                        .uri(URI.create("https://nominatim.openstreetmap.org/search?format=json&q=" + encoded))
-                        .header("User-Agent", "EyeTwin-JavaFX/1.0")
-                        .build();
-                HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-                String body = resp.body();
-                // Simple parse: find first lat/lon pair
-                double lat = extractJsonDouble(body, "lat");
-                double lon = extractJsonDouble(body, "lon");
-                if (lat != 0 && lon != 0) {
-                    MapPoint p = new MapPoint(lat, lon);
-                    Platform.runLater(() -> {
-                        currentMarker = p;
-                        markerLayer.setMarker(p);
-                        mapView.flyTo(0, p, 0.1);
-                        mapView.setZoom(15);
-                    });
-                }
-            } catch (Exception ignored) {
-            }
-        }, "Geocode").start();
+        // Stub: Geocoding feature disabled
     }
 
-    /** Reverse geocode lat/lon → address and fill location field. */
     private void reverseGeocode(double lat, double lon) {
-        new Thread(() -> {
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest req = HttpRequest.newBuilder()
-                        .uri(URI.create(String.format(Locale.ROOT,
-                                "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=%.6f&lon=%.6f", lat,
-                                lon)))
-                        .header("User-Agent", "EyeTwin-JavaFX/1.0")
-                        .build();
-                HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-                String address = extractJsonString(resp.body(), "display_name");
-                if (address != null && !address.isBlank()) {
-                    Platform.runLater(() -> {
-                        if (locationDetailsField != null)
-                            locationDetailsField.setText(address);
-                    });
-                }
-            } catch (Exception ignored) {
-            }
-        }, "ReverseGeocode").start();
+        // Stub: Reverse geocoding feature disabled
+    }
+
+    @FXML
+    public void handleSearchLocation() {
+        // Stub: Search location feature disabled due to missing Gluon Maps dependency
     }
 
     /** Naïve JSON string extractor (no extra dependency needed). */
@@ -308,14 +234,6 @@ public class AdminPlanningFormController {
             return Double.parseDouble(v);
         } catch (Exception e) {
             return 0;
-        }
-    }
-
-    @FXML
-    public void handleSearchLocation() {
-        String query = locationDetailsField != null ? locationDetailsField.getText() : "";
-        if (query != null && !query.isBlank() && mapView != null) {
-            geocodeAndMoveMarker(query);
         }
     }
 
@@ -669,39 +587,5 @@ public class AdminPlanningFormController {
         handleCancel();
     }
 
-    /**
-     * Inner class to handle the map marker.
-     */
-    private class MarkerLayer extends MapLayer {
-        private final Circle marker;
 
-        public MarkerLayer() {
-            this.marker = new Circle(8, Color.RED);
-            this.marker.setStroke(Color.WHITE);
-            this.marker.setStrokeWidth(2);
-            this.getChildren().add(marker);
-        }
-
-        public void setMarker(MapPoint point) {
-            updateMarkerPosition(point);
-        }
-
-        private void updateMarkerPosition(MapPoint point) {
-            if (point != null) {
-                Point2D p2d = getMapPoint(point.getLatitude(), point.getLongitude());
-                marker.setTranslateX(p2d.getX());
-                marker.setTranslateY(p2d.getY());
-                marker.setVisible(true);
-            } else {
-                marker.setVisible(false);
-            }
-        }
-
-        @Override
-        protected void layoutLayer() {
-            if (currentMarker != null) {
-                updateMarkerPosition(currentMarker);
-            }
-        }
-    }
 }
