@@ -70,6 +70,7 @@ public class NavbarController {
     @FXML private Label navTournois;
     @FXML private Label navTeams;
     @FXML private Label navCommunity;
+    @FXML private Label navLive;
 
     // ════════════════════════════════════════════
     //  INITIALIZE
@@ -191,6 +192,7 @@ public class NavbarController {
     @FXML public void goToTeams()    { navigateTo("Team.fxml"); }
     @FXML public void goToCoins()    { navigateTo("Coins.fxml"); }
     @FXML public void goToSupport()  { navigateTo("Support.fxml"); }
+    @FXML public void goToLive()     { navigateTo("Live.fxml"); }
 
     @FXML
     public void goToAdmin() {
@@ -276,6 +278,7 @@ public class NavbarController {
         if (navTournois  != null) navTournois.setStyle(inactive);
         if (navTeams     != null) navTeams.setStyle(inactive);
         if (navCommunity != null) navCommunity.setStyle(inactive);
+        if (navLive      != null) navLive.setStyle(inactive);
 
         switch (page) {
             case "home"      -> { if (navHome      != null) navHome.setStyle(active); }
@@ -283,6 +286,7 @@ public class NavbarController {
             case "tournois"  -> { if (navTournois  != null) navTournois.setStyle(active); }
             case "teams"     -> { if (navTeams     != null) navTeams.setStyle(active); }
             case "community" -> { if (navCommunity != null) navCommunity.setStyle(active); }
+            case "live"      -> { if (navLive      != null) navLive.setStyle(active); }
             case "support"   -> {}
         }
     }
