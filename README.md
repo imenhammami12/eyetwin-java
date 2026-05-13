@@ -1,11 +1,13 @@
 # Eye2Win – Gaming Community Platform
 
 ## Overview
+
 This project was developed as part of the PIDEV – 3rd Year Engineering Program at **Esprit School of Engineering** (Academic Year 2025–2026).
 
-Eye2Win is a full-stack web platform designed for gaming enthusiasts, featuring tournaments, live streams, Valorant tracking, team management, and more.
+Eye2Win is a full-stack desktop application designed for gaming enthusiasts, featuring tournaments, live streams, Valorant tracking, team management, and more.
 
 ## Features
+
 - User registration, login, and two-factor authentication
 - Profile management and avatar uploads
 - Video upload and administration tools
@@ -19,113 +21,121 @@ Eye2Win is a full-stack web platform designed for gaming enthusiasts, featuring 
 ## Tech Stack
 
 ### Frontend
-- Twig (Symfony templating)
-- Webpack Encore
-- Node.js & npm
+- JavaFX (UI framework)
+- FXML (declarative UI layouts)
+- CSS (JavaFX styling)
+- Scene Builder (optional visual layout editor)
 
 ### Backend
-- Symfony (PHP 8.1+)
-- Doctrine ORM
+- Java 17+
+- JDBC / Hibernate ORM
 - MySQL
-- Composer
+- Maven
 
 ## Architecture
-MVC architecture built with Symfony. The application is structured around controllers, Doctrine entities, service classes, and Twig templates.
+
+MVC architecture built with JavaFX. The application is structured around controllers, model classes, service layers, and FXML views.
 
 ```
 src/
-├── Controller/          # HTTP controllers
-├── Entity/              # Doctrine entities
-├── Repository/          # Doctrine repositories
-├── Service/             # Domain services
-├── Form/                # Symfony form types
-├── Command/             # CLI commands
-├── EventListener/       # Symfony event listeners
-├── EventSubscriber/     # Event subscribers
-└── Twig/                # Twig extensions and templates helpers
-
-templates/              # Twig templates
-public/                 # Public assets (JS/CSS) & entry point
-config/                 # Symfony configuration files
-tests/                  # PHPUnit tests
+└── main/
+    ├── java/
+    │   └── com/eye2win/
+    │       ├── controller/       # JavaFX FXML controllers
+    │       ├── model/            # Entity / data model classes
+    │       ├── service/          # Business logic / domain services
+    │       ├── repository/       # Data access layer (JDBC/Hibernate)
+    │       ├── util/             # Utility classes and helpers
+    │       └── Main.java         # Application entry point
+    └── resources/
+        ├── fxml/                 # FXML layout files
+        ├── css/                  # JavaFX stylesheets
+        └── images/               # Application assets
 ```
 
 ## Contributors
+
 - [@imenhammami12](https://github.com/imenhammami12)
 - [@ayaben03](https://github.com/ayaben03)
 - [@chaimaamri](https://github.com/chaimaamri)
 - [@islemijko](https://github.com/islemijko)
 - [@trikijoe](https://github.com/trikijoe)
-  
+
 ## Academic Context
+
 Developed at **Esprit School of Engineering – Tunisia**  
 PIDEV – 3A36 | Academic Year 2025–2026
 
 ## Getting Started
 
 ### 📦 Prerequisites
+
 Before you begin, ensure you have the following installed:
-- PHP 8.1 or higher
-- Composer
-- Node.js & npm (for frontend assets)
+
+- Java Development Kit (JDK) 17 or higher
+- Maven 3.8+
+- JavaFX SDK 17+ (if not bundled via Maven)
 - MySQL (or another supported SQL database)
-- Docker & Docker Compose (optional, for development)
+- Scene Builder (optional, for editing FXML layouts)
 
 ### 🚀 Installation
 
 1. Clone the repository
+
 ```bash
-git clone https://github.com/your-org/eyetwin-metamind.git
-cd eyetwin-metamind
+git clone https://github.com/your-org/eye2win-javafx.git
+cd eye2win-javafx
 ```
 
-2. Install PHP dependencies
+2. Install dependencies
+
 ```bash
-composer install
+mvn clean install
 ```
 
-3. Install JavaScript dependencies & build assets
-```bash
-npm install
-npm run dev
+3. Configure the database connection
+
+Edit `src/main/resources/config.properties` (or your equivalent config file) with your database credentials:
+
+```properties
+db.url=jdbc:mysql://localhost:3306/eye2win
+db.username=your_username
+db.password=your_password
 ```
 
-4. Configure environment variables
-```bash
-cp .env .env.local
-```
-Edit `.env.local` with your database credentials, mailer settings, and other secrets.
+4. Set up the database
 
-5. Setup the database
+Run the provided SQL script to create and populate the schema:
+
 ```bash
-php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+mysql -u your_username -p eye2win < database/schema.sql
 ```
 
-6. Run tests
+Or, if using Hibernate with `hbm2ddl.auto`, set it to `update` or `create` in your persistence configuration.
+
+5. Run the application
+
 ```bash
-php bin/phpunit
+mvn javafx:run
 ```
 
-7. Start the development server
-```bash
-symfony server:start
-```
-
-Or using Docker:
-```bash
-docker-compose up -d --build
-```
+Or run the `Main.java` class directly from your IDE (IntelliJ IDEA / Eclipse).
 
 ### 🛠 Development Tips
-- Use `php bin/console doctrine:migrations:diff` to generate migration files after updating entities.
-- Assets are managed with Webpack Encore; run `npm run watch` for automatic rebuilding.
-- Custom CLI tools are available under `src/Command` (e.g. `DebugVideoUploadCommand`, `ListUsersCommand`).
+
+- Use **Scene Builder** to visually edit `.fxml` files located in `src/main/resources/fxml/`.
+- JavaFX CSS files are in `src/main/resources/css/` — apply them via `scene.getStylesheets().add(...)`.
+- Database access is centralized in the `repository/` layer; update connection settings in `config.properties`.
+- Run unit tests with:
+
+```bash
+mvn test
+```
 
 ## Acknowledgments
-- [Symfony](https://symfony.com/doc/current/index.html)
-- [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html)
-- [Webpack Encore](https://symfony.com/doc/current/frontend.html)
+
+- [JavaFX](https://openjfx.io/) – Open-source UI framework for Java
+- [Hibernate ORM](https://hibernate.org/orm/) – Object-relational mapping for Java
+- [Maven](https://maven.apache.org/) – Build and dependency management
+- [Scene Builder](https://gluonhq.com/products/scene-builder/) – Visual FXML layout editor
 - Esprit School of Engineering – Tunisia for the academic framework and support.
-
-
